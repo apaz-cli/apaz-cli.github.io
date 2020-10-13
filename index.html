@@ -12,7 +12,7 @@
     <p>My name is Aaron Pazdera, I'm an honors student at UW-Stout, and I spend a considerable amount of time
         programming. Often this is related to various hobbies, but I also have a tendency to take a dive over the deep
         end into the hardest problems I can find. Here is a list of my projects.</p>
-    <h2 id="contents-">Contents:</h2>
+    <h2 id="Contents">Contents:</h2>
     <ul>
         <li><a href="#RootwallaBot">RootwallaBot</a></li>
         <li><a href="#MonikaBot">MonikaBot</a></li>
@@ -60,7 +60,7 @@
         size set of bits. The hope is that you can use the bits generated, the hash, to re-identify the thing that the
         hash describes. If two peices of data have the same hash, there&#39;s a high chance that they&#39;re duplicates.
     </p>
-    <p> Hash functions have for a long time been relevant in cryptography and networking. If the hash of a message is
+    <p> Hash algorithms have for a long time been relevant in cryptography and networking. If the hash of a message is
         attached to the end of the message, the recipient can simply re-hash the message to verify its integrity. If
         there&#39;s even one bot flipped, then the recipient will know. But, what if you want a hash function that&#39;s
         resilient to small changes in the input?</p>
@@ -139,8 +139,7 @@
         all, most features of higher level languages than C are just C design patterns in disguise. What is an object
         but a struct with associated functions? That&#39;s a C design pattern. People write object-oriented C code all
         the time. What is a template but a sequence of macros? What is an interface but a generalized template? What is
-        a lambda expression but a struct holding a function pointer (or not because it can be devirtualized by the
-        compiler) that is also an object implementing a functional interface?</p>
+        a lambda expression but an object holding a function pointer and implementing a functional interface?</p>
     <p> Unfortunately, building a compiler is very difficult. Fortunately however, Brainfuck is a very simple language,
         and writing an interpreter for it is relatively easy. So I did. Then I also wrote a compiler for it that
         transpiles Brainfuck to C code, then calls a C compiler to produce a binary. Every programming language is in a
