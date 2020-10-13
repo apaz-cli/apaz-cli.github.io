@@ -3,7 +3,8 @@
 
 <head>
     <link rel="stylesheet" href="index.css">
-    <link rel="icon" type="image/ico" href="https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/favicon.ico">
+    <link rel="icon" type="image/ico"
+        href="https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/favicon.ico">
 </head>
 
 <body>
@@ -18,7 +19,7 @@
         <li><a href="#Perceptual-Image-Hashing">Perceptual Image Hashing</a></li>
         <li><a href="#Deep-Learning-Hash">Deep Learning Hash</a></li>
         <li><a href="#Safebooru-Scraper">Safebooru Scraper</a></li>
-        <li><a href="#Brainfuck-Compiler/Interpreter">BF Tools</a></li>
+        <li><a href="#Brainfuck-Compiler/Interpreter">BF Compiler/Interpreter</a></li>
         <li><a href="#Contact">Contact</a></li>
     </ul>
 
@@ -108,13 +109,18 @@
     <p> <img src="https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/Safebooru.png"
             alt="Safebooru logo"></p>
     <p><a href="https://github.com/apaz-cli/Safebooru-Scraper">https://github.com/apaz-cli/Safebooru-Scraper</a></p>
-    <p>One of the big issues with deep learning is that in its current iteration, it takes a very large dataset to pull
-        off. I needed a dataset. Lucklily, I knew of a website where I could obtain not only the thousands required, but
-        millions. <a href="https://Safebooru.org/">Safebooru.org</a> was that place. I wrote a web scraper that
-        downloads their archive, and used the images to benchmark various perceptual image hashing algorithms, and also
-        as training/validation datasets for the machine learning algorithm. As of the time of writing this, Safebooru
-        hosts 3,097,534 posts, which is a decent medium size dataset.</p>
-
+    <p> One of the big issues with deep learning is that in its current iteration, it takes a very large dataset to pull
+        off. I needed a dataset. Lucklily, I knew of a website where I could obtain not only the thousands of images
+        required, but millions. <a href="https://Safebooru.org/">Safebooru.org</a> was that place. I wrote a web scraper
+        that downloads their archive, and used the images to benchmark various perceptual image hashing algorithms, and
+        also as training/validation datasets for the machine learning algorithm. As of the time of writing this,
+        Safebooru hosts 3,097,534 posts, which is a decent medium size dataset.</p>
+    <p> The next big issue that I found myself running into is download times. Even downloading ten image thumbnails per
+        second, it takes 3-4 days to download the whole thing. Once the download was done, I was dismayed to learn that
+        simply loading the downscaled 64x64 images into memory from my external hard drive takes over sixteen hours. To
+        train my deep learning model, I have to do that somewhere between twenty to fifty times. So, a minimum of 13.3
+        days. I'm currently in negotiations about getting better hardware, and considering packaging my training and
+        validation data differently, hopefully for faster load times.</p>
 
 
 
@@ -126,9 +132,9 @@
         &gt;<span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-string">.</span>&gt;<span class="hljs-literal">+</span><span class="hljs-string">.</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-string">.</span><span class="hljs-string">.</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-string">.</span>&gt;<span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-string">.</span>&lt;&lt;<span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-string">.</span>
         &gt;<span class="hljs-string">.</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-string">.</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-string">.</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-literal">-</span><span class="hljs-string">.</span>&gt;<span class="hljs-literal">+</span><span class="hljs-string">.</span>&gt;<span class="hljs-string">.</span>
         </code></pre>
-    <p> Brainfuck is an intentionally confusing programming language, named for the experience of writing and debugging
-        its code. It was not created to be useful, but to challenge, amuse, and punish programmers. Despite the absurd
-        complexity of BF programs, the language itself is quite simple.</p>
+    <p> Brainfuck is an intentionally confusing programming language, aptly named for the experience of writing and
+        debugging its code. It was not created to be useful, but to challenge, amuse, and punish programmers. Despite
+        the absurd complexity of BF programs, the language itself is quite simple.</p>
     <p> For a long time, I&#39;ve been interested in compiler theory, and creating my own programming language. After
         all, most features of higher level languages than C are just C design patterns in disguise. What is an object
         but a struct with associated functions? That&#39;s a C design pattern. People write object-oriented C code all
@@ -147,4 +153,5 @@
 
 
 </body>
+
 </html>
