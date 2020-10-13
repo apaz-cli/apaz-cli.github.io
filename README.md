@@ -7,7 +7,7 @@
   - [Deep Learning](#Deep-Learning-Projects)
   - [BF Tools](#Brainfuck-Compiler/Interpreter)
    
- ## RootwallaBot
+ # RootwallaBot
  ![Image of probability graph](https://raw.githubusercontent.com/Aaron-Pazdera/RootwallaBot/master/Examples/RootwallaBot%20ProbChart%20Example.png)
  
  [https://github.com/apaz-cli/RootwallaBot](https://github.com/apaz-cli/RootwallaBot)
@@ -16,7 +16,7 @@
  
  While building a deck, you may think to yourself: If my 60 card deck contains 24 lands, what are the chances that I draw between 2 to 4 of them in my opening hand of 7 cards? You can see the graph of expected frequency above, along with mean and standard deviation. The command pictured above graphs relative frequency, but the /prob command will tell you that the probability is roughly 77.46%.
  
- ## MonikaBot
+ # MonikaBot
  ![Monika Quote and image](https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/Monika_quote.png)
  
  [https://github.com/apaz-cli/MonikaBot](https://github.com/apaz-cli/MonikaBot)
@@ -25,7 +25,7 @@
  
  I'm running both the Monika and Rootwalla bots from a Raspberry Pi in my dorm room. MonikaBot was created for a college club and gets some use from time to time. RootwallaBot was created for a Magic the Gathering Discord server and serves ~200 daily users.
  
- ## Perceptual Image Hashing
+ # Perceptual Image Hashing
  ![Image of Alyson Hannigan](https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/Alyson_Hannigan_200512.jpg)
  ![Image scaled down to 8x8](https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/Alyson_Hannigan_200512-8x8.png)
  ![8x8 image greyscaled](https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/Alyson_Hannigan_200512-phash-avg.png)
@@ -46,8 +46,10 @@
  
  It took a long time because I built the entire system from scratch. I couldn't find an image library that could do pixel comparisons fast enough, so I built my own. I couldn't find an implementation of a VP-Tree (computational geometry data structure for fast nearest-neighbor lookup) that I liked, so I built my own. I read all the original papers and implemented the algorithms from scratch. It's my passion project, and I've put a lot of time into it.
  
- ## Deep Learning Projects
+ # Deep Learning Projects
  ![image next to the same image with added gaussian noise](https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/imgpair.png)
+ ![Loss function mathematically described](https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/loss.png)
+ 
  
  After a while, I began to think that conventional image hashing algorithms are great, but there's got to be a better way. I spent a long time thinking deeply about what was important to what an image "looked like" and the ways each algorithm did and didn't distill the "essence," whatever that means, of an image. Eventually I realized that this would be a perfect application of machine learning. Simply construct the system in such a way that I don't have to decide what is and isn't important to the algorithm. Just let the computer do it.
  
@@ -56,7 +58,7 @@
  This is still somewhat of a work in progress, because I'm still messing around with loss functions and trying to design one that's even better. However, it works, and I'm soon going to hook my machine learning image hash function into my image hashing framework. It'll be free for any developer to use.
  
  
- ## Brainfuck Compiler/Interpreter
+ # Brainfuck Compiler/Interpreter
  [https://github.com/apaz-cli/Brainfuck-Tools](https://github.com/apaz-cli/Brainfuck-Tools)
  
  
