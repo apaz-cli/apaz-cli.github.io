@@ -6,6 +6,7 @@
   - [Perceptual Image Hashing](#Perceptual-Image-Hashing)
   - [Deep Learning](#Deep-Learning-Projects)
   - [BF Tools](#Brainfuck-Compiler/Interpreter)
+  - [Contact](#Contact)
    
  # RootwallaBot
  ![Image of probability graph](https://raw.githubusercontent.com/Aaron-Pazdera/RootwallaBot/master/Examples/RootwallaBot%20ProbChart%20Example.png)
@@ -26,9 +27,7 @@
  I'm running both the Monika and Rootwalla bots from a Raspberry Pi in my dorm room. MonikaBot was created for a college club and gets some use from time to time. RootwallaBot was created for a Magic the Gathering Discord server and serves ~200 daily users.
  
  # Perceptual Image Hashing
- ![Image of Alyson Hannigan](https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/Alyson_Hannigan_200512.jpg)
- ![Image scaled down to 8x8](https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/Alyson_Hannigan_200512-8x8.png)
- ![8x8 image greyscaled](https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/Alyson_Hannigan_200512-phash-avg.png)
+ ![Image of Alyson Hannigan, resized to 8x8, then bits of hash are set](https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/Hannigan_aHash.png)
  
  [Images courtesy of http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html](http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html)
  
@@ -61,4 +60,14 @@
  # Brainfuck Compiler/Interpreter
  [https://github.com/apaz-cli/Brainfuck-Tools](https://github.com/apaz-cli/Brainfuck-Tools)
  
+     This is Hello World in brainfuck:
+     ++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.
+     
+ Brainfuck is an intentionally confusing programming language, named for the experience of writing and debugging its code. It was not created to be useful, but to challenge, amuse, and punish programmers. Despite the absurd complexity of BF programs, the language itself is quite simple.
  
+ For a long time, I've been interested in compiler theory, and creating my own programming language. After all, most features of higher level languages than C are just C design patterns in disguise. What is an object but a struct with associated functions? That's a C design pattern. People write object-oriented C code all the time. What is a template but a sequence of macros? What is an interface but a generalized template? What is a lambda expression but a struct holding a function pointer (or not because it can be devirtualized by the compiler) that is also an object implementing a functional interface?
+ 
+ Unfortunately, building a compiler is very difficult. Fortunately however, Brainfuck is a very simple language, and writing an interpreter for it is relatively easy. So I did. Then I also wrote a compiler for it that transpiles Brainfuck to C code, then calls a C compiler to produce a binary. Every programming language is in a sense just C in disguise, and BF is no exception.
+ 
+ ## Contact
+ [aarpazdera@gmail.com](mailto:aarpazdera@gmail.com)
