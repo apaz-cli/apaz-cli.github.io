@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -15,9 +16,12 @@
         <li><a href="#MonikaBot">MonikaBot</a></li>
         <li><a href="#Perceptual-Image-Hashing">Perceptual Image Hashing</a></li>
         <li><a href="#Deep-Learning-Hash">Deep Learning Hash</a></li>
+        <li><a href="#Safebooru-Scraper">Safebooru Scraper</a></li>
         <li><a href="#Brainfuck-Compiler/Interpreter">BF Tools</a></li>
         <li><a href="#Contact">Contact</a></li>
     </ul>
+
+
 
     <h1 id="#RootwallaBot">RootwallaBot</h1>
     <p><img src="https://raw.githubusercontent.com/Aaron-Pazdera/RootwallaBot/master/Examples/RootwallaBot%20ProbChart%20Example.png"
@@ -30,6 +34,8 @@
         chances that I draw between 2 to 4 of them in my opening hand of 7 cards? You can see the graph of
         expected frequency above, along with mean and standard deviation. The command pictured above graphs
         relative frequency, but the /prob command will tell you that the probability is roughly 77.46%.</p>
+
+
     <h1 id="#MonikaBot">MonikaBot</h1>
     <p><img src="https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/Monika_quote.png"
             alt="Monika Quote and image"></p>
@@ -47,8 +53,6 @@
     <p><a
             href="https://github.com/apaz-cli/Open-Image-Hashing-Tools">https://github.com/apaz-cli/Open-Image-Hashing-Tools</a>
     </p>
-
-
     <p> A hash function is one that takes some sort of input data and maps it onto a certain configuration on a fixed
         size set of bits. The hope is that you can use the bits generated, the hash, to re-identify the thing that the
         hash describes. If two peices of data have the same hash, there&#39;s a high chance that they&#39;re duplicates.
@@ -73,6 +77,9 @@
         (computational geometry data structure for fast nearest-neighbor lookup) that I liked, so I built my own. I read
         all the original papers and implemented the algorithms from scratch. It&#39;s my passion project, and I&#39;ve
         put a lot of time into it.</p>
+
+
+
     <h1 id="#Deep-Learning-Hash">Deep Learning Hash</h1>
     <p> <img src="https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/imgpair.png"
             alt="image next to the same image with added gaussian noise">
@@ -91,7 +98,21 @@
     <p> This is still somewhat of a work in progress, because I&#39;m still messing around with loss functions and
         trying to design one that&#39;s even better. However, it works, and I&#39;m soon going to hook my machine
         learning image hash function into my image hashing framework. It&#39;ll be free for any developer to use.</p>
-    <h1 id="brainfuck-compiler-interpreter">Brainfuck Compiler/Interpreter</h1>
+
+    <h1 id="#Safebooru-Scraper">Safebooru Scraper</h1>
+
+    <p>One of the big issues with deep learning is that in its current iteration, it takes a very large dataset to pull
+        off. I needed a dataset. Lucklily, I knew of a website where I could obtain not only the thousands required, but
+        millions. <a href="https://Safebooru.org/">Safebooru.org</a> was that place. I wrote a web scraper that
+        downloads their archive, and used the images to benchmark various perceptual image hashing algorithms, and also
+        as training/validation datasets for the machine learning algorithm. As of the time of writing this, Safebooru
+        hosts 3,097,534 posts, which is a decent medium size dataset.</p>
+
+
+
+
+
+    <h1 id="#Brainfuck-Compiler/Interpreter">Brainfuck Compiler/Interpreter</h1>
     <p> <a href="https://github.com/apaz-cli/Brainfuck-Tools">https://github.com/apaz-cli/Brainfuck-Tools</a></p>
     <pre><code><span class="hljs-comment">This</span> <span class="hljs-comment">is</span> <span class="hljs-comment">Hello</span> <span class="hljs-comment">World</span> <span class="hljs-comment">in</span> <span class="hljs-comment">brainfuck:</span>
         <span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-title">[</span>&gt;<span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span>&gt;<span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span>&gt;<span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span>&gt;<span class="hljs-literal">+</span>&lt;&lt;&lt;&lt;<span class="hljs-literal">-</span><span class="hljs-title">]</span>
@@ -111,7 +132,10 @@
         and writing an interpreter for it is relatively easy. So I did. Then I also wrote a compiler for it that
         transpiles Brainfuck to C code, then calls a C compiler to produce a binary. Every programming language is in a
         sense just C in disguise, and BF is no exception.</p>
-    <h2 id="contact">Contact</h2>
+
+
+
+    <h2 id="#Contact">Contact</h2>
     <p> <a href="mailto:aarpazdera@gmail.com">aarpazdera@gmail.com</a></p>
 
 
