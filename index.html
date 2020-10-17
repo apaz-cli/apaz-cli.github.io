@@ -12,7 +12,7 @@
     <h1 id="apaz-cli-github-io">apaz-cli</h1>
     <p>My name is Aaron Pazdera, I'm an honors student at UW-Stout, and I spend a considerable amount of time
         programming. Often this is related to various hobbies, but I also have a tendency to take a dive over the deep
-        end into the hardest problems I can find. Here is a list of my projects.</p>
+        end into the hardest problems I can find. Here is a list of my projects. Feel free to ask me any questions.</p>
 
     <h4 id="#Contact">Contact: <a href="mailto:aarpazdera@gmail.com">aarpazdera@gmail.com</a></h4>
     <br><br>
@@ -44,8 +44,7 @@
 
 
     <h1 id="MonikaBot">MonikaBot</h1>
-    <p><img src="Monika_quote.png"
-            alt="Monika Quote and image"></p>
+    <p><img src="Monika_quote.png" alt="Monika Quote and image"></p>
     <p><a href="https://github.com/apaz-cli/MonikaBot">https://github.com/apaz-cli/MonikaBot</a></p>
     <p>MonikaBot is another Discord bot. This one just posts quotes and images of the character Monika from the
         game Doki Doki Literature Club. It also has some administrative features built into it.</p>
@@ -53,11 +52,11 @@
         created for a college club and gets some use from time to time. RootwallaBot was created for a Magic the
         Gathering Discord server and serves roughly 200 daily users.</p>
     <h1 id="#Perceptual-Image-Hashing">Perceptual Image Hashing</h1>
-    <p><img src="Hannigan_aHash.png"
-            alt="Image of Alyson Hannigan, resized to 8x8, then bits of hash are set"></p>
+    <p><img src="Hannigan_aHash.png" alt="Image of Alyson Hannigan, resized to 8x8, then bits of hash are set"></p>
     <p><a href="http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html">Images courtesy of
             http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html</a></p>
-    <p><a href="https://github.com/apaz-cli/Open-Image-Hashing-Tools">https://github.com/apaz-cli/Open-Image-Hashing-Tools</a>
+    <p><a
+            href="https://github.com/apaz-cli/Open-Image-Hashing-Tools">https://github.com/apaz-cli/Open-Image-Hashing-Tools</a>
     </p>
     <p> A hash function is one that takes some sort of input data and maps it onto a certain configuration on a fixed
         hash describes. If two peices of data have the same hash, there&#39;s a high chance that they&#39;re duplicates.
@@ -86,10 +85,8 @@
 
 
     <h1 id="Deep-Learning-Hash">Deep Learning Hash</h1>
-    <p> <img src="imgpair.png"
-            alt="image next to the same image with added gaussian noise">
-        <img src="loss.png"
-            alt="Loss function mathematically described"></p>
+    <p> <img src="imgpair.png" alt="image next to the same image with added gaussian noise">
+        <img src="loss.png" alt="Loss function mathematically described"></p>
     <p><a href="https://github.com/apaz-cli/ML-ImageHash">https://github.com/apaz-cli/ML-ImageHash</a></p>
     <p> After a while, I began to think that conventional image hashing algorithms are great, but there&#39;s got to be
         a better way. I spent a long time thinking deeply about what was important to what an image &quot;looked
@@ -108,8 +105,7 @@
 
 
     <h1 id="Safebooru-Scraper">Safebooru Scraper</h1>
-    <p><img src="Safebooru.png"
-            alt="Safebooru logo"></p>
+    <p><img src="Safebooru.png" alt="Safebooru logo"></p>
     <p><a href="https://github.com/apaz-cli/Safebooru-Scraper">https://github.com/apaz-cli/Safebooru-Scraper</a></p>
     <p> One of the big issues with deep learning is that in its current iteration, it takes a very large dataset to pull
         off. I needed a dataset. Lucklily, I knew of a website where I could obtain not only the thousands of images
@@ -138,20 +134,22 @@
     <p> Brainfuck is an intentionally confusing programming language, aptly named for the experience of writing and
         debugging its code. It was not created to be useful, but to challenge, amuse, and punish programmers. Despite
         the mind bending complexity of BF programs, the language itself is quite simple.</p>
+    <p> Building a compiler for a conventional programming language is very difficult. It's a relatively straightforward
+        task in the same way as the twelve labours of Heracles. Writing an abstract syntax tree parser, a necessary part
+        of most compilers, feels very much like killing the Nemean lion.</p>
+    <p> Fortunately though, writing a Brainfuck interpreter is relatively easy. So I did. Then I also wrote a compiler
+        for it that transpiles Brainfuck to C code, then tells a C compiler to compile the generated code to produce a
+        binary. Every programming language is in a (loose) sense just C in disguise, and BF is no exception.</p>
+    <br>
     <p> For a long time, I&#39;ve been interested in compiler theory, and creating my own programming language. After
         all, most features of higher level languages than C are just C design patterns in disguise. What is an object
         but a struct with associated functions? That&#39;s a C design pattern. People write object-oriented C code all
-        the time. What is a template but a sequence of macros? What is an interface but a generalized template? What is
-        a lambda expression but an object holding a function pointer and implementing a functional interface?</p>
-    <p> Unfortunately, building a compiler is very difficult. Fortunately however, Brainfuck is a very simple language,
-        and writing an interpreter for it is relatively easy. So I did. Then I also wrote a compiler for it that
-        transpiles Brainfuck to C code, then calls a C compiler to produce a binary. Every programming language is in a
-        sense just C in disguise, and BF is no exception.</p>
-
-
-
-    
-
+        the time. Similarly, inheritance is just a struct with its "subclass" as its first field. Then when the
+        inheriting object is downcast, the memory beyond the first struct is not considered, and the effective behavior
+        is as expected. The object can be used with the superclass methods.</p>
+    <p> It turns out that basically all features of modern programming languages can be defined in this way, including
+        templates, closures, and lambda expressions. Maybe someday, I too will follow in the footsteps of Heracles. But,
+        this is a decent start.</p>
 
 </body>
 
