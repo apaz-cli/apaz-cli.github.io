@@ -6,6 +6,14 @@
     <link rel="icon" type="image/ico"
         href="https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/favicon.ico">
     <title>Aaron Pazdera's Portfolio</title>
+    <style>
+        .model_graph {
+            background-color: blanchedalmond;
+            border-radius: 8px;
+            width: 65%;
+            height: auto;
+        }
+    </style>
 </head>
 
 <body>
@@ -13,6 +21,8 @@
     <p>My name is Aaron Pazdera, I'm an honors student at UW-Stout, and I spend a considerable amount of time
         programming. Often this is related to various hobbies, but I also have a tendency to take a dive over the deep
         end into the hardest problems I can find. Here is a list of my projects. Feel free to ask me any questions.</p>
+
+    <!-- Add Picture of self here -->
 
     <h4 id="#Contact">Contact: <a href="mailto:aarpazdera@gmail.com">aarpazdera@gmail.com</a></h4>
     <br><br>
@@ -25,6 +35,7 @@
         <li><a href="#Deep-Learning-Hash">Deep Learning Hash</a></li>
         <li><a href="#Safebooru-Scraper">Safebooru Scraper</a></li>
         <li><a href="#Brainfuck-Compiler-Interpreter">BF Compiler/Interpreter</a></li>
+        <li><a href="#Economic-Modeling">Economic Modeling Research</a></li>
     </ul>
 
 
@@ -33,14 +44,14 @@
     <p><img src="https://raw.githubusercontent.com/apaz-cli/RootwallaBot/master/Examples/RootwallaBot%20ProbChart%20Example.png"
             alt="Image of probability graph"></p>
     <p><a href="https://github.com/apaz-cli/RootwallaBot">https://github.com/apaz-cli/RootwallaBot</a></p>
-    <p>RootwallaBot is a Discord bot that does hypergeometric probability/distribution, and graphs the results.
+    <p> RootwallaBot is a Discord bot that does hypergeometric probability/distribution, and graphs the results.
         It&#39;s particularly useful to people who play a lot of trading card games such as Magic: the Gathering
         or Yugioh. </p>
-    <p>While building a deck, you may think to yourself: If my 60 card deck contains 24 lands, what are the
+    <p> While building a deck, you may think to yourself: If my 60 card deck contains 24 lands, what are the
         chances that I draw between 2 to 4 of them in my opening hand of 7 cards? You can see the graph of
         expected frequency above, along with mean and standard deviation. The command pictured above graphs
         relative frequency, but the /prob command will tell you that the probability is roughly 77.46%.</p>
-
+    <br>
 
 
     <h1 id="MonikaBot">MonikaBot</h1>
@@ -51,6 +62,9 @@
     <p>I&#39;m running both the Monika and Rootwalla bots from a Raspberry Pi in my dorm room. MonikaBot was
         created for a college club and gets some use from time to time. RootwallaBot was created for a Magic the
         Gathering Discord server and serves roughly 200 daily users.</p>
+    <br>
+
+
     <h1 id="#Perceptual-Image-Hashing">Perceptual Image Hashing</h1>
     <p><img src="Hannigan_aHash.png" alt="Image of Alyson Hannigan, resized to 8x8, then bits of hash are set"></p>
     <p><a href="http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html">Images courtesy of
@@ -81,7 +95,7 @@
         (computational geometry data structure for fast nearest-neighbor lookup) that I liked, so I built my own. I read
         all the original papers and implemented the algorithms from scratch. It&#39;s my passion project, and I&#39;ve
         put a lot of time into it.</p>
-
+    <br>
 
 
     <h1 id="Deep-Learning-Hash">Deep Learning Hash</h1>
@@ -101,31 +115,29 @@
     <p> This is still somewhat of a work in progress, because I&#39;m still messing around with loss functions and
         trying to design one that&#39;s even better. However, it works, and I&#39;m soon going to hook my machine
         learning image hash function into my image hashing framework. It&#39;ll be free for any developer to use.</p>
-
+    <br>
 
 
     <h1 id="Safebooru-Scraper">Safebooru Scraper</h1>
     <p><img src="Safebooru.png" alt="Safebooru logo"></p>
     <p><a href="https://github.com/apaz-cli/Safebooru-Scraper">https://github.com/apaz-cli/Safebooru-Scraper</a></p>
-    <p> One of the big issues with deep learning is that in its current iteration, it takes a very large dataset to pull
-        off. I needed a dataset. Lucklily, I knew of a website where I could obtain not only the thousands of images
-        required, but millions. <a href="https://Safebooru.org/">Safebooru.org</a> was that place. I wrote a web scraper
-        that downloads their archive, and used the images to benchmark various perceptual image hashing algorithms, and
-        also as training/validation datasets for the machine learning algorithm. As of the time of writing this,
-        Safebooru hosts 3,097,534 posts, which is a decent medium size dataset.</p>
-    <p> The next big issue that I found myself running into is download times. Even downloading ten image thumbnails per
-        second, it takes 3-4 days to download the whole thing. Once the download was done, I was dismayed to learn that
-        simply loading the downscaled 64x64 images into memory from my external hard drive takes over sixteen hours. To
-        train my deep learning model, I have to do that somewhere between twenty to fifty times. So, a minimum of 13.3
-        days. I'm currently in negotiations about getting better hardware, and considering packaging my training and
-        validation data differently, hopefully for faster load times.</p>
-
+    <p> Deep learning takes a very large dataset to pull off. I needed a dataset. So I wrote a program that downloads
+        millions of images off of <a href="https://Safebooru.org/">Safebooru.org</a>. I ran it, downloaded all the
+        images, and used them to benchmark various perceptual image hashing algorithms. I also used the images as
+        training/validation datasets for the deep learning image hash.</p>
+    <p> The next big issue that I found myself running into is download times. Even downloading the dataset at a rate of
+        ten image thumbnails per second, it still took 3-4 days to download the whole thing. Once the download was
+        complete, I was dismayed to learn that simply loading all the downscaled 64x64 images into memory from my
+        external hard drive takes over sixteen hours. To train my deep learning model a single time, I have to do that
+        somewhere between twenty to fifty times. So, a minimum of 13.3 days. I'm currently in negotiations to get some
+        better hardware.</p>
+    <br>
 
 
 
     <h1 id="Brainfuck-Compiler-Interpreter">Brainfuck Compiler/Interpreter</h1>
     <p><a href="https://github.com/apaz-cli/Brainfuck-Tools">https://github.com/apaz-cli/Brainfuck-Tools</a></p>
-    
+
     <pre><code>
     <span class="hljs-comment">This</span> <span class="hljs-comment">is</span> <span class="hljs-comment">Hello</span> <span class="hljs-comment">World</span> <span class="hljs-comment">in</span> <span class="hljs-comment">brainfuck:</span>
     <span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-title">[</span>&gt;<span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span>&gt;<span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span>&gt;<span class="hljs-literal">+</span><span class="hljs-literal">+</span><span class="hljs-literal">+</span>&gt;<span class="hljs-literal">+</span>&lt;&lt;&lt;&lt;<span class="hljs-literal">-</span><span class="hljs-title">]</span>
@@ -137,20 +149,50 @@
         the mind bending complexity of BF programs, the language itself is quite simple.</p>
     <p> Building a compiler for a conventional programming language is very difficult. It's a relatively straightforward
         task in the same way as the twelve labours of Heracles. Writing an abstract syntax tree parser, a necessary part
-        of most compilers, feels very much like killing the Nemean lion.</p>
+        of most compilers, feels very much like trying to slay the Nemean lion.</p>
     <p> Fortunately though, writing a Brainfuck interpreter is relatively easy. So I did. Then I also wrote a compiler
         for it that transpiles Brainfuck to C code, then tells a C compiler to compile the generated code to produce a
         binary. Every programming language is in a (loose) sense just C in disguise, and BF is no exception.</p>
     <br>
+    <p> Tecnical Side Note:</p>
     <p> For a long time, I&#39;ve been interested in compiler theory, and creating my own programming language. After
         all, most features of higher level languages than C are just C design patterns in disguise. What is an object
-        but a struct with associated functions? That&#39;s a C design pattern. People write object-oriented C code all
-        the time. Similarly, inheritance is just a struct with its "subclass" as its first field. Then when the
-        inheriting object is downcast, the memory beyond the first struct is not considered, and the effective behavior
-        is as expected. The object can be used with the superclass methods.</p>
-    <p> It turns out that basically all features of modern programming languages can be defined in this way, including
-        templates, closures, and lambda expressions. Maybe someday, I too will follow in the footsteps of Heracles. But,
-        this is a decent start.</p>
+        but a struct with associated functions? That&#39;s a C design pattern. So is inheritance. So are interfaces,
+        lambda expressions, monadic functors, and closures. People write object-oriented C code all the time without
+        knowing it.</p>
+    <p> It turns out that basically all features of modern programming languages can be defined either in terms of other
+        simpler language features, or in C language features. For example, a lambda expression is just an "object," as
+        defined above, implementing a "functional interface" (which is really just a generated sequence of macros), and
+        containing a function pointer. Maybe someday, I too will follow in the footsteps of Heracles and build a true
+        proramming language from the ground up. But, this is a decent start that will satiate me for now.</p>
+    <br>
+
+    <h1 id="Economic-Modeling">Economic Modeling Research</h1>
+    <p><img class="model_graph"
+            src="https://raw.githubusercontent.com/larissaford/PIC-Math-MSCS-390-001/master/FP_Graph.png"
+            alt="Numerical methods used to solve a system of differential equations"></p>
+    <p><a
+            href="https://github.com/larissaford/PIC-Math-MSCS-390-001">https://github.com/larissaford/PIC-Math-MSCS-390-001</a>
+    </p>
+
+    <br>
+    <p> Going into the summer, my internship prospects had been shattered by Covid. Many of my friends had their
+        internships cancelled as well. I myself had multiple interviews lined up, all of which were called off. This was
+        particularly unfortunate because UW-Stout requires an internship for graduation. Fortunately, John Stinespring
+        of the University of Tampa was looking for some students to do research. A deal was struck, research for
+        internship requirement, and a team of six of us got to work.</p>
+    <p> By coincidence, the way that we worked together ended up being very similar to a scrum team. We had a meeting at
+        the beginning of the day where we talked about what we were doing, where we were at, and what needed to be done,
+        updating our list of tasks. Then we split off to do our work and collaborated with each other, usually in groups
+        of 2-3 on the theoretical and math intensive parts.</p>
+    <p> In the end, we were successful at our task. Essentially, the task was to figure out a way to approximate the
+        solution to a specific system of differential equations with only half the information that would be required
+        for doing so algebraically. We figured out a good algorithm that converges on the right answer. We were in the
+        middle of proving that it would always apply and always give the right answer, but then the summer ended.</p>
+    <p> Our solution ended up involving a series of simulations that get progressively more and more accurate, as
+        pictured above. Each line is a lot like dropping a leaf into a river and seeing where it goes. The system of
+        equations describes the river and how its flow changes over time, and we're trying to figure out where to put
+        the leaf.</p>
 
 </body>
 
