@@ -29,40 +29,43 @@
 
     <h2 id="Contents">Contents:</h2>
     <ul>
-        <li><a href="#RootwallaBot">RootwallaBot</a></li>
-        <li><a href="#MonikaBot">MonikaBot</a></li>
+        <li><a href="#Economic-Modeling">Economic Modeling Research</a></li>
         <li><a href="#Perceptual-Image-Hashing">Perceptual Image Hashing</a></li>
         <li><a href="#Deep-Learning-Hash">Deep Learning Hash</a></li>
         <li><a href="#Safebooru-Scraper">Safebooru Scraper</a></li>
         <li><a href="#Brainfuck-Compiler-Interpreter">BF Compiler/Interpreter</a></li>
-        <li><a href="#Economic-Modeling">Economic Modeling Research</a></li>
+        <li><a href="#RootwallaBot">RootwallaBot</a></li>
+        <li><a href="#MonikaBot">MonikaBot</a></li>
     </ul>
+    <br><br>
 
 
+    <h1 id="Economic-Modeling">Economic Modeling Research</h1>
+    <p><img class="model_graph"
+            src="https://raw.githubusercontent.com/larissaford/PIC-Math-MSCS-390-001/master/FP_Graph.png"
+            alt="Numerical methods used to solve a system of differential equations"></p>
+    <p><a
+            href="https://github.com/larissaford/PIC-Math-MSCS-390-001">https://github.com/larissaford/PIC-Math-MSCS-390-001</a>
+    </p>
 
-    <h1 id="RootwallaBot">RootwallaBot</h1>
-    <p><img src="https://raw.githubusercontent.com/apaz-cli/RootwallaBot/master/Examples/RootwallaBot%20ProbChart%20Example.png"
-            alt="Image of probability graph"></p>
-    <p><a href="https://github.com/apaz-cli/RootwallaBot">https://github.com/apaz-cli/RootwallaBot</a></p>
-    <p> RootwallaBot is a Discord bot that does hypergeometric probability/distribution, and graphs the results.
-        It&#39;s particularly useful to people who play a lot of trading card games such as Magic: the Gathering
-        or Yugioh. </p>
-    <p> While building a deck, you may think to yourself: If my 60 card deck contains 24 lands, what are the
-        chances that I draw between 2 to 4 of them in my opening hand of 7 cards? You can see the graph of
-        expected frequency above, along with mean and standard deviation. The command pictured above graphs
-        relative frequency, but the /prob command will tell you that the probability is roughly 77.46%.</p>
     <br>
-
-
-    <h1 id="MonikaBot">MonikaBot</h1>
-    <p><img src="Monika_quote.png" alt="Monika Quote and image"></p>
-    <p><a href="https://github.com/apaz-cli/MonikaBot">https://github.com/apaz-cli/MonikaBot</a></p>
-    <p>MonikaBot is another Discord bot. This one just posts quotes and images of the character Monika from the
-        game Doki Doki Literature Club. It also has some administrative features built into it.</p>
-    <p>I&#39;m running both the Monika and Rootwalla bots from a Raspberry Pi in my dorm room. MonikaBot was
-        created for a college club and gets some use from time to time. RootwallaBot was created for a Magic the
-        Gathering Discord server and serves roughly 200 daily users.</p>
-    <br>
+    <p> Going into the summer, my internship prospects had been shattered by Covid. Many of my friends had their
+        internships cancelled as well. I myself had multiple interviews lined up, all of which were called off. This was
+        particularly unfortunate because UW-Stout requires an internship for graduation. Fortunately, John Stinespring
+        of the University of Tampa was looking for some students to do research. A deal was struck, research for
+        internship requirement, and a team of six of us got to work.</p>
+    <p> By coincidence, the way that we worked together ended up being very similar to a scrum team. We had a meeting at
+        the beginning of the day where we talked about what we were doing, where we were at, and what needed to be done,
+        updating our list of tasks. Then we split off to do our work and collaborated with each other, usually in groups
+        of 2-3 on the theoretical and math intensive parts.</p>
+    <p> In the end, we were successful at our task. Essentially, the task was to figure out a way to approximate the
+        solution to a specific system of differential equations with only half the information that would be required
+        for doing so algebraically. We figured out a good algorithm that converges on the right answer. We were in the
+        middle of proving that it would always apply and always give the right answer, but then the summer ended.</p>
+    <p> Our solution ended up involving a series of simulations that get progressively more and more accurate, as
+        pictured above. Each line is a lot like dropping a leaf into a river and seeing where it goes. The system of
+        equations describes the river and how its flow changes over time, and we're trying to figure out where to put
+        the leaf.</p>
 
 
     <h1 id="#Perceptual-Image-Hashing">Perceptual Image Hashing</h1>
@@ -72,13 +75,13 @@
     <p><a
             href="https://github.com/apaz-cli/Open-Image-Hashing-Tools">https://github.com/apaz-cli/Open-Image-Hashing-Tools</a>
     </p>
-    <p> A hash function is one that takes some sort of input data and maps it onto a certain configuration on a fixed
-        hash describes. If two peices of data have the same hash, there&#39;s a high chance that they&#39;re duplicates.
+    <p> A hash function takes some sort of input data and maps it onto a fixed number of bits. If two peices of data
+        have the same hash, there&#39;s a high chance that they&#39;re duplicates.
     </p>
     <p> Hash algorithms have for a long time been relevant in cryptography and networking. If the hash of a message is
-        attached to the end of the message, the recipient can simply re-hash the message to verify its integrity. If
-        there&#39;s even one bot flipped, then the recipient will know. But, what if you want a hash function that&#39;s
-        resilient to small changes in the input?</p>
+        attached to the end of the message, the recipient can simply re-hash and compare to verify the integrity of the
+        message. If there&#39;s even one bot flipped, then the recipient will know. But, what if you want a hash
+        function that&#39;s resilient to small changes in the input?</p>
     <p> Very often, small transmission errors should be overlooked because an image was transfered using a network
         protocol that doesn&#39;t validate messages. Other times, you have a .png image and a .jpg image that are
         clearly visually identical, but a cryptographic hash function would call them completely different images
@@ -106,8 +109,7 @@
         a better way. I spent a long time thinking deeply about what was important to what an image &quot;looked
         like&quot; and the ways each algorithm did and didn&#39;t distill the &quot;essence,&quot; whatever that means,
         of an image. Eventually I realized that this would be a perfect application of machine learning. Simply
-        construct the system in such a way that I don&#39;t have to decide what is and isn&#39;t important to the
-        algorithm. Just let the computer do it.</p>
+        construct the system in such a way that the computer is the one who has to answer these questions, not me.</p>
     <p> Another great benefit is that if you want the resulting hash function to be invariant to something, such as
         noise, rotation, scaling, etc, all you have to do is design a loss function that sets the distance between the
         resulting hashes to zero. So that&#39;s what I did. The architecture that I settled on was a convolutional
@@ -129,8 +131,9 @@
         ten image thumbnails per second, it still took 3-4 days to download the whole thing. Once the download was
         complete, I was dismayed to learn that simply loading all the downscaled 64x64 images into memory from my
         external hard drive takes over sixteen hours. To train my deep learning model a single time, I have to do that
-        somewhere between twenty to fifty times. So, a minimum of 13.3 days. I'm currently in negotiations to get some
-        better hardware.</p>
+        somewhere between twenty to fifty times. So, a minimum of 13.3 days. SSD speeds are much faster, but I have
+        limited storage. I'm currently in negotiations to get some better hardware and a video card to train on so that
+        I can train a much larger and deeper network.</p>
     <br>
 
 
@@ -167,33 +170,33 @@
         proramming language from the ground up. But, this is a decent start that will satiate me for now.</p>
     <br>
 
-    <h1 id="Economic-Modeling">Economic Modeling Research</h1>
-    <p><img class="model_graph"
-            src="https://raw.githubusercontent.com/larissaford/PIC-Math-MSCS-390-001/master/FP_Graph.png"
-            alt="Numerical methods used to solve a system of differential equations"></p>
-    <p><a
-            href="https://github.com/larissaford/PIC-Math-MSCS-390-001">https://github.com/larissaford/PIC-Math-MSCS-390-001</a>
-    </p>
-
+    <h1 id="RootwallaBot">RootwallaBot</h1>
+    <p><img src="https://raw.githubusercontent.com/apaz-cli/RootwallaBot/master/Examples/RootwallaBot%20ProbChart%20Example.png"
+            alt="Image of probability graph"></p>
+    <p><a href="https://github.com/apaz-cli/RootwallaBot">https://github.com/apaz-cli/RootwallaBot</a></p>
+    <p> RootwallaBot is a Discord bot that does hypergeometric probability/distribution, and graphs the results.
+        It&#39;s particularly useful to people who play a lot of trading card games such as Magic: the Gathering
+        or Yugioh. </p>
+    <p> While building a deck, you may think to yourself: If my 60 card deck contains 24 lands, what are the
+        chances that I draw between 2 to 4 of them in my opening hand of 7 cards? You can see the graph of
+        expected frequency above, along with mean and standard deviation. The command pictured above graphs
+        relative frequency, but the /prob command will tell you that the probability is roughly 77.46%.</p>
     <br>
-    <p> Going into the summer, my internship prospects had been shattered by Covid. Many of my friends had their
-        internships cancelled as well. I myself had multiple interviews lined up, all of which were called off. This was
-        particularly unfortunate because UW-Stout requires an internship for graduation. Fortunately, John Stinespring
-        of the University of Tampa was looking for some students to do research. A deal was struck, research for
-        internship requirement, and a team of six of us got to work.</p>
-    <p> By coincidence, the way that we worked together ended up being very similar to a scrum team. We had a meeting at
-        the beginning of the day where we talked about what we were doing, where we were at, and what needed to be done,
-        updating our list of tasks. Then we split off to do our work and collaborated with each other, usually in groups
-        of 2-3 on the theoretical and math intensive parts.</p>
-    <p> In the end, we were successful at our task. Essentially, the task was to figure out a way to approximate the
-        solution to a specific system of differential equations with only half the information that would be required
-        for doing so algebraically. We figured out a good algorithm that converges on the right answer. We were in the
-        middle of proving that it would always apply and always give the right answer, but then the summer ended.</p>
-    <p> Our solution ended up involving a series of simulations that get progressively more and more accurate, as
-        pictured above. Each line is a lot like dropping a leaf into a river and seeing where it goes. The system of
-        equations describes the river and how its flow changes over time, and we're trying to figure out where to put
-        the leaf.</p>
 
+
+    <h1 id="MonikaBot">MonikaBot</h1>
+    <p><img src="Monika_quote.png" alt="Monika Quote and image"></p>
+    <p><a href="https://github.com/apaz-cli/MonikaBot">https://github.com/apaz-cli/MonikaBot</a></p>
+    <p>MonikaBot is another Discord bot. This one just posts quotes and images of the character Monika from the
+        game Doki Doki Literature Club. It also has some administrative features built into it.</p>
+    <p>I&#39;m running both the Monika and Rootwalla bots from a Raspberry Pi in my dorm room. MonikaBot was
+        created for a college club and gets some use from time to time. RootwallaBot was created for a Magic the
+        Gathering Discord server and serves roughly 200 daily users.</p>
+    <br>
+    <br>
+    <br>
+    <p>Also this website is a project too, I guess. If you want to call it that. Thanks for scrolling this far.</p>
+    <p>--Aaron Pazdera</p>
 </body>
 
 </html>
