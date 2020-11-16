@@ -1,0 +1,61 @@
+body {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 150px;
+}
+
+.sidebar {
+    width: auto;
+    height: 100%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow: auto;
+    align-content: left;
+    background-image: url("pattern.png");
+    background-repeat: repeat;
+}
+
+.sidebar a {
+    display: block;
+    color: black;
+    padding: 16px;
+    text-decoration: none;
+}
+
+.sidebar a,
+a:visited {
+    color: #01ff70;
+}
+
+.sidebar a:hover,
+a:focus,
+a:active {
+    color: #2ecc40;
+}
+
+div.content {
+    margin-left: 200px;
+    padding: 1px 16px;
+    height: 1000px;
+}
+
+@media screen and (max-width: 1380px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+    .sidebar a {
+        float: left;
+        text-align: center;
+        float: none;
+    }
+    div.content {
+        margin-left: 0;
+    }
+}
