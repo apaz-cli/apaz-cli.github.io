@@ -68,19 +68,19 @@
     <a href="http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html">Images courtesy of
         http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html</a><br><br>
     <a href="https://github.com/apaz-cli/Open-Image-Hashing-Tools">https://github.com/apaz-cli/Open-Image-Hashing-Tools</a><br><br>
-
-    <p> A hash function takes some sort of input data and maps it onto a fixed number of bits. If two peices of data have the same hash, there&#39;s a high chance that they&#39;re duplicates.
+    <p> All that I wanted to do was remove duplicate images from a folder. Then I took a dive off the deep end.</p>
+    <p> A hash function takes some sort of input data and maps it onto a fixed number of bits. If two peices of data have the same hash, there&#39;s a very high chance that they&#39;re the same. Hash functions have for a long time been relevant in cryptography
+        and networking. If the hash of a message is sent along with the message, the recipient can simply re-hash the message and compare hashes to verify the message's integrity. If even the tiniest bit of the message is different, one dropped letter
+        or one flipped bit, the recipient will know because the resulting hash is drastically different. But, what if you want a hash function that&#39;s resilient to small changes in the input?</p>
+    <p> Often, small transmission errors are acceptable and should be overlooked. Most network protocols verify messages in this way, but some don't. What if you just want to know if the images you're comparing look alike? You can have a .png image and a
+        .jpg image that are clearly visually identical, but a cryptographic hash function would fail to recognize that because of almost imperceptible jpg compression artifacts. Whereas a perceptual hash function generates a hash based on &quot;what the
+        image looks like&quot; rather than a cryptographic mangling of bits and bytes. One such algorithm, aHash, is depicted above.
     </p>
-    <p> Hash algorithms have for a long time been relevant in cryptography and networking. If the hash of a message is attached to the end of the message, the recipient can simply re-hash and compare to verify the integrity of the message. If there&#39;s
-        even one bit flipped, then the recipient will know. But, what if you want a hash function that&#39;s resilient to small changes in the input?</p>
-    <p> Very often, small transmission errors should be overlooked because an image was transfered using a network protocol that doesn&#39;t validate messages in this way. Other times, you have a .png image and a .jpg image that are clearly visually identical,
-        but a cryptographic hash function would call them completely different images because of one or two almost imperceptible jpg compression artifacts. A perceptual hash function generates a hash based on &quot;what the image looks like&quot; rather
-        than a cryptographic mangling of bits and bytes. The images above describe the process for the simplest such algorithm, aHash.
-    </p>
-    <p> This is actually a rather difficult and interesting problem, which has led me to many places, from image and signal processing to computational geometry and deep learning. All because I wanted to remove duplicate images from a folder. I ended up eventually
-        doing that, but I also built a framework so that anyone can create their own system to efficiently hash, store, and compare hashes, and to build and benchmark image hashing algorithms. It was a bit overkill, but a whole lot of fun. </p>
-    <p> It took a long time because I built the entire system from scratch. I couldn&#39;t find an image library that could do pixel comparisons fast enough, so I built my own. I couldn&#39;t find an implementation of a VP-Tree (computational geometry data
-        structure for fast nearest-neighbor lookup) that I liked, so I built my own. I read all the original papers and implemented the algorithms from scratch. It&#39;s my passion project, and I&#39;ve put a lot of time into it.
+    <p> This is actually a rather difficult and interesting problem, which has led me to many places, from image and signal processing to computational geometry and deep learning. All because I wanted to remove a mixture of png and jpg duplicate images from
+        a folder. I ended up eventually doing that, but I also built a framework so that anyone can create their own system to efficiently hash, store, and compare hashes, and to build and benchmark image hashing algorithms. And also to do so, scalably,
+        over as many AWS instances as necessary. It was a bit overkill, but a whole lot of fun. </p>
+    <p> It took a long time because I built the entire system from scratch. I couldn&#39;t find a Java image library that could do pixel comparisons fast enough, so I built my own. I couldn&#39;t find an implementation of a VP-Tree (computational geometry
+        data structure for fast nearest-neighbor lookup) that I liked, so I built my own. I read all the original papers and wrote everything from scratch with zero dependencies. It&#39;s my passion project, and I&#39;ve put a lot of time into it.
     </p>
     <br>
 
