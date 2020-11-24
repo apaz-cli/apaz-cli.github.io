@@ -51,7 +51,7 @@
 
     <h1 id="Economic-Modeling">Economic Modeling Research</h1>
     <img class="model_graph" src="https://raw.githubusercontent.com/larissaford/PIC-Math-MSCS-390-001/master/FP_Graph.png" alt="Numerical methods used to solve a system of differential equations">
-    <a href="https://github.com/larissaford/PIC-Math-MSCS-390-001">https://github.com/larissaford/PIC-Math-MSCS-390-001</a><br><br>
+    <a href="https://github.com/larissaford/PIC-Math-MSCS-390-001" target="_blank" rel="noopener noreferrer">https://github.com/larissaford/PIC-Math-MSCS-390-001</a><br><br>
     <p> Going into the summer, my internship prospects had been shattered by Covid. Many of my friends had their internships cancelled as well. Fortunately however, a deal was struck, research for internship requirement, and a team of six of us got to work
         on a project for University of Tampa professor John Stinespring.</p>
     <p> By coincidence, the way that we worked together ended up being very similar to a scrum team. We had a meeting at the beginning of the day where we talked about what we were doing, where we were at, and what needed to be done, updating our list of
@@ -65,20 +65,15 @@
 
     <h1 id="Perceptual-Image-Hashing">Perceptual Image Hashing</h1>
     <img src="Hannigan_aHash.png" alt="Image of Alyson Hannigan, resized to 8x8, then bits of hash are set">
-    <a href="http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html">Images courtesy of
+    <a href="http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html" target="_blank" rel="noopener noreferrer">Images courtesy of
         http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html</a><br><br>
-    <a href="https://github.com/apaz-cli/Open-Image-Hashing-Tools">https://github.com/apaz-cli/Open-Image-Hashing-Tools</a><br><br>
-    <p> All that I wanted to do was remove duplicate images from a folder. Then I took a dive off the deep end.</p>
-    <p> A hash function takes some sort of input data and maps it onto a fixed number of bits. If two peices of data have the same hash, there&#39;s a very high chance that they&#39;re the same. Hash functions have for a long time been relevant in cryptography
-        and networking. If the hash of a message is sent along with the message, the recipient can simply re-hash the message and compare hashes to verify the message's integrity. If even the tiniest bit of the message is different, one dropped letter
-        or one flipped bit, the recipient will know because the resulting hash is drastically different. But, what if you want a hash function that&#39;s resilient to small changes in the input?</p>
-    <p> Often, small transmission errors are acceptable and should be overlooked. Most network protocols verify messages in this way, but some don't. What if you just want to know if the images you're comparing look alike? You can have a .png image and a
-        .jpg image that are clearly visually identical, but a cryptographic hash function would fail to recognize that because of almost imperceptible jpg compression artifacts. Whereas a perceptual hash function generates a hash based on &quot;what the
-        image looks like&quot; rather than a cryptographic mangling of bits and bytes. One such algorithm, aHash, is depicted above.
+    <a href="https://github.com/apaz-cli/Open-Image-Hashing-Tools" target="_blank" rel="noopener noreferrer">https://github.com/apaz-cli/Open-Image-Hashing-Tools</a><br><br>
+    <p> All that I wanted to do was remove duplicate images from a folder. Then I took a dive off the deep end. The task is, at its simplest, to design an algorithm that looks at an image and maps "the important parts" of what the image "looks like" (whatever
+        that means) onto a fixed number of bytes.</p>
+    <p> Because of how vaguely the task described, there are lots of ways to go about it. It's actually a very difficult and interesting problem, which has led me to many places, from image and signal processing to computational geometry and deep learning.
+        All because I wanted to remove png and jpg duplicate images from a folder. I ended up eventually doing that, but I also built a framework so that anyone can create their own system to scalably and efficiently create, store, and compare hashes,
+        as well as build and benchmark their own image hashing algorithms. And also to do this over as many AWS instances as necessary. What I came up with was a bit overkill, but also whole lot of fun.
     </p>
-    <p> This is actually a rather difficult and interesting problem, which has led me to many places, from image and signal processing to computational geometry and deep learning. All because I wanted to remove a mixture of png and jpg duplicate images from
-        a folder. I ended up eventually doing that, but I also built a framework so that anyone can create their own system to efficiently hash, store, and compare hashes, and to build and benchmark image hashing algorithms. And also to do so, scalably,
-        over as many AWS instances as necessary. It was a bit overkill, but a whole lot of fun. </p>
     <p> It took a long time because I built the entire system from scratch. I couldn&#39;t find a Java image library that could do pixel comparisons fast enough, so I built my own. I couldn&#39;t find an implementation of a VP-Tree (computational geometry
         data structure for fast nearest-neighbor lookup) that I liked, so I built my own. I read all the original papers and wrote everything from scratch with zero dependencies. It&#39;s my passion project, and I&#39;ve put a lot of time into it.
     </p>
@@ -88,12 +83,12 @@
     <h1 id="Deep-Learning-Hash">Deep Learning Hash</h1>
     <img src="imgpair.png" alt="image next to the same image with added gaussian noise">
     <img src="loss.png" alt="Loss function mathematically described">
-    <a href="https://github.com/apaz-cli/ML-ImageHash">https://github.com/apaz-cli/ML-ImageHash</a><br><br>
+    <a href="https://github.com/apaz-cli/ML-ImageHash" target="_blank" rel="noopener noreferrer">https://github.com/apaz-cli/ML-ImageHash</a><br><br>
     <p> After a while, I began to think that conventional image hashing algorithms are great, but there&#39;s got to be a better way. I spent a long time thinking deeply about what was important to what an image &quot;looked like&quot; and the ways each algorithm
-        did and didn&#39;t distill the &quot;essence,&quot; whatever that means, of an image. Eventually I realized that this would be a perfect application of machine learning. Simply construct the system in such a way that the computer is the one who
-        has to answer these questions, not me.</p>
-    <p> Another great benefit is that if you want the resulting hash function to be invariant to something, such as noise, rotation, scaling, etc, all you have to do is design a loss function that sets the distance between the resulting hashes to zero. So
-        that&#39;s what I did. The architecture that I settled on was a convolutional autoencoder with a variation on triplet margin loss.</p>
+        did and didn&#39;t distill the &quot;essence,&quot; whatever that means, of an image. Eventually I realized that this would be a perfect application of machine learning. These are hard questions that I don't want to have to answer. So, simply
+        construct the machine learning model in such a way that the computer is the one who has to answer these questions, and not me. </p>
+    <p> Another great benefit is that if you want the resulting hash function to be invariant to something, such as noise, rotation, scaling, etc, all you have to do is perturb images by what you want the model to be invariant to, then design a loss function
+        that sets the distance between the resulting hashes of your images and the perturbed images to zero. So that&#39;s what I did. The architecture that I settled on was a convolutional autoencoder with a variation on triplet margin loss.</p>
     <p> This is still somewhat of a work in progress, because I&#39;m still messing around with loss functions and trying to design one that&#39;s even better. However, it works, and I&#39;m soon going to hook my machine learning image hash function into
         my image hashing framework. It&#39;ll be free for any developer to use.</p>
     <br>
@@ -101,9 +96,9 @@
 
     <h1 id="Safebooru-Scraper">Safebooru Scraper</h1>
     </p><img src="Safebooru.png" alt="Safebooru logo"><br>
-    <a href="https://github.com/apaz-cli/Safebooru-Scraper">https://github.com/apaz-cli/Safebooru-Scraper</a><br><br>
-    <p> Deep learning takes a very large dataset to pull off. I needed a dataset. So I wrote a program that downloads millions of images off of <a href="https://Safebooru.org/">Safebooru.org</a>. I ran it, downloaded all the images, and used them to benchmark
-        various perceptual image hashing algorithms. I also used the images as training/validation datasets for the deep learning image hash.</p>
+    <a href="https://github.com/apaz-cli/Safebooru-Scraper" target="_blank" rel="noopener noreferrer">https://github.com/apaz-cli/Safebooru-Scraper</a><br><br>
+    <p> Deep learning takes a very large dataset to pull off. I needed a dataset. So I wrote a program that downloads millions of images off of <a href="https://Safebooru.org/" target="_blank" rel="noopener noreferrer">Safebooru.org</a>. I ran it, downloaded
+        all the images, and used them to benchmark various perceptual image hashing algorithms. I also used the images as training/validation datasets for the deep learning image hash.</p>
     <p> The next big issue that I found myself running into is download times. Even downloading the dataset at a rate of ten image thumbnails per second, it still took 3-4 days to download the whole thing. Once the download was complete, I was dismayed to
         learn that simply loading all the downscaled 64x64 images into memory from my external hard drive takes over sixteen hours. To train my deep learning model a single time, I have to do that somewhere between twenty to fifty times. So, a minimum
         of 13.3 days. SSD speeds are much faster, but I have limited storage. I'm currently in negotiations to get some better hardware and a video card to train on so that I can train a much larger and deeper network.</p>
@@ -118,7 +113,7 @@
     &gt;<span class="hljs-literal">++</span><span class="hljs-string">.</span>&gt;<span class="hljs-literal">+</span><span class="hljs-string">.+++++++..+++.</span>&gt;<span class="hljs-literal">++.</span>&lt;&lt;<span class="hljs-literal">+++++++++++++++</span><span class="hljs-string">.</span>
     &gt;<span class="hljs-string">.+++</span><span class="hljs-string">.------</span><span class="hljs-string">.--------</span><span class="hljs-string">.</span>&gt;<span class="hljs-literal">+</span><span class="hljs-string">.</span>&gt;<span class="hljs-string">.</span>
     </code></pre>
-    <a href="https://github.com/apaz-cli/Brainfuck-Tools">https://github.com/apaz-cli/Brainfuck-Tools</a><br><br>
+    <a href="https://github.com/apaz-cli/Brainfuck-Tools" target="_blank" rel="noopener noreferrer">https://github.com/apaz-cli/Brainfuck-Tools</a><br><br>
 
     <p> Brainfuck is an intentionally confusing programming language, aptly named for the experience of writing and debugging its code. It was not created to be useful, but to challenge, amuse, and punish programmers. Despite the mind bending complexity of
         BF programs, the language itself is quite simple.</p>
@@ -137,7 +132,7 @@
 
     <h1 id="RootwallaBot">RootwallaBot</h1>
     <img src="https://raw.githubusercontent.com/apaz-cli/RootwallaBot/master/Examples/RootwallaBot%20ProbChart%20Example.png" alt="Image of probability graph"><br>
-    <a href="https://github.com/apaz-cli/RootwallaBot">https://github.com/apaz-cli/RootwallaBot</a><br><br>
+    <a href="https://github.com/apaz-cli/RootwallaBot" target="_blank" rel="noopener noreferrer">https://github.com/apaz-cli/RootwallaBot</a><br><br>
     <p> RootwallaBot is a Discord bot that does hypergeometric probability/distribution, and graphs the results. It&#39;s particularly useful to people who play a lot of trading card games such as Magic: the Gathering or Yugioh. </p>
     <p> While building a deck, you may think to yourself: If my 60 card deck contains 24 lands, what are the chances that I draw between 2 to 4 of them in my opening hand of 7 cards? You can see the graph of expected frequency above, along with mean and standard
         deviation. The command pictured above graphs relative frequency, but the /prob command will tell you that the probability is roughly 77.46%.</p>
@@ -146,7 +141,7 @@
 
     <h1 id="MonikaBot">MonikaBot</h1>
     <img src="Monika_quote.png" alt="Monika Quote and image"><br>
-    <a href="https://github.com/apaz-cli/MonikaBot">https://github.com/apaz-cli/MonikaBot</a><br><br>
+    <a href="https://github.com/apaz-cli/MonikaBot" target="_blank" rel="noopener noreferrer">https://github.com/apaz-cli/MonikaBot</a><br><br>
     <p>MonikaBot is another Discord bot. This one just posts quotes and images of the character Monika from the game Doki Doki Literature Club. It also has some administrative features built into it.</p>
     <p>I&#39;m running both the Monika and Rootwalla bots from a Raspberry Pi in my dorm room. MonikaBot was created for a college club and gets some use from time to time. RootwallaBot was created for a Magic the Gathering Discord server and serves roughly
         200 daily users.</p>
