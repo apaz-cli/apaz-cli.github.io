@@ -11,12 +11,6 @@ pre {
     overflow-x: scroll;
 }
 
-#bottom {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-}
-
 @media print {
     *,
     *:before,
