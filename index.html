@@ -107,13 +107,15 @@
     <h1 id="VPTree">Vantage Point Tree</h1>
     </p><img src="vptree.png" alt="Vantage Point Tree construction diagram"><br>
     <a href="https://github.com/apaz-cli/VPTree" target="_blank" rel="noopener noreferrer">https://github.com/apaz-cli/VPTree</a><br><br>
-    <p> I have all these hashes, and I need to store them somehow. It turns out that this is a relatively involved computational geometry problem. A Vantage Point Tree is essentially a database for fast nearest neighbor lookup. It works by partitioning space,
-        but notably it can do this with any concept of distance imaginable. It can work on the distance between images, or the distance between words, two user's search habits, or geographical coordinates. As long the concept of distance that you're using
-        preserves the triangle inequality, it works wonderfully.</p>
-    <p> Because this algorithm is computationally brutal, with lots of room for optimization, I chose to write it in C. If I had chosen to write it in Java or Python, it would have run into some serious memory issues. In both languages, objects take up much
-        more memory than their counterparts in C. In Java, the minimum size of an object header on a 32 bit machine is 20 bytes, but it's usually 64. On 64 bit machines, which nearly all computers are now, it's usually 128. This adds up really quick.
-        Only a million data points wastes 16MB. And moving copying this data around becomes very computationally expensive, quickly putting languages like Java and Python out of reach of contention for this project. However, I'm currently in the process
-        of writing Java and Python bindings to get the best of both worlds. Low memory consumption, plus a higher level language. </p>
+    <p> I have all these hashes, and I need to store them somehow. It turns out that figuring out how to store vectors for nearest-neighbor lookup is a well studied but very difficult problem at the forefront of computational geometry research. The solution
+        that I ended up going with is a Vantage Point Tree. It works by partitioning space, but notably it can do this not only for vectors, but with any concept of distance imaginable. It can work on the distance between hashes for any comparison scheme,
+        or the distance between words, two user's search habits (for any way you choose to define that), or even the distance between geographical coordinates, which is much more expensive to compute because the earth is round, but not totally round.
+        As long the concept of distance that you're using preserves the triangle inequality (which is to say that the closest distance between two points is the most direct path), it works wonderfully.</p>
+    <p> For technical reasons, I chose to write it in C. VPTrees become (vastly) more efficient than linear search only when the number of datapoints is very, very high. If I had chosen to write it in Java or Python, or even naive C++, I would have run into
+        some serious memory issues because it would require the creation, destruction, and storage of millions of objects, each of which have a header, which is likely larger than the content of the object itself. Also, the program would have to spend
+        an enormous amount of time allocating memory for each such object, and cleaning up after itself. Also, the language runtime would most likely need to do some bookkeeping behind the scenes and inadvertently poison the cache with data unrelated
+        to the data being processed. Writing Java bindings to the C code however, allows for the best of both worlds. I can make the tree operate on and store Java objects, and also reap the absurd performance benefits that come with well designed low
+        level C code.</p>
     <br>
 
 
