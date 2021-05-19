@@ -117,10 +117,18 @@
     <a href="https://github.com/apaz-cli/Torch-MLP-Mixer" target="_blank"
         rel="noopener noreferrer">https://github.com/apaz-cli/Torch-MLP-Mixer</a><br><br>
 
-    <p>In this project, I implemented the paper <a href="https://arxiv.org/abs/2105.01601">"MLP-Mixer: An all-MLP
-            Architecture for Vision"</a> by the Google Brain AI research team in PyTorch. The paper details how to build
-        a machine learning model for computer vision, without the need for convolutional neural networks or vision
-        transformer architectures.</p>
+    <p> In this project, I implemented the paper <a href="https://arxiv.org/abs/2105.01601">"MLP-Mixer: An all-MLP
+            Architecture for Vision"</a> by the Google Brain AI research team in PyTorch. MLP stands for Multi-Layer
+        Perceptron, and the model is called MLP-Mixer because of how it mixes the results of MLP layers across image
+        features, patches, and channels. </p>
+    <p> Constructing the model this way allows the architecture to be optimized more easily due to its lack of
+        dependence on convolutional layers and its lack of an explicit "attention" mechanism. Convolutional filters are
+        generally awkward sizes, resulting in a drop in resource utilization and efficiency on video cards and tensor
+        processing units, whereas the attention mechanism found in standard image transformers scales with quartic
+        computational complexity with respect to the side length of the image patch being analyzed. </p>
+    <p> The new MLP-Mixer model has neither of these problems, and nearly matches the performance of standard
+        convolutional neural networks and vision transformer networks, without any additional fine tuning or work. This
+        is impressive, and I think the architecture has potential.</p>
 
 
     <h1 id="Deep-Learning-Hash">Deep Learning Hash</h1>
