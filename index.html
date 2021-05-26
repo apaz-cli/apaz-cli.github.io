@@ -27,7 +27,6 @@
         <a href="#Perceptual-Image-Hashing">Perceptual Image Hashing</a>
         <a href="#MLPMixer">MLP-Mixer</a>
         <a href="#Deep-Learning-Hash">Deep Learning Hash</a>
-        <a href="#Safebooru-Scraper">Safebooru Scraper</a>
         <a href="#VPTree">Vantage Point Tree</a>
         <a href="#CProj">Other C Projects</a>
         <a href="#Brainfuck-Compiler-Interpreter">BF Compiler/Interpreter</a>
@@ -175,18 +174,18 @@
     </p><img src="Safebooru.png" alt="Safebooru logo"><br>
     <a href="https://github.com/apaz-cli/Safebooru-Scraper" target="_blank"
         rel="noopener noreferrer">https://github.com/apaz-cli/Safebooru-Scraper</a><br><br>
-    <p> Deep learning takes a very large dataset to pull off. I needed a dataset. So I wrote a program that downloads
+    <p> Deep learning takes a very large dataset to pull off. Particularly contrastive learning with Triplet Margin
+        Loss. I needed a dataset. So I wrote a program that downloads
         roughly 6 million anime images from <a href="https://Safebooru.org/" target="_blank"
             rel="noopener noreferrer">Safebooru.org</a>. I now use this dataset to benchmark and train various
         perceptual image hashing algorithms.</p>
     <p> The next big issue that I found myself running into is download times. Even downloading the dataset at a rate of
-        ten image thumbnails per second, it still took 3-4 days to download the whole thing. Once the download was
-        complete, I was dismayed to learn that simply loading all the downscaled 64x64 images into memory from my
-        external hard drive takes over
-        sixteen hours. To train my deep learning model a single time, I have to do that somewhere between twenty to
-        fifty times. So, a minimum of 13.3 days. SSD speeds are much faster, but I have limited storage. I'm currently
-        in negotiations to get some
-        better hardware and a video card to train on so that I can train a much larger and deeper network.</p>
+        ten image thumbnails per second (At the request of the site admin), it still took 3-4 days to download the whole
+        thing. Once the download was complete, I was dismayed to learn that simply loading all the downscaled 64x64
+        images into memory from my external hard drive takes over sixteen hours. To train my deep learning model a
+        single time, I have to do that somewhere between twenty to fifty times. So, a minimum of 13.3 days. SSD speeds
+        are much faster, but I have limited storage. I'm currently in negotiations to get some better hardware and a
+        video card to train on so that I can train a much larger and deeper network.</p>
     <br>
 
 
