@@ -137,7 +137,8 @@
         computational complexity with respect to the side length of the image patch being analyzed. </p>
     <p> The new MLP-Mixer model has neither of these problems, and nearly matches the performance of standard
         convolutional neural networks and vision transformer networks, without any additional fine tuning or work. This
-        is impressive, and I think the architecture has potential.</p>
+        is impressive, and I think the architecture has potential. Evidently, so does the rest of the machine learning
+        community. The papers have started pouring in. </p>
 
 
     <h1 id="Stilts">The Stilts Programming Language</h1>
@@ -182,7 +183,29 @@
         <li>Write a code generator (Capture and return Cerberus)</li>
         <li>Start a community (Obtain the girdle of Hippolyta)</li>
     </ul>
-    <p> Seems easy enough, right? </p>
+    <p> Seems easy enough, right? I think the twelve labours of Hercules are an apt comparison. Especially the Lernaean
+        Hydra, due to the nature of recursive descent parsers.</p>
+    <p> Initially, I didn't think that I had it in me. Compilers are complicated. Recursive decent parsers especially
+        so. But then I found the <a
+            href="https://en.wikipedia.org/wiki/Recursive_descent_parser#Example_parser">Wikipedia page for "Recursve
+            Decent Parser"</a>, and the example there blew me away. It's probably the most beautiful code that I've ever
+        seen. Every grammatical production (grammar rule) is just a function, which is just the production
+        written out, calling each of the productions that comprises it in order. This also perfectly explains why the
+        issues that arise in parsing left-recursive grammars. If the first thing a function does is call itself, then
+        that's infinite recursion. Having seen this example, it gave me the courage to begin. I already knew how to slay
+        the Nemian Lion (write a maximal-munch tokenizer), steal the golden apples (write a compiler frontend), and
+        capture/return Cerberus (write a code generator). But I was afraid of the hydra. And now suddenly I knew exactly
+        how to kill it. Cut off the heads and cauterise the stumps, using the method from Wikipedia. No reason to delay
+        any longer. Let's write a language.
+    </p>
+    <p> I'm currently writing the Tokenizer, apaz-libc (described below), and the language specification at the same
+        time. What I'm unsure about now
+        is the type checker. I want to clean out the Augean Stables, but there doesn't seem to be a nearby river to
+        redirect. It turns out that implicit conversions on generic types is complicated. I've spent hours pouring over
+        the Java programming language specification. It's useful, but somewhat difficult to navigate. </p>
+    <p> The other issue is that to know how to validate the semantics of your language, you need to know what those
+        semantics are in the first place. I don't. My opinions keep changing. I think I just need to spend more time in
+        deep thought about it.</p>
     <br>
 
 
@@ -192,16 +215,27 @@
         rel="noopener noreferrer">https://github.com/apaz-cli/memdebug.h</a><br><br>
     <a href="https://github.com/apaz-cli/threadpool.h" target="_blank"
         rel="noopener noreferrer">https://github.com/apaz-cli/threadpool.h</a><br>
+    <p> When we write software, we stand on the shoulders of giants. We take standard libraries for granted, because
+        they're always there. Strings, Lists, Sets, Maps, Monads... We forget how much we rely on these things in
+        our everyday work. However, C does not have a standard library of this sort. It provides the bare minimum of
+        what you need, no more and no less. If you want abstractions, you have to build them yourself.</p>
+    <p> When you're writing a compiler, you require these nice things. You can't waste brain cycles trying to work
+        around not having them. Writing a compiler is hard enough already. It becomes obvious that you need abstractions
+        like Strings and Lists, and the need is dire. However, that's not how this library started. That story is much
+        more interesting.</p>
     <p> One particularly stressful night in college, it occurred to me that I hadn't slept in roughly 38 hours. I had
-        been doing homework for the whole time, couldn't sleep, and needed to decompress very badly. I forget what other
-        thoughts went through my head at that time, but then I decided. I was going to write a memory debugger from
-        scratch. So then I did. I finished it in about four hours, then promptly slept for 16 hours. When I woke up I
-        didn't remember writing most of the code, but over the course of a couple weeks I slowly refined it and added
-        features. I made it thread-safe with the cross platform muxtexes above, and added a feature that lets you view
-        every memory allocation that hasn't been freed, as well as where you allocated it. This way, it's easy to track
-        down memory leaks.</p>
+        been doing homework for the whole time, couldn't sleep, and needed to decompress very badly. I forget what
+        thoughts went through my head which led to this decision, but it was decided. I was going to write a memory
+        debugger from scratch. So then I did. I finished it in about four hours, then promptly slept for 16. When
+        I woke up I didn't remember writing most of the code, but over the course of a couple weeks I slowly refined it
+        and added features. I made it thread-safe with the cross platform muxtexes above, and added a feature that lets
+        you view every memory allocation that hasn't been freed, as well as where you allocated it. This way, it's easy
+        to track down memory leaks.</p>
     <p> Later, I decided to write a threadpool from scratch also. Eventually I may extend it to implement futures.</p>
-    <p> After</p>
+    <p> Now, as I need features for the Stilts compiler, I add them. I added Strings, cleverly implemented as a fat
+        pointer, as well as Lists, implemented the same way. This allows you to retain the square bracket syntax for
+        directly setting and getting characters from the string and items from the list. Lists also double as Monads,
+        supporting map, filter, reduce, foreach, and flatmap. Once I need them, I'll probably add HashMaps and Sets.</p>
     <br>
 
 
