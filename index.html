@@ -119,6 +119,31 @@
     <br>
 
 
+    <h1 id="VPTree">Vantage Point Tree</h1>
+    </p><img src="vptree.png" alt="Vantage Point Tree construction diagram"><br>
+    <a href="https://github.com/apaz-cli/VPTree" target="_blank"
+        rel="noopener noreferrer">https://github.com/apaz-cli/VPTree</a><br><br>
+    <p> To check if two perceptual image hashes match, you simply compute the distance between them. If the distance
+        between the two hashes falls within a certain threshold, then the images match. Otherwise, they don't.
+        This is quite efficient, especially compared to manually staring at a screen, or compared to loading the images
+        into memory. However, duplicate-finding means cross-comparing every image with every other image. I have 6
+        million images. Six million squared is a very large number. If I were able to compare hashes at a rate of 100
+        comparisons per second, it would take about 11415 years to compare them all. Clearly, that is not an option.</p>
+    <p> The solution is to carefully store the hashes in a way that they can be easily partitioned. I chose a data
+        structure called a Vantage Point Tree. The great thing about a vantage point tree is that it works on any
+        concept of distance, not just standard Euclidean distance. This is useful because not all hashing algorithms use
+        the same distance metric. Some use Euclidean distance, but some use Hamming distance, and this way I don't have
+        to write multiple solutions.</p>
+    <p> For technical reasons, I chose to write this algorithm from scratch in C. This is an incredibly
+        performance-sensitive piece of code. If I had chosen to write it in Java or Python, or even naive
+        C++, I would have run into some serious performance issues. But, I still needed to use this code in a Java
+        program. So I wrote JNI language bindings to my C code so that I could interact with it inside the Java virtual
+        machine. Doing this allowed me to reap the absurd performance benefits that come with well designed low level C
+        code, while never leaving behind the ease of experimentation that a higher level language like Java provides.
+    </p>
+    <br>
+
+
     <h1 id="MLPMixer">MLP-Mixer Torch</h1>
     </p><img src="MLP-Mixer.png"
         alt="A diagram detailing the construction of the MLP-Mixer deep neural network architecture for computer vision."><br>
@@ -166,11 +191,9 @@
             make it obvious. Also you can dump it as json. Also it's a lot faster than Python. But still the language
             doesn't seem ready.</li>
     </ul>
-
     <p> At some point, I just got fed up with the whole situation. How can it be that after 50 years of innovation, no
         programming language is absolutely perfect to my every specification? Hmm. Only one thing to do now.</p>
     <center><img src="I'll Make My Own.jpg"></center>
-
     <p> By "only one thing to do" what I really mean is "only seven things to do." These 7 things make a programming
         language.</p>
     <h3>To Do:</h3>
@@ -239,31 +262,6 @@
     <br>
 
 
-    <h1 id="VPTree">Vantage Point Tree</h1>
-    </p><img src="vptree.png" alt="Vantage Point Tree construction diagram"><br>
-    <a href="https://github.com/apaz-cli/VPTree" target="_blank"
-        rel="noopener noreferrer">https://github.com/apaz-cli/VPTree</a><br><br>
-    <p> To check if two perceptual image hashes match, you simply compute the distance between them. If the distance
-        between the two hashes falls within a certain threshold, then the images match. Otherwise, they don't.
-        This is quite efficient, especially compared to manually staring at a screen, or compared to loading the images
-        into memory. However, duplicate-finding means cross-comparing every image with every other image. I have 6
-        million images. Six million squared is a very large number. If I were able to compare hashes at a rate of 100
-        comparisons per second, it would take about 11415 years to compare them all. Clearly, that is not an option.</p>
-    <p> The solution is to carefully store the hashes in a way that they can be easily partitioned. I chose a data
-        structure called a Vantage Point Tree. The great thing about a vantage point tree is that it works on any
-        concept of distance, not just standard Euclidean distance. This is useful because not all hashing algorithms use
-        the same distance metric. Some use Euclidean distance, but some use Hamming distance, and this way I don't have
-        to write multiple solutions.</p>
-    <p> For technical reasons, I chose to write this algorithm from scratch in C. This is an incredibly
-        performance-sensitive piece of code. If I had chosen to write it in Java or Python, or even naive
-        C++, I would have run into some serious performance issues. But, I still needed to use this code in a Java
-        program. So I wrote JNI language bindings to my C code so that I could interact with it inside the Java virtual
-        machine. Doing this allowed me to reap the absurd performance benefits that come with well designed low level C
-        code, while never leaving behind the ease of experimentation that a higher level language like Java provides.
-    </p>
-    <br>
-
-
     <h1 id="Economic-Modeling">Economic Modeling Research</h1>
     <img class="model_graph"
         src="https://raw.githubusercontent.com/larissaford/PIC-Math-MSCS-390-001/master/FP_Graph.png"
@@ -293,6 +291,7 @@
     </p>
     <br>
 
+    
     <h1 id="Brainfuck-Compiler-Interpreter">BF Compiler/Interpreter</h1>
     <pre><code>
     <span class="hljs-comment">This is Hello World in brainfuck:</span>
