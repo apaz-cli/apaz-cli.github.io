@@ -171,28 +171,38 @@
     <a href="https://github.com/apaz-cli/Stilts" target="_blank"
         rel="noopener noreferrer">https://github.com/apaz-cli/Stilts</a><br><br>
     <p> For a while, I've been frustrated with every popular programming language out there. It seems like all of them
-        are deeply flawed in some way.</p>
+        are deeply flawed in some way. Here's a list of languages and their percieved flaws.</p>
     <ul>
         <li>C is great, but is very verbose. It's not a language for fast iteration on ideas, but for slow methodical
-            progress.</li>
+            progress. Yet at the same time, how many memory allocators and data structures have I written? The code
+            reusability sucks.</li>
         <li>C++ produces great binaries, but the language is mind-bogglingly complex and the syntax is awful. It's also
             missing a lot of basic features that you would expect to be there. Did you know that geting str.startsWith()
             into the standard library took 30 years? Did you know that there are three competing implementations in the
             standard for UTF-8 encoding, and all of them are completely non-portable and unusable? With C++, you run
-            into these problems constantly.</li>
-        <li>Java has incredible syntax. But for various technical reasons there's no reason it has to perform as poorly
-            as it does. The problem is not only heap allocations and the lack of value types, but also that due to
-            multiple compounding poor design choices, Java cannot be optimized, essentially at all.</li>
+            into these problems constantly. The sane solution is to not use the standard library, but then we're back
+            exactly where we started reimplementing data structures.</li>
+        <li>Java has incredible syntax. But for the syntax that it has there's no reason it needs to perform as poorly
+            as it does. The problem is not only mandatory heap allocations and method lookups, but also multiple other
+            compounding poor design choices, Java cannot be optimized, essentially at all. Looking under the hood into
+            the JVM reveals an absolute nightmare that cannot be fixed. Also the type system is fundamentally unsound
+            and broken in a lot of ways. It's not actually any safer than C.
+        </li>
         <li>Writing Python is an incredible experience. You get access to every library under the sun, with a single
             command. At the same time, Python is very slow. Everything is a python object. Everything you do is a member
-            lookup. This is slow. There's not really any getting around it.</li>
+            lookup. This is slow. There's not really any getting around it. Yet, Python is the language of choice for
+            the machine learning community. Reserachers have to spend large amounts of time trying to figure out how to
+            stuff their code into matrices so their computations can be accelerated. What would be better is if
+            everything were fast to begin with. There's also the elephant in the room, the GIL.</li>
         <li>Javascript has been getting better and better, but it's still painful. Some things about the language are
             really nice. I like how they handle dynamic member binding a lot more than Python does, simply because they
-            make it obvious. Also you can dump it as json. Also it's a lot faster than Python. But still the language
-            doesn't seem ready.</li>
+            make what's going on very obvious. Also you can dump any object as json. It's a lot faster than Python due
+            to the advances made by V8. But still the language doesn't seem ready. It feels like three kids in a
+            trenchcoat, if that makes any sense.</li>
     </ul>
-    <p> At some point, I just got fed up with the whole situation. How can it be that after 50 years of innovation, no
-        programming language is absolutely perfect to my every specification? Hmm. Only one thing to do now.</p>
+    <p> At some point, I just got fed up with the whole situation. How can it be that after more than 50 years of
+        innovation, no programming language is absolutely perfect to my every specification? Hmm. Only one thing to do
+        now.</p>
     <center><img src="I'll Make My Own.jpg"></center>
     <p> By "only one thing to do" what I really mean is "only seven things to do." These 7 things make a programming
         language.</p>
@@ -213,22 +223,55 @@
             href="https://en.wikipedia.org/wiki/Recursive_descent_parser#Example_parser">Wikipedia page for "Recursve
             Decent Parser"</a>, and the example there blew me away. It's probably the most beautiful code that I've ever
         seen. Every grammatical production (grammar rule) is just a function, which is just the production
-        written out, calling each of the productions that comprises it in order. This also perfectly explains why the
-        issues that arise in parsing left-recursive grammars. If the first thing a function does is call itself, then
-        that's infinite recursion. Having seen this example, it gave me the courage to begin. I already knew how to slay
-        the Nemian Lion (write a maximal-munch tokenizer), steal the golden apples (write a compiler frontend), and
-        capture/return Cerberus (write a code generator). But I was afraid of the hydra. And now suddenly I knew exactly
-        how to kill it. Cut off the heads and cauterise the stumps, using the method from Wikipedia. No reason to delay
-        any longer. Let's write a language.
+        written out, calling each of the productions that comprises it in order. This construction also perfectly
+        explains the issues that arise in parsing left-recursive grammars. If the first thing a function does is call
+        itself, then that's infinite recursion. Having seen this example, it gave me the courage to begin. I already
+        knew how to slay the Nemian Lion (write a maximal-munch tokenizer), steal the golden apples (write a compiler
+        frontend), and capture/return Cerberus (write a code generator). But I was afraid of the hydra. And now suddenly
+        I knew exactly how to kill it. Cut off the heads and cauterise the stumps, using the method from Wikipedia. No
+        reason to delay any longer. Let's write a language.
     </p>
-    <p> I'm currently writing the Tokenizer, apaz-libc (described below), and the language specification at the same
-        time. What I'm unsure about now
-        is the type checker. I want to clean out the Augean Stables, but there doesn't seem to be a nearby river to
-        redirect. It turns out that implicit conversions on generic types is complicated. I've spent hours pouring over
-        the Java programming language specification. It's useful, but somewhat difficult to navigate. </p>
-    <p> The other issue is that to know how to validate the semantics of your language, you need to know what those
-        semantics are in the first place. I don't. My opinions keep changing. I think I just need to spend more time in
-        deep thought about it.</p>
+    <p> I've been at it for some time now. As I continue on the language, I realize that the hydra is the least of my
+        worries. I found an open source parser-generator project, <a href="https://github.com/arithy/packcc">packcc</a>,
+        and I'm now contributing to it, working with the maintainer to add the features that I need. The feature is an
+        "Abstract Syntax Tree" mode, so the parser-generator can inject the necessary code to automatically allocate and
+        deallocate AST nodes. I'm also adding the ability to strap a generic map to each of these nodes, which will help
+        a lot with semantic analysis.
+    </p>
+    <p> Speaking of semantic analysis, that's now my primary worry. My language has a very complicated parametric
+        polymorphic type system with generics, explicit and implicit trait bounds, universal and existential types,
+        and automatic type deduction. Very, very complicated. I need to map this language onto C code, which has none of
+        these things.
+    </p>
+    <p> I've spent many hours pouring over the Java language specification, reading polymorphic semantic analysis
+        papers, learning lambda calculus, and talking to various professors and members of compiler communities across
+        the internet. The consensus is that this stuff is really hard. Originally, I wanted to copy Java's.
+        In the process of learning it though, I've discovered many soundness holes in Java's type system. </p>
+    <p> For example, <code>Collection&lt;? extends T&gt;</code> type bounds are very useful. They say "Give me a
+        Collection of this type or any type that acts like it." However, <code>Collection&lt;? super T&gt;</code> type
+        bounds are absolutely useless. They say "Give me exactly this type, or anything that doesn't act like it."
+        First, let me point out that this makes absolutely zero sense. Not only can I not think of a case where I would
+        want that, there's also no way to express "Give me anything that doesn't act like this." If you want that
+        behavior, you're out of luck. But the problem goes deeper. Suppose for some reason you did choose to write this.
+        You have a function that takes <code>Collection&lt;? super Number&gt;</code>. Presumably, you wrote this so that
+        nobody could pass a <code>Collection&lt;Integer&gt;</code>, right? Well, they still can, without doing anything
+        wrong. You can cast <code>Collection&lt;Integer&gt;</code> (or any sort of Collection for that matter) to
+        <code>Collection&lt;Object&gt;</code> (which is a perfectly valid widening conversion), and just pass it anyway.
+        This is a massive soundness hole, and leads to runtime errors inside of real codebases all the time. Probably
+        every day.
+    </p>
+    <p> I discovered other soundness holes, but suffice it to say that this one was a wake up call. Java is really nice
+        to use despite the fact, but its type system is absolute garbage. I want a type system that's sound, so I end up
+        with a compiler that doesn't do runtime checking, and doesn't produce binaries that crash randomly on runtime
+        type errors that could have been caught at compile time like Java does.
+    </p>
+    <p> Instead of stealing Java's homework, I'm going to steal the homework of another much older language called ML.
+        ML is from 1973. That is to say, there's been no real advances in type theory in the past 50 years. In ML,
+        typing is implicit. You can annotate them if you wish, but for the most part the optimal static type for an
+        expression is just inferred by the compiler. I think that this is the best option, and it's a bit strange to me
+        that this sort of type system hasn't caught on. Unfortunately though, choosing to copy ML means I have to learn
+        lambda calculus. All type theory papaers are written in terms of a typed lambda calculus.
+    </p>
     <br>
 
 
@@ -258,7 +301,8 @@
     <p> Now, as I need features for the Stilts compiler, I add them. I added Strings, cleverly implemented as a fat
         pointer, as well as Lists, implemented the same way. This allows you to retain the square bracket syntax for
         directly setting and getting characters from the string and items from the list. Lists also double as Monads,
-        supporting map, filter, reduce, foreach, and flatmap. Once I need them, I'll probably add HashMaps and Sets.</p>
+        supporting map(), filter(), reduce(), foreach(), sorted(), and flatmap(). Soon I'll add HashMaps and Sets, and
+        add monads capabilities to those types as well.</p>
     <br>
 
 
@@ -291,7 +335,7 @@
     </p>
     <br>
 
-    
+
     <h1 id="Brainfuck-Compiler-Interpreter">BF Compiler/Interpreter</h1>
     <pre><code>
     <span class="hljs-comment">This is Hello World in brainfuck:</span>
