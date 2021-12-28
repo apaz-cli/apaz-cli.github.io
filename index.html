@@ -1,320 +1,54 @@
 <!DOCTYPE html>
-<html>
-
-<head>
-    <link rel="stylesheet" href="index.css">
-    <link rel="stylesheet" href="sidebar.css">
-    <link rel="icon" type="image/ico"
-        href="https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/favicon.ico">
-    <title>Aaron Pazdera's Portfolio</title>
-    <style>
-        .model_graph {
-            background-color: blanchedalmond;
-            border-radius: 8px;
-            width: 65%;
-            height: auto;
-        }
-    </style>
-</head>
-
-
+<html lang="en">
+<meta charset="UTF-8">
+<title>apaz's Website</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="main.css">
 <body>
-    <div class="sidebar">
-        <h3 id="Contents">&nbsp;Contents:</h3>
-        <hr>
-        <a href="#Introduction">Introduction</a>
-        <a href="#Perceptual-Image-Hashing">Perceptual Image Hashing</a>
-        <a href="#Deep-Learning-Hash">Deep Learning Hash</a>
-        <a href="#MLPMixer">MLP-Mixer</a>
-        <a href="#Stilts">The Stilts Programming Language</a>
-        <a href="#CProj">apaz-libc</a>
-        <a href="#VPTree">Vantage Point Tree</a>
-        <a href="#Economic-Modeling">Economic Modeling Research</a>
-        <a href="#Brainfuck-Compiler-Interpreter">BF Compiler/Interpreter</a>
-        <a href="#RootwallaBot">Discord Bots</a>
-
-        <div id="bottom">
-            <h4 id="Contact">&nbsp;Contact:</h4>
-            <hr>
-            <a href="mailto:aarpazdera@gmail.com">aarpazdera@gmail.com</a>
-            <h4 id="Resume">&nbsp;Resume:</h4>
-            <hr>
-            <a href="Aaron Pazdera Software Development Resume.pdf" target="_blank" rel="noopener noreferrer">pdf</a>
-            <a href="Aaron Pazdera Software Development Resume.docx">docx</a>
+    <div class="bg-image"></div>
+    <div class="window-bg">
+        <div class="front-img"></div>
+        <div class="titlediv">
+            <div id=titleb>apaz's Website</div>
+            <div id="clock"></div>
+        </div>
+        <div class="windowbackgroundarea1"><div id="Subtitle">Articles:</div></div>
+        <div class="windowbackgroundarea2">
+        <div class="centerDivs">
+            <div class="category">
+                <div class="categorytitle">Blog:</div>
+                <div class="categorycontent"><a href="">(Under Construction)</a></div>
+                <div class="categorytitle">Projects:</div>
+                <div class="categorycontent"><a href="https://github.com/apaz-cli/Stilts">The Stilts Programming Language      </a></div><div class="categorycontent"><a href="https://github.com/apaz-cli/Open-Image-Hashing-Tools">Perceptual Image Hashing             </a></div><div class="categorycontent"><a href="https://github.com/apaz-cli/ML-ImageHash">Machine-Learned Perceptual Image Hash</a></div><div class="categorycontent"><a href="https://github.com/apaz-cli/Prolog-Interpreter">Tiny Prolog Interpreter              </a></div><div class="categorycontent"><a href="https://github.com/apaz-cli/Torch-MLP-Mixer">MLP-Mixer Implementation             </a></div><div class="categorycontent"><a href="https://github.com/apaz-cli/Torch-MLP-Mixer">C Vantage Point Tree KNN Search      </a></div>
+                <div class="categorytitle">Contact:</div>
+                <div class="categorycontent"><a href="https://github.com/apaz-cli/">Github </a> - <a href="mailto://aarpazdera@gmail.com ">Email  </a> - <a href="https://discord.gg/yM8ZBDHGdR">Discord</a></div>
+            </div>
+        </div>
         </div>
     </div>
-
-    <!-- Add picture of self here -->
-    <h1 id="Introduction">Introduction</h1>
-    <p> My name is Aaron Pazdera, I graduated from the honors college at UW-Stout, and I currently work at Woodward
-        Inc in Niles Illinois writing and validating device drivers for electronic jet turbine control systems. </p>
-    <p> When I have free time, I usually spend it programming. I'm interested in self-supervised deep learning, and
-        compiler theory. I have a tendency to take a dive over the deep end into the hardest problems I can find. What
-        follows is a list of my projects. Feel free contact me to ask questions, or for any other reason.</p>
-    <br>
-
-
-    <h1 id="Perceptual-Image-Hashing">Perceptual Image Hashing</h1>
-    <img src="Hannigan_aHash.png" alt="Image of Alyson Hannigan, resized to 8x8, then bits of hash are set">
-    Images courtesy of:
-    <a href="http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html" target="_blank"
-        rel="noopener noreferrer">http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html</a><br><br>
-    <a href="https://github.com/apaz-cli/Open-Image-Hashing-Tools" target="_blank"
-        rel="noopener noreferrer">https://github.com/apaz-cli/Open-Image-Hashing-Tools</a><br><br>
-    <p> In the beginning, all that I wanted to do was write a script to remove near-duplicate images from a folder. How
-        could that be hard? Turns out that it's actually a very hard problem. So then I took a dive off the deep end.
-        This was actually what got me into deep learning. But more on that later. </p>
-    <p> In simplest terms, the task of designing a perceptual image hashing algorithm is to tell the computer how to
-        "look at" an image and decide "what's important" about what it "looks like." Whatever that means. </p>
-    <p> Usually in computer science, problems are strictly defined, and this one is definitely not.
-        Naturally, there are lots of ways to go about it. Unfortunately, none of them are particularly great. The
-        algorithms all have signigicant trade-offs in terms of speed, accuracy, and suitability for certain types of
-        pictures.</p>
-    <p> The search to the answer to this difficult and interesting problem has led me many places, from digital and
-        analog image and signal processing, to computational geometry, to graph theory, and eventually to deep learning.
-        All because I wanted to remove png and jpg duplicate images from a folder. </p>
-    <p> I ended up writing not only perceptual image hashing algorithms, but an entire infrastructure. I built a
-        framework for large scale distributed image processing pipelines. It can work across as many computers (or AWS
-        instances) as necessary. My solution was more than a little bit overkill, but also whole lot of fun. </p>
-    <p> This project taught me a lot about system and library design. I built the entire thing from scratch, from the
-        bottom up. I couldn&#39;t find a Java image library that could do pixel comparisons fast enough, so I built my
-        own. I couldn't find a data structure to do large-scale k-nearest-neighbor queries efficiently enough, so I
-        <a href="#VPTree">built my own</a>. The framework has zero dependencies except for the Java standard library.
-        But now I've moved on to bigger and better things.
-    </p>
-    <br>
-
-
-    <h1 id="Deep-Learning-Hash">Deep Learning Hash</h1>
-    <img src="imgpair.png" alt="image next to the same image with added gaussian noise">
-    <img src="loss.png" alt="Loss function mathematically described">
-    <a href="https://github.com/apaz-cli/Torch" target="_blank"
-        rel="noopener noreferrer">https://github.com/apaz-cli/ML-ImageHash</a><br><br>
-    <p> After a while, I began to tire of balancing the tradeoffs of different perceptual image hashing algorithms.
-        Conventional image hashing algorithms are great and all, but I started to think that there&#39;s got to be
-        a better way. I spent a long time thinking deeply about what was important to what an image &quot;looked
-        like&quot; and the ways each algorithm did and didn&#39;t distill the &quot;essence,&quot; whatever that means,
-        of an image. Eventually I realized that this would be a perfect application of machine learning.</p>
-
-    <h4>Hard questions that I don't want to have to answer:</h4>
-    <p>
-    <ul>
-        <li>How geometrically simple or complex are my images? Do the pixel depth maps look smooth or jagged?</li>
-        <li>Do the images in my dataset compress well with a Discrete Cosine Transform?</li>
-        <li>What do I need my algorithm to be invariant to? Noise? Translations? Rotations? How will that be
-            accomplished?</li>
-        <li>Do I have time to label a statistically significant portion of my dataset as duplicate or non-duplicate so
-            that I can measure performance?</li>
-        <li>Are my accuracy benchmarks good enough? Do I have accuracy benchmarks? If the answer is no, what should I
-            do? If the answer is yes, how should my decision be informed?</li>
-        <li>Given the number of labels and the size of the dataset, how statistically significant is this result?</li>
-        <li>How much longer do I have before my research time is over and I need to have the answer to these questions?
-        </li>
-    </ul>
-    </p>
-    <p> Balancing which algorithm to use and justifying why is hard. That's why machine learning is so great here, I
-        don't have to care. Instead of choosing the algorithm manually, I can simply describe the perfect algorithm for
-        my dataset through constraint optimization. That way, the computer is the one who has to figure out the
-        algorithm, and not me.</p>
-    <br>
-
-
-    <h1 id="MLPMixer">MLP-Mixer Torch</h1>
-    </p><img src="MLP-Mixer.png"
-        alt="A diagram detailing the construction of the MLP-Mixer deep neural network architecture for computer vision."><br>
-    Image taken from Google's paper.<br>
-    <a href="https://github.com/apaz-cli/Torch-MLP-Mixer" target="_blank"
-        rel="noopener noreferrer">https://github.com/apaz-cli/Torch-MLP-Mixer</a><br><br>
-
-    <p> In this project, I implemented the paper <a href="https://arxiv.org/abs/2105.01601">"MLP-Mixer: An all-MLP
-            Architecture for Vision"</a> by the Google Brain AI research team in PyTorch. MLP stands for Multi-Layer
-        Perceptron, and the model is called MLP-Mixer because of how it mixes the results of MLP layers across image
-        features, patches, and channels. </p>
-    <p> Constructing the model this way allows the architecture to be optimized more easily due to its lack of
-        dependence on convolutional layers and its lack of an explicit "attention" mechanism. Convolutional filters are
-        generally awkward sizes, resulting in a drop in resource utilization and efficiency on video cards and tensor
-        processing units, whereas the attention mechanism found in standard image transformers scales with quartic
-        computational complexity with respect to the side length of the image patch being analyzed. </p>
-    <p> The new MLP-Mixer model has neither of these problems, and nearly matches the performance of standard
-        convolutional neural networks and vision transformer networks, without any additional fine tuning or work. This
-        is impressive, and I think the architecture has potential.</p>
-
-
-    <h1 id="Stilts">The Stilts Programming Language</h1>
-    </p><img src="Stilts.png" alt="An abstract image of a clown on stilts."><br>
-    <a href="https://github.com/apaz-cli/Stilts" target="_blank"
-        rel="noopener noreferrer">https://github.com/apaz-cli/Stilts</a><br><br>
-    <p> For a while, I've been frustrated with every popular programming language out there. It seems like all of them
-        are deeply flawed in some way.</p>
-    <ul>
-        <li>C is great, but is very verbose. It's not a language for fast iteration on ideas, but for slow methodical
-            progress.</li>
-        <li>C++ produces great binaries, but the language is mind-bogglingly complex and the syntax is awful. It's also
-            missing a lot of basic features that you would expect to be there. Did you know that geting str.startsWith()
-            into the standard library took 30 years? Did you know that there are three competing implementations in the
-            standard for UTF-8 encoding, and all of them are completely non-portable and unusable? With C++, you run
-            into these problems constantly.</li>
-        <li>Java has incredible syntax. But for various technical reasons there's no reason it has to perform as poorly
-            as it does. The problem is not only heap allocations and the lack of value types, but also that due to
-            multiple compounding poor design choices, Java cannot be optimized, essentially at all.</li>
-        <li>Writing Python is an incredible experience. You get access to every library under the sun, with a single
-            command. At the same time, Python is very slow. Everything is a python object. Everything you do is a member
-            lookup. This is slow. There's not really any getting around it.</li>
-        <li>Javascript has been getting better and better, but it's still painful. Some things about the language are
-            really nice. I like how they handle dynamic member binding a lot more than Python does, simply because they
-            make it obvious. Also you can dump it as json. Also it's a lot faster than Python. But still the language
-            doesn't seem ready.</li>
-    </ul>
-
-    <p> At some point, I just got fed up with the whole situation. How can it be that after 50 years of innovation, no
-        programming language is absolutely perfect to my every specification? Hmm. Only one thing to do now.</p>
-    <center><img src="I'll Make My Own.jpg"></center>
-
-    <p> By "only one thing to do" what I really mean is "only seven things to do." These 7 things make a programming
-        language.</p>
-    <h3>To Do:</h3>
-    <ul>
-        <li>Write a specification of some sort (Slay the Stymphalian birds)</li>
-        <li>Write a frontend (Steal three golden apples of the Hesperides)</li>
-        <li>Write a tokenizer (Slay the Nemian Lion)</li>
-        <li>Write a parser (Slay the Lernaean Hydra)</li>
-        <li>Write a type/error checker (Clean the Augean Stables)</li>
-        <li>Write a code generator (Capture and return Cerberus)</li>
-        <li>Start a community (Obtain the girdle of Hippolyta)</li>
-    </ul>
-    <p> Seems easy enough, right? </p>
-    <br>
-
-
-    <h1 id="CProj">apaz-libc (My Personal C library)</h1>
-    </p><img src="muxtexes.png" alt="Example code for cross-platform muxtexes."><br>
-    <a href="https://github.com/apaz-cli/memdebug.h" target="_blank"
-        rel="noopener noreferrer">https://github.com/apaz-cli/memdebug.h</a><br><br>
-    <a href="https://github.com/apaz-cli/threadpool.h" target="_blank"
-        rel="noopener noreferrer">https://github.com/apaz-cli/threadpool.h</a><br>
-    <p> One particularly stressful night in college, it occurred to me that I hadn't slept in roughly 38 hours. I had
-        been doing homework for the whole time, couldn't sleep, and needed to decompress very badly. I forget what other
-        thoughts went through my head at that time, but then I decided. I was going to write a memory debugger from
-        scratch. So then I did. I finished it in about four hours, then promptly slept for 16 hours. When I woke up I
-        didn't remember writing most of the code, but over the course of a couple weeks I slowly refined it and added
-        features. I made it thread-safe with the cross platform muxtexes above, and added a feature that lets you view
-        every memory allocation that hasn't been freed, as well as where you allocated it. This way, it's easy to track
-        down memory leaks.</p>
-    <p> Later, I decided to write a threadpool from scratch also. Eventually I may extend it to implement futures.</p>
-    <p> After</p>
-    <br>
-
-
-    <h1 id="VPTree">Vantage Point Tree</h1>
-    </p><img src="vptree.png" alt="Vantage Point Tree construction diagram"><br>
-    <a href="https://github.com/apaz-cli/VPTree" target="_blank"
-        rel="noopener noreferrer">https://github.com/apaz-cli/VPTree</a><br><br>
-    <p> To check if two perceptual image hashes match, you simply compute the distance between them. If the distance
-        between the two hashes falls within a certain threshold, then the images match. Otherwise, they don't.
-        This is quite efficient, especially compared to manually staring at a screen, or compared to loading the images
-        into memory. However, duplicate-finding means cross-comparing every image with every other image. I have 6
-        million images. Six million squared is a very large number. If I were able to compare hashes at a rate of 100
-        comparisons per second, it would take about 11415 years to compare them all. Clearly, that is not an option.</p>
-    <p> The solution is to carefully store the hashes in a way that they can be easily partitioned. I chose a data
-        structure called a Vantage Point Tree. The great thing about a vantage point tree is that it works on any
-        concept of distance, not just standard Euclidean distance. This is useful because not all hashing algorithms use
-        the same distance metric. Some use Euclidean distance, but some use Hamming distance, and this way I don't have
-        to write multiple solutions.</p>
-    <p> For technical reasons, I chose to write this algorithm from scratch in C. This is an incredibly
-        performance-sensitive piece of code. If I had chosen to write it in Java or Python, or even naive
-        C++, I would have run into some serious performance issues. But, I still needed to use this code in a Java
-        program. So I wrote JNI language bindings to my C code so that I could interact with it inside the Java virtual
-        machine. Doing this allowed me to reap the absurd performance benefits that come with well designed low level C
-        code, while never leaving behind the ease of experimentation that a higher level language like Java provides.
-    </p>
-    <br>
-
-
-    <h1 id="Economic-Modeling">Economic Modeling Research</h1>
-    <img class="model_graph"
-        src="https://raw.githubusercontent.com/larissaford/PIC-Math-MSCS-390-001/master/FP_Graph.png"
-        alt="Numerical methods used to solve a system of differential equations"><br>
-    <a href="https://github.com/larissaford/PIC-Math-MSCS-390-001" target="_blank"
-        rel="noopener noreferrer">https://github.com/larissaford/PIC-Math-MSCS-390-001</a><br><br>
-    <p> Going into summer 2020, my internship prospects had been shattered by Covid. Many of my friends had their
-        internships cancelled as well. Fortunately however, a deal was struck, research for internship requirement, and
-        a team of six of us got to work on a project for University of Tampa under professor <a
-            href="https://www.ut.edu/directory/stinespring-john">John Stinespring</a>.</p>
-    <p> The subject of our research was to figure out a way to approximate
-        the solution to a specific class of systems of differential equations. We figured out a good algorithm that
-        converges on the right answer. We were in the middle of proving that our solution would always yield the right
-        answers for these types of problems no matter the parameters, but then the summer ended.</p>
-    <p> Our solution ended up involving a series of simulations that get progressively more and more accurate, as
-        pictured above. Each line is a lot like dropping a leaf into a river and seeing where it goes. The system of
-        equations describes the river (the economy) and how its flow changes over time. What we're doing is solving this
-        problem backwards, trying to figure out where to put the leaf (initial market state) to get where we want to go
-        (market projections or the outcome of successful economic policy). The tweakable parameters of these models
-        better inform us how to make plans for the immediate economic future, also inform us what actions must be taken
-        to change the "flow" of the economy.</p>
-
-    <p> You can find a writeup of our work here. As a warning, it is dense and sloppy. There are typos too. However, it
-        does contain novel ideas. A publication is forthcoming. <br>
-        <a
-            href="https://apaz-cli.github.io/Economic_Notebook.html">https://apaz-cli.github.io/Economic_Notebook.html</a>
-    </p>
-    <br>
-
-    <h1 id="Brainfuck-Compiler-Interpreter">BF Compiler/Interpreter</h1>
-    <pre><code>
-    <span class="hljs-comment">This is Hello World in brainfuck:</span>
-    <span class="hljs-literal">++++++++++[&gt;+++++++&gt;++++++++++&gt;+++&gt;+&lt;&lt;&lt;&lt;-]</span>
-    <span class="hljs-literal">&gt;++.&gt;+.+++++++..+++.&gt;++.&lt;&lt;+++++++++++++++.</span>
-    <span class="hljs-literal">&gt;.+++.------.--------.&gt;+.&gt;.</span>
-    </code></pre>
-    <a href="https://github.com/apaz-cli/Brainfuck-Tools" target="_blank"
-        rel="noopener noreferrer">https://github.com/apaz-cli/Brainfuck-Tools</a><br><br>
-
-    <p> Brainfuck is an intentionally confusing programming language, aptly named for the experience of writing and
-        debugging its code. It was not created to be useful, but to challenge, amuse, and punish programmers. Despite
-        the mind bending complexity of BF programs, the language itself is quite simple.</p>
-    <p> Building a compiler for a conventional programming language is very difficult. It's a relatively straightforward
-        task in the same way as the twelve labours of Heracles. Writing an abstract syntax tree parser, a necessary part
-        of most compilers, feels very much like trying to slay the Nemean lion.</p>
-    <p> Fortunately though, writing a Brainfuck interpreter is relatively easy. So I did. Then I also wrote a compiler
-        for it that transpiles Brainfuck to C code, then tells a C compiler to compile the generated code to produce a
-        binary.</p>
-    <p> Every programming language is in a (loose) sense just C in disguise, and BF is no exception. While you're
-        writing C code, you start to think about how to design things like classes, inheritance, interfaces, lambda
-        expressions, closures, futures, coroutines, and so on. It turns out these are all just C design patterns. I've
-        definitely used each of those in C at least once. So, while compiling Brainfuck to C is somewhat trivial, the
-        same logic can be applied to more complicated languages. After all, the first C++ compiler spat out C.</p>
-    <br>
-
-
-    <h1 id="RootwallaBot">RootwallaBot</h1>
-    <img src="https://raw.githubusercontent.com/apaz-cli/RootwallaBot/master/Examples/RootwallaBot%20ProbChart%20Example.png"
-        alt="Image of probability graph"><br>
-    <a href="https://github.com/apaz-cli/RootwallaBot" target="_blank"
-        rel="noopener noreferrer">https://github.com/apaz-cli/RootwallaBot</a><br><br>
-    <p> RootwallaBot is a Discord bot that does hypergeometric probability/distribution, and graphs the results.
-        It&#39;s particularly useful to people like me who play a lot of trading card games such as Magic: the Gathering
-        or Yugioh. </p>
-    <p> While building a deck, you may think to yourself: If my 60 card deck contains 24 lands, what are the chances
-        that I draw between 2 to 4 of them in my opening hand of 7 cards? You can see the graph of expected frequency
-        above, along with mean and standard deviation. The command pictured above graphs relative frequency, but the
-        /prob command will tell you that the probability is roughly 77.46%.</p>
-    <br>
-
-
-    <h1 id="MonikaBot">MonikaBot</h1>
-    <img src="Monika_quote.png" alt="Monika Quote and image"><br>
-    <a href="https://github.com/apaz-cli/MonikaBot" target="_blank"
-        rel="noopener noreferrer">https://github.com/apaz-cli/MonikaBot</a><br><br>
-    <p> MonikaBot is another Discord bot. This one just posts quotes and images of the character Monika from the game
-        Doki Doki Literature Club. It also has some administrative features built into it.</p>
-    <p> I&#39;m running both the Monika and Rootwalla bots from a Raspberry Pi in my dorm room. MonikaBot was created
-        for a college club and gets some use from time to time. RootwallaBot was created for a Magic the Gathering
-        Discord server and serves roughly 200 daily users.</p>
-    <br>
-
-    <br><br>
-    <p>Also this website is a project too, I guess. If you want to call it that. Thanks for scrolling this far.</p>
-    <p>--Aaron Pazdera</p>
-</body>
-
-</html>
+    <div class="pixeloverlay"></div>
+    <div class="vignette"></div>
+    <script>
+        var clock=document.getElementById("clock");
+        function updateClock(){
+            var date=new Date();
+            date.setHours(date.getHours()+0)
+            var hours = date.getHours().toString();
+            var minutes = date.getMinutes().toString();
+            var seconds = date.getSeconds().toString();
+            if (hours.length==1){
+                hours="0"+hours
+            }
+            if (minutes.length==1){
+                minutes="0"+minutes
+            }
+            if (seconds.length==1){
+                seconds="0"+seconds
+            }
+            clock.innerHTML=hours+":"+minutes+":"+seconds;
+        }
+        updateClock();
+        setInterval(updateClock,1000);
+    </script>
+    </body>
+    </html>
