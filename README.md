@@ -1,73 +1,121 @@
-# apaz-cli.github.io
+# Startpage
 
-## Contents:
-  - [RootwallaBot](#RootwallaBot)
-  - [MonikaBot](#MonikaBot)
-  - [Perceptual Image Hashing](#Perceptual-Image-Hashing)
-  - [Deep Learning](#Deep-Learning-Projects)
-  - [BF Tools](#Brainfuck-Compiler/Interpreter)
-  - [Contact](#Contact)
-   
- # RootwallaBot
- ![Image of probability graph](https://raw.githubusercontent.com/Aaron-Pazdera/RootwallaBot/master/Examples/RootwallaBot%20ProbChart%20Example.png)
- 
- [https://github.com/apaz-cli/RootwallaBot](https://github.com/apaz-cli/RootwallaBot)
- 
- RootwallaBot is a Discord bot that does hypergeometric probability/distribution, and graphs the results. It's particularly useful to people who play a lot of trading card games such as Magic: the Gathering or Yugioh. 
- 
- While building a deck, you may think to yourself: If my 60 card deck contains 24 lands, what are the chances that I draw between 2 to 4 of them in my opening hand of 7 cards? You can see the graph of expected frequency above, along with mean and standard deviation. The command pictured above graphs relative frequency, but the /prob command will tell you that the probability is roughly 77.46%.
- 
- # MonikaBot
- ![Monika Quote and image](https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/Monika_quote.png)
- 
- [https://github.com/apaz-cli/MonikaBot](https://github.com/apaz-cli/MonikaBot)
- 
- MonikaBot is another Discord bot. This one just posts quotes and images of the character Monika from the game Doki Doki Literature Club. It also has some administrative features built into it.
- 
- I'm running both the Monika and Rootwalla bots from a Raspberry Pi in my dorm room. MonikaBot was created for a college club and gets some use from time to time. RootwallaBot was created for a Magic the Gathering Discord server and serves ~200 daily users.
- 
- # Perceptual Image Hashing
- ![Image of Alyson Hannigan, resized to 8x8, then bits of hash are set](https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/Hannigan_aHash.png)
- 
- [Images courtesy of http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html](http://www.hackerfactor.com/blog/index.php?/archives/432-Looks-Like-It.html)
- 
- [https://github.com/apaz-cli/Open-Image-Hashing-Tools](https://github.com/apaz-cli/Open-Image-Hashing-Tools)
- 
- 
- 
- A hash function is one that takes some sort of input data and maps it onto a certain configuration on a fixed size set of bits. The hope is that you can use the bits generated, the hash, to re-identify the thing that the hash describes. If two peices of data have the same hash, there's a high chance that they're duplicates.
- 
- Hash functions have for a long time been relevant in cryptography and networking. If the hash of a message is attached to the end of the message, the recipient can simply re-hash the message to verify its integrity. If there's even one bot flipped, then the recipient will know. But, what if you want a hash function that's resilient to small changes in the input?
- 
- Very often, small transmission errors should be overlooked because an image was transfered using a network protocol that doesn't validate messages. Other times, you have a .png image and a .jpg image that are clearly visually identical, but a cryptographic hash function would call them completely different images because of one or two almost imperceptible jpg compression artifacts. A perceptual hash function generates a hash based on "what the image looks like" rather than a cryptographic mangling of bits. The images above describe the process for the simplest such algorithm, aHash.
- 
- This is actually a rather difficult and interesting problem, which has led me to many places, from image and signal processing to computational geometry and deep learning. All because I wanted to remove duplicate images from a folder. I ended up eventually doing that, but I also built a framework so that anyone can create their own system to efficiently hash, store, and compare hashes, and to build and benchmark image hashing algorithms. It was a bit overkill, but a whole lot of fun. 
- 
- It took a long time because I built the entire system from scratch. I couldn't find an image library that could do pixel comparisons fast enough, so I built my own. I couldn't find an implementation of a VP-Tree (computational geometry data structure for fast nearest-neighbor lookup) that I liked, so I built my own. I read all the original papers and implemented the algorithms from scratch. It's my passion project, and I've put a lot of time into it.
- 
- # Deep Learning Projects
- ![image next to the same image with added gaussian noise](https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/imgpair.png)
- ![Loss function mathematically described](https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/loss.png)
- 
- 
- After a while, I began to think that conventional image hashing algorithms are great, but there's got to be a better way. I spent a long time thinking deeply about what was important to what an image "looked like" and the ways each algorithm did and didn't distill the "essence," whatever that means, of an image. Eventually I realized that this would be a perfect application of machine learning. Simply construct the system in such a way that I don't have to decide what is and isn't important to the algorithm. Just let the computer do it.
- 
- Another great benefit is that if you want the resulting hash function to be invariant to something, such as noise, rotation, scaling, etc, all you have to do is design a loss function that sets the distance between the resulting hashes to zero. So that's what I did. The architecture that I settled on was a convolutional autoencoder with a variation on triplet margin loss.
- 
- This is still somewhat of a work in progress, because I'm still messing around with loss functions and trying to design one that's even better. However, it works, and I'm soon going to hook my machine learning image hash function into my image hashing framework. It'll be free for any developer to use.
- 
- 
- # Brainfuck Compiler/Interpreter
- [https://github.com/apaz-cli/Brainfuck-Tools](https://github.com/apaz-cli/Brainfuck-Tools)
- 
-     This is Hello World in brainfuck:
-     ++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.
-     
- Brainfuck is an intentionally confusing programming language, named for the experience of writing and debugging its code. It was not created to be useful, but to challenge, amuse, and punish programmers. Despite the absurd complexity of BF programs, the language itself is quite simple.
- 
- For a long time, I've been interested in compiler theory, and creating my own programming language. After all, most features of higher level languages than C are just C design patterns in disguise. What is an object but a struct with associated functions? That's a C design pattern. People write object-oriented C code all the time. What is a template but a sequence of macros? What is an interface but a generalized template? What is a lambda expression but a struct holding a function pointer (or not because it can be devirtualized by the compiler) that is also an object implementing a functional interface?
- 
- Unfortunately, building a compiler is very difficult. Fortunately however, Brainfuck is a very simple language, and writing an interpreter for it is relatively easy. So I did. Then I also wrote a compiler for it that transpiles Brainfuck to C code, then calls a C compiler to produce a binary. Every programming language is in a sense just C in disguise, and BF is no exception.
- 
- ## Contact
- [aarpazdera@gmail.com](mailto:aarpazdera@gmail.com)
+A small script to generate a startpage written in Python.
+
+## Preview with filters
+![Screenshot with filters enabled](https://gitlab.com/Baut/readme-images/-/raw/master/StandaloneImages/Startpage%20with%20overlays.png)
+
+The sizes of the pixels are rendered fitting to the display resolution the final startpage is displayed at. Since this preview is just a downscaled screenshot some of it won't display correctly here.
+
+## Preview without filters (except background blur): 
+![Screenshot of default startpage](https://gitlab.com/Baut/readme-images/-/raw/master/StandaloneImages/Startpage.png)
+
+# Index
+
+ * [Requirements](#requirements)
+ * [How to generate a startpage with this script](#how-to-generate-a-startpage-with-this-script)
+ * [The `hourOffset` variable](#the-houroffset-variable)
+ * [Effect overlays](#effect-overlays)
+ * [Known issues/warnings](#known-issueswarnings)
+ * [Asset sources](#asset-sources)
+
+
+# Requirements
+
+You can technically just download this and use it as is (and make changes to the html and css manually), but the way it is intended is for you to use the `startpage.py` file. To run this file you need to have [python3](https://www.python.org/downloads/) installed on your system. That is the only requirement.
+
+# How to generate a startpage with this script
+
+## - Download this repository
+
+If you are viewing this repo on **gitlab** click on the small download arrow button next to the **clone** button in the upper right of this site. If you are viewing this repo on **github** click on the **code** button in the upper right of this site directly. Then navigate to "Download Zip". You can of course also just clone the repo via command line.
+
+Using the software of your choice decompress this archive if you did not clone the repo via command line.
+
+## - Using the editor of your choice, change some values. There are 3 places that can accept changes: `startpage.py`, `main.css` and `content.txt`.
+
+* `startpage.py` - For changing window strings, file paths and the clock.
+    * (optional) Change the `TabTitle`,`TitleText` & `SubText` strings to change these on the final startpage. 
+    * (required) Change the `importPath` and `outputPath` values. If you are on windows you need to escape the backslashes windows has in paths (or use raw strings). If you are on Linux, just use the normal path.
+    * (optional) Change `hourOffset` if your time is wrong. For first setup keep it at 0. If your clock is wrong after generating the startpage, change this value to adjust it. (Positive numbers to increase the hours, negative to decrease.)
+* `main.css` - For changing colors, images, effects and fonts.
+    * All values in the root{} area are optional to change. To load other images change the image URLS in this section or replace the files (with the same name as the old file).
+    * The variables in the root{} area have comments next to them with a short explanation what they do.
+    * You can also activate or deactivate overlay effects like the blur, crt pixel effect and vignette from this root{} area.
+    * If you want to change the font used, scroll to the bottom of the file and change the path to the font file.
+* `content.txt` - For changing the actual content of the startpage.
+    * This is where you change the actual content of the window of the startpage. The format is simple: 
+        * Every category is seperated by one **empty** line (That means no whitespaces in that line either). 
+        * The first line of each category is its title, while every line after that is considered a link. 
+        * A link line consists of three parts: A name (what the link should be displayed as), a seperator (a dash surrounded by a space on each side) and a hyperlink. The hyperlink is optional, but required to make the link work later. In the example file most links are left empty intentionally, in your version you should change all of them. 
+        * If a category has too many entries to fit them into one line on the startpage it will automatically add another line to the category.
+
+## - Run `startpage.py`. 
+
+You need python installed for that. How you run it is up to you. If you do not know what that means and are on Windows, double click it. A python window should open for a splitsecond before closing again and the index.html file in the folder should be updated.
+
+## - Use as startpage
+
+The index.html file is the new startpage you generated. To use it as a page for a new tab in your browser, look up a browser specific tutorial on how to set it as default for new tabs.
+
+That's all.
+
+# The `hourOffset` variable
+
+The `startpage.py` file has a `hourOffset` variable that you can change. This variable should be changed if the clock is displaying the wrong time for you. 
+
+Normally the clock should be accurate, but some browser configurations can create issues - for example if you run Firefox and have `privacy.resistFingerprinting` set to true, the timezone that the clock is displated in can be wrong since the browser refuses to tell the script the timezone you are in. This offset is a blanket solution to adjust the time if you run into any such issues without requiring you to change your browser settings or compromising your security. Just change the value and regenerate the startpage.
+
+# Effect overlays
+
+Currently there are 3 effect overlays that you can turn off or on for the startpage: a background blur, a "crt pixel" effect and a vignette overlay. These can be adjusted and toggled on/off in the `main.css` file. Explanations for them are in the comments to every setting. 
+
+That being said the "crt pixel" effect might profit from explanation. It is an overlay that repeats every 3 pixels in each direction: Horizontally every 3 pixel group is overlayed with the colors that the RGB cells of a crt used to have. Vertically every third pixel is darkened to simulate "gaps" between the cells. This means the effect suggests that every 3*3=9 pixel group is 1 crt pixel. It is simply a overlay though, so alignment is not taken into account and the real image is still below in default resolution.
+
+The `--pixeloverlay-resolution` is a multiplier that defines how big each cell is, at 1 it is a 3\*3 cell, at 2 it's a 6\*6 cell, etc. Floating point numbers (1.5 etc.) can be used, but will most likely cause [moiré patterns](https://en.wikipedia.org/wiki/Moir%C3%A9_pattern). Feel free to experiment with these settings, but if you want to avoid these patterns it is probably a good idea to stick to multipliers that result in whole numbers. In contrast the `--pixeloverlay-itensity` setting just defines the opacity of the overlay. 
+
+# Known issues/warnings
+
+## Scaling
+
+The distances between divs in the html document are hardcoded in the form of pixel distances. Scaling can be bad if vastly different aspect ratios or resolutions other than 1920 x 1080 are used. From some quick testing it seems to behave decently with different aspect ratios, but you have been warned.
+
+## Content overflow
+
+Content overflow happens when the script encounters either more data than expected or unusually large strings. It will make content on the page appear to go outside the intended areas and make it look worse.
+
+Currently there are two ways to trigger content overflow:
+
+* The script automatically adds linebreaks if you are adding more content into one category than there is space in one line. If however you add very long strings (around 60 symbols with default font size), it will still overflow.
+
+* If you add too much content overall, the script just adds category after category. There is no horizontal overflow check built in, so it will eventually flow out of the window. Limit the amount of links/categories you add to avoid this.
+
+## White border around background image
+
+The background image has a blur filter over it. You can adjust the intensity of this blur filter by changing the `--backgroundBlur` variable in the `main.css` file. Due to the way this blur is calculated, the very edges of the background image will have a blurry colored border equal to the background color of the document. This effect gets stronger the more blurry the background is set. This can be unintended in terms of appearance especially if you have dark backgrounds.
+
+As of now there are two ways to avoid it:
+
+* Disable the blur by changing it to `0px`
+* Change the `backgroundBorder` property in `main.css` to a color that fits the image you are using better.
+
+# Asset sources
+The licences of the external assets do not require attribution, but in case you were wondering where they were from I decided to link the sources here anyways.
+
+These assets are only used for the default look of the startpage and can be replaced at will.
+
+## Inspiration
+
+The original default appearance of this startpage is inspired by a startpage by [jamesNWT](https://github.com/jamesNWT). 
+
+## Images
+
+There are 3 images used, 2 of which are from [Pixabay](https://pixabay.com/) and are licenced under their [Pixabay licence](https://pixabay.com/service/terms/#license).
+
+* The first image is the [background image with the tree blossom](https://pixabay.com/photos/blossom-pink-garden-nature-4151081/).
+* The second image is the [painting "The Great Wave off Kanagawa"](https://pixabay.com/illustrations/picture-woodblock-printing-woodcut-1247354/).([Additional Wikipedia link](https://en.wikipedia.org/wiki/The_Great_Wave_off_Kanagawa))
+
+The third image is a cut out and edited version of the window from an image that inspired this startpage script, the source of which has been lost.
+
+## Font
+The font used is the [W95FA font by FontsArena](https://fontsarena.com/w95fa-by-fontsarena/) and is licenced under a SIL OpenFont licence.
