@@ -5,7 +5,7 @@
 --maintextcolor:#000;               /*The color of the text in the main area.*/
 --headercolor:#fff;                 /*The color of the text in the header/title.*/
 /* --linktextcolor:var(--maintextcolor); /*This line means that the links will have the same color as the normal text in the main area of the window. Change if you want different colors.*/
---backgroundImageUrl:url("resources/images/4.jpg");  /*The URL to the image you want to use as background.*/
+--backgroundImageUrl:url("resources/images/1.jpg");  /*The URL to the image you want to use as background.*/
 --focusImageUrl:url("resources/images/sip.png");   /*The URL to the image you want to use for the foreground.*/
 --backgroundBlur:blur(0px);                           /*Change how blurry the background is. Higher number is more blurry.*/
 --backgroundBorder:#000;                           /*If you have a blurry background, set the color of the border around the image to fit it here.*/
