@@ -1,4 +1,7 @@
+#!/usr/bin/python3
+
 import re
+import os
 """
 The variables that you are meant to change are those that are defined in the first block here before the function definitions.
 Note that this is just plaintext that gets inserted into the string below. It's not elegant, but it works. 
@@ -12,12 +15,11 @@ outputPath = "index.html"
 hourOffset = 0
 
 
-def importContent():
+def parseContents():
+    contents = None
     with open(importPath, "r") as file:
-        return file.read()
+        contents = file.read()
 
-
-def parseContents(contents):
     while contents[0] == '\n':
         contents = contents[1:]
     while contents[-1] == '\n':
@@ -104,12 +106,16 @@ def makeDoc(data):
         file.write(page)
 
 
+def makeBlog():
+    os.chdir('blog/')
+    os.system('./blogmd.py')
+    pass
+
+
 if __name__ == "__main__":
-    print('Importing data...', end="")
-    data = importContent()
-    print('Done.\nParsing data from import file...', end='')
-    data = parseContents(data)
-    print('Done.\nCreating HTML startpage...', end='')
-    makeDoc(data)
-    print('Done.')
-    print('Finished. New startpage has been created.')
+    contents = parseContents()
+    print('Parsed content file.')
+    makeDoc(contents)
+    print('Created main HTML page.')
+    makeBlog()
+    print('Generated blog.\nDone.')

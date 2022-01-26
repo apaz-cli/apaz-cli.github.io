@@ -1,5 +1,5 @@
 Blog:
-(Under Construction) | 
+Stilts Blog                           | blog/Blog.html
 
 Projects:
 The Stilts Programming Language       | https://github.com/apaz-cli/Stilts

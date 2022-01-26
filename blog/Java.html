@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Java</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style type="text/css">
+  /* https://github.com/markdowncss/retro/blob/master/css/retro.css */
+
+  pre,
+  code {
+      font-family: Menlo, Monaco, "Courier New", monospace;
+  }
+  pre {
+      padding: .5rem;
+      line-height: 1.25;
+      overflow-x: scroll;
+  }
+  @media print {
+      *,
+      *:before,
+      *:after {
+          background: transparent !important;
+          color: #000 !important;
+          box-shadow: none !important;
+          text-shadow: none !important;
+      }
+      a,
+      a:visited {
+          text-decoration: underline;
+      }
+      a[href]:after {
+          content: " (" attr(href) ")";
+      }
+      abbr[title]:after {
+          content: " (" attr(title) ")";
+      }
+      a[href^="#"]:after,
+      a[href^="javascript:"]:after {
+          content: "";
+      }
+      pre,
+      blockquote {
+          border: 1px solid #999;
+          page-break-inside: avoid;
+      }
+      thead {
+          display: table-header-group;
+      }
+      tr,
+      img {
+          page-break-inside: avoid;
+      }
+      img {
+          max-width: 100% !important;
+      }
+      p,
+      h2,
+      h3 {
+          orphans: 3;
+          widows: 3;
+      }
+      h2,
+      h3 {
+          page-break-after: avoid;
+      }
+  }
+  a,
+  a:visited {
+      color: #01ff70;
+  }
+  a:hover,
+  a:focus,
+  a:active {
+      color: #2ecc40;
+  }
+  .retro-no-decoration {
+      text-decoration: none;
+  }
+  html {
+      font-size: 12px;
+  }
+  @media screen and (min-width: 32rem) and (max-width: 48rem) {
+      html {
+          font-size: 15px;
+      }
+  }
+  @media screen and (min-width: 48rem) {
+      html {
+          font-size: 16px;
+      }
+  }
+  body {
+      line-height: 1.85;
+  }
+  p,
+  .retro-p {
+      font-size: 1rem;
+      margin-bottom: 1.3rem;
+      /*text-indent: 50px*/
+  }
+  h1,
+  .retro-h1,
+  h2,
+  .retro-h2,
+  h3,
+  .retro-h3,
+  h4,
+  .retro-h4 {
+      margin: 1.414rem 0 .5rem;
+      font-weight: inherit;
+      line-height: 1.42;
+  }
+  h1,
+  .retro-h1 {
+      color: rgb(112, 221, 0);
+      margin-top: 0;
+      font-size: 3.998rem;
+  }
+  h2,
+  .retro-h2 {
+      font-size: 2.827rem;
+  }
+  h3,
+  .retro-h3 {
+      font-size: 1.999rem;
+  }
+  h4,
+  .retro-h4 {
+      font-size: 1.414rem;
+  }
+  h5,
+  .retro-h5 {
+      font-size: 1.121rem;
+  }
+  h6,
+  .retro-h6 {
+      font-size: .88rem;
+  }
+  small,
+  .retro-small {
+      font-size: .707em;
+  }
+  /* https://github.com/mrmrs/fluidity */
+  img,
+  canvas,
+  iframe,
+  video,
+  svg,
+  select,
+  textarea {
+      max-width: 100%;
+  }
+  html,
+  body {
+      background-image: url(https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/pattern.png);
+      background-color: #222;
+      min-height: 100%;
+  }
+  html {
+      font-size: 18px;
+  }
+  body {
+      color: #fafafa;
+      font-family: "Courier New";
+      line-height: 1.45;
+      margin: 6rem auto 1rem;
+      max-width: 48rem;
+      /* padding: .25rem; */
+  }
+  pre {
+      background-color: #333;
+  }
+  blockquote {
+      border-left: 3px solid #01ff70;
+      padding-left: 1rem;
+  }
+  </style>
+</head>
+<body>
+<h1 id="my-experience-with-java">My Experience with Java</h1>
+<p><img src="images/Java.png" /></p>
+<p><br></p>
+<p>    To preface this, I really love Java. It’s not that I love to hate it. Although I do definitely hate it. But I don’t want to hate it.</p>
+<p><br></p>
+<p>    When I was asked to help come up with interview questions for new developers we’re hiring at work, I responded with two.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="ss">1. </span>What is your favorite programming language, and why?</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="ss">2. </span>Why do you hate your favorite language? Please elaborate at length.</span></code></pre></div>
+<p><br></p>
+<p>    I propose that the way to measure the quality of a developer is the length of time they talk, and the amount of technical detail that they go into about why they hate their favorite language.</p>
+<p><br></p>
+<p>    Now, here is my rant about why I hate Java, which eventually led me to start work on Stilts.</p>
+<br>
+<p align="center">
+<img src="images/Experienced_User.png" width=400px height=400px>
+</p>
+<p><br><br></p>
+<p>    Java was my first programming language, and also the one that sent me over the deep end. Unlike many, I consider Java a very beautiful language. It’s verbose, but that never bothered me. That verbosity allows you to write very good APIs. It also has support for protocols (interfaces), which interact with closures and lambda expressions in the language in a way that I consider incredibly beautiful.</p>
+<p>    Most people love to hate Java. I think the criticisms that most people have about the language are unjustified. However, the language is a swiss cheese blend of design flaws which ultimately undermine both its soundness and its utility.</p>
+<p><br></p>
+<h3 id="the-problem">The Problem:</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="ss">1. </span>Runtime JIT code injection and reflection hinders optimizations.</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="ss">2. </span>As memory use increases, garbage collection time increases exponentially.</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="ss">3. </span>Object headers take up an unnecessarily massive amount of memory.</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="ss">4. </span>Everything is an object, and every object always goes on the heap.</span></code></pre></div>
+<p>    You’ll notice that these problems compound on each other. This is all very slow, but not egregious. It’s exactly the trade-off that we signed up for when we decided to write our program in Java. But, unfortunately it gets worse. When the Java runtime does garbage collection, it causes the program to hang for a small, but noticeable amount of time. This is what we signed up for too. It’s the price of not manually managing memory. But it’s not without its unintuitive and hidden dangers.</p>
+<p><br></p>
+<p>    One day I wrote a Java program to read a database into memory and do some statistics. It was slow, as Java often is, but it worked. Then I added some more data to the database. I had about 3% of my (massive) heap left to work with, and I wasn’t running out of memory. It still should work, right? Unfortunately, no.</p>
+<p>    This happened because the Java garbage collector only takes out the trash once it’s full. And, just like in real life, it takes about the same amount of time to walk a bag to the curb when it’s completely full as when the bag is only halfway full. So, to be optimal, it waits until the heap is completely full. The issue that the available space in the “trash can” (heap) in this metaphor is only the size of a thimble. The rest of the can is full of our database, so once we fill up that thimble we have to walk the whole can to the curb and back to dispose of the contents of the thimble. The smaller our thimble is, we have to take exponentially more trips.</p>
+<p>    After profiling my program, I found that the Java runtime was pegging my memory bandwidth at 100% and spending more than 99% of its time on garbage collection, and less than 1% of its time actually executing my program. When it was using only 40% of its time on collecting garbage, the program was still usable.</p>
+<p>    The frustrating thing is that this is not an unconventional use case. I wouldn’t say that my program is disqualified from being “normal.” There are plenty of programs that have to store a lot of data in memory for most of their execution. That Java cannot handle such a use case bothers me. Yes, reference counting JVM garbage collectors exist, but for a long time they were considered inefficient and very bad on average. You are forced to make the painful choice between “bad average case” and “catastrophic worst case.”</p>
+<p><br></p>
+<h3 id="the-solution">The Solution:</h3>
+<p>Like in other languages, writing blazingly fast Java code is very straightforward. Modern hardware, even cheap hardware, is already faster than you could possibly comprehend. If you want fast software, all you have to do is not do things that are slow. There are three main things that are slow in Java.</p>
+<h4 id="slow-things-not-to-do">Slow things not to do:</h4>
+<div class="sourceCode" id="cb3"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="ss">1. </span>Creating objects (future garbage)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="ss">2. </span>Collecting gabrage</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="ss">3. </span>Loading classes</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="ss">4. </span>Using reflection</span></code></pre></div>
+<h4 id="how-to-not-do-those-things">How to not do those things:</h4>
+<div class="sourceCode" id="cb4"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="ss">1. </span>Find creative ways to not use objects (reduce, reuse, recycle).</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="ss">  * </span>Don&#39;t get your objects from constructors, use factories.</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a><span class="ss">    * </span>Build pools of objects to reuse, return them from the factories.</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a><span class="ss">    * </span>Have a &quot;free()&quot; method that adds the object to the pool.</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a><span class="ss">    * </span>We just wrote a manually managed memory allocator in Java.</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a><span class="ss">    * </span>We have to do this for every commonly used non-static class.</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a><span class="ss">    * </span>Java is known for this design pattern. This is why.</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a><span class="ss">    * </span>It&#39;s no secret that this design pattern fucking sucks.</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a><span class="ss">2. </span>Null all references to objects you no longer need immediately.</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a><span class="ss">  * </span>A variable passing out of scope does this automatically.</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a><span class="ss">  * </span>Otherwise, it&#39;s worth doing the extra work.</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a><span class="ss">3. </span>Spend hours testing and tweaking JVM settings.</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true"></a><span class="ss">  * </span>Choose the right garbage collector for the job.</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true"></a><span class="ss">  * </span>Allocate as much memory for the heap as you can.</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true"></a><span class="ss">    * </span>Unfortunately, most developers will squander this resource.</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true"></a><span class="ss">4. </span>Don&#39;t use massive bloated frameworks.</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true"></a><span class="ss">  * </span>Startup times suffer the most from this.</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true"></a></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true"></a><span class="ss">5. </span>Don&#39;t use reflection.</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true"></a><span class="ss">  * </span>Speed is a reason, but...</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true"></a><span class="ss">  * </span>Please for the love of god don&#39;t use it, it&#39;s so unholy.</span></code></pre></div>
+<p><br></p>
+<p>    Instead of memory leaks (Java does actually have true memory leaks, but that’s another story), Java has something more like “performance leaks.” If you do not keep a mental model of the object graph, you may forget to allow a some objects to be collected. Unless you allow them to be collected, they will continue to take up space in your heap, meaning you must garbage collect more often. Java is known for its performance nightmares and software hellscapes, and this is the most common cause.</p>
+<p>    Since Java gives you less freedom to do so, optimizing Java is almost never about optimizing cache, or even writing fast algorithms. In C, you can trick the compiler into generating better code by informing it of optimizations that it can make. You can physically lay out your memory so it’s already hot in cache by the time it’s needed. In Java, there are no fancy tricks. Just assume everything is a cache miss anyway, and focus reducing memory allocations and the frequency at which garbage has to be collected.</p>
+<h3 id="conclusion">Conclusion</h3>
+<p>    My advice is “If you want fast Java, don’t use objects.” Did you know that Java is an object oriented programming language? That sounds an awful lot like “Don’t use Java if you want fast code.” Unfortunately, that logic is sound.</p>
+<p>    However, there’s no reason Java needs to be so inefficient. The aspects of the language that I think are most important are all design patterns in other languages as well. In terms of raw features, Java isn’t at all special. Other languages, like C++, incorporate the same features at far less cost in terms of performace. All this garbage collection related stuff is unfortunate baggage, but in my opinion the things that makes Java great are interfaces and the Collections API. That’s very doable in C, there’s no reason why we should have to tolerate poor performance to get access to high level language features.</p>
+<p>    In fact, not only are they features or design patterns in other languages, they’re C design patterns. Suddenly I had an idea. Create a higher level programming language that takes in code that abuses templates, protocols, lambda expressions, collections, and streams, and spits out optimized C that implements those design patterns.</p>
+<p>I thought to myself “I can do better.” And now I’m trying to make that a reality.</p>
+</body>
+</html>
