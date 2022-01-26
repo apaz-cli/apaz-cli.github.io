@@ -75,6 +75,9 @@
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
   <style type="text/css">
   /* https://github.com/markdowncss/retro/blob/master/css/retro.css */
 
@@ -255,8 +258,8 @@
 <p>    To preface this, I really love Java. It’s not that I love to hate it. Although I do definitely hate it. But I don’t want to hate it.</p>
 <p><br></p>
 <p>    When I was asked to help come up with interview questions for new developers we’re hiring at work, I responded with two.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="ss">1. </span>What is your favorite programming language, and why?</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="ss">2. </span>Why do you hate your favorite language? Please elaborate at length.</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1"></a><span class="ss">1. </span>What is your favorite programming language, and why?</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="ss">2. </span>Why do you hate your favorite language? Please elaborate at length.</span></code></pre></div>
 <p><br></p>
 <p>    I propose that the way to measure the quality of a developer is the length of time they talk, and the amount of technical detail that they go into about why they hate their favorite language.</p>
 <p><br></p>
@@ -270,10 +273,10 @@
 <p>    Most people love to hate Java. I think the criticisms that most people have about the language are unjustified. However, the language is a swiss cheese blend of design flaws which ultimately undermine both its soundness and its utility.</p>
 <p><br></p>
 <h3 id="the-problem">The Problem:</h3>
-<div class="sourceCode" id="cb2"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="ss">1. </span>Runtime JIT code injection and reflection hinders optimizations.</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="ss">2. </span>As memory use increases, garbage collection time increases exponentially.</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="ss">3. </span>Object headers take up an unnecessarily massive amount of memory.</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="ss">4. </span>Everything is an object, and every object always goes on the heap.</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1"></a><span class="ss">1. </span>Runtime JIT code injection and reflection hinders optimizations.</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="ss">2. </span>As memory use increases, garbage collection time increases exponentially.</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="ss">3. </span>Object headers take up an unnecessarily massive amount of memory.</span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="ss">4. </span>Everything is an object, and every object always goes on the heap.</span></code></pre></div>
 <p>    You’ll notice that these problems compound on each other. This is all very slow, but not egregious. It’s exactly the trade-off that we signed up for when we decided to write our program in Java. But, unfortunately it gets worse. When the Java runtime does garbage collection, it causes the program to hang for a small, but noticeable amount of time. This is what we signed up for too. It’s the price of not manually managing memory. But it’s not without its unintuitive and hidden dangers.</p>
 <p><br></p>
 <p>    One day I wrote a Java program to read a database into memory and do some statistics. It was slow, as Java often is, but it worked. Then I added some more data to the database. I had about 3% of my (massive) heap left to work with, and I wasn’t running out of memory. It still should work, right? Unfortunately, no.</p>
@@ -284,35 +287,35 @@
 <h3 id="the-solution">The Solution:</h3>
 <p>Like in other languages, writing blazingly fast Java code is very straightforward. Modern hardware, even cheap hardware, is already faster than you could possibly comprehend. If you want fast software, all you have to do is not do things that are slow. There are three main things that are slow in Java.</p>
 <h4 id="slow-things-not-to-do">Slow things not to do:</h4>
-<div class="sourceCode" id="cb3"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="ss">1. </span>Creating objects (future garbage)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="ss">2. </span>Collecting gabrage</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="ss">3. </span>Loading classes</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="ss">4. </span>Using reflection</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1"></a><span class="ss">1. </span>Creating objects (future garbage)</span>
+<span id="cb3-2"><a href="#cb3-2"></a><span class="ss">2. </span>Collecting gabrage</span>
+<span id="cb3-3"><a href="#cb3-3"></a><span class="ss">3. </span>Loading classes</span>
+<span id="cb3-4"><a href="#cb3-4"></a><span class="ss">4. </span>Using reflection</span></code></pre></div>
 <h4 id="how-to-not-do-those-things">How to not do those things:</h4>
-<div class="sourceCode" id="cb4"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="ss">1. </span>Find creative ways to not use objects (reduce, reuse, recycle).</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="ss">  * </span>Don&#39;t get your objects from constructors, use factories.</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a><span class="ss">    * </span>Build pools of objects to reuse, return them from the factories.</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a><span class="ss">    * </span>Have a &quot;free()&quot; method that adds the object to the pool.</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a><span class="ss">    * </span>We just wrote a manually managed memory allocator in Java.</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a><span class="ss">    * </span>We have to do this for every commonly used non-static class.</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a><span class="ss">    * </span>Java is known for this design pattern. This is why.</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a><span class="ss">    * </span>It&#39;s no secret that this design pattern fucking sucks.</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a><span class="ss">2. </span>Null all references to objects you no longer need immediately.</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a><span class="ss">  * </span>A variable passing out of scope does this automatically.</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a><span class="ss">  * </span>Otherwise, it&#39;s worth doing the extra work.</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a><span class="ss">3. </span>Spend hours testing and tweaking JVM settings.</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true"></a><span class="ss">  * </span>Choose the right garbage collector for the job.</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true"></a><span class="ss">  * </span>Allocate as much memory for the heap as you can.</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true"></a><span class="ss">    * </span>Unfortunately, most developers will squander this resource.</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true"></a></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true"></a><span class="ss">4. </span>Don&#39;t use massive bloated frameworks.</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true"></a><span class="ss">  * </span>Startup times suffer the most from this.</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true"></a></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true"></a><span class="ss">5. </span>Don&#39;t use reflection.</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true"></a><span class="ss">  * </span>Speed is a reason, but...</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true"></a><span class="ss">  * </span>Please for the love of god don&#39;t use it, it&#39;s so unholy.</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1"></a><span class="ss">1. </span>Find creative ways to not use objects (reduce, reuse, recycle).</span>
+<span id="cb4-2"><a href="#cb4-2"></a><span class="ss">  * </span>Don&#39;t get your objects from constructors, use factories.</span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="ss">    * </span>Build pools of objects to reuse, return them from the factories.</span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="ss">    * </span>Have a &quot;free()&quot; method that adds the object to the pool.</span>
+<span id="cb4-5"><a href="#cb4-5"></a><span class="ss">    * </span>We just wrote a manually managed memory allocator in Java.</span>
+<span id="cb4-6"><a href="#cb4-6"></a><span class="ss">    * </span>We have to do this for every commonly used non-static class.</span>
+<span id="cb4-7"><a href="#cb4-7"></a><span class="ss">    * </span>Java is known for this design pattern. This is why.</span>
+<span id="cb4-8"><a href="#cb4-8"></a><span class="ss">    * </span>It&#39;s no secret that this design pattern fucking sucks.</span>
+<span id="cb4-9"><a href="#cb4-9"></a></span>
+<span id="cb4-10"><a href="#cb4-10"></a><span class="ss">2. </span>Null all references to objects you no longer need immediately.</span>
+<span id="cb4-11"><a href="#cb4-11"></a><span class="ss">  * </span>A variable passing out of scope does this automatically.</span>
+<span id="cb4-12"><a href="#cb4-12"></a><span class="ss">  * </span>Otherwise, it&#39;s worth doing the extra work.</span>
+<span id="cb4-13"><a href="#cb4-13"></a></span>
+<span id="cb4-14"><a href="#cb4-14"></a><span class="ss">3. </span>Spend hours testing and tweaking JVM settings.</span>
+<span id="cb4-15"><a href="#cb4-15"></a><span class="ss">  * </span>Choose the right garbage collector for the job.</span>
+<span id="cb4-16"><a href="#cb4-16"></a><span class="ss">  * </span>Allocate as much memory for the heap as you can.</span>
+<span id="cb4-17"><a href="#cb4-17"></a><span class="ss">    * </span>Unfortunately, most developers will squander this resource.</span>
+<span id="cb4-18"><a href="#cb4-18"></a></span>
+<span id="cb4-19"><a href="#cb4-19"></a><span class="ss">4. </span>Don&#39;t use massive bloated frameworks.</span>
+<span id="cb4-20"><a href="#cb4-20"></a><span class="ss">  * </span>Startup times suffer the most from this.</span>
+<span id="cb4-21"><a href="#cb4-21"></a></span>
+<span id="cb4-22"><a href="#cb4-22"></a><span class="ss">5. </span>Don&#39;t use reflection.</span>
+<span id="cb4-23"><a href="#cb4-23"></a><span class="ss">  * </span>Speed is a reason, but...</span>
+<span id="cb4-24"><a href="#cb4-24"></a><span class="ss">  * </span>Please for the love of god don&#39;t use it, it&#39;s so unholy.</span></code></pre></div>
 <p><br></p>
 <p>    Instead of memory leaks (Java does actually have true memory leaks, but that’s another story), Java has something more like “performance leaks.” If you do not keep a mental model of the object graph, you may forget to allow a some objects to be collected. Unless you allow them to be collected, they will continue to take up space in your heap, meaning you must garbage collect more often. Java is known for its performance nightmares and software hellscapes, and this is the most common cause.</p>
 <p>    Since Java gives you less freedom to do so, optimizing Java is almost never about optimizing cache, or even writing fast algorithms. In C, you can trick the compiler into generating better code by informing it of optimizations that it can make. You can physically lay out your memory so it’s already hot in cache by the time it’s needed. In Java, there are no fancy tricks. Just assume everything is a cache miss anyway, and focus reducing memory allocations and the frequency at which garbage has to be collected.</p>
