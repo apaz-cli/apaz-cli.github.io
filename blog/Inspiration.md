@@ -90,7 +90,36 @@ syntax and perhaps prevent some extra typing.
 
 ## Goals of Stilts
 
-I created Stilts because I want to right the wrongs of the other languages that I've used. Mostly the wrongs of C, Java, and C++. I want:
+I created Stilts because I want to right the wrongs of the other languages that I've used. Specifically, the
+wrongs of C, Java, and C++.
+
+<br>
+
+I've been asked over and over again "Why not just use C++?" I think that's a fair point. Initially, I thought
+to myself "because I want to write a programming language." While it would have been okay to leave it at that,
+over time my thoughts on the matter developed. After thinking about it some more, the answer I've settled on is
+"Because I hate writing C++, and I don't want to do it anymore."
+
+Stilts and C++ have basically the same goals. A C-compatible language for writing performant code faster.
+Additionally, C++ is a more mature and more powerful language that can do anything Stilts can and more.
+But also, ask any C++ programmer about the language's problems, and they won't be able to stop talking.
+Such a discussion would probably be too lengthy for this article, and there is a 100% chance that it would
+start fights. But I am not alone in my distaste. There have been
+<a href="http://harmful.cat-v.org/software/c++/coders-at-work">many prominent voices</a>
+in the programming community that have voiced the same opinion.
+
+Since I don't need to justify my dislike for C++ further, I will not. Instead, I would prefer to re-evaluate
+what I need from a language, and make a fresh start.
+
+<br>
+
+Let's start with what I don't need. The first thing that I don't need is a scripting language. Python has me
+covered. It is more mature, and supports everything that I need and far more. The second thing that I don't
+need is a language that leaves performance on the table. If I were okay with that I would just go back to
+Java, or maybe pick up Rust or Go.
+
+
+
 
 ```md
 * C++, but:
