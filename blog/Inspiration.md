@@ -90,8 +90,7 @@ syntax and perhaps prevent some extra typing.
 
 ## Goals of Stilts
 
-I created Stilts because I want to right the wrongs of the other languages that I've used. Mostly the wrongs
-of C, Java, and C++. I want:
+I created Stilts because I want to right the wrongs of the other languages that I've used. Mostly the wrongs of C, Java, and C++. I want:
 
 ```md
 * C++, but:
