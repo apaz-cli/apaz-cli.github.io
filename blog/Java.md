@@ -104,7 +104,7 @@ Like in other languages, writing blazingly fast Java code is very straightforwar
 
     Instead of memory leaks (Java does actually have true memory leaks, but that's another story), Java has something more like "performance leaks." If you do not keep a mental model of the object graph, you may forget to allow a some objects to be collected. Unless you allow them to be collected, they will continue to take up space in your heap, meaning you must garbage collect more often. Java is known for its performance nightmares and software hellscapes, and this is the most common cause.
 
-    Since Java gives you less freedom to do so, optimizing Java is almost never about optimizing cache, or even writing fast algorithms. In C, you can trick the compiler into generating better code by informing it of optimizations that it can make. You can physically lay out your memory so it's already hot in cache by the time it's needed. In Java, there are no fancy tricks. Just assume everything is a cache miss anyway, and focus reducing memory allocations and the frequency at which garbage has to be collected.
+    Since Java gives you less freedom to do so, optimizing Java is almost never about optimizing cache, or even writing fast algorithms. In C, you can trick the compiler into generating better code by informing it of optimizations that it can make. You can physically lay out your memory so it's already hot in cache by the time it's needed. In Java, there are no fancy tricks. You should assume everything is a cache miss anyway, and just focus on reducing memory allocations and the frequency at which garbage has to be collected.
 
 
 ### Conclusion

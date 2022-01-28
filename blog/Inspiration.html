@@ -75,175 +75,100 @@
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
-  <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
-  <![endif]-->
   <style type="text/css">
   /* https://github.com/markdowncss/retro/blob/master/css/retro.css */
 
-  pre,
-  code {
-      font-family: Menlo, Monaco, "Courier New", monospace;
+  @font-face {
+      font-family: "lemon";
+      src: url('lemon.woff');
   }
-  pre {
-      padding: .5rem;
-      line-height: 1.25;
-      overflow-x: scroll;
-  }
+
   @media print {
-      *,
-      *:before,
-      *:after {
+      *, *:before, *:after {
           background: transparent !important;
           color: #000 !important;
           box-shadow: none !important;
           text-shadow: none !important;
       }
-      a,
-      a:visited {
-          text-decoration: underline;
-      }
-      a[href]:after {
-          content: " (" attr(href) ")";
-      }
-      abbr[title]:after {
-          content: " (" attr(title) ")";
-      }
-      a[href^="#"]:after,
-      a[href^="javascript:"]:after {
-          content: "";
-      }
-      pre,
-      blockquote {
-          border: 1px solid #999;
-          page-break-inside: avoid;
-      }
-      thead {
-          display: table-header-group;
-      }
-      tr,
-      img {
-          page-break-inside: avoid;
-      }
-      img {
-          max-width: 100% !important;
-      }
-      p,
-      h2,
-      h3 {
-          orphans: 3;
-          widows: 3;
-      }
-      h2,
-      h3 {
-          page-break-after: avoid;
-      }
+      a, a:visited { text-decoration: underline; }
+      a[href]:after { content: " (" attr(href) ")"; }
+      abbr[title]:after { content: " (" attr(title) ")"; }
+      a[href^="#"]:after, a[href^="javascript:"]:after { content: ""; }
+      pre, blockquote { border: 1px solid #999; page-break-inside: avoid; }
+      thead { display: table-header-group; }
+      tr, img { page-break-inside: avoid; }
+      img { max-width: 100% !important; }
+      p, h2, h3 { orphans: 3; widows: 3; }
+      h2, h3 { page-break-after: avoid; }
   }
-  a,
-  a:visited {
-      color: #01ff70;
-  }
-  a:hover,
-  a:focus,
-  a:active {
-      color: #2ecc40;
-  }
-  .retro-no-decoration {
-      text-decoration: none;
-  }
-  html {
-      font-size: 12px;
-  }
-  @media screen and (min-width: 32rem) and (max-width: 48rem) {
-      html {
-          font-size: 15px;
-      }
-  }
-  @media screen and (min-width: 48rem) {
-      html {
-          font-size: 16px;
-      }
-  }
-  body {
-      line-height: 1.85;
-  }
-  p,
-  .retro-p {
+  a, a:visited { color: #01ff70; }
+  a:hover, a:focus, a:active { color: #2ecc40; }
+  .retro-no-decoration { text-decoration: none; }
+  p, .retro-p {
       font-size: 1rem;
       margin-bottom: 1.3rem;
       /*text-indent: 50px*/
   }
-  h1,
-  .retro-h1,
-  h2,
-  .retro-h2,
-  h3,
-  .retro-h3,
-  h4,
-  .retro-h4 {
+  h1, .retro-h1, h2, .retro-h2, h3, .retro-h3, h4, .retro-h4 {
       margin: 1.414rem 0 .5rem;
       font-weight: inherit;
       line-height: 1.42;
   }
-  h1,
-  .retro-h1 {
+  h1, .retro-h1 {
       color: rgb(112, 221, 0);
       margin-top: 0;
       font-size: 3.998rem;
   }
-  h2,
-  .retro-h2 {
+  h2, .retro-h2 {
+      color: rgb(112, 221, 0);
+      margin-top: 0;
       font-size: 2.827rem;
   }
-  h3,
-  .retro-h3 {
+  h3, .retro-h3 {
       font-size: 1.999rem;
   }
-  h4,
-  .retro-h4 {
+  h4, .retro-h4 {
       font-size: 1.414rem;
   }
-  h5,
-  .retro-h5 {
+  h5, .retro-h5 {
       font-size: 1.121rem;
   }
-  h6,
-  .retro-h6 {
+  h6, .retro-h6 {
       font-size: .88rem;
   }
-  small,
-  .retro-small {
+  small, .retro-small {
       font-size: .707em;
   }
-  /* https://github.com/mrmrs/fluidity */
-  img,
-  canvas,
-  iframe,
-  video,
-  svg,
-  select,
-  textarea {
-      max-width: 100%;
-  }
+
+  img, canvas, iframe, video, svg, select, textarea { max-width: 100%; }
+
   html,
   body {
       background-image: url(https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/pattern.png);
       background-color: #222;
       min-height: 100%;
-  }
-  html {
-      font-size: 18px;
+      font-size: 20px;
   }
   body {
       color: #fafafa;
-      font-family: "Courier New";
-      line-height: 1.45;
+      font-family: "lemon", "Courier New";
+      line-height: 1.65;
       margin: 6rem auto 1rem;
       max-width: 48rem;
       /* padding: .25rem; */
   }
   pre {
+      
+  }
+  pre, code {
       background-color: #333;
+      font-family: "lemon", "Menlo", "Monaco", "Courier New";
+      font-size: 12;
+  }
+  pre {
+      padding: .5rem;
+      line-height: 1.25;
+      overflow-x: scroll;
   }
   blockquote {
       border-left: 3px solid #01ff70;
@@ -278,19 +203,24 @@
 </p>
 <p>    However, once it’s all said and done, once the nasal demons (an affectionate term for UB bugs) have been vanquished, the finished C code that you’re left with is immensely valuable. It’s probably incredibly fast, at least compared to other languages, and as long as you’ve remained vigilant, it should also be very portable. But it also probably took a very long time to write. What if there were a way to write C code faster and safer, without taking a performance loss?</p>
 <p>    Lots of languages have come come and gone that claim to improve upon C in exactly this way. C++ is of course the most successful of these languages, but there are others. In a sense, my own language is no different. My friend <a href="https://github.com/lerno">Christoffer</a> created a language called <a href="https://github.com/c3lang/c3c">C3</a>, which is also an inspiration for my own language. One of the big quality of life upgrades from C3 that I’m considering for my own language is that it provides is unified calling semantics for object methods. This would unify the C object design pattern with <code>obj.doThing(with)</code> syntax and perhaps prevent some extra typing.</p>
+<p><br></p>
 <h2 id="goals-of-stilts">Goals of Stilts</h2>
-<p>I created Stilts because I want to right the wrongs of the other languages that I’ve used. Specifically, the wrongs of C, Java, and C++.</p>
+<p>    I created Stilts because I want to right the wrongs of the other languages that I’ve used. Specifically, the wrongs of C, Java, and C++.</p>
+<p>    I’ve been asked over and over again “Why not just use C++?” I think that’s a very fair question. Initially, I thought to myself “because I want to write a programming language.” While it would have been okay to leave it at that, over time my thoughts on the matter developed. After thinking about it some more, the answer I’ve settled on is “Because I hate writing C++, and I don’t want to do it anymore.”</p>
+<p>    Stilts and C++ have basically the same goals. A C-compatible language for writing performant code faster. Additionally, C++ is a more mature and more powerful language that can do anything Stilts can and more. But also, ask any C++ programmer about the language’s problems, and they won’t be able to stop talking. Such a discussion would probably be too lengthy for this article, and there is a 100% chance that it would start fights. But I am not alone in my distaste. There have been <a href="http://harmful.cat-v.org/software/c++/coders-at-work">many prominent voices</a> in the programming community that have voiced the same opinion.</p>
+<p align="center">
+<br> <img src="images/cpp_phases.png" width=400 height=568> <br> I have found there’s an incredible <br> amount of truth to this meme. <br><br>
+</p>
+<p>    Since I don’t need to justify my dislike for C++ further, I will not. Instead, I would prefer to re-evaluate what I need from a language, and make a fresh start. At very least, I know that taking this plunge will make me a better programmer. Even if Stilts never becomes usable.</p>
 <p><br></p>
-<p>I’ve been asked over and over again “Why not just use C++?” I think that’s a fair point. Initially, I thought to myself “because I want to write a programming language.” While it would have been okay to leave it at that, over time my thoughts on the matter developed. After thinking about it some more, the answer I’ve settled on is “Because I hate writing C++, and I don’t want to do it anymore.”</p>
-<p>Stilts and C++ have basically the same goals. A C-compatible language for writing performant code faster. Additionally, C++ is a more mature and more powerful language that can do anything Stilts can and more. But also, ask any C++ programmer about the language’s problems, and they won’t be able to stop talking. Such a discussion would probably be too lengthy for this article, and there is a 100% chance that it would start fights. But I am not alone in my distaste. There have been <a href="http://harmful.cat-v.org/software/c++/coders-at-work">many prominent voices</a> in the programming community that have voiced the same opinion.</p>
-<p>Since I don’t need to justify my dislike for C++ further, I will not. Instead, I would prefer to re-evaluate what I need from a language, and make a fresh start.</p>
-<p><br></p>
-<p>Let’s start with what I don’t need. The first thing that I don’t need is a scripting language. Python has me covered. It is more mature, and supports everything that I need and far more. The second thing that I don’t need is a language that leaves performance on the table. If I were okay with that I would just go back to Java, or maybe pick up Rust or Go.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1"></a><span class="ss">* </span>C++, but:</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="ss">  * </span>Without the horrible syntax</span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="ss">  * </span>Without worse UB</span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="ss">* </span>C, but with a standard library as good as Java&#39;s, but retaining the speed of C.</span>
-<span id="cb1-5"><a href="#cb1-5"></a>faster and easier to write, with UB that&#39;s easier to deal with.</span>
-<span id="cb1-6"><a href="#cb1-6"></a><span class="ss">* </span>Java, but with manual memory management and nofast and manually managed.</span></code></pre></div>
+<h2 id="describing-the-language">Describing the Language</h2>
+<p>    Let’s start with what I don’t need. The first thing that I don’t need is a scripting language. Python has me covered. It is more mature, has good syntax depending on who you ask, and supports everything that I need and far more. The second thing that I don’t need is a language that leaves performance on the table. If I were okay with that I would just go back to Java, or maybe pick up Rust or Go.</p>
+<p>    Everything that C</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="ss">* </span>C++, but:</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="ss">  * </span>Without the horrible syntax</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="ss">  * </span>Without worse UB</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="ss">* </span>C, but with a standard library as good as Java&#39;s, but retaining the speed of C.</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>faster and easier to write, with UB that&#39;s easier to deal with.</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a><span class="ss">* </span>Java, but with manual memory management and nofast and manually managed.</span></code></pre></div>
 </body>
 </html>
