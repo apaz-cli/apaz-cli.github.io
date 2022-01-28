@@ -124,10 +124,43 @@ me a better programmer. Even if Stilts never becomes usable.
 
     Let's start with what I don't need. The first thing that I don't need is a scripting language. Python has me
 covered. It is more mature, has good syntax depending on who you ask, and supports everything that I need
-and far more. The second thing that I don't need is a language that leaves performance on the table. If I 
+and far more.
+
+    The second thing that I don't need is a language that leaves performance on the table. If I
 were okay with that I would just go back to Java, or maybe pick up Rust or Go.
 
-    Everything that C
+    I also don't need a language that's underpowered. I don't need another language that looks down on its users.
+There should be no borrow checker to get in the way, and no time wasted on checking if exceptions have been thrown.
+I crave raw, unadultered, absolute power. I don't need a language that holds my hand.
+
+    To characterize Stilts through an overly dramatic metaphor, suppose I were to compare Java and Stilts to knives.
+The two languages solve two very different problems. What I need is not a quality cooking knife with safety features
+so my employees don't hurt themselves too badly. I'm not afraid of cutting myself. In fact, what I'm really looking
+for is a katana so strong and sharp and thin that I can obliterate my opponents faster than they can blink. I don't
+care if I accidentally knick my thumb with it, or forget to type `delete`. I can bandage it up later. Both tools
+solve a problem, and do it well. One is useful to coroporations, and hopefully the other is useful for for hackers (in the older sense of the word).
+
+Java and cooking knives are not very flashy, but they create a lot of revenue.
+Significantly more than Stilts ever will.
+
+<br>
+
+
+    Since the the goal is to write C as quickly and efficiently as possible, a number of things need to happen to
+facilitate this.
+```md
+* Clean APIs should be easy to write.
+* Unlike C, syntax should stay out of the user's way.
+* Some of C's sharp edges should be smoothed over. Particularly UB.
+* Nothing should be hidden from the user.
+* It should be obvious what Stilts features map to what C design patterns.
+* Interop
+  * Writing bindings to C libraries should be quick and easy.
+  * Mixing Stilts and C together in the same file should be quick and easy.
+```
+
+
+It should have libraries, and to facilitate that it should be very fast to write bindings for.
 
 
 ```md

@@ -75,6 +75,9 @@
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
   <style type="text/css">
   /* https://github.com/markdowncss/retro/blob/master/css/retro.css */
 
@@ -214,13 +217,27 @@
 <p>    Since I don’t need to justify my dislike for C++ further, I will not. Instead, I would prefer to re-evaluate what I need from a language, and make a fresh start. At very least, I know that taking this plunge will make me a better programmer. Even if Stilts never becomes usable.</p>
 <p><br></p>
 <h2 id="describing-the-language">Describing the Language</h2>
-<p>    Let’s start with what I don’t need. The first thing that I don’t need is a scripting language. Python has me covered. It is more mature, has good syntax depending on who you ask, and supports everything that I need and far more. The second thing that I don’t need is a language that leaves performance on the table. If I were okay with that I would just go back to Java, or maybe pick up Rust or Go.</p>
-<p>    Everything that C</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="ss">* </span>C++, but:</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="ss">  * </span>Without the horrible syntax</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="ss">  * </span>Without worse UB</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="ss">* </span>C, but with a standard library as good as Java&#39;s, but retaining the speed of C.</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>faster and easier to write, with UB that&#39;s easier to deal with.</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a><span class="ss">* </span>Java, but with manual memory management and nofast and manually managed.</span></code></pre></div>
+<p>    Let’s start with what I don’t need. The first thing that I don’t need is a scripting language. Python has me covered. It is more mature, has good syntax depending on who you ask, and supports everything that I need and far more.</p>
+<p>    The second thing that I don’t need is a language that leaves performance on the table. If I were okay with that I would just go back to Java, or maybe pick up Rust or Go.</p>
+<p>    I also don’t need a language that’s underpowered. I don’t need another language that looks down on its users. There should be no borrow checker to get in the way, and no time wasted on checking if exceptions have been thrown. I crave raw, unadultered, absolute power. I don’t need a language that holds my hand.</p>
+<p>    To characterize Stilts through an overly dramatic metaphor, suppose I were to compare Java and Stilts to knives. The two languages solve two very different problems. What I need is not a quality cooking knife with safety features so my employees don’t hurt themselves too badly. I’m not afraid of cutting myself. In fact, what I’m really looking for is a katana so strong and sharp and thin that I can obliterate my opponents faster than they can blink. I don’t care if I accidentally knick my thumb with it, or forget to type <code>delete</code>. I can bandage it up later. Both tools solve a problem, and do it well. One is useful to coroporations, and hopefully the other is useful for for hackers (in the older sense of the word).</p>
+<p>Java and cooking knives are not very flashy, but they create a lot of revenue. Significantly more than Stilts ever will.</p>
+<p><br></p>
+<p>    Since the the goal is to write C as quickly and efficiently as possible, a number of things need to happen to facilitate this.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1"></a><span class="ss">* </span>Clean APIs should be easy to write.</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="ss">* </span>Unlike C, syntax should stay out of the user&#39;s way.</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="ss">* </span>Some of C&#39;s sharp edges should be smoothed over. Particularly UB.</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="ss">* </span>Nothing should be hidden from the user.</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="ss">* </span>It should be obvious what Stilts features map to what C design patterns.</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="ss">* </span>Interop</span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="ss">  * </span>Writing bindings to C libraries should be quick and easy.</span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="ss">  * </span>Mixing Stilts and C together in the same file should be quick and easy.</span></code></pre></div>
+<p>It should have libraries, and to facilitate that it should be very fast to write bindings for.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1"></a><span class="ss">* </span>C++, but:</span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="ss">  * </span>Without the horrible syntax</span>
+<span id="cb2-3"><a href="#cb2-3"></a><span class="ss">  * </span>Without worse UB</span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="ss">* </span>C, but with a standard library as good as Java&#39;s, but retaining the speed of C.</span>
+<span id="cb2-5"><a href="#cb2-5"></a>faster and easier to write, with UB that&#39;s easier to deal with.</span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="ss">* </span>Java, but with manual memory management and nofast and manually managed.</span></code></pre></div>
 </body>
 </html>
