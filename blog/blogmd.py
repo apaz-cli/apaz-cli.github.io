@@ -16,6 +16,7 @@ css = """<style type="text/css">
     src: url('lemon.woff');
 }
 
+/*
 @media print {
     *, *:before, *:after {
         background: transparent !important;
@@ -34,6 +35,7 @@ css = """<style type="text/css">
     p, h2, h3 { orphans: 3; widows: 3; }
     h2, h3 { page-break-after: avoid; }
 }
+*/
 a, a:visited { color: #01ff70; }
 a:hover, a:focus, a:active { color: #2ecc40; }
 .retro-no-decoration { text-decoration: none; }
@@ -75,8 +77,7 @@ small, .retro-small {
 
 img, canvas, iframe, video, svg, select, textarea { max-width: 100%; }
 
-html,
-body {
+html, body {
     background-image: url(https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/pattern.png);
     background-color: #222;
     min-height: 100%;
@@ -89,9 +90,6 @@ body {
     margin: 6rem auto 1rem;
     max-width: 48rem;
     /* padding: .25rem; */
-}
-pre {
-    
 }
 pre, code {
     background-color: #333;
@@ -110,16 +108,16 @@ blockquote {
 </style>
 """
 
-with open("pandoc.css", "w+") as f:
-        f.write(css)
+with open("pandoc.css", "w") as f:
+    f.write(css)
 
-def run(s, end=os.linesep):
-  subprocess.run(split(s), check=True)
+
+run = lambda s: subprocess.run(split(s), check=True)
  
 for f in glob('*.md'):
     title = os.path.splitext(f)[0]
     to = title + '.html'
 
-    run(f'pandoc --metadata pagetitle="{title}" -H pandoc.css {f} -o {to}')
+    run(f'pandoc --metadata pagetitle="{title}" -f markdown-smart -H pandoc.css {f} -o {to}')
 
-run('rm pandoc.css')
+os.remove('pandoc.css')

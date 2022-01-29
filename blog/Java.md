@@ -37,7 +37,7 @@
 <br>
 
 
-### The Problem:
+## The Problem:
 ```md
 1. Runtime JIT code injection and reflection hinders optimizations.
 2. As memory use increases, garbage collection time increases exponentially.
@@ -59,7 +59,7 @@
 
 <br>
 
-### The Solution:
+## The Solution:
 
 Like in other languages, writing blazingly fast Java code is very straightforward. Modern hardware, even cheap hardware, is already faster than you could possibly comprehend. If you want fast software, all you have to do is not do things that are slow. There are three main things that are slow in Java.
 
@@ -107,7 +107,7 @@ Like in other languages, writing blazingly fast Java code is very straightforwar
     Since Java gives you less freedom to do so, optimizing Java is almost never about optimizing cache, or even writing fast algorithms. In C, you can trick the compiler into generating better code by informing it of optimizations that it can make. You can physically lay out your memory so it's already hot in cache by the time it's needed. In Java, there are no fancy tricks. You should assume everything is a cache miss anyway, and just focus on reducing memory allocations and the frequency at which garbage has to be collected.
 
 
-### Conclusion
+## Conclusion
 
     My advice is "If you want fast Java, don't use objects." Did you know that Java is an object oriented programming language? That sounds an awful lot like "Don't use Java if you want fast code." Unfortunately, that logic is sound.
 
