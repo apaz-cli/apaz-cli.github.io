@@ -75,6 +75,9 @@
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
   <style type="text/css">
   /* https://github.com/markdowncss/retro/blob/master/css/retro.css */
 
@@ -182,7 +185,7 @@
 <p><br></p>
 <p>    Eventually my disillusionment with Java led me to C. I came for speed. You might say that I had a need for it. C delivered on the speed promise, but it was also a lot more elegant than I expected. Everything is just ones and zeroes, and the language doesn't disallow you from doing anything that you want with them. Knowing the layout of each and every byte of memory is very useful.</p>
 <p><br></p>
-<p>    Every programming language has problems. In my Java article, I ranted about Java's. Python is incredibly slow, and the lack of strict typing makes writing and consuming large APIs difficult. Go is only just getting generics next month (Feb 2022), absolutely crippling the language for a lot of uses. C++ syntax, APIs, UB, and lifetime semantics are absolute garbage, and the language itself adds very little value on top of C. Opinionated languages like Rust and Haskell have trouble taking off due to the learning curve, and generally take a lot longer to write a program in than a minimally opinionated language with lots of features like Python.</p>
+<p>    Every programming language has problems. In my Java article, I ranted about Java's. Python is incredibly slow, and the lack of strict typing makes writing and consuming large APIs difficult. Go is only just getting generics next month (Feb 2022), absolutely crippling the language for a lot of uses. C++ syntax, APIs, UB, and lifetime semantics are absolute garbage, and the language itself adds very little value on top of C. Opinionated languages like Rust and Haskell have trouble taking off due to the learning curve, and generally take a lot longer to write a program in than a minimally opinionated language with lots of features like Python. Every language has problems.</p>
 <p>    I think it's safe to say that C has two problems. First is that it takes so long to get anything done. It's honestly absurd. The standard library doesn't have any containers. If you want a list, or a set, or a hashmap, you've got to implement it yourself. Traditionally you would have to implement it over and over again for each type you need a list or a set or hashmap for. This gets old very fast, but it's a solved problem in other languages.</p>
 <p>    The other problem that C faces is undefined behavior. Even if you are already intimately familiar with undefined behavior (UB), I recommend you read this incredible series of articles by Chris Lattner, creator of LLVM. If you've heard of it but never delved deep into it, then this view of UB might blow your mind a little bit.</p>
 <p><br></p>
@@ -200,7 +203,7 @@
 <img src="images/Nasal_Demons.jpg"> <br> By the time they start coming out of <br> your nose, it's all over. <br><br>
 </p>
 <p>    However, once it's all said and done, once the nasal demons (an affectionate term for UB bugs) have been vanquished, the finished C code that you're left with is immensely valuable. It's probably incredibly fast, at least compared to other languages, and as long as you've remained vigilant, it should also be very portable. But it also probably took a very long time to write. What if there were a way to write C code faster and safer, without taking a performance loss?</p>
-<p>    Lots of languages have come come and gone that claim to improve upon C in exactly this way. C++ is of course the most successful of these languages, but there are others. In a sense, my own language is no different. My friend <a href="https://github.com/lerno" target="_blank" rel="noopener noreferrer">Christoffer</a> created a language called <a href="https://github.com/c3lang/c3c" target="_blank" rel="noopener noreferrer">C3</a>, which is also an inspiration for my own language. One of the big quality of life upgrades from C3 that I'm considering for my own language is that it provides is unified calling semantics for object methods. This would unify the C object design pattern <code>OBJ_doThing(&amp;this, with);</code> with the <code>obj.doThing(with);</code> syntax and perhaps prevent some extra typing.</p>
+<p>    Lots of languages have come and gone that claim to improve upon C in exactly this way. C++ is of course the most successful of these languages, but there are others. In a sense, my own language is no different. My friend <a href="https://github.com/lerno" target="_blank" rel="noopener noreferrer">Christoffer</a> created a language called <a href="https://github.com/c3lang/c3c" target="_blank" rel="noopener noreferrer">C3</a>, which is also an inspiration for my own language. One of the big quality of life upgrades from C3 that I'm considering for my own language is that it provides is unified calling semantics for object methods. This would unify the C object design pattern <code>OBJ_doThing(&amp;this, with);</code> with the <code>obj.doThing(with);</code> syntax and perhaps prevent some extra typing.</p>
 <p><br></p>
 <h2 id="goals-of-stilts">Goals of Stilts</h2>
 <p>    I created Stilts because I want to right the wrongs of the other languages that I've used. Specifically, the wrongs of C, Java, and C++.</p>
@@ -212,6 +215,12 @@
 <p>    Since I don't need to justify my dislike for C++ further, I will not. Instead, I would prefer to re-evaluate what I need from a language, and make a fresh start. At very least, I know that taking this plunge will make me a better programmer. Even if Stilts never becomes usable.</p>
 <p><br></p>
 <h2 id="characterizing-stilts-through-metaphor">Characterizing Stilts Through Metaphor</h2>
+<blockquote cite="http://www.paulgraham.com/trevrejavcov.html">
+<p>There are two kinds of programmers: brilliant hackers, and corporate drones. It's natural that they should want different kinds of tools.</p>
+<p>As a hacker, you can only shine if you use the right tools. Don't let yourself be saddled with inappropriate tools by your management, and don't be led by the media into using the tools meant for drones.</p>
+<p>Because there are 100x more drones than hackers, most new commercial technologies are aimed at them. You have to learn to quickly identify which tools are and aren't meant for you.</p>
+--Trevor Blackwell
+</blockquote>
 <p>    To characterize the language I want to build through an overly dramatic extended metaphor, I would compare Java and Stilts to knives. What I need is not a standardized cooking knife so that anybody can pick up and use anybody else's knife. In fact, what I'm really looking for is a katana so strong and sharp and thin that I can obliterate my opponents faster than they can blink. I don't care if I accidentally knick my thumb with it, or forget to type <code>delete</code>. I can bandage it up later. I also don't particularly care if my language is too dangerous for others to wield. They will weild it and reap the benefits when they are strong enough.</p>
 <p align="center">
 <img src="images/Chef_Knife.jpg" height=200px> <img src="images/Daisho.jpg" height=200px> <br>
@@ -222,16 +231,16 @@
 <br> <img src="images/Go.jpg" height=400px> <br> Go is another example of a "Chef's knife" language. <br><br>
 </p>
 <p>    Since the the goal is to write C as quickly and efficiently as possible, a number of things need to happen to facilitate this.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="ss">* </span>Clean Java-like APIs should be easy to write.</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="ss">* </span>Unlike C/C++, syntax should stay out of the user&#39;s way.</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="ss">* </span>Some of C&#39;s sharp edges should be smoothed over.</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="ss">  * </span>Particularly the nasal demons and memory bugs.</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a><span class="ss">* </span>The user should be able to know:</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a><span class="ss">  * </span>The layout and location of every bit (no surprises like C++)</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a><span class="ss">  * </span>The mapping between Stilts features and C design patterns</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a><span class="ss">* </span>Interop</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a><span class="ss">  * </span>Writing bindings to C libraries should be quick and easy.</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a><span class="ss">  * </span>Mixing Stilts and C together in the same file should be quick and easy.</span></code></pre></div>
-<p>In the next article, I'm going to talk about how to accomplish these things.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1"></a><span class="ss">* </span>Clean Java-like APIs should be easy to write.</span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="ss">* </span>Unlike C/C++, syntax should stay out of the user&#39;s way.</span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="ss">* </span>Some of C&#39;s sharp edges should be smoothed over.</span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="ss">  * </span>Particularly the nasal demons and memory bugs.</span>
+<span id="cb1-5"><a href="#cb1-5"></a><span class="ss">* </span>The user should be able to know:</span>
+<span id="cb1-6"><a href="#cb1-6"></a><span class="ss">  * </span>The layout and location of every bit (no surprises like C++)</span>
+<span id="cb1-7"><a href="#cb1-7"></a><span class="ss">  * </span>The mapping between Stilts features and C design patterns</span>
+<span id="cb1-8"><a href="#cb1-8"></a><span class="ss">* </span>Interop</span>
+<span id="cb1-9"><a href="#cb1-9"></a><span class="ss">  * </span>Writing bindings to C libraries should be quick and easy.</span>
+<span id="cb1-10"><a href="#cb1-10"></a><span class="ss">  * </span>Mixing Stilts and C together in the same file should be quick and easy.</span></code></pre></div>
+<p>    In the next article, I'm going to talk about how to accomplish these things.</p>
 </body>
 </html>

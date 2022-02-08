@@ -85,7 +85,7 @@ languages, and as long as you've remained vigilant, it should also be very
 portable. But it also probably took a very long time to write. What if there were
 a way to write C code faster and safer, without taking a performance loss?
 
-    Lots of languages have come come and gone that claim to improve upon C in
+    Lots of languages have come and gone that claim to improve upon C in
 exactly this way. C++ is of course the most successful of these languages, but
 there are others. In a sense, my own language is no different. My friend
 <a href="https://github.com/lerno" target="_blank" rel="noopener noreferrer">Christoffer</a> created a language called
@@ -136,6 +136,18 @@ Stilts never becomes usable.
 
 
 ## Characterizing Stilts Through Metaphor
+
+
+<blockquote cite="http://www.paulgraham.com/trevrejavcov.html">
+There are two kinds of programmers: brilliant hackers, and corporate drones. It's natural that they should want different kinds of tools.
+
+As a hacker, you can only shine if you use the right tools. Don't let yourself be saddled with inappropriate tools by your management, and don't be led by the media into using the tools meant for drones.
+
+Because there are 100x more drones than hackers, most new commercial technologies are aimed at them. You have to learn to quickly identify which tools are and aren't meant for you.
+
+--Trevor Blackwell
+</blockquote>
+
 
     To characterize the language I want to build through an overly dramatic extended
 metaphor, I would compare Java and Stilts to knives. What I need is not a standardized
