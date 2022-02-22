@@ -13,7 +13,7 @@ are very rarely technical problems. Much more often, they're social problems.
 
     You can read all the problems I've had with Java in [the Java article](Java.html).
 I really love certain aspects of Java. Its technical problems sadden me, but the social
-problems bother me more. Except for two outstanding members, the Java community sucks.
+problems bother me more. I've met two outstanding members, but the Java community sucks.
 A bad community is more than enough reason not to use a language.
 
     This also works the other way. I don't have much experience with Rust, Nim, D, or
@@ -28,7 +28,7 @@ each other out. That is enough reason to use a language.
 program and watching the runtime consume 90% of my CPU. I came for speed. You might
 say that I had a need for it. C delivered on the speed promise, but it was also a lot
 more elegant than I expected. Everything is just ones and zeroes, and the language
-doesn't disallow you from doing whatever you want with them.
+doesn't disallow you from doing for the most part whatever you want with them.
 
     I was forced to confront a very interesting question. If I have ones and zeroes,
 and I can interact with the operating system. What more do I need? It turns out that
