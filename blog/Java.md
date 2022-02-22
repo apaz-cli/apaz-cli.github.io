@@ -22,7 +22,7 @@
 
 <br>
 
-    Now, here is my rant about why I hate Java, which eventually led me to start work on Stilts.
+    Now, here is my rant about why I hate Java, which eventually led me to start work on Daisho.
 
 <br>
 <p align="center">
