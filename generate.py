@@ -4,7 +4,7 @@ import re
 import os
 """
 The variables that you are meant to change are those that are defined in the first block here before the function definitions.
-Note that this is just plaintext that gets inserted into the string below. It's not elegant, but it works. 
+Note that this is just plaintext that gets inserted into the string below. It's not elegant, but it works.
 That also means that you can somewhat style some of these strings by entering them with valid HTML syntax should you want to do so.
 """
 TitleText = 'apaz\'s Website'
@@ -33,7 +33,7 @@ def makeDoc(data):
     with open(outputPath, 'w') as file:
         page = '''<!DOCTYPE html>
 <html lang="en">
-<head>    
+<head>
     <meta charset="UTF-8">
     <meta name="author" content="apaz">
     <meta name="viewport" content="width=device-width,initial-scale=1">
