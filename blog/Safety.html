@@ -141,9 +141,11 @@
 <p>If the preconditions of an unsafe correct operations are not met, the result is undefined or unspecified.</p>
 <h2 id="why-do-we-write-incorrect-programs">Why do we write incorrect programs?</h2>
 <p>UB introduces silent preconditions that are hard to detect and reason about.</p>
+<p>How APIs compose with respect to preconditions and your code is also hard to reason about once your codebase approaches a certain size.</p>
 <h2 id="two-kinds-of-errors">Two Kinds of Errors:</h2>
 <p>Revoverable and unrecoverable.</p>
 <p>Violating a precondition should be an unrecoverable error, both "safe" and "unsafe" code. This includes safety critical applications.</p>
+<h2 id="how-can-our-tooling-help">How can our tooling help?</h2>
 <h2 id="actionable-advice-about-safety">Actionable Advice About Safety:</h2>
 </body>
 </html>

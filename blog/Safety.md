@@ -46,15 +46,23 @@ If the preconditions of a safe correct operation are not met, the result is unsp
 
 If the preconditions of an unsafe correct operations are not met, the result is undefined or unspecified.
 
+
 ## Why do we write incorrect programs?
 
 UB introduces silent preconditions that are hard to detect and reason about.
+
+How APIs compose with respect to preconditions and your code is also hard to reason about once your codebase approaches a certain size.
+
 
 ## Two Kinds of Errors:
 
 Revoverable and unrecoverable.
 
 Violating a precondition should be an unrecoverable error, both "safe" and "unsafe" code. This includes safety critical applications.
+
+
+## How can our tooling help?
+
 
 ## Actionable Advice About Safety:
 
