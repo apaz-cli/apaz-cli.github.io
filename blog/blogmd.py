@@ -96,6 +96,9 @@ pre, code {
     font-family: "lemon", "Menlo", "Monaco", "Courier New";
     font-size: 12;
 }
+
+code span.dt { color: #e4a51e; } /* DataType */
+
 pre {
     padding: .5rem;
     line-height: 1.25;
