@@ -12,6 +12,68 @@
     div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
     ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
   <style type="text/css">
   /* https://github.com/markdowncss/retro/blob/master/css/retro.css */
@@ -118,6 +180,7 @@
 <p>Everybody who writes airplane firmware has their own opinion about how to achieve "safety." Whatever exactly that means is anyone's guess. It seems an ephemeral goal. Luckily, the mast majority of airplane firmware hasn't killed people. Not killing anybody is an admirable goal, but still isn't actionable enough to be useful. I'm left wondering what it is we're all chasing.</p>
 <p>Today, I watched a CPPCon talk that unified everything I know on the topic. The talk is about <code>std::find()</code> and <code>std::find_if()</code> from C++, but the points that it made along the way are what resonated with me. It brought together my experiences writing Java for perceptual image processing research, and my time spent designing, writing, debugging, and verifying engine controller and weapons systems firmware in C.</p>
 <p>This new perspective presents an interesting path forward for the tooling surrounding Daisho and other programming languages. It may also solve some unique challenges inside the C portion of the Daisho standard library, as well as the age-old problem of what to do about dangerous and difficult to track down UB bugs coming from problems like unsigned integer overflow and division by zero.</p>
+<p>This post is written about C and C++, but using other languages does not free you from having to think about these things.</p>
 <p><br></p>
 <h2 id="the-video">The Video:</h2>
 <center>
@@ -140,11 +203,49 @@
 <p>If the preconditions of a safe correct operation are not met, the result is unspecified (but defined).</p>
 <p>If the preconditions of an unsafe correct operations are not met, the result is undefined or unspecified.</p>
 <h2 id="why-do-we-write-incorrect-programs">Why do we write incorrect programs?</h2>
-<p>UB introduces silent preconditions that are hard to detect and reason about.</p>
-<p>How APIs compose with respect to preconditions and your code is also hard to reason about once your codebase approaches a certain size.</p>
+<p>Undefined Behavior introduces silent preconditions that are hard to detect and reason about. Is the following code safe? Stare at it for a while.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="dt">char</span> strDeref(<span class="dt">const</span> <span class="dt">char</span> *str, <span class="dt">int</span> idx1, <span class="dt">int</span> idx2) {</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>  <span class="cf">if</span> (str == NULL)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>  <span class="cf">if</span> ((idx1 + idx2) &lt; <span class="dv">0</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>  <span class="cf">if</span> (strnlen(str, <span class="dv">1000</span>) &lt;= (idx1 + idx2))</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a>  <span class="cf">return</span> str[idx1 + idx2];</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a>}</span></code></pre></div>
+<p>I would say that it sure looks right.</p>
+<p>Even if you think you're covering all of your bases by checking the length of the string, and even using <code>strnlen()</code> over <code>strlen()</code> to do so because it's "safer" (it isn't), it's very hard to make sure your API is safe. The problem is the <code>idx1 + idx2</code> in the check. Unsigned integer overflow is undefined. So are a lot of other things. Truly safe code is difficult to acheive. Or it's literally impossible in some (most) cases. There are some other UB problems that can be fixed this way as well, such as oversize shift amounts and pointer alignment.</p>
+<p>Let's fix the above example.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="dt">char</span> strDeref(<span class="dt">const</span> <span class="dt">char</span> *str, <span class="dt">int</span> idx1, <span class="dt">int</span> idx2) {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>  <span class="cf">if</span> ((idx1 &gt; <span class="dv">0</span> &amp;&amp; idx2 &gt; INT_MAX - idx1)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>   || (idx1 &lt; <span class="dv">0</span> &amp;&amp; idx2 &lt; INT_MIN - idx1))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>  <span class="co">/* str is aligned, since char* has no alignment requirements. */</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>  <span class="cf">if</span> (str == NULL)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>  <span class="cf">if</span> ((idx1 + idx2) &lt; <span class="dv">0</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>  <span class="cf">if</span> (strnlen(str, <span class="dv">1000</span>) &lt;= (idx1 + idx2))</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true"></a>  <span class="cf">return</span> str[idx1 + idx2];</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true"></a>}</span></code></pre></div>
+<p>Surely now it's safe for any possible preconditions, right? I raise you the following.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>strDeref((<span class="dt">char</span> *)(<span class="dt">intptr_t</span>)<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>);</span></code></pre></div>
+<p>Luckily, people don't often write code like this that's so obviously wrong. We know that dereferencing a wild pointer (one that isn't aligned inside of a valid memory region) is bad. But there are less obvious ways to obtain a pointer to an invalid memory region. We've covered the null pointer case, but there's also use after free. Unless we can guaruntee that <code>str</code> is valid and aligned, we cannot call this function safe. It could cause undefined behavior by dereferencing that pointer, which is unfortunately the entire point of the function.</p>
+<p>From a language design perspective, it doesn't have to be this way. What if the creation of that pointer was the undefined behavior? What if obtaining such a pointer were impossible? What should the programming language's role in this be? We'll get to my opinions on that later.</p>
+<p>The code above is unsafe. But notably, it is not incorrect. I think we can agree that, even without all the checks, it does what you want it to for all sensible inputs. What exactly constitutes a "sensible input" is what we have to define here. Most programmers do not define their preconditions, and instead rely on tacit knowledge. We know that passing an invalid pointer probably violates some preconditions, so we don't. When we want to add two numbers, we don't think about the domain of the inputs. We also don't think to document that the behavior of our function is undefined if <code>((a &gt; 0 &amp;&amp; b &gt; INT_MAX - a) || (a &lt; 0 &amp;&amp; b &lt; INT_MIN - a))</code>. Instead, we just document the operation that is supposed to be performed and go by feel. This is true even in the airplane firmware world.</p>
+<p>What's above is just a simple example. We have our definition, but with respect to our current practice of fuzzy preconditions, what does "correct" mean? Our definition assumes preconditions and postconditions are well defined. How APIs compose with respect to preconditions and postconditions gets progressively more difficult to reason about. Once your codebase approaches a certain size, it's anyone's guess.</p>
 <h2 id="two-kinds-of-errors">Two Kinds of Errors:</h2>
 <p>Revoverable and unrecoverable.</p>
-<p>Violating a precondition should be an unrecoverable error, both "safe" and "unsafe" code. This includes safety critical applications.</p>
+<p>Violating a precondition should be an unrecoverable error, and the program should be halted or restored to a known state. This is especially true for safety critical applications.</p>
 <h2 id="how-can-our-tooling-help">How can our tooling help?</h2>
 <h2 id="actionable-advice-about-safety">Actionable Advice About Safety:</h2>
 </body>
