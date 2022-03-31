@@ -11,7 +11,7 @@ Today, I watched a CPPCon talk that unified everything I know on the topic. The 
 
 This post is written about C and C++, but using other languages does not excuse you from having to think about these things. The common phrase that people use is "just because the language is safe, that doesn't mean the code you wrote is correct." Now I have a way to express what that means.
 
-This new perspective presents an interesting and actionable path forward for the tooling surrounding Daisho and other programming languages. It may also solve some unique challenges inside the C portion of the Daisho standard library, as well as the age-old problem of what to do about a specific class of dangerous and difficult to track down UB bugs coming from problems like unsigned integer overflow, oversize shifts, and division by zero.
+This new perspective presents an interesting and actionable path forward for the tooling surrounding Daisho and other programming languages. It may also solve some unique challenges inside the C portion of the Daisho standard library, as well as the age-old problem of what to do about a specific class of dangerous and difficult to track down UB bugs coming from problems like signed integer overflow, oversize shifts, and division by zero.
 
 <br>
 
@@ -69,7 +69,7 @@ char strDeref(const char *str, int idx1, int idx2) {
 I would say that it sure looks right. But that's not what safe means.
 
 Even if you think you're covering all of your bases by checking the length of the string, and even using `strnlen()` over `strlen()` to do so because
-it's "safer" (it isn't), it's very hard to make sure your API is safe. The problem is `idx1 + idx2`. Unsigned integer overflow is
+it's "safer" (it isn't), it's very hard to make sure your API is safe. The problem is `idx1 + idx2`. Signed integer overflow is
 undefined. So are a lot of other things. Truly safe code is difficult to acheive. Or it's literally impossible in some (most) cases.
 There are some other UB problems that can be fixed this way as well, just by checking. Oversize shift amounts and pointer alignment fall
 into this category.
