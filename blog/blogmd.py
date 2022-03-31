@@ -78,7 +78,7 @@ small, .retro-small {
 img, canvas, iframe, video, svg, select, textarea { max-width: 100%; }
 
 html, body {
-    background-image: url(https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/pattern.png);
+    /* background-image: url(https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/pattern.png); */
     background-color: #222;
     min-height: 100%;
     font-size: 20px;
