@@ -116,11 +116,13 @@ with open("pandoc.css", "w") as f:
 
 
 run = lambda s: subprocess.run(split(s), check=True)
- 
+
 for f in glob('*.md'):
+    un="_";sp=" "
+
     title = os.path.splitext(f)[0]
     to = title + '.html'
 
-    run(f'pandoc --metadata pagetitle="{title}" -f markdown-smart -H pandoc.css {f} -o {to}')
+    run(f'pandoc --metadata pagetitle="{title.replace(un, sp)}" -f markdown-smart -H pandoc.css {f} -o {to}')
 
 os.remove('pandoc.css')

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <title>Safety</title>
+  <title>Safety and Correctness</title>
   <style>
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
@@ -252,36 +252,6 @@
 <p>From a language design perspective, it doesn't have to be this way. What if the creation of that pointer was the undefined behavior? What if obtaining such a pointer were impossible? What should the programming language's role in this be? We'll get to my opinions on that later.</p>
 <p>The code above is unsafe. But notably, it is not incorrect. I think we can agree that, even without all the checks, it does what you want it to for all sensible inputs. What exactly constitutes a "sensible input" is what we have to define here. Most programmers do not define their preconditions, and instead rely on tacit knowledge. We know that passing an invalid pointer probably violates some preconditions, so we don't. When we want to add two numbers, we don't think about the domain of the inputs. We also don't think to document that the behavior of our function is undefined if <code>((a &gt; 0 &amp;&amp; b &gt; INT_MAX - a) || (a &lt; 0 &amp;&amp; b &lt; INT_MIN - a))</code>. Instead, we just document the operation that is supposed to be performed and go by feel. This is true even in the airplane firmware world.</p>
 <p>What's above is just a simple example. We have our definition, but with respect to our current practice of fuzzy preconditions, what does "correct" mean? Our definition assumes preconditions and postconditions are well defined. How APIs compose with respect to preconditions and postconditions gets progressively more difficult to reason about. Once your codebase approaches a certain size, it's anyone's guess.</p>
-<p><br></p>
-<h2 id="kinds-of-errors-features-and-builds">Kinds of Errors, Features, and Builds:</h2>
-<p>When you're writing a compiler, there's a lot to keep track of. Here's a framework for doing so.</p>
-<h3 id="errors">Errors</h3>
-<p>I assert that there are a many categories of runtime errors.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1"></a><span class="ss">1. </span>Is the error recoverable?</span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="ss">2. </span>Did the error come from violating a precondition?</span>
-<span id="cb4-3"><a href="#cb4-3"></a><span class="ss">3. </span>Did you plan for this error?</span>
-<span id="cb4-4"><a href="#cb4-4"></a><span class="ss">4. </span>Is the cause of the error beyond your control?</span>
-<span id="cb4-5"><a href="#cb4-5"></a><span class="ss">5. </span>Is the behavior undefined?</span>
-<span id="cb4-6"><a href="#cb4-6"></a><span class="ss">6. </span>Is the error a result of the program being incorrect?</span></code></pre></div>
-<p>As you can see, there are at least 2^6 kinds of errors. For any given combination of yes/no answers to these questions, you could probably come up with your own example. Here are some of mine.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1"></a>101000 - <span class="in">`malloc()`</span> fails, and an error is returned to the caller.</span>
-<span id="cb5-2"><a href="#cb5-2"></a>000110 - The CPU is hit with a big hammer.</span>
-<span id="cb5-3"><a href="#cb5-3"></a>101100 - One of the CPUs in your airplane&#39;s engine controller disintegrates.</span>
-<span id="cb5-4"><a href="#cb5-4"></a>010011 - Accidentally passed a null pointer to <span class="in">`strlen()`</span>.</span>
-<span id="cb5-5"><a href="#cb5-5"></a>010001 - While debugging, you instrumented the build of your code to trap on integer overflow.</span></code></pre></div>
-<p>Although there are lots of types of errors, once one error has been detected, there are really only two things things you want to do with any error. You either pass the error to the caller, or crash as gracefully as possible, perhaps after logging the error.</p>
-<p>The way that errors are reported should be ergonomic and standardized across all different kinds of functions, and the way that crashes happen should be standardized, configurable, and overrideable.</p>
-<h3 id="features">Features</h3>
-<p>I assert also that there are a few categories of features.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1"></a><span class="ss">1. </span>Is the feature supported on the platform&gt;</span>
-<span id="cb6-2"><a href="#cb6-2"></a><span class="ss">2. </span>Does the feature require optional dependencies?</span></code></pre></div>
-<p>If a feature is supported on the platform and has all of its dependencies, it is available. Otherwise, it is not. This should not be pushed to runtime.</p>
-<h3 id="builds">Builds</h3>
-<div class="sourceCode" id="cb7"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb7-1"><a href="#cb7-1"></a><span class="ss">1. </span>Is optimization turned on?</span>
-<span id="cb7-2"><a href="#cb7-2"></a><span class="ss">2. </span>Is the build instrumented to catch errors?</span>
-<span id="cb7-3"><a href="#cb7-3"></a><span class="ss">3. </span>What features are required?</span></code></pre></div>
-<p>Optimized and uninstrumented is a normal production build, and unoptimized and instrumented is a normal debugging build. It's less common, but for various other reasons you may want to create optimized and instrumented, or unoptimized and uninstrumented builds.</p>
-<p>If a feature is required but not available, the build should fail. This should not be pushed to runtime.</p>
 <p><br></p>
 <h2 id="how-can-our-tooling-help">How can our tooling help?</h2>
 <h2 id="actionable-advice-about-safety">Actionable advice about safety:</h2>
