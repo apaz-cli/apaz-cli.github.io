@@ -33,23 +33,30 @@ In the aerospace industry, we are forced to think in terms of preconditions and 
 
 ### Safety:
 
-An operation is safe if it cannot lead to undefined behavior, either directly or indirectly, even if the operation's preconditions are violated. An operation that is unsafe can lead to undefined behavior if its preconditions are violated.
+An operation is safe if it cannot lead to undefined behavior, either directly or indirectly, even if the operation's preconditions are violated. Otherwise, it is unsafe.
 
-Safety only specifies whether every possible set of preconditions maps to a postcondition. It has nothing to do with how many bugs your program has, only what happens when unexpected conditions occur.
+Safety only specifies whether every possible set of preconditions maps to a postcondition. It has nothing to do with whether those postconditions are intended, only what happens when unexpected conditions occur.
 
 
 ### Correctness:
 
 An operation that is correct satisfies the intended postconditions if its preconditions are satisfied.
 
-If the preconditions of a safe correct operation are not met, the result is unspecified (but defined). If the preconditions of an unsafe correct operations are not met, the result is undefined or unspecified.
+Correctness implies that you've thought about every possible precondition, and can justify that
+it maps to the intended postcondition.
+
+Correctness is incredibly difficult to obtain or be confident about. Hopefully the next section will convince you of that.
+
+### Bug:
+
+A bug is a violation of correctness. Not all bugs become observable unintended behavior.
 
 <br>
 
 
 ## Why do we write unsafe programs?
 
-Undefined Behavior introduces silent preconditions that are hard to detect and reason about. Is the following code safe? Stare at it for a while.
+Undefined Behavior introduces silent preconditions that are difficult to detect and reason about. Is the following code safe? Stare at it for a while.
 
 ```c
 char strDeref(const char *str, int idx1, int idx2) {
@@ -69,10 +76,10 @@ char strDeref(const char *str, int idx1, int idx2) {
 I would say that it sure looks right. But that's not what safe means.
 
 Even if you think you're covering all of your bases by checking the length of the string, and even using `strnlen()` over `strlen()` to do so because
-it's "safer" (it isn't), it's very hard to make sure your API is safe. The problem is `idx1 + idx2`. Signed integer overflow is
-undefined. So are a lot of other things. Truly safe code is difficult to acheive. Or it's literally impossible in some (most) cases.
-There are some other UB problems that can be fixed this way as well, just by checking. Oversize shift amounts and pointer alignment fall
-into this category.
+it's "safer" (that doesn't make it less dangerous), it's very hard to make sure your API is safe. The problem is `idx1 + idx2`. Signed integer overflow
+is undefined. So are a lot of other things. Truly safe code is difficult to acheive. Or it's literally impossible in some cases (in C, almost all cases).
+There are some other UB problems that can be fixed this way as well, just by checking before the operation that would trigger them. Oversize shift
+amounts and pointer alignment fall into this category.
 
 Let's fix the above example.
 
@@ -133,32 +140,66 @@ about. Once your codebase approaches a certain size, it's anyone's guess.
 <br>
 
 
-## Kinds of Errors:
+## Kinds of Errors, Features, and Builds:
 
-I assert that there are a few categories of errors.
+When you're writing a compiler, there's a lot to keep track of. Here's a framework for doing so.
+
+### Errors
+
+I assert that there are a many categories of runtime errors.
 ```md
 1. Is the error recoverable?
 2. Did the error come from violating a precondition?
 3. Did you plan for this error?
 4. Is the cause of the error beyond your control?
 5. Is the behavior undefined?
+6. Is the error a result of the program being incorrect?
 ```
+
+As you can see, there are at least 2^6 kinds of errors. For any given combination of yes/no answers to
+these questions, you could probably come up with your own example. Here are some of mine.
 
 ```md
-Examples:
-10100 - `malloc()` fails, and an error is returned to the caller.
-01001 - Accidentally passed a null pointer to `strlen()`.
-00011 - The CPU is hit with a big hammer.
-10110 - One of your CPUs is hit with a big hammer, but you're writing airplane firmware.
-01000 - While debugging, you instrumented the build of your code to trap on integer overflow.
+101000 - `malloc()` fails, and an error is returned to the caller.
+000110 - The CPU is hit with a big hammer.
+101100 - One of the CPUs in your airplane's engine controller disintegrates.
+010011 - Accidentally passed a null pointer to `strlen()`.
+010001 - While debugging, you instrumented the build of your code to trap on integer overflow.
 ```
 
-As you can see, there are many kinds of errors. For any given combination of yes/no answers, you could
-probably come up with your own example.
-
 Although there are lots of types of errors, once one error has been detected, there are really only two things
-things you want to do with it. You either pass the error to the caller, or you crash, hopefully as gracefully
-as possible.
+things you want to do with any error. You either pass the error to the caller, or crash as gracefully
+as possible, perhaps after logging the error.
+
+The way that errors are reported should be ergonomic and standardized across all different kinds of functions,
+and the way that crashes happen should be standardized, configurable, and overrideable.
+
+
+### Features
+
+I assert also that there are a few categories of features.
+```md
+1. Is the feature supported on the platform>
+2. Does the feature require optional dependencies?
+```
+
+If a feature is supported on the platform and has all of its dependencies, it is available. Otherwise, it is not.
+This should not be pushed to runtime.
+
+
+### Builds
+
+```md
+1. Is optimization turned on?
+2. Is the build instrumented to catch errors?
+3. What features are required?
+```
+
+Optimized and uninstrumented is a normal production build, and unoptimized and instrumented is a normal debugging
+build. It's less common, but for various other reasons you may want to create optimized and instrumented, or
+unoptimized and uninstrumented builds.
+
+If a feature is required but not available, the build should fail. This should not be pushed to runtime.
 
 <br>
 
@@ -166,5 +207,5 @@ as possible.
 ## How can our tooling help?
 
 
-## Actionable Advice About Safety:
+## Actionable advice about safety:
 
