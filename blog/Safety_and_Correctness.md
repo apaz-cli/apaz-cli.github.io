@@ -144,19 +144,20 @@ about. Once your codebase approaches a certain size, it's anyone's guess.
 
 In the general case, detecting runtime conditions is provably impossible. Whether or not a program halts can depend
 on any condition within it, so detecting runtime conditions is equivalent to the
-[halting problem](https://en.wikipedia.org/wiki/Halting_problem), first proven by Alan Turing in 1936. Because the
-proof is really fun, here's the argument he provided in the form of code.
+[halting problem](https://en.wikipedia.org/wiki/Halting_problem), first proven by
+[Alan Turing](https://en.wikipedia.org/wiki/Alan_Turing) in 1936. Because the proof is really fun, here's the
+argument he provided translated into the form of code.
 
+
+Suppose (for contradiction) that there exits an algorithm for the following:
 ```c
 /* Solution.h */
 
-/* Suppose (for contradiction) that there exits an algorithm for the following: */
 /* Returns 1 if the program halts for the given input, 0 if it doesnt. */
 int haltingProblemSolution(char *program, int argc, char** argv);
 ```
 
 Now, the contradiction.
-
 ```c
 /* Contradiction.c */
 
@@ -168,10 +169,14 @@ int main(int argc, char** argv) {
     /* If it halts, it doesn't halt. If it doesn't halt, it halts. */
     /* This is a contradiction.*/
 
-    if (haltingProblemSolution(openFile("Contradiction.c"), argc, argv)) {
-        while (1);
+    char* thisProgram = openFile("Contradiction.c");
+
+    if (haltingProblemSolution(thisProgram, argc, argv)) {
+        while (true) {
+
+        }
     }
-    
+
     return 0;
 }
 ```
@@ -183,13 +188,26 @@ a program must always return the correct answer and always run in a finite amoun
 <br>
 
 
-## Fixing undefined behavior:
+## What is the bare minimum that our tooling can do?
 
 Since a compiler cannot solve the halting problem, it cannot detect undefined behavior at compile time.
 However, it can be detected at runtime. That's no problem. It's easy, in fact. Just wrap every condition
 that could cause it.
 
-Let's write a header to fix our favorite operations.
+Obviously, this is not a complete solution. There are a lot of kinds of undefined behavior that cannot be
+caught this way. ["C Compilers Disprove Fermat's Last Theoerm"](https://blog.regehr.org/archives/140) is an
+excellent article that details the dangers of the offending clause in C11 and C99.
+
+Although we can't eliminate all undefined behavior, doing the bare minimum to fix dereferences, alignment,
+overflow, underflow, and division by zero is a significant step in the right direction.
+
+<br>
+
+
+## Fixing undefined behavior:
+
+
+Let's write a header to fix our favorite arithmetic operations.
 
 ```c
 /* WrapOverflow.h */
@@ -233,7 +251,7 @@ int mult(int a, int b) {
 }
 
 int divide(int a, int b) {
-    /* Division cannot overflow or underflow. */ 
+    /* Division cannot overflow or underflow. */
     if (!b) PANIC(); // Division by zero
     return a / b;
 }
@@ -241,9 +259,58 @@ int divide(int a, int b) {
 #endif /* WRAP_OVERFLOW_INCLUDED */
 ```
 
-## Actionable advice about safety:
+Obviously, this will slow the code down. However, it will potentially save you hours of debugging.
 
-Daisho takes a similar approach to this. However, it uses GCC/Clang builtins to perform the check
-when available, and also wraps the overflow/underflow of unsigned integers as well.
+## Going a little further:
 
-Why would I intentionally even though they're not UB in .
+Daisho takes a similar approach to the header above. However, it uses GCC/Clang builtins
+to perform the check when available, and also wraps the overflow/underflow of unsigned
+integers as well. This has two benefits.
+
+The first benefit is that while unsigned arithmetic wrapping is not undefined behavior, it can often
+be unintended (incorrect) behavior. The benefits to debugging with wrapped unsigned integers are exactly
+the same as wrapped signed integers.
+
+The benefit is the ability to force unsigned overflow to become undefined behavior. This has performance
+benefits. The clang static optimizer in particular is very good at optimizing with undefined wrapping for
+unsigned arithmetic. Inside the optimizer, it applies attributes to each expression. Undefined unsigned wrapping
+has its own attribute, `nuw` (no unsigned wrap). The LLVM IR emitted by the following function returns such a
+value, and optimizes away the checks.
+
+
+```c
+#include <limits.h>
+
+#define PANIC() __builtin_unreachable()
+
+unsigned int add_unsigned(unsigned int a, unsigned int b) {
+    if ((a > 0) && (b > INT_MAX - a)) PANIC(); // Overflow
+    if ((a < 0) && (b < INT_MIN - a)) PANIC(); // Underflow
+    return a + b;
+}
+```
+
+The daisho compiler generates something similar to the above at `--insane` optimization level. Otherwise, it crashes
+the program for you, letting you know exactly what happened to trigger the behavior, and exactly where, on what
+line, and in what file.
+
+The same approach is being taken to wrap every single raw dereference.
+
+```c
+static inline int
+is_aligned(const void* pointer, size_t byte_count) {
+    return (uintptr_t)pointer % byte_count == 0;
+}
+
+static inline int
+deref_int(int *to_deref) {
+    if (!is_aligned(to_deref, _Alignof(int))) PANIC(); // Misaligned pointer
+    return *to_deref;
+}
+```
+
+The conversion to `const void*` is intentional. See [this stackoverflow post]( https://stackoverflow.com/questions/1898153/how-to-determine-if-memory-is-aligned)
+for details.
+
+
+
