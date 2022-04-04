@@ -75,9 +75,6 @@
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
-  <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
-  <![endif]-->
   <style type="text/css">
   /* https://github.com/markdowncss/retro/blob/master/css/retro.css */
 
@@ -185,29 +182,29 @@
 <p>When you're writing a compiler, there's a lot to keep track of. Here's a framework for doing so.</p>
 <h3 id="errors">Errors</h3>
 <p>I assert that there are a many categories of runtime errors.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1"></a><span class="ss">1. </span>Is the error recoverable?</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="ss">2. </span>Did the error come from violating a precondition?</span>
-<span id="cb1-3"><a href="#cb1-3"></a><span class="ss">3. </span>Did you plan for this error?</span>
-<span id="cb1-4"><a href="#cb1-4"></a><span class="ss">4. </span>Is the cause of the error beyond your control?</span>
-<span id="cb1-5"><a href="#cb1-5"></a><span class="ss">5. </span>Is the behavior undefined?</span>
-<span id="cb1-6"><a href="#cb1-6"></a><span class="ss">6. </span>Is the error a result of the program being incorrect?</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="ss">1. </span>Is the error recoverable?</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="ss">2. </span>Did the error come from violating a precondition?</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="ss">3. </span>Did you plan for this error?</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="ss">4. </span>Is the cause of the error beyond your control?</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a><span class="ss">5. </span>Is the behavior undefined?</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a><span class="ss">6. </span>Is the error a result of the program being incorrect?</span></code></pre></div>
 <p>As you can see, there are at least 2^6 kinds of errors. For any given combination of yes/no answers to these questions, you could probably come up with your own example. Here are some of mine.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1"></a>101000 - <span class="in">`malloc()`</span> fails, and an error is returned to the caller.</span>
-<span id="cb2-2"><a href="#cb2-2"></a>000110 - The CPU is hit with a big hammer.</span>
-<span id="cb2-3"><a href="#cb2-3"></a>101100 - One of the CPUs in your airplane&#39;s engine controller disintegrates.</span>
-<span id="cb2-4"><a href="#cb2-4"></a>010011 - Accidentally passed a null pointer to <span class="in">`strlen()`</span>.</span>
-<span id="cb2-5"><a href="#cb2-5"></a>010001 - While debugging, you instrumented the build of your code to trap on integer overflow.</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a>101000 - <span class="in">`malloc()`</span> fails, and an error is returned to the caller.</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>000110 - The CPU is hit with a big hammer.</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>101100 - One of the CPUs in your airplane&#39;s engine controller disintegrates.</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>010011 - Accidentally passed a null pointer to <span class="in">`strlen()`</span>.</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a>010001 - While debugging, you instrumented the build of your code to trap on integer overflow.</span></code></pre></div>
 <p>Although there are lots of types of errors, once one error has been detected, there are really only two things things you want to do with any error. You either pass the error to the caller, or crash as gracefully as possible, perhaps after logging the error.</p>
 <p>The way that errors are reported should be ergonomic and standardized across all different kinds of functions, and the way that crashes happen should be standardized, configurable, and overrideable.</p>
 <h3 id="features">Features</h3>
 <p>I assert also that there are a few categories of features.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1"></a><span class="ss">1. </span>Is the feature supported on the platform&gt;</span>
-<span id="cb3-2"><a href="#cb3-2"></a><span class="ss">2. </span>Does the feature require optional dependencies?</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="ss">1. </span>Is the feature supported on the platform&gt;</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="ss">2. </span>Does the feature require optional dependencies?</span></code></pre></div>
 <p>If a feature is supported on the platform and has all of its dependencies, it is available. Otherwise, it is not. This should not be pushed to runtime.</p>
 <h3 id="builds">Builds</h3>
-<div class="sourceCode" id="cb4"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1"></a><span class="ss">1. </span>Is optimization turned on?</span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="ss">2. </span>Is the build instrumented to catch errors?</span>
-<span id="cb4-3"><a href="#cb4-3"></a><span class="ss">3. </span>What features are required?</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="ss">1. </span>Is optimization turned on?</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="ss">2. </span>Is the build instrumented to catch errors?</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a><span class="ss">3. </span>What features are required?</span></code></pre></div>
 <p>Optimized and uninstrumented is a normal production build, and unoptimized and instrumented is a normal debugging build. It's less common, but for various other reasons you may want to create optimized and instrumented, or unoptimized and uninstrumented builds.</p>
 <p>If a feature is required but not available, the build should fail. This should not be pushed to runtime.</p>
 <p><br></p>

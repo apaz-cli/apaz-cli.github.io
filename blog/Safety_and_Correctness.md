@@ -130,7 +130,7 @@ we have to define here. Most programmers do not define their preconditions, and 
 We know that passing an invalid pointer probably violates some preconditions, so we don't. When we want to add two
 numbers, we don't think about the domain of the inputs. We also don't think to document that the behavior of our
 function is undefined if `((a > 0 && b > INT_MAX - a) || (a < 0 && b < INT_MIN - a))`. Instead, we just document
-the operation that is supposed to be performed and go by feel. This is true even in the airplane firmware world.
+what our code is supposed to do and go by feel. This is true even in the airplane firmware world.
 
 What's above is just a simple example. We have our definition, but with respect to our current practice of fuzzy
 preconditions, what does "correct" mean? Our definition assumes preconditions and postconditions are well defined.
@@ -140,8 +140,110 @@ about. Once your codebase approaches a certain size, it's anyone's guess.
 <br>
 
 
-## How can our tooling help?
+## Background: The Halting Problem
 
+In the general case, detecting runtime conditions is provably impossible. Whether or not a program halts can depend
+on any condition within it, so detecting runtime conditions is equivalent to the
+[halting problem](https://en.wikipedia.org/wiki/Halting_problem), first proven by Alan Turing in 1936. Because the
+proof is really fun, here's the argument he provided in the form of code.
+
+```c
+/* Solution.h */
+
+/* Suppose (for contradiction) that there exits an algorithm for the following: */
+/* Returns 1 if the program halts for the given input, 0 if it doesnt. */
+int haltingProblemSolution(char *program, int argc, char** argv);
+```
+
+Now, the contradiction.
+
+```c
+/* Contradiction.c */
+
+#include "Solution.h"
+
+int main(int argc, char** argv) {
+
+    /* If this program halts, enter an infinite loop. */
+    /* If it halts, it doesn't halt. If it doesn't halt, it halts. */
+    /* This is a contradiction.*/
+
+    if (haltingProblemSolution(openFile("Contradiction.c"), argc, argv)) {
+        while (1);
+    }
+    
+    return 0;
+}
+```
+
+From this, the contradiction should be obvious. You could of course write programs to partially answer
+the halting problem, but no ways that fulfill the definition of an algorithm. To be qualified as an algorithm,
+a program must always return the correct answer and always run in a finite amount of time for all inputs.
+
+<br>
+
+
+## Fixing undefined behavior:
+
+Since a compiler cannot solve the halting problem, it cannot detect undefined behavior at compile time.
+However, it can be detected at runtime. That's no problem. It's easy, in fact. Just wrap every condition
+that could cause it.
+
+Let's write a header to fix our favorite operations.
+
+```c
+/* WrapOverflow.h */
+#ifndef WRAP_OVERFLOW_INCLUDED
+#define WRAP_OVERFLOW_INCLUDED
+
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#ifndef WRAP_OVERFLOW
+#define WRAP_OVERFLOW 1
+#endif
+
+#if WRAP_OVERFLOW
+#define PANIC()                             \
+    do {                                    \
+        puts("UNDEFINED BEHAVIOR REEEEEE"); \
+        exit(1);                            \
+    } while (0)
+#else
+#define PANIC() (void)0
+#endif
+
+int add(int a, int b) {
+    if ((a > 0) && (b > INT_MAX - a)) PANIC(); // Overflow
+    if ((a < 0) && (b < INT_MIN - a)) PANIC(); // Underflow
+    return a + b;
+}
+
+int sub(int a, int b) {
+    if ((b < 0) && (a > INT_MAX + b)) PANIC(); // Overflow
+    if ((b > 0) && (a < INT_MIN + b)) PANIC(); // Underflow
+    return a - b;
+}
+
+int mult(int a, int b) {
+    if (a > (INT_MAX / b)) PANIC(); // Overflow
+    if (a < (INT_MIN / b)) PANIC(); // Underflow
+    return a * b;
+}
+
+int divide(int a, int b) {
+    /* Division cannot overflow or underflow. */ 
+    if (!b) PANIC(); // Division by zero
+    return a / b;
+}
+
+#endif /* WRAP_OVERFLOW_INCLUDED */
+```
 
 ## Actionable advice about safety:
 
+Daisho takes a similar approach to this. However, it uses GCC/Clang builtins to perform the check
+when available, and also wraps the overflow/underflow of unsigned integers as well.
+
+Why would I intentionally even though they're not UB in .
