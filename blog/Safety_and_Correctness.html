@@ -75,6 +75,9 @@
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
   </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
   <style type="text/css">
   /* https://github.com/markdowncss/retro/blob/master/css/retro.css */
 
@@ -209,41 +212,41 @@
 <p><br></p>
 <h2 id="why-do-we-write-unsafe-programs">Why do we write unsafe programs?</h2>
 <p>Undefined Behavior introduces silent preconditions that are difficult to detect and reason about. Is the following code safe? Stare at it for a while.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="dt">char</span> strDeref(<span class="dt">const</span> <span class="dt">char</span> *str, <span class="dt">int</span> idx1, <span class="dt">int</span> idx2) {</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>  <span class="cf">if</span> (str == NULL)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>  <span class="cf">if</span> ((idx1 + idx2) &lt; <span class="dv">0</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>  <span class="cf">if</span> (strnlen(str, <span class="dv">1000</span>) &lt;= (idx1 + idx2))</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a>  <span class="cf">return</span> str[idx1 + idx2];</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1"></a><span class="dt">char</span> strDeref(<span class="dt">const</span> <span class="dt">char</span> *str, <span class="dt">int</span> idx1, <span class="dt">int</span> idx2) {</span>
+<span id="cb1-2"><a href="#cb1-2"></a>  <span class="cf">if</span> (str == NULL)</span>
+<span id="cb1-3"><a href="#cb1-3"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
+<span id="cb1-4"><a href="#cb1-4"></a></span>
+<span id="cb1-5"><a href="#cb1-5"></a>  <span class="cf">if</span> ((idx1 + idx2) &lt; <span class="dv">0</span>)</span>
+<span id="cb1-6"><a href="#cb1-6"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
+<span id="cb1-7"><a href="#cb1-7"></a></span>
+<span id="cb1-8"><a href="#cb1-8"></a>  <span class="cf">if</span> (strnlen(str, <span class="dv">1000</span>) &lt;= (idx1 + idx2))</span>
+<span id="cb1-9"><a href="#cb1-9"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
+<span id="cb1-10"><a href="#cb1-10"></a></span>
+<span id="cb1-11"><a href="#cb1-11"></a>  <span class="cf">return</span> str[idx1 + idx2];</span>
+<span id="cb1-12"><a href="#cb1-12"></a>}</span></code></pre></div>
 <p>I would say that it sure looks right. But that's not what safe means.</p>
 <p>Even if you think you're covering all of your bases by checking the length of the string, and even using <code>strnlen()</code> over <code>strlen()</code> to do so because it's "safer" (that doesn't make it less dangerous), it's very hard to make sure your API is safe. The problem is <code>idx1 + idx2</code>. Signed integer overflow is undefined. So are a lot of other things. Truly safe code is difficult to acheive. Or it's literally impossible in some cases (in C, almost all cases). There are some other UB problems that can be fixed this way as well, just by checking before the operation that would trigger them. Oversize shift amounts and pointer alignment fall into this category.</p>
 <p>Let's fix the above example.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="dt">char</span> strDeref(<span class="dt">const</span> <span class="dt">char</span> *str, <span class="dt">int</span> idx1, <span class="dt">int</span> idx2) {</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>  <span class="cf">if</span> ((idx1 &gt; <span class="dv">0</span> &amp;&amp; idx2 &gt; INT_MAX - idx1)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>   || (idx1 &lt; <span class="dv">0</span> &amp;&amp; idx2 &lt; INT_MIN - idx1))</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>  <span class="co">/* str is aligned, since char* has no alignment requirements. */</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>  <span class="cf">if</span> (str == NULL)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>  <span class="cf">if</span> ((idx1 + idx2) &lt; <span class="dv">0</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>  <span class="cf">if</span> (strnlen(str, <span class="dv">1000</span>) &lt;= (idx1 + idx2))</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true"></a></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true"></a>  <span class="cf">return</span> str[idx1 + idx2];</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1"></a><span class="dt">char</span> strDeref(<span class="dt">const</span> <span class="dt">char</span> *str, <span class="dt">int</span> idx1, <span class="dt">int</span> idx2) {</span>
+<span id="cb2-2"><a href="#cb2-2"></a>  <span class="cf">if</span> ((idx1 &gt; <span class="dv">0</span> &amp;&amp; idx2 &gt; INT_MAX - idx1)</span>
+<span id="cb2-3"><a href="#cb2-3"></a>   || (idx1 &lt; <span class="dv">0</span> &amp;&amp; idx2 &lt; INT_MIN - idx1))</span>
+<span id="cb2-4"><a href="#cb2-4"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
+<span id="cb2-5"><a href="#cb2-5"></a></span>
+<span id="cb2-6"><a href="#cb2-6"></a>  <span class="co">/* str is aligned, since char* has no alignment requirements. */</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a></span>
+<span id="cb2-8"><a href="#cb2-8"></a>  <span class="cf">if</span> (str == NULL)</span>
+<span id="cb2-9"><a href="#cb2-9"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
+<span id="cb2-10"><a href="#cb2-10"></a></span>
+<span id="cb2-11"><a href="#cb2-11"></a>  <span class="cf">if</span> ((idx1 + idx2) &lt; <span class="dv">0</span>)</span>
+<span id="cb2-12"><a href="#cb2-12"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
+<span id="cb2-13"><a href="#cb2-13"></a></span>
+<span id="cb2-14"><a href="#cb2-14"></a>  <span class="cf">if</span> (strnlen(str, <span class="dv">1000</span>) &lt;= (idx1 + idx2))</span>
+<span id="cb2-15"><a href="#cb2-15"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
+<span id="cb2-16"><a href="#cb2-16"></a></span>
+<span id="cb2-17"><a href="#cb2-17"></a>  <span class="cf">return</span> str[idx1 + idx2];</span>
+<span id="cb2-18"><a href="#cb2-18"></a>}</span></code></pre></div>
 <p>Surely now it's safe for any possible preconditions, right? I raise you the following.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>strDeref((<span class="dt">char</span> *)(<span class="dt">intptr_t</span>)<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>);</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1"></a>strDeref((<span class="dt">char</span> *)(<span class="dt">intptr_t</span>)<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>);</span></code></pre></div>
 <p>Checking whether a memory region is valid is very difficult. It seems at this point that we're out of luck. We can't (reasonably) fix this. It's doable theoretically, but would require so much instrumentation that it would be easier just to buy the whole orchestra.</p>
 <p>Luckily, people don't often write code like this that's so obviously wrong. We know that dereferencing a wild pointer (one that isn't aligned inside of a valid memory region) is bad. But there are less obvious ways to obtain a pointer to an invalid memory region. We've covered the null pointer case, but there's also use after free. Unless we can guarantee that <code>str</code> is valid and aligned, we cannot call this function safely. It could cause undefined behavior by dereferencing that pointer, which is unfortunately the entire point of the function.</p>
 <p>From a language design perspective, it doesn't have to be this way. What if the creation of that pointer was the undefined behavior? What if obtaining such a pointer were impossible? What should the programming language's role in this be? We'll get to my opinions on that later.</p>
@@ -251,83 +254,115 @@
 <p>What's above is just a simple example. We have our definition, but with respect to our current practice of fuzzy preconditions, what does "correct" mean? Our definition assumes preconditions and postconditions are well defined. How APIs compose with respect to preconditions and postconditions gets progressively more difficult to reason about. Once your codebase approaches a certain size, it's anyone's guess.</p>
 <p><br></p>
 <h2 id="background-the-halting-problem">Background: The Halting Problem</h2>
-<p>In the general case, detecting runtime conditions is provably impossible. Whether or not a program halts can depend on any condition within it, so detecting runtime conditions is equivalent to the <a href="https://en.wikipedia.org/wiki/Halting_problem">halting problem</a>, first proven by Alan Turing in 1936. Because the proof is really fun, here's the argument he provided in the form of code.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="co">/* Solution.h */</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a><span class="co">/* Suppose (for contradiction) that there exits an algorithm for the following: */</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a><span class="co">/* Returns 1 if the program halts for the given input, 0 if it doesnt. */</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a><span class="dt">int</span> haltingProblemSolution(<span class="dt">char</span> *program, <span class="dt">int</span> argc, <span class="dt">char</span>** argv);</span></code></pre></div>
+<p>In the general case, detecting runtime conditions is provably impossible. Whether or not a program halts can depend on any condition within it, so detecting runtime conditions is equivalent to the <a href="https://en.wikipedia.org/wiki/Halting_problem">halting problem</a>, first proven by <a href="https://en.wikipedia.org/wiki/Alan_Turing">Alan Turing</a> in 1936. Because the proof is really fun, here's the argument he provided translated into the form of code.</p>
+<p>Suppose (for contradiction) that there exits an algorithm for the following:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1"></a><span class="co">/* Solution.h */</span></span>
+<span id="cb4-2"><a href="#cb4-2"></a></span>
+<span id="cb4-3"><a href="#cb4-3"></a><span class="co">/* Returns 1 if the program halts for the given input, 0 if it doesnt. */</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a><span class="dt">int</span> haltingProblemSolution(<span class="dt">char</span> *program, <span class="dt">int</span> argc, <span class="dt">char</span>** argv);</span></code></pre></div>
 <p>Now, the contradiction.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="co">/* Contradiction.c */</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="pp">#include </span><span class="im">&quot;Solution.h&quot;</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a><span class="dt">int</span> main(<span class="dt">int</span> argc, <span class="dt">char</span>** argv) {</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>    <span class="co">/* If this program halts, enter an infinite loop. */</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a>    <span class="co">/* If it halts, it doesn&#39;t halt. If it doesn&#39;t halt, it halts. */</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a>    <span class="co">/* This is a contradiction.*/</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a>    <span class="cf">if</span> (haltingProblemSolution(openFile(<span class="st">&quot;Contradiction.c&quot;</span>), argc, argv)) {</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a>        <span class="cf">while</span> (<span class="dv">1</span>);</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true"></a>    }</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true"></a>    </span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true"></a>    <span class="cf">return</span> <span class="dv">0</span>;</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1"></a><span class="co">/* Contradiction.c */</span></span>
+<span id="cb5-2"><a href="#cb5-2"></a></span>
+<span id="cb5-3"><a href="#cb5-3"></a><span class="pp">#include </span><span class="im">&quot;Solution.h&quot;</span></span>
+<span id="cb5-4"><a href="#cb5-4"></a></span>
+<span id="cb5-5"><a href="#cb5-5"></a><span class="dt">int</span> main(<span class="dt">int</span> argc, <span class="dt">char</span>** argv) {</span>
+<span id="cb5-6"><a href="#cb5-6"></a></span>
+<span id="cb5-7"><a href="#cb5-7"></a>    <span class="co">/* If this program halts, enter an infinite loop. */</span></span>
+<span id="cb5-8"><a href="#cb5-8"></a>    <span class="co">/* If it halts, it doesn&#39;t halt. If it doesn&#39;t halt, it halts. */</span></span>
+<span id="cb5-9"><a href="#cb5-9"></a>    <span class="co">/* This is a contradiction.*/</span></span>
+<span id="cb5-10"><a href="#cb5-10"></a></span>
+<span id="cb5-11"><a href="#cb5-11"></a>    <span class="dt">char</span>* thisProgram = openFile(<span class="st">&quot;Contradiction.c&quot;</span>);</span>
+<span id="cb5-12"><a href="#cb5-12"></a></span>
+<span id="cb5-13"><a href="#cb5-13"></a>    <span class="cf">if</span> (haltingProblemSolution(thisProgram, argc, argv)) {</span>
+<span id="cb5-14"><a href="#cb5-14"></a>        <span class="cf">while</span> (true) {</span>
+<span id="cb5-15"><a href="#cb5-15"></a></span>
+<span id="cb5-16"><a href="#cb5-16"></a>        }</span>
+<span id="cb5-17"><a href="#cb5-17"></a>    }</span>
+<span id="cb5-18"><a href="#cb5-18"></a></span>
+<span id="cb5-19"><a href="#cb5-19"></a>    <span class="cf">return</span> <span class="dv">0</span>;</span>
+<span id="cb5-20"><a href="#cb5-20"></a>}</span></code></pre></div>
 <p>From this, the contradiction should be obvious. You could of course write programs to partially answer the halting problem, but no ways that fulfill the definition of an algorithm. To be qualified as an algorithm, a program must always return the correct answer and always run in a finite amount of time for all inputs.</p>
 <p><br></p>
-<h2 id="fixing-undefined-behavior">Fixing undefined behavior:</h2>
+<h2 id="what-is-the-bare-minimum-that-our-tooling-can-do">What is the bare minimum that our tooling can do?</h2>
 <p>Since a compiler cannot solve the halting problem, it cannot detect undefined behavior at compile time. However, it can be detected at runtime. That's no problem. It's easy, in fact. Just wrap every condition that could cause it.</p>
-<p>Let's write a header to fix our favorite operations.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="co">/* WrapOverflow.h */</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a><span class="pp">#ifndef WRAP_OVERFLOW_INCLUDED</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a><span class="pp">#define WRAP_OVERFLOW_INCLUDED</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a><span class="pp">#include </span><span class="im">&lt;limits.h&gt;</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a><span class="pp">#ifndef WRAP_OVERFLOW</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a><span class="pp">#define WRAP_OVERFLOW 1</span></span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true"></a><span class="pp">#endif</span></span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true"></a></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true"></a><span class="pp">#if WRAP_OVERFLOW</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true"></a><span class="pp">#define PANIC()                             \</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true"></a><span class="pp">    do {                                    \</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true"></a><span class="pp">        puts(&quot;UNDEFINED BEHAVIOR REEEEEE&quot;); \</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true"></a><span class="pp">        exit(1);                            \</span></span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true"></a><span class="pp">    } while (0)</span></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true"></a><span class="pp">#else</span></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true"></a><span class="pp">#define PANIC() (void)0</span></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true"></a><span class="pp">#endif</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true"></a></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true"></a><span class="dt">int</span> add(<span class="dt">int</span> a, <span class="dt">int</span> b) {</span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true"></a>    <span class="cf">if</span> ((a &gt; <span class="dv">0</span>) &amp;&amp; (b &gt; INT_MAX - a)) PANIC(); <span class="co">// Overflow</span></span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true"></a>    <span class="cf">if</span> ((a &lt; <span class="dv">0</span>) &amp;&amp; (b &lt; INT_MIN - a)) PANIC(); <span class="co">// Underflow</span></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true"></a>    <span class="cf">return</span> a + b;</span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true"></a>}</span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true"></a></span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true"></a><span class="dt">int</span> sub(<span class="dt">int</span> a, <span class="dt">int</span> b) {</span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true"></a>    <span class="cf">if</span> ((b &lt; <span class="dv">0</span>) &amp;&amp; (a &gt; INT_MAX + b)) PANIC(); <span class="co">// Overflow</span></span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true"></a>    <span class="cf">if</span> ((b &gt; <span class="dv">0</span>) &amp;&amp; (a &lt; INT_MIN + b)) PANIC(); <span class="co">// Underflow</span></span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true"></a>    <span class="cf">return</span> a - b;</span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true"></a>}</span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true"></a></span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true"></a><span class="dt">int</span> mult(<span class="dt">int</span> a, <span class="dt">int</span> b) {</span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true"></a>    <span class="cf">if</span> (a &gt; (INT_MAX / b)) PANIC(); <span class="co">// Overflow</span></span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true"></a>    <span class="cf">if</span> (a &lt; (INT_MIN / b)) PANIC(); <span class="co">// Underflow</span></span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true"></a>    <span class="cf">return</span> a * b;</span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true"></a>}</span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true"></a></span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true"></a><span class="dt">int</span> divide(<span class="dt">int</span> a, <span class="dt">int</span> b) {</span>
-<span id="cb6-42"><a href="#cb6-42" aria-hidden="true"></a>    <span class="co">/* Division cannot overflow or underflow. */</span> </span>
-<span id="cb6-43"><a href="#cb6-43" aria-hidden="true"></a>    <span class="cf">if</span> (!b) PANIC(); <span class="co">// Division by zero</span></span>
-<span id="cb6-44"><a href="#cb6-44" aria-hidden="true"></a>    <span class="cf">return</span> a / b;</span>
-<span id="cb6-45"><a href="#cb6-45" aria-hidden="true"></a>}</span>
-<span id="cb6-46"><a href="#cb6-46" aria-hidden="true"></a></span>
-<span id="cb6-47"><a href="#cb6-47" aria-hidden="true"></a><span class="pp">#endif </span><span class="co">/* WRAP_OVERFLOW_INCLUDED */</span></span></code></pre></div>
-<h2 id="actionable-advice-about-safety">Actionable advice about safety:</h2>
-<p>Daisho takes a similar approach to this. However, it uses GCC/Clang builtins to perform the check when available, and also wraps the overflow/underflow of unsigned integers as well.</p>
-<p>Why would I intentionally even though they're not UB in .</p>
+<p>Obviously, this is not a complete solution. There are a lot of kinds of undefined behavior that cannot be caught this way. <a href="https://blog.regehr.org/archives/140">"C Compilers Disprove Fermat's Last Theoerm"</a> is an excellent article that details the dangers of the offending clause in C11 and C99.</p>
+<p>Although we can't eliminate all undefined behavior, doing the bare minimum to fix dereferences, alignment, overflow, underflow, and division by zero is a significant step in the right direction.</p>
+<p><br></p>
+<h2 id="fixing-undefined-behavior">Fixing undefined behavior:</h2>
+<p>Let's write a header to fix our favorite arithmetic operations.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1"></a><span class="co">/* WrapOverflow.h */</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a><span class="pp">#ifndef WRAP_OVERFLOW_INCLUDED</span></span>
+<span id="cb6-3"><a href="#cb6-3"></a><span class="pp">#define WRAP_OVERFLOW_INCLUDED</span></span>
+<span id="cb6-4"><a href="#cb6-4"></a></span>
+<span id="cb6-5"><a href="#cb6-5"></a><span class="pp">#include </span><span class="im">&lt;limits.h&gt;</span></span>
+<span id="cb6-6"><a href="#cb6-6"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></span>
+<span id="cb6-8"><a href="#cb6-8"></a></span>
+<span id="cb6-9"><a href="#cb6-9"></a><span class="pp">#ifndef WRAP_OVERFLOW</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a><span class="pp">#define WRAP_OVERFLOW 1</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a><span class="pp">#endif</span></span>
+<span id="cb6-12"><a href="#cb6-12"></a></span>
+<span id="cb6-13"><a href="#cb6-13"></a><span class="pp">#if WRAP_OVERFLOW</span></span>
+<span id="cb6-14"><a href="#cb6-14"></a><span class="pp">#define PANIC()                             \</span></span>
+<span id="cb6-15"><a href="#cb6-15"></a><span class="pp">    do {                                    \</span></span>
+<span id="cb6-16"><a href="#cb6-16"></a><span class="pp">        puts(&quot;UNDEFINED BEHAVIOR REEEEEE&quot;); \</span></span>
+<span id="cb6-17"><a href="#cb6-17"></a><span class="pp">        exit(1);                            \</span></span>
+<span id="cb6-18"><a href="#cb6-18"></a><span class="pp">    } while (0)</span></span>
+<span id="cb6-19"><a href="#cb6-19"></a><span class="pp">#else</span></span>
+<span id="cb6-20"><a href="#cb6-20"></a><span class="pp">#define PANIC() (void)0</span></span>
+<span id="cb6-21"><a href="#cb6-21"></a><span class="pp">#endif</span></span>
+<span id="cb6-22"><a href="#cb6-22"></a></span>
+<span id="cb6-23"><a href="#cb6-23"></a><span class="dt">int</span> add(<span class="dt">int</span> a, <span class="dt">int</span> b) {</span>
+<span id="cb6-24"><a href="#cb6-24"></a>    <span class="cf">if</span> ((a &gt; <span class="dv">0</span>) &amp;&amp; (b &gt; INT_MAX - a)) PANIC(); <span class="co">// Overflow</span></span>
+<span id="cb6-25"><a href="#cb6-25"></a>    <span class="cf">if</span> ((a &lt; <span class="dv">0</span>) &amp;&amp; (b &lt; INT_MIN - a)) PANIC(); <span class="co">// Underflow</span></span>
+<span id="cb6-26"><a href="#cb6-26"></a>    <span class="cf">return</span> a + b;</span>
+<span id="cb6-27"><a href="#cb6-27"></a>}</span>
+<span id="cb6-28"><a href="#cb6-28"></a></span>
+<span id="cb6-29"><a href="#cb6-29"></a><span class="dt">int</span> sub(<span class="dt">int</span> a, <span class="dt">int</span> b) {</span>
+<span id="cb6-30"><a href="#cb6-30"></a>    <span class="cf">if</span> ((b &lt; <span class="dv">0</span>) &amp;&amp; (a &gt; INT_MAX + b)) PANIC(); <span class="co">// Overflow</span></span>
+<span id="cb6-31"><a href="#cb6-31"></a>    <span class="cf">if</span> ((b &gt; <span class="dv">0</span>) &amp;&amp; (a &lt; INT_MIN + b)) PANIC(); <span class="co">// Underflow</span></span>
+<span id="cb6-32"><a href="#cb6-32"></a>    <span class="cf">return</span> a - b;</span>
+<span id="cb6-33"><a href="#cb6-33"></a>}</span>
+<span id="cb6-34"><a href="#cb6-34"></a></span>
+<span id="cb6-35"><a href="#cb6-35"></a><span class="dt">int</span> mult(<span class="dt">int</span> a, <span class="dt">int</span> b) {</span>
+<span id="cb6-36"><a href="#cb6-36"></a>    <span class="cf">if</span> (a &gt; (INT_MAX / b)) PANIC(); <span class="co">// Overflow</span></span>
+<span id="cb6-37"><a href="#cb6-37"></a>    <span class="cf">if</span> (a &lt; (INT_MIN / b)) PANIC(); <span class="co">// Underflow</span></span>
+<span id="cb6-38"><a href="#cb6-38"></a>    <span class="cf">return</span> a * b;</span>
+<span id="cb6-39"><a href="#cb6-39"></a>}</span>
+<span id="cb6-40"><a href="#cb6-40"></a></span>
+<span id="cb6-41"><a href="#cb6-41"></a><span class="dt">int</span> divide(<span class="dt">int</span> a, <span class="dt">int</span> b) {</span>
+<span id="cb6-42"><a href="#cb6-42"></a>    <span class="co">/* Division cannot overflow or underflow. */</span></span>
+<span id="cb6-43"><a href="#cb6-43"></a>    <span class="cf">if</span> (!b) PANIC(); <span class="co">// Division by zero</span></span>
+<span id="cb6-44"><a href="#cb6-44"></a>    <span class="cf">return</span> a / b;</span>
+<span id="cb6-45"><a href="#cb6-45"></a>}</span>
+<span id="cb6-46"><a href="#cb6-46"></a></span>
+<span id="cb6-47"><a href="#cb6-47"></a><span class="pp">#endif </span><span class="co">/* WRAP_OVERFLOW_INCLUDED */</span></span></code></pre></div>
+<p>Obviously, this will slow the code down. However, it will potentially save you hours of debugging.</p>
+<h2 id="going-a-little-further">Going a little further:</h2>
+<p>Daisho takes a similar approach to the header above. However, it uses GCC/Clang builtins to perform the check when available, and also wraps the overflow/underflow of unsigned integers as well. This has two benefits.</p>
+<p>The first benefit is that while unsigned arithmetic wrapping is not undefined behavior, it can often be unintended (incorrect) behavior. The benefits to debugging with wrapped unsigned integers are exactly the same as wrapped signed integers.</p>
+<p>The benefit is the ability to force unsigned overflow to become undefined behavior. This has performance benefits. The clang static optimizer in particular is very good at optimizing with undefined wrapping for unsigned arithmetic. Inside the optimizer, it applies attributes to each expression. Undefined unsigned wrapping has its own attribute, <code>nuw</code> (no unsigned wrap). The LLVM IR emitted by the following function returns such a value, and optimizes away the checks.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1"></a><span class="pp">#include </span><span class="im">&lt;limits.h&gt;</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a></span>
+<span id="cb7-3"><a href="#cb7-3"></a><span class="pp">#define PANIC() __builtin_unreachable()</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a></span>
+<span id="cb7-5"><a href="#cb7-5"></a><span class="dt">unsigned</span> <span class="dt">int</span> add_unsigned(<span class="dt">unsigned</span> <span class="dt">int</span> a, <span class="dt">unsigned</span> <span class="dt">int</span> b) {</span>
+<span id="cb7-6"><a href="#cb7-6"></a>    <span class="cf">if</span> ((a &gt; <span class="dv">0</span>) &amp;&amp; (b &gt; INT_MAX - a)) PANIC(); <span class="co">// Overflow</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a>    <span class="cf">if</span> ((a &lt; <span class="dv">0</span>) &amp;&amp; (b &lt; INT_MIN - a)) PANIC(); <span class="co">// Underflow</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a>    <span class="cf">return</span> a + b;</span>
+<span id="cb7-9"><a href="#cb7-9"></a>}</span></code></pre></div>
+<p>The daisho compiler generates something similar to the above at <code>--insane</code> optimization level. Otherwise, it crashes the program for you, letting you know exactly what happened to trigger the behavior, and exactly where, on what line, and in what file.</p>
+<p>The same approach is being taken to wrap every single raw dereference.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
+<span id="cb8-2"><a href="#cb8-2"></a>is_aligned(<span class="dt">const</span> <span class="dt">void</span>* pointer, <span class="dt">size_t</span> byte_count) {</span>
+<span id="cb8-3"><a href="#cb8-3"></a>    <span class="cf">return</span> (<span class="dt">uintptr_t</span>)pointer % byte_count == <span class="dv">0</span>;</span>
+<span id="cb8-4"><a href="#cb8-4"></a>}</span>
+<span id="cb8-5"><a href="#cb8-5"></a></span>
+<span id="cb8-6"><a href="#cb8-6"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
+<span id="cb8-7"><a href="#cb8-7"></a>deref_int(<span class="dt">int</span> *to_deref) {</span>
+<span id="cb8-8"><a href="#cb8-8"></a>    <span class="cf">if</span> (!is_aligned(to_deref, <span class="kw">_Alignof</span>(<span class="dt">int</span>))) PANIC(); <span class="co">// Misaligned pointer</span></span>
+<span id="cb8-9"><a href="#cb8-9"></a>    <span class="cf">return</span> *to_deref;</span>
+<span id="cb8-10"><a href="#cb8-10"></a>}</span></code></pre></div>
+<p>The conversion to <code>const void*</code> is intentional. See <a href="https://stackoverflow.com/questions/1898153/how-to-determine-if-memory-is-aligned">this stackoverflow post</a> for details.</p>
 </body>
 </html>
