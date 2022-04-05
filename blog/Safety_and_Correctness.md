@@ -107,7 +107,7 @@ char strDeref(const char *str, int idx1, int idx2) {
 Surely now it's safe for any possible preconditions, right? I raise you the following.
 
 ```c
-strDeref((char *)(intptr_t)1, 0, 0);
+strDeref((char *)(void *)(intptr_t)1, 0, 0);
 ```
 
 Checking whether a memory region is valid is very difficult. It seems at this point that we're out of luck. We can't
@@ -140,50 +140,36 @@ about. Once your codebase approaches a certain size, it's anyone's guess.
 <br>
 
 
+## What should we do about software safety?
+
+There's been decades of argument over whether or not the compiler should try to stop you from writing bugs.
+That argument is still ongoing in the programming languages world. Rust says no. C and C++ have been saying
+yes for decades.
+
+Regardless of your opinion on this, perhaps you would agree that it would be cool if our compiler could help
+us keep bugs out of code that we release out into the world. Making them impossible to write by adding rules
+to the syntax and type system is not the only way to accomplish this. We can also accomplish it through tooling.
+
+It should also be noted that writing your code is the easy, non-time consuming part. Debugging your code is
+going to take longer. Undefined behavior difficult to debug, so it's going to have to go, at least for debug
+builds.
+
+<br>
+
+
 ## Background: The Halting Problem
 
-In the general case, detecting runtime conditions is provably impossible. Whether or not a program halts can depend
-on any condition within it, so detecting runtime conditions is equivalent to the
-[halting problem](https://en.wikipedia.org/wiki/Halting_problem), first proven by
-[Alan Turing](https://en.wikipedia.org/wiki/Alan_Turing) in 1936. Because the proof is really fun, here's the
-argument he provided translated into the form of code.
+In the general case, detecting runtime conditions like those that would trigger undefined behavior is
+provably impossible by reduction to the [halting problem](https://en.wikipedia.org/wiki/Halting_problem),
+first proven by [Alan Turing](https://en.wikipedia.org/wiki/Alan_Turing) in 1936. The proof is really fun,
+I suggest looking into it.
 
 
-Suppose (for contradiction) that there exits an algorithm for the following:
-```c
-/* Solution.h */
-
-/* Returns 1 if the program halts for the given input, 0 if it doesnt. */
-int haltingProblemSolution(char *program, int argc, char** argv);
-```
-
-Now, the contradiction.
-```c
-/* Contradiction.c */
-
-#include "Solution.h"
-
-int main(int argc, char** argv) {
-
-    /* If this program halts, enter an infinite loop. */
-    /* If it halts, it doesn't halt. If it doesn't halt, it halts. */
-    /* This is a contradiction.*/
-
-    char* thisProgram = openFile("Contradiction.c");
-
-    if (haltingProblemSolution(thisProgram, argc, argv)) {
-        while (true) {
-
-        }
-    }
-
-    return 0;
-}
-```
-
-From this, the contradiction should be obvious. You could of course write programs to partially answer
-the halting problem, but no ways that fulfill the definition of an algorithm. To be qualified as an algorithm,
-a program must always return the correct answer and always run in a finite amount of time for all inputs.
+There are some programs that do obviously halt for all inputs, like `print("Hello World!");`. There are
+also some that obviously never halt like `while (true)`. But, there's a lot of them for which termination
+analysis is much more difficult. You could of course write programs to partially answer the halting problem,
+most optimizing compilers contain one or more mechanisms to attempt to make that determination, but the problem
+is still unsolveable in the general case.
 
 <br>
 
@@ -191,8 +177,8 @@ a program must always return the correct answer and always run in a finite amoun
 ## What is the bare minimum that our tooling can do?
 
 Since a compiler cannot solve the halting problem, it cannot detect undefined behavior at compile time.
-However, it can be detected at runtime. That's no problem. It's easy, in fact. Just wrap every condition
-that could cause it.
+However, it can be detected at runtime. That's obviously no problem. It's easy, in fact. Just wrap every
+condition that could cause it.
 
 Obviously, this is not a complete solution. There are a lot of kinds of undefined behavior that cannot be
 caught this way. ["C Compilers Disprove Fermat's Last Theoerm"](https://blog.regehr.org/archives/140) is an
@@ -223,34 +209,34 @@ Let's write a header to fix our favorite arithmetic operations.
 #endif
 
 #if WRAP_OVERFLOW
-#define PANIC()                             \
-    do {                                    \
-        puts("UNDEFINED BEHAVIOR REEEEEE"); \
-        exit(1);                            \
+#define PANIC()                                \
+    do {                                       \
+        puts("UNDEFINED BEHAVIOR, ABORTING."); \
+        exit(1);                               \
     } while (0)
 #else
 #define PANIC() (void)0
 #endif
 
-int add(int a, int b) {
+static inline int add(int a, int b) {
     if ((a > 0) && (b > INT_MAX - a)) PANIC(); // Overflow
     if ((a < 0) && (b < INT_MIN - a)) PANIC(); // Underflow
     return a + b;
 }
 
-int sub(int a, int b) {
+static inline int sub(int a, int b) {
     if ((b < 0) && (a > INT_MAX + b)) PANIC(); // Overflow
     if ((b > 0) && (a < INT_MIN + b)) PANIC(); // Underflow
     return a - b;
 }
 
-int mult(int a, int b) {
+static inline int mult(int a, int b) {
     if (a > (INT_MAX / b)) PANIC(); // Overflow
     if (a < (INT_MIN / b)) PANIC(); // Underflow
     return a * b;
 }
 
-int divide(int a, int b) {
+static inline int divide(int a, int b) {
     /* Division cannot overflow or underflow. */
     if (!b) PANIC(); // Division by zero
     return a / b;
@@ -259,7 +245,8 @@ int divide(int a, int b) {
 #endif /* WRAP_OVERFLOW_INCLUDED */
 ```
 
-Obviously, this will slow the code down. However, it will potentially save you hours of debugging.
+Obviously, with `WRAP_OVERFLOW` on, this will slow the code down. However, it will potentially save
+you hours of debugging.
 
 ## Going a little further:
 
@@ -273,9 +260,9 @@ the same as wrapped signed integers.
 
 The benefit is the ability to force unsigned overflow to become undefined behavior. This has performance
 benefits. The clang static optimizer in particular is very good at optimizing with undefined wrapping for
-unsigned arithmetic. Inside the optimizer, it applies attributes to each expression. Undefined unsigned wrapping
-has its own attribute, `nuw` (no unsigned wrap). The LLVM IR emitted by the following function returns such a
-value, and optimizes away the checks.
+unsigned arithmetic. Inside the optimizer, it applies attributes to each value (result of an expression).
+Undefined unsigned wrapping has its own attribute, `nuw` (no unsigned wrap). The LLVM IR emitted by clang
+for the following function returns such a value, and optimizes away the checks.
 
 
 ```c
@@ -284,22 +271,21 @@ value, and optimizes away the checks.
 #define PANIC() __builtin_unreachable()
 
 unsigned int add_unsigned(unsigned int a, unsigned int b) {
-    if ((a > 0) && (b > INT_MAX - a)) PANIC(); // Overflow
-    if ((a < 0) && (b < INT_MIN - a)) PANIC(); // Underflow
+    if ((a > b)(b > UINT_MAX - a)) PANIC(); // Overflow
     return a + b;
 }
 ```
 
-The daisho compiler generates something similar to the above at `--insane` optimization level. Otherwise, it crashes
-the program for you, letting you know exactly what happened to trigger the behavior, and exactly where, on what
-line, and in what file.
+The daisho compiler generates something similar to the above at `--insane` optimization level. Otherwise
+it  takes the previous approach and aborts the program for you, letting you know exactly where the precondition
+was violated, with what values, on what line, in what file.
 
-The same approach is being taken to wrap every single raw dereference.
+The same approach is being taken to wrap every dereference and every bit shift.
 
 ```c
 static inline int
-is_aligned(const void* pointer, size_t byte_count) {
-    return (uintptr_t)pointer % byte_count == 0;
+is_aligned(const void* pointer, size_t to) {
+    return (uintptr_t)pointer % to == 0;
 }
 
 static inline int
@@ -307,10 +293,26 @@ deref_int(int *to_deref) {
     if (!is_aligned(to_deref, _Alignof(int))) PANIC(); // Misaligned pointer
     return *to_deref;
 }
+
+static inline int
+right_shift(int to_shift, int by) {
+    if (by < 0) PANIC(); // Negative shift
+    if (by > (CHAR_BIT * sizeof(int))) PANIC(); // Oversize shift
+    return to_shift >> by;
+}
+
+static inline int
+left_shift(int to_shift, int by) {
+    if (by < 0) PANIC(); // Negative shift
+    if (by > (CHAR_BIT * sizeof(int))) PANIC(); // Oversize shift
+    return to_shift << by;
+}
 ```
 
-The conversion to `const void*` is intentional. See [this stackoverflow post]( https://stackoverflow.com/questions/1898153/how-to-determine-if-memory-is-aligned)
-for details.
+The conversion of every pointer type to `const void*` is intentional and important. On some platforms that might
+not be a no-op, and `uintptr_t` is only technically guarunteed to be compatible with `void*.` This is yet another
+excruciatingly painful dark corner of the standard. In my opinion, compilers should complain when you cast any
+other pointer type `intptr_t` or `uintptr_t`, and tell you to cast first. They should, but they don't.
 
 
 
