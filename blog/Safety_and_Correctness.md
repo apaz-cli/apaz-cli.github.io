@@ -218,27 +218,31 @@ Let's write a header to fix our favorite arithmetic operations.
 #define PANIC() (void)0
 #endif
 
-static inline int add(int a, int b) {
+static inline int
+add(int a, int b) {
     if ((a > 0) && (b > INT_MAX - a)) PANIC(); // Overflow
     if ((a < 0) && (b < INT_MIN - a)) PANIC(); // Underflow
     return a + b;
 }
 
-static inline int sub(int a, int b) {
+static inline int
+sub(int a, int b) {
     if ((b < 0) && (a > INT_MAX + b)) PANIC(); // Overflow
     if ((b > 0) && (a < INT_MIN + b)) PANIC(); // Underflow
     return a - b;
 }
 
-static inline int mult(int a, int b) {
-    if (a > (INT_MAX / b)) PANIC(); // Overflow
-    if (a < (INT_MIN / b)) PANIC(); // Underflow
+static inline int
+mult(int a, int b) {
+    if ((b != 0) && (a > INT_MAX / b)) PANIC(); // Overflow
+    if ((b != 0) && (a < INT_MIN / b)) PANIC(); // Underflow
     return a * b;
 }
 
-static inline int divide(int a, int b) {
+static inline int
+divide(int a, int b) {
     /* Division cannot overflow or underflow. */
-    if (!b) PANIC(); // Division by zero
+    if (b) PANIC(); // Division by zero
     return a / b;
 }
 
@@ -261,24 +265,43 @@ the same as wrapped signed integers.
 The benefit is the ability to force unsigned overflow to become undefined behavior. This has performance
 benefits. The clang static optimizer in particular is very good at optimizing with undefined wrapping for
 unsigned arithmetic. Inside the optimizer, it applies attributes to each value (result of an expression).
-Undefined unsigned wrapping has its own attribute, `nuw` (no unsigned wrap). The LLVM IR emitted by clang
-for the following function returns such a value, and optimizes away the checks.
-
+Integers with undefined unsigned wrapping semantics have their own attribute, `nuw` (no unsigned wrap).
+The LLVM IR emitted by clang for the following function returns such a value, and optimizes away the checks.
 
 ```c
 #include <limits.h>
 
 #define PANIC() __builtin_unreachable()
 
-unsigned int add_unsigned(unsigned int a, unsigned int b) {
-    if ((a > b)(b > UINT_MAX - a)) PANIC(); // Overflow
+static inline unsigned int
+add_unsigned(unsigned int a, unsigned int b) {
+    if (b > UINT_MAX - a) PANIC(); // Overflow
     return a + b;
+}
+
+static inline unsigned int
+sub_unsigned(unsigned int a, unsigned int b) {
+    if (a < b) PANIC(); // Underflow
+    return a - b;
+}
+
+static inline unsigned int
+mult_unsigned(unsigned int a, unsigned int b) {
+    if ((b != 0) && (a > UINT_MAX / b)) PANIC(); // Overflow
+    return a * b;
+}
+
+static inline unsigned int
+divide_unsigned(unsigned int a, unsigned int b) {
+    if (!b) PANIC(); // Division by zero
+    return a / b;
 }
 ```
 
-The daisho compiler generates something similar to the above at `--insane` optimization level. Otherwise
-it  takes the previous approach and aborts the program for you, letting you know exactly where the precondition
-was violated, with what values, on what line, in what file.
+The Daisho compiler generates something similar to the above at `--insane` optimization level. Otherwise
+it takes the same approach as the header above for signed integers. However, it provides much more information
+to help you debug. It aborts the program for you, letting you know exactly where the precondition was violated,
+with what values, on what line, in what file.
 
 The same approach is being taken to wrap every dereference and every bit shift.
 
@@ -290,6 +313,7 @@ is_aligned(const void* pointer, size_t to) {
 
 static inline int
 deref_int(int *to_deref) {
+    if (!to_deref) PANIC(); // Null pointer
     if (!is_aligned(to_deref, _Alignof(int))) PANIC(); // Misaligned pointer
     return *to_deref;
 }
@@ -309,10 +333,17 @@ left_shift(int to_shift, int by) {
 }
 ```
 
-The conversion of every pointer type to `const void*` is intentional and important. On some platforms that might
+The conversion of every pointer type to `void*` is intentional and important. On some platformconst s that might
 not be a no-op, and `uintptr_t` is only technically guarunteed to be compatible with `void*.` This is yet another
 excruciatingly painful dark corner of the standard. In my opinion, compilers should complain when you cast any
 other pointer type `intptr_t` or `uintptr_t`, and tell you to cast first. They should, but they don't.
+
+The last thing that the Daisho code generator does to eliminate undefined behavior is that it writes unambiguous code.
+
+<br>
+
+
+## What benefits does safer code have?
 
 
 
