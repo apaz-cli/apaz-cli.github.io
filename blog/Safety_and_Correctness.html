@@ -388,12 +388,14 @@
 <p><br></p>
 <h2 id="going-above-and-beyond">Going above and beyond:</h2>
 <p>Here's a list of extreme things that tooling could do to improve the safety and correctness of C code.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1"></a><span class="ss">* </span>Syntax for enforcing preconditions and postconditions</span>
-<span id="cb8-2"><a href="#cb8-2"></a><span class="ss">* </span>Memory boundary tracking analysis (like address sanitizer)</span>
-<span id="cb8-3"><a href="#cb8-3"></a><span class="ss">* </span>Stack unwinding backtraces (already implemented in Daisho)</span>
-<span id="cb8-4"><a href="#cb8-4"></a><span class="ss">* </span>Data race detection (like thread sanitizer)</span>
-<span id="cb8-5"><a href="#cb8-5"></a><span class="ss">* </span>Automatic fuzzing</span></code></pre></div>
-<p>All of these are planned for Daisho, but they are not a priority.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1"></a><span class="ss">* </span>Memory boundary tracking analysis (like address sanitizer)</span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="ss">* </span>Stack unwinding backtraces (already implemented in Daisho)</span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="ss">* </span>Data race detection (like thread sanitizer)</span>
+<span id="cb8-4"><a href="#cb8-4"></a><span class="ss">* </span>Automatic fuzzing and testing framework</span>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="ss">* </span>Syntax for enforcing preconditions and postconditions with theorem provers</span></code></pre></div>
+<p>I plan on eventually implementing every item in this list but the last one. However, they are not a priority. The first priority is going to be having a working compiler.</p>
+<p>I think the last option is by far the most extreme. There's the potential here to reorient the entire way we look at safety and correctness. Even if the implementation is just "Fancy assert syntax and a theorem prover." The idea is that everything that can be statically analyzed by the prover to be safe and correct (as defined above) will be asserted at compile time, and everything that can't be will be moved to runtime. This will have tremendous runtime costs while you're debugging, but will lead to faster code for production and less human time spent chasing safety and correctness issues.</p>
+<p>That's the hope anyway. Maybe I'll get around to it.</p>
 <p><br></p>
 <h2 id="conclusion">Conclusion</h2>
 <p>As you can see, the C standard is broken in a lot of obscure ways. Undefined behavior (as well as implementation-defined and unspecified behaviors) are great for enabling compiler optimizations, and making writing C compilers easier to write or port by eliminating corner cases, but push the corner cases onto the programmer. Debugging this stuff can be purgatory. It shouldn't have to be this way.</p>
