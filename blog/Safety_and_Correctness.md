@@ -360,14 +360,24 @@ Once it's done, if you find that the Daisho compiler (`daic`) generates code wit
 Here's a list of extreme things that tooling could do to improve the safety and correctness of C code.
 
 ```md
-* Syntax for enforcing preconditions and postconditions
 * Memory boundary tracking analysis (like address sanitizer)
 * Stack unwinding backtraces (already implemented in Daisho)
 * Data race detection (like thread sanitizer)
-* Automatic fuzzing
+* Automatic fuzzing and testing framework
+* Syntax for enforcing preconditions and postconditions with theorem provers
 ```
 
-All of these are planned for Daisho, but they are not a priority.
+I plan on eventually implementing every item in this list but the last one. However, they are not a priority.
+The first priority is going to be having a working compiler.
+
+I think the last option is by far the most extreme. There's the potential here to reorient the entire way we
+look at safety and correctness. Even if the implementation is just "Fancy assert syntax and a theorem prover."
+The idea is that everything that can be statically analyzed by the prover to be safe and correct (as defined
+above) will be asserted at compile time, and everything that can't be will be moved to runtime. This will have
+tremendous runtime costs while you're debugging, but will lead to faster code for production and less human
+time spent chasing safety and correctness issues.
+
+That's the hope anyway. Maybe I'll get around to it.
 
 <br>
 
