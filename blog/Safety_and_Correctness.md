@@ -333,17 +333,59 @@ left_shift(int to_shift, int by) {
 }
 ```
 
-The conversion of every pointer type to `void*` is intentional and important. On some platformconst s that might
+The conversion of every pointer type to `void*` is intentional and important. On some platforms that might
 not be a no-op, and `uintptr_t` is only technically guarunteed to be compatible with `void*.` This is yet another
 excruciatingly painful dark corner of the standard. In my opinion, compilers should complain when you cast any
 other pointer type `intptr_t` or `uintptr_t`, and tell you to cast first. They should, but they don't.
 
-The last thing that the Daisho code generator does to eliminate undefined behavior is that it writes unambiguous code.
+The other important thing that the Daisho code generator does to help you is write unambiguous code. Another
+sharp corner of the standard is that a variable should not be updated more than once between sequence points.
+
+```c
+int x = 1;
+x = ++x; // Undefined behavior.
+```
+
+It's fairly easy for a human to accidentally write this, especially when they don't know about this quirk.
+However, the Daisho compiler will not. It orders every operation (including the unspecified behavior of
+evaluation order inside of calls, for example), and puts it onto its own line in its own statement.
+
+Once it's done, if you find that the Daisho compiler (`daic`) generates code with UB, please file a bug report.
 
 <br>
 
 
-## What benefits does safer code have?
+## Going above and beyond:
+
+Here's a list of extreme things that tooling could do to improve the safety and correctness of C code.
+
+```md
+* Syntax for enforcing preconditions and postconditions
+* Memory boundary tracking analysis (like address sanitizer)
+* Stack unwinding backtraces (already implemented in Daisho)
+* Data race detection (like thread sanitizer)
+* Automatic fuzzing
+```
+
+All of these are planned for Daisho, but they are not a priority.
+
+<br>
 
 
+## Conclusion
+
+As you can see, the C standard is broken in a lot of obscure ways. Undefined behavior (as well as
+implementation-defined and unspecified behaviors) are great for enabling compiler optimizations, and
+making writing C compilers easier to write or port by eliminating corner cases, but push the corner cases
+onto the programmer. Debugging this stuff can be purgatory. It shouldn't have to be this way.
+
+Tooling can solve a lot of these issues. It doesn't technically have to be a whole new programming language.
+It could just be AST transformations on a C frontend that turn all your `+` operators to `add(a, b)`, your
+`<<` to `left_shift(to_shift, by)`, etc. Or you could do it by hand.
+
+When I started implementing this strategy, my debugging efficiency went up considerably. Suddenly, I could
+tell why large sections of my code were being optimized away. It's hard to debug code that doesn't exist,
+and wrapping UB let me keep it around.
+
+<br>
 
