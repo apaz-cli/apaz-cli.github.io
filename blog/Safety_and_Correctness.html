@@ -392,10 +392,45 @@
 <span id="cb8-2"><a href="#cb8-2"></a><span class="ss">* </span>Stack unwinding backtraces (already implemented in Daisho)</span>
 <span id="cb8-3"><a href="#cb8-3"></a><span class="ss">* </span>Data race detection (like thread sanitizer)</span>
 <span id="cb8-4"><a href="#cb8-4"></a><span class="ss">* </span>Automatic fuzzing and testing framework</span>
-<span id="cb8-5"><a href="#cb8-5"></a><span class="ss">* </span>Syntax for enforcing preconditions and postconditions with theorem provers</span></code></pre></div>
+<span id="cb8-5"><a href="#cb8-5"></a><span class="ss">* </span>Syntax for enforcing preconditions and postconditions</span></code></pre></div>
 <p>I plan on eventually implementing every item in this list but the last one. However, they are not a priority. The first priority is going to be having a working compiler.</p>
 <p>I think the last option is by far the most extreme. There's the potential here to reorient the entire way we look at safety and correctness. Even if the implementation is just "Fancy assert syntax and a theorem prover." The idea is that everything that can be statically analyzed by the prover to be safe and correct (as defined above) will be asserted at compile time, and everything that can't be will be moved to runtime. This will have tremendous runtime costs while you're debugging, but will lead to faster code for production and less human time spent chasing safety and correctness issues.</p>
-<p>That's the hope anyway. Maybe I'll get around to it.</p>
+<p>That's the hope anyway.</p>
+<p><br></p>
+<h2 id="rediscovering-an-old-way-of-writing-software">Rediscovering an old way of writing software</h2>
+<p>Ada is an interesting case study. It has range-based types, with runtime range checks. In the airplane firmware space, we know its benefits well. Throwing runtime checks at everything protects against memory corruption caused by cosmic radiation.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode ada"><code class="sourceCode ada"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">procedure</span> Main <span class="kw">is</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>   <span class="kw">type</span> Grade <span class="kw">is</span> <span class="kw">range</span> <span class="dv">0</span> .. <span class="dv">100</span>;</span>
+<span id="cb9-3"><a href="#cb9-3"></a></span>
+<span id="cb9-4"><a href="#cb9-4"></a>   G1, G2  : Grade;</span>
+<span id="cb9-5"><a href="#cb9-5"></a>   N       : <span class="dt">Integer</span>;</span>
+<span id="cb9-6"><a href="#cb9-6"></a><span class="kw">begin</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a>   ...                <span class="co">-- Initialization of N</span></span>
+<span id="cb9-8"><a href="#cb9-8"></a>   G1 := <span class="dv">80</span>;          <span class="co">-- OK</span></span>
+<span id="cb9-9"><a href="#cb9-9"></a>   G1 := N;           <span class="co">-- Illegal (type mismatch)</span></span>
+<span id="cb9-10"><a href="#cb9-10"></a>   G1 := Grade (N);   <span class="co">-- Legal, run-time range check</span></span>
+<span id="cb9-11"><a href="#cb9-11"></a>   G2 := G1 + <span class="dv">10</span>;     <span class="co">-- Legal, run-time range check</span></span>
+<span id="cb9-12"><a href="#cb9-12"></a>   G1 := (G1 + G2)/<span class="dv">2</span>; <span class="co">-- Legal, run-time range check</span></span>
+<span id="cb9-13"><a href="#cb9-13"></a><span class="kw">end</span> Main;</span></code></pre></div>
+<p>For safety's sake, the <code>Grade</code> type does what we want it to. It's protected against overflow and underflow. It's "safe," and that safety does lead to real safety benefits in the real world for actual human beings on any of the thousands of planes currently in the air at this very moment.</p>
+<p>But it's a little bit unsatisfactory for me. I think we could do more. Imagine a type system like the following.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1"></a>range&lt;-<span class="dv">50</span>, <span class="dv">100</span>&gt; range_add(range&lt;-<span class="dv">50</span>, <span class="dv">50</span>&gt; a, range&lt;<span class="dv">0</span>, <span class="dv">50</span>&gt; b) {</span>
+<span id="cb10-2"><a href="#cb10-2"></a>    <span class="cf">return</span> a + b;</span>
+<span id="cb10-3"><a href="#cb10-3"></a>}</span></code></pre></div>
+<p>Let the result of arithmetic with two ranges be the mathematical range of the outputs given the domains. Now let the compiler automatically deduce it.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">auto</span> range_add(<span class="kw">auto</span> a, <span class="kw">auto</span> b) {</span>
+<span id="cb11-2"><a href="#cb11-2"></a>    <span class="cf">return</span> a + b;</span>
+<span id="cb11-3"><a href="#cb11-3"></a>}</span></code></pre></div>
+<p>Now, disallow any sort of operation that could potentially break. Make them check for it and coerce the ranges back.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1"></a><span class="kw">auto</span> a = INT_MAX + <span class="dv">1</span> <span class="co">// Compile error, return type would overflow</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a></span>
+<span id="cb12-3"><a href="#cb12-3"></a>range&lt;<span class="dv">0</span>, <span class="dv">50</span>&gt; b = <span class="dv">5</span>;</span>
+<span id="cb12-4"><a href="#cb12-4"></a><span class="kw">auto</span> x = <span class="dv">20</span> / b; <span class="co">// Compile error, b could be 0.</span></span>
+<span id="cb12-5"><a href="#cb12-5"></a></span>
+<span id="cb12-6"><a href="#cb12-6"></a>range&lt;<span class="dv">1</span>, <span class="dv">50</span>&gt; c = coerce(b != <span class="dv">0</span>);</span>
+<span id="cb12-7"><a href="#cb12-7"></a><span class="kw">auto</span> y = <span class="dv">20</span> / c; <span class="co">// Works, c cannot be 0.</span></span></code></pre></div>
+<p>This is of course a difficult to implement mess of dependently typed nonsense. It's also not exactly a great time to use. I think the approach has a lot of potential in the safety-critical software domain. However, this industry is very averse to change. Realistically, even though it's a good idea, it's never going to happen.</p>
+<p>Rest assured, Daisho will not be doing this.</p>
 <p><br></p>
 <h2 id="conclusion">Conclusion</h2>
 <p>As you can see, the C standard is broken in a lot of obscure ways. Undefined behavior (as well as implementation-defined and unspecified behaviors) are great for enabling compiler optimizations, and making writing C compilers easier to write or port by eliminating corner cases, but push the corner cases onto the programmer. Debugging this stuff can be purgatory. It shouldn't have to be this way.</p>
