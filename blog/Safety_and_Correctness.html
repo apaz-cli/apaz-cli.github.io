@@ -257,7 +257,7 @@
 <h2 id="what-should-we-do-about-software-safety">What should we do about software safety?</h2>
 <p>There's been decades of argument over whether or not the compiler should try to stop you from writing bugs. That argument is still ongoing in the programming languages world. Rust says yes. C and C++ have been saying no for decades.</p>
 <p>Regardless of your opinion on this, perhaps you would agree that it would be cool if our compiler could help us keep bugs out of code that we release out into the world. Making them impossible to write by adding rules to the syntax and type system is not the only way to accomplish this. We can also accomplish it through tooling.</p>
-<p>It should also be noted that writing your code is the easy, non-time consuming part. Debugging your code is going to take longer. Undefined behavior difficult to debug, so it's going to have to go, at least for debug builds.</p>
+<p>It should also be noted that writing your code is the easy, non-time consuming part. Debugging your code is going to take longer. Undefined behavior is difficult to debug, so it's going to have to go, at least for debug builds.</p>
 <p><br></p>
 <h2 id="background-the-halting-problem">Background: The Halting Problem</h2>
 <p>In the general case, detecting runtime conditions like those that would trigger undefined behavior is provably impossible by reduction to the <a href="https://en.wikipedia.org/wiki/Halting_problem">halting problem</a>, first proven by <a href="https://en.wikipedia.org/wiki/Alan_Turing">Alan Turing</a> in 1936. The proof is really fun, I suggest looking into it.</p>
