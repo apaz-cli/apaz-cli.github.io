@@ -151,7 +151,7 @@ us keep bugs out of code that we release out into the world. Making them impossi
 to the syntax and type system is not the only way to accomplish this. We can also accomplish it through tooling.
 
 It should also be noted that writing your code is the easy, non-time consuming part. Debugging your code is
-going to take longer. Undefined behavior difficult to debug, so it's going to have to go, at least for debug
+going to take longer. Undefined behavior is difficult to debug, so it's going to have to go, at least for debug
 builds.
 
 <br>
