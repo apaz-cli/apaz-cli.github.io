@@ -364,7 +364,7 @@ Here's a list of extreme things that tooling could do to improve the safety and 
 * Stack unwinding backtraces (already implemented in Daisho)
 * Data race detection (like thread sanitizer)
 * Automatic fuzzing and testing framework
-* Syntax for enforcing preconditions and postconditions with theorem provers
+* Syntax for enforcing preconditions and postconditions
 ```
 
 I plan on eventually implementing every item in this list but the last one. However, they are not a priority.
@@ -377,7 +377,71 @@ above) will be asserted at compile time, and everything that can't be will be mo
 tremendous runtime costs while you're debugging, but will lead to faster code for production and less human
 time spent chasing safety and correctness issues.
 
-That's the hope anyway. Maybe I'll get around to it.
+That's the hope anyway.
+
+<br>
+
+
+## Rediscovering an old way of writing software
+
+Ada is an interesting case study. It has range-based types, with runtime range checks.
+In the airplane firmware space, we know its benefits well. Throwing runtime checks at everything
+protects against memory corruption caused by cosmic radiation.
+
+```ada
+procedure Main is
+   type Grade is range 0 .. 100;
+
+   G1, G2  : Grade;
+   N       : Integer;
+begin
+   ...                -- Initialization of N
+   G1 := 80;          -- OK
+   G1 := N;           -- Illegal (type mismatch)
+   G1 := Grade (N);   -- Legal, run-time range check
+   G2 := G1 + 10;     -- Legal, run-time range check
+   G1 := (G1 + G2)/2; -- Legal, run-time range check
+end Main;
+```
+
+For safety's sake, the `Grade` type does what we want it to. It's protected against overflow and underflow.
+It's "safe," and that safety does lead to real safety benefits in the real world for actual human beings on any
+of the thousands of planes currently in the air at this very moment.
+
+But it's a little bit unsatisfactory for me. I think we could do more. Imagine a type system like the following.
+
+```c++
+range<-50, 100> range_add(range<-50, 50> a, range<0, 50> b) {
+    return a + b;
+}
+```
+
+Let the result of arithmetic with two ranges be the mathematical range of the outputs given the domains.
+Now let the compiler automatically deduce it.
+
+```c++
+auto range_add(auto a, auto b) {
+    return a + b;
+}
+```
+
+Now, disallow any sort of operation that could potentially break. Make them check for it and coerce the ranges back.
+
+```c++
+auto a = INT_MAX + 1 // Compile error, return type would overflow
+
+range<0, 50> b = 5;
+auto x = 20 / b; // Compile error, b could be 0.
+
+range<1, 50> c = coerce(b != 0);
+auto y = 20 / c; // Works, c cannot be 0.
+```
+
+This is of course a difficult to implement mess of dependently typed nonsense. It's also not exactly a great time to use.
+I think the approach has a lot of potential in the safety-critical software domain. However, this industry is very averse
+to change. Realistically, even though it's a good idea, it's never going to happen.
+
+Rest assured, Daisho will not be doing this.
 
 <br>
 
