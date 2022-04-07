@@ -254,7 +254,7 @@
 <p>What's above is just a simple example. We have our definition, but with respect to our current practice of fuzzy preconditions, what does "correct" mean? Our definition assumes preconditions and postconditions are well defined. How APIs compose with respect to preconditions and postconditions gets progressively more difficult to reason about. Once your codebase approaches a certain size, it's anyone's guess.</p>
 <p><br></p>
 <h2 id="what-should-we-do-about-software-safety">What should we do about software safety?</h2>
-<p>There's been decades of argument over whether or not the compiler should try to stop you from writing bugs. That argument is still ongoing in the programming languages world. Rust says no. C and C++ have been saying yes for decades.</p>
+<p>There's been decades of argument over whether or not the compiler should try to stop you from writing bugs. That argument is still ongoing in the programming languages world. Rust says yes. C and C++ have been saying no for decades.</p>
 <p>Regardless of your opinion on this, perhaps you would agree that it would be cool if our compiler could help us keep bugs out of code that we release out into the world. Making them impossible to write by adding rules to the syntax and type system is not the only way to accomplish this. We can also accomplish it through tooling.</p>
 <p>It should also be noted that writing your code is the easy, non-time consuming part. Debugging your code is going to take longer. Undefined behavior difficult to debug, so it's going to have to go, at least for debug builds.</p>
 <p><br></p>

@@ -143,8 +143,8 @@ about. Once your codebase approaches a certain size, it's anyone's guess.
 ## What should we do about software safety?
 
 There's been decades of argument over whether or not the compiler should try to stop you from writing bugs.
-That argument is still ongoing in the programming languages world. Rust says no. C and C++ have been saying
-yes for decades.
+That argument is still ongoing in the programming languages world. Rust says yes. C and C++ have been saying
+no for decades.
 
 Regardless of your opinion on this, perhaps you would agree that it would be cool if our compiler could help
 us keep bugs out of code that we release out into the world. Making them impossible to write by adding rules
