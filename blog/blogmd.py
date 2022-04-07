@@ -45,6 +45,7 @@ p, .retro-p {
     /*text-indent: 50px*/
 }
 h1, .retro-h1, h2, .retro-h2, h3, .retro-h3, h4, .retro-h4 {
+    font-family: "lemon";
     margin: 1.414rem 0 .5rem;
     font-weight: inherit;
     line-height: 1.42;
@@ -85,7 +86,7 @@ html, body {
 }
 body {
     color: #fafafa;
-    font-family: "lemon", "Courier New";
+    /* font-family:  "lemon", "Courier New"; */
     line-height: 1.65;
     margin: 6rem auto 1rem;
     max-width: 48rem;
