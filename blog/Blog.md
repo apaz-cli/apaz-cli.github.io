@@ -1,18 +1,19 @@
 
 # Daisho Blog
 
-![](images/Building.jpg)
-
-
-Here I will be sharing design philosophy of the Daisho programming language, along with updates.
-
-
-<br><br>
+<p align="center">
+<img src="images/Building.jpg" height=400>
+<br>
+</p>
 
 ## Articles:
+
 1. [My Experience with Java](Java.html)
 
 2. [Inspiration For Daisho](Inspiration.html)
 
-3. [Designing Daisho (WIP)](Design.html)
+3. [Safety and Correctness](Safety_and_Correctness.html)
 
+[//a]: # (4. [Errors, Features, Configuration, and Builds (WIP)](EFCB.html))
+
+[//b]: # (5. [Designing Daisho (WIP)](Design.html))
