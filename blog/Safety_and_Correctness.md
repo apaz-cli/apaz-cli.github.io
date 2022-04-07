@@ -448,6 +448,11 @@ Rest assured, Daisho will not be doing this.
 
 ## Conclusion
 
+Safety is the absence of undefined behavior. Correctness is that your program is fully specified and fully
+conforms to that specification in all cases, including the ones you haven't thought of. Preconditions and
+postconditions are the specification. A bug is a lapse in correctness due to a mistake in the implementation
+of the preconditions and postconditions.
+
 As you can see, the C standard is broken in a lot of obscure ways. Undefined behavior (as well as
 implementation-defined and unspecified behaviors) are great for enabling compiler optimizations, and
 making writing C compilers easier to write or port by eliminating corner cases, but push the corner cases
@@ -455,11 +460,32 @@ onto the programmer. Debugging this stuff can be purgatory. It shouldn't have to
 
 Tooling can solve a lot of these issues. It doesn't technically have to be a whole new programming language.
 It could just be AST transformations on a C frontend that turn all your `+` operators to `add(a, b)`, your
-`<<` to `left_shift(to_shift, by)`, etc. Or you could do it by hand.
+`<<` to `left_shift(to_shift, by)`, etc. Or you could do it by hand. Or you can just stare at the screen.
+That's what most people do, but I think we need a better option.
 
 When I started implementing this strategy, my debugging efficiency went up considerably. Suddenly, I could
 tell why large sections of my code were being optimized away. It's hard to debug code that doesn't exist,
-and wrapping UB let me keep it around.
+and wrapping UB lets me keep it around so I can get an error.
+
+There's also the nuclear option. You could redefine your entire type system around not allowing undefined
+operations. It's not exactly an ergonomic option, but it's an option.
+
+The biggest blunder you could make would be to mistake safety for correctness. Just because unsigned wrapping
+is safe (defined) in C doesn't mean that it isn't usually wrong. It's safe by the definition above, but in
+safety critical software it's very dangerous. Many people have died as a result of unintentional integer
+overflow and underflow.
+
+Whether you program in C, C++, or another language without undefined behavior doesn't matter. You still
+have to think about these things. You are not immune.
+
+For Daisho, I have decided that I want to wrap and eliminate all the undefined behavior that I can. It
+makes the program slower, but saves me time. Then, once the program is tested, I turn optimizations back
+on. The operations are undefined, the compiler is free to optimze aggressively, and all the speed returns.
+When I need to, I use `objdump` to check the code that's generated for missing sections and opportunities
+for optimization.
+
+In any case, people have been complaining about undefined behavior since the 90s. It's about time that
+people either got comfortable with it or started doing something about it.
 
 <br>
 
