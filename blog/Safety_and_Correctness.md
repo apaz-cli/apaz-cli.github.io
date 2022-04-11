@@ -24,11 +24,30 @@ This new perspective presents an interesting and actionable path forward for the
 
 ### Preconditions and Postconditions
 
-[Hoare logic](https://en.wikipedia.org/wiki/Hoare_logic) describes computations as a Hoare triple `{P}C{Q}` where `P` is assertions about preconditions, `Q` is assertions about postconditions, and `C` is the code being described.
+[Hoare logic](https://en.wikipedia.org/wiki/Hoare_logic) describes computations as a Hoare triple `{P}C{Q}` where
+`P` is assertions about preconditions, `Q` is assertions about postconditions, and `C` is the code being
+described. What I'm about to describe is not Hoare logic. But the ideas of Hoare logic (computations having well
+defined preconditions and postconditions) are what prop up the upcoming definitions of safety and correctness.
 
-Even when we're not conciously trying, odds are that we already think about functions as having preconditions and postconditions. If your code is well written, composed primarily of functions, and those functions are well named, then odds are that you have a good idea what your preconditions are. But, you probably don't know exactly what they are. In fact, you almost definitely don't. Specifying the preconditions and postconditions of parts of your program can be an iterative process. You can design them up front, but the implementation of your code will almost certainly introduce new ones.
+Instead of using the definition provided by Hoare Logic, let's define the preconditions of a computation
+(or function or snippet) as the expected set of possible states that the program can be in before the
+computation takes place, relevant to the computation.
 
-In the aerospace industry, we are forced to think in terms of preconditions and postconditions. It's the nature of requirements based development, which is mandated by the FAA. However, we are forced to think about them from a requirements level, rather than an implementation level. The expectation is that the implementation is left up to the software engineer, and its correctness will come out in code review. The remainder of this post deals with the implementation level, not the requirements level.
+Likewise, postconditions are the expected set of possible states the program can be in after the computation,
+also relevant to the computation.
+
+Even when we don't constantly try, odds are that we already think about functions as having preconditions
+and postconditions. If your code is well written, composed primarily of functions, and those functions are
+well named, then odds are that you have a good idea what your preconditions and postconditions are. But,
+you probably don't know exactly what they are. In fact, you almost definitely don't. Specifying the
+preconditions and postconditions of parts of your program can be an iterative process. You can design
+them up front, but the implementation of your program will almost certainly introduce new ones.
+
+In the aerospace industry, we are forced to think in terms of preconditions and postconditions. It's the
+nature of requirements based development, which is mandated by the FAA. However, we are forced to think
+about them from a requirements level, rather than an implementation level. The expectation is that the
+implementation is left up to the software engineer, and its correctness will come out in code review.
+The remainder of this post deals with the implementation level, not the requirements level.
 
 
 ### Safety:
@@ -77,7 +96,7 @@ I would say that it sure looks right. But that's not what safe means.
 
 Even if you think you're covering all of your bases by checking the length of the string, and even using `strnlen()` over `strlen()` to do so because
 it's "safer" (that doesn't make it less dangerous), it's very hard to make sure your API is safe. The problem is `idx1 + idx2`. Signed integer overflow
-is undefined. So are a lot of other things. Truly safe code is difficult to acheive. Or it's literally impossible in some cases (in C, almost all cases).
+is undefined. So are a lot of other things. Truly safe code is difficult to achieve. Or it's literally impossible in some cases (in C, almost all cases).
 There are some other UB problems that can be fixed this way as well, just by checking before the operation that would trigger them. Oversize shift
 amounts and pointer alignment fall into this category.
 
@@ -169,7 +188,7 @@ There are some programs that do obviously halt for all inputs, like `print("Hell
 also some that obviously never halt like `while (true)`. But, there's a lot of them for which termination
 analysis is much more difficult. You could of course write programs to partially answer the halting problem,
 most optimizing compilers contain one or more mechanisms to attempt to make that determination, but the problem
-is still unsolveable in the general case.
+is still unsolvable in the general case.
 
 <br>
 
@@ -181,7 +200,7 @@ However, it can be detected at runtime. That's obviously no problem. It's easy, 
 condition that could cause it.
 
 Obviously, this is not a complete solution. There are a lot of kinds of undefined behavior that cannot be
-caught this way. ["C Compilers Disprove Fermat's Last Theoerm"](https://blog.regehr.org/archives/140) is an
+caught this way. ["C Compilers Disprove Fermat's Last Theorem"](https://blog.regehr.org/archives/140) is an
 excellent article that details the dangers of the offending clause in C11 and C99.
 
 Although we can't eliminate all undefined behavior, doing the bare minimum to fix dereferences, alignment,
@@ -334,7 +353,7 @@ left_shift(int to_shift, int by) {
 ```
 
 The conversion of every pointer type to `void*` is intentional and important. On some platforms that might
-not be a no-op, and `uintptr_t` is only technically guarunteed to be compatible with `void*.` This is yet another
+not be a no-op, and `uintptr_t` is only technically guaranteed to be compatible with `void*.` This is yet another
 excruciatingly painful dark corner of the standard. In my opinion, compilers should complain when you cast any
 other pointer type `intptr_t` or `uintptr_t`, and tell you to cast first. They should, but they don't.
 
@@ -465,7 +484,7 @@ That's what most people do, but I think we need a better option.
 
 When I started implementing this strategy, my debugging efficiency went up considerably. Suddenly, I could
 tell why large sections of my code were being optimized away. It's hard to debug code that doesn't exist,
-and wrapping UB lets me keep it around so I can get an error.
+and wrapping common sources of UB lets me keep it around so I can get an error.
 
 There's also the nuclear option. You could redefine your entire type system around not allowing undefined
 operations. It's not exactly an ergonomic option, but it's an option.
@@ -480,7 +499,7 @@ have to think about these things. You are not immune.
 
 For Daisho, I have decided that I want to wrap and eliminate all the undefined behavior that I can. It
 makes the program slower, but saves me time. Then, once the program is tested, I turn optimizations back
-on. The operations are undefined, the compiler is free to optimze aggressively, and all the speed returns.
+on. The operations are undefined, the compiler is free to optimize aggressively, and all the speed returns.
 When I need to, I use `objdump` to check the code that's generated for missing sections and opportunities
 for optimization.
 
