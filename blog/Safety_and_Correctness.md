@@ -1,7 +1,13 @@
 
 # Safety and Correctness
 
-Everybody who writes airplane firmware has their own opinion about how to achieve "safety." Yet, nobody that I work with really knows what that means. It's a lofty, but poorly defined goal. 
+Software safety is a lofty, but poorly defined goal.
+
+Everybody has their own opinion about how to achieve "safety" in software. Especially in the world of airplane
+firmware. However, nobody really seems to know what that means. One engineer's definition of what safe software
+looks like will be drastically different from the one sitting next to them. This won't resolve the debate in any
+meaningful capacity, but here's my own interpretation.
+
 
 ![](images/PlaneClouds_skyrick9413.jpg)
 
