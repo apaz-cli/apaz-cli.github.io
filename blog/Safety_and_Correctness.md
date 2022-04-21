@@ -410,8 +410,8 @@ That's the hope anyway.
 ## Rediscovering an old way of writing software
 
 Ada is an interesting case study. It has range-based types, with runtime range checks.
-In the airplane firmware space, we know its benefits well. Throwing runtime checks at everything
-protects against memory corruption caused by cosmic radiation.
+In the safety critical software space, we know the benefits of Ada well. Throwing runtime
+checks at everything protects against memory corruption caused by cosmic radiation.
 
 ```ada
 procedure Main is
