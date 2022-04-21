@@ -183,7 +183,8 @@
 </head>
 <body>
 <h1 id="safety-and-correctness">Safety and Correctness</h1>
-<p>Everybody who writes airplane firmware has their own opinion about how to achieve "safety." Yet, nobody that I work with really knows what that means. It's a lofty, but poorly defined goal.</p>
+<p>Software safety is a lofty, but poorly defined goal.</p>
+<p>Everybody has their own opinion about how to achieve "safety" in software. Especially in the world of airplane firmware. However, nobody really seems to know what that means. One engineer's definition of what safe software looks like will be drastically different from the one sitting next to them. This won't resolve the debate in any meaningful capacity, but here's my own interpretation.</p>
 <p><img src="images/PlaneClouds_skyrick9413.jpg" /></p>
 <p>Luckily, the vast majority of airplane firmware hasn't killed people. Not killing anybody is admirable, but still not actionable enough to be useful. The <a href="https://en.wikipedia.org/wiki/MISRA_C">MISRA C</a> standards are good, and <a href="https://en.wikipedia.org/wiki/DO-178C">DO-178C</a> does guarantee a minimum level of safety through sheer amount of expensive documentation and testing effort, but both standards leave much to be desired. I'm left wondering what it is we're all chasing.</p>
 <p>Today, I watched a CPPCon talk that unified everything I know on the topic. The talk is about <code>std::find()</code> and <code>std::find_if()</code> from C++, but the points that it made along the way are what resonated with me. It brought together my experiences designing a Java perceptual image processing research library, and my time spent designing, writing, debugging, and verifying engine controller and weapons systems firmware in C. Honestly, I wish it all clicked sooner.</p>
