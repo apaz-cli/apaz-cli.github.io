@@ -3,17 +3,19 @@
 
 Software safety is a lofty, but poorly defined goal.
 
-Everybody has their own opinion about how to achieve "safety" in software. Especially in the world of airplane
-firmware. However, nobody really seems to know what that means. One engineer's definition of what safe software
-looks like will be drastically different from the one sitting next to them. This won't resolve the debate in any
-meaningful capacity, but here's my own interpretation.
+Everybody has their own opinion about how to achieve "safety" in software. However, nobody really seems to know what that means.
+People in the airplane firmware world have a good definition. To us, it means the lives of passengers. Outside of the safety-critical
+world though, opinions vary wildly. For example, some people on the internet seem to think that "pointers are unsafe" because of
+the potential for misuse. When you tell them that most of the safety critical software in the world is written in C, and for good
+reason, they're horrified. Explaining to people what software safety really means is such a frustrating and laborious process that
+I've stopped trying to correct people on an individual basis. Instead, I've written this article.
 
 
 ![](images/PlaneClouds_skyrick9413.jpg)
 
-Luckily, the vast majority of airplane firmware hasn't killed people. Not killing anybody is admirable, but still not actionable enough to be useful. The [MISRA C](https://en.wikipedia.org/wiki/MISRA_C) standards are good, and [DO-178C](https://en.wikipedia.org/wiki/DO-178C) does guarantee a minimum level of safety through sheer amount of expensive documentation and testing effort, but both standards leave much to be desired. I'm left wondering what it is we're all chasing.
+In the aerospace world, software safety means the safety of passengers. Luckily, the vast majority of airplane firmware hasn't killed people. Not killing anybody is admirable, but still not actionable enough to be useful. The [MISRA C](https://en.wikipedia.org/wiki/MISRA_C) standards are good, and [DO-178C](https://en.wikipedia.org/wiki/DO-178C) does guarantee a level of safety through sheer amount of expensive documentation and testing effort, but both standards leave much to be desired from a technical standpoint. Sure, coding standards and expansive documentation reduce the risk of flaws in the design or implementation. But that's not really mathematically rigorous enough to satisfy me. I'm left wondering what it is we're all chasing.
 
-Today, I watched a CPPCon talk that unified everything I know on the topic. The talk is about `std::find()` and `std::find_if()` from C++, but the points that it made along the way are what resonated with me. It brought together my experiences designing a Java perceptual image processing research library, and my time spent designing, writing, debugging, and verifying engine controller and weapons systems firmware in C. Honestly, I wish it all clicked sooner.
+Recently, I watched a CPPCon talk that unified everything I know on the topic. The talk is about `std::find()` and `std::find_if()` from C++, but the points that it made along the way are what resonated with me. It brought together my experiences designing and doing error handling for a Java perceptual image processing research library, and my time spent designing, writing, debugging, and verifying engine controller and weapons systems firmware in C. Honestly, I wish it all clicked sooner.
 
 This post is written about C and C++, but using other languages does not excuse you from having to think about these things. The common phrase that people use is "just because the language is safe, that doesn't mean the code you wrote is correct." Now I have a way to express what that means.
 
