@@ -432,15 +432,21 @@ end Main;
 ```
 
 For safety's sake, the `Grade` type does what we want it to. It's protected against overflow and underflow.
-It's "safe," and that safety does lead to real safety benefits in the real world for actual human beings on any
-of the thousands of planes currently in the air at this very moment.
+It's "safe."
 
-But it's a little bit unsatisfactory for me. I think we could do more. Imagine a type system like the following.
+That's still unsatisfactory for me. I think we could do more. What if we could ensure that it's correct?
+Imagine a type system like the following.
 
 ```c++
-range<-50, 100> range_add(range<-50, 50> a, range<0, 50> b) {
-    return a + b;
-}
+template <typename T, T min, T max> struct range {
+  T val;
+  operator T() const { return val; }
+
+  template <T rmin, T rmax>
+  friend range<T, min + rmin, max + rmax> operator+(range<T, min, max> const &lhs, range<T, rmin, rmax> const &rhs) {
+    return lhs + rhs;
+  }
+};
 ```
 
 Let the result of arithmetic with two ranges be the mathematical range of the outputs given the domains.
