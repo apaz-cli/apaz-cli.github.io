@@ -2,24 +2,42 @@
 # Safety and Correctness
 
 Software safety is a lofty, but poorly defined goal.
-
-Everybody has their own opinion about how to achieve "safety" in software. However, nobody really seems to know what that means.
-People in the airplane firmware world have a good definition. To us, it means the lives of passengers. Outside of the safety-critical
-world though, opinions vary wildly. For example, some people on the internet seem to think that "pointers are unsafe" because of
-the potential for misuse. When you tell them that most of the safety critical software in the world is written in C, and for good
-reason, they're horrified. Explaining to people what software safety really means is such a frustrating and laborious process that
-I've stopped trying to correct people on an individual basis. Instead, I've written this article.
-
+Everybody has their own opinion about how to achieve "safety" in software.
+However, nobody really seems to be able to define what that means.
 
 ![](images/PlaneClouds_skyrick9413.jpg)
 
-In the aerospace world, software safety means the safety of passengers. Luckily, the vast majority of airplane firmware hasn't killed people. Not killing anybody is admirable, but still not actionable enough to be useful. The [MISRA C](https://en.wikipedia.org/wiki/MISRA_C) standards are good, and [DO-178C](https://en.wikipedia.org/wiki/DO-178C) does guarantee a level of safety through sheer amount of expensive documentation and testing effort, but both standards leave much to be desired from a technical standpoint. Sure, coding standards and expansive documentation reduce the risk of flaws in the design or implementation. But that's not really mathematically rigorous enough to satisfy me. I'm left wondering what it is we're all chasing.
 
-Recently, I watched a CPPCon talk that unified everything I know on the topic. The talk is about `std::find()` and `std::find_if()` from C++, but the points that it made along the way are what resonated with me. It brought together my experiences designing and doing error handling for a Java perceptual image processing research library, and my time spent designing, writing, debugging, and verifying engine controller and weapons systems firmware in C. Honestly, I wish it all clicked sooner.
+## Aerospace
 
-This post is written about C and C++, but using other languages does not excuse you from having to think about these things. The common phrase that people use is "just because the language is safe, that doesn't mean the code you wrote is correct." Now I have a way to express what that means.
+In the Aerospace and safety-critical software world, safety is well defined. It means "will this kill somebody?"
 
-This new perspective presents an interesting and actionable path forward for the tooling surrounding Daisho and other programming languages. It may also solve some unique challenges inside the C portion of the Daisho standard library, as well as the age-old problem of what to do about a specific class of dangerous and difficult to track down UB bugs coming from problems like signed integer overflow, oversize shifts, and division by zero.
+Luckily, the vast majority of airplane firmware hasn't killed anybody. Setting out not to kill your passengers is
+admirable, but it's not actionable advice enough to be useful. Instead, we supplement with standards. The
+[MISRA C](https://en.wikipedia.org/wiki/MISRA_C) coding standard is good, and
+[RTCA DO-178C](https://en.wikipedia.org/wiki/DO-178C) does guarantee a level of safety through sheer amount of expensive
+documentation and testing effort, but both standards leave to be desired from a theoretical standpoint. Sure, these
+reduce the risk of flaws in the implementation and design respectively. But that's not really mathematically rigorous
+enough to satisfy me. Ideally, I'd like the software to be verified with a theorem prover. However, in many cases that
+isn't possible. Firmware has to interact with hardware, and the hardware has to work too.
+
+## Everywhere Else
+
+Software safety may be well defined inside of the safety critical software industry, but outside it's anybody's guess.
+Opinions vary wildly. For example, some people on the internet seem to think that "pointers are unsafe" because of the
+potential for misuse. You could cause a segmentation fault and crash your program, or leak some memory, or do any other
+number of "dangerous" things.
+
+They tell you that airplane firmware should be written in Rust. When you tell them that most of the safety
+critical software in the world is written in C, and for good reason, their face goes red. Their hands go clammy.
+Their brains stop working. Could it be that they misunderstood the needs of an industry they know nothing about?
+No. It must be you, the airplane firmware engineer, who are wrong. You must not know your own needs. That is the
+only explaination. They must save the misguided firmware engineers from themselves.
+
+While this is definitely a story exaggurated for dramatic effect, I've had similar conversations. Explaining to
+people what software safety really means is such a frustrating and laborious process that I've stopped trying to
+correct people on an individual basis. They're usually very disrespectful and not worth interacting with. Instead,
+I've written this article to set the record straight on what safety really means outside of the aerospace world.
 
 <br>
 
@@ -27,6 +45,15 @@ This new perspective presents an interesting and actionable path forward for the
 
 <center><iframe width="560" height="315" src="https://www.youtube.com/embed/2FAi2mNYjFA?start=1430" title="YouTube video player" frameborder="0" allow="encrypted-media; picture-in-picture" align="center "allowfullscreen></iframe></center>
 <br>
+
+Recently, I watched the CPPCon talk above. It unified everything I know on the topic of what software safety is. Honestly, I wish it all clicked sooner.
+
+This post is written about C and C++, but using other languages does not excuse you from having to think about these things. The common phrase that people use is "just because the language is safe, that doesn't mean the code you wrote is correct." Now I have a way to express what that means.
+
+This new perspective presents an interesting and actionable path forward for the tooling surrounding Daisho and other programming languages. It may also solve some unique challenges inside the C portion of the Daisho standard library, as well as the age-old problem of what to do about a specific class of dangerous and difficult to track down UB bugs coming from problems like signed integer overflow, oversize shifts, and division by zero.
+
+<br>
+
 
 ## Definitions
 
@@ -463,10 +490,10 @@ Now, disallow any sort of operation that could potentially break. Make them chec
 ```c++
 auto a = INT_MAX + 1 // Compile error, return type would overflow
 
-range<0, 50> b = 5;
+range<int, 0, 50> b = 5;
 auto x = 20 / b; // Compile error, b could be 0.
 
-range<1, 50> c = coerce(b != 0);
+range<int, 1, 50> c = coerce(b != 0);
 auto y = 20 / c; // Works, c cannot be 0.
 ```
 
