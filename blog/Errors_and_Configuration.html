@@ -181,14 +181,12 @@
 <body>
 <h1 id="errors-and-configuration">Errors and Configuration</h1>
 <p>If there's one thing that programmers hate, it's edge cases. They're annoying and time consuming.</p>
-<figure>
-<img src="images/Snake_moriya_suwako.jpg" alt="" /><figcaption>Snake</figcaption>
-</figure>
+<p><img src="images/Snake_moriya_suwako.jpg" /></p>
 <p>The more sources for error you have, the more edge cases you're likely to have. Unfortunately, often the growth is not linear. You have to think about these edge cases, and write extra code to handle them.</p>
 <p>This sort of thing comes up a lot. An example would be opening a file in C. You have to:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="ss">* </span>Get the size of the file on disk (either through <span class="in">`stat()`</span> or the <span class="in">`fseek()`</span> dance)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="ss">* </span>Allocate a buffer large enough to store the file&#39;s contents</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="ss">* </span>Open the file for reading</span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="ss">* </span>Open the file for reading</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="ss">* </span>Get the size of the file on disk</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="ss">* </span>Allocate a buffer large enough to store the file&#39;s contents</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="ss">* </span>Read from the file into the buffer</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a><span class="ss">* </span>Close the file</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a><span class="ss">* </span>Null terminate the buffer</span></code></pre></div>
@@ -210,7 +208,14 @@
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a><span class="ss"> * </span>In the Daisho <span class="in">`openFile()`</span> implementation, there are only two kinds of errors. There&#39;s &quot;out of memory&quot;, and there&#39;s &quot;couldn&#39;t open the file.&quot;</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>   The average programmer doesn&#39;t have to care if that&#39;s due to a failed integrity check or a sledgehammer. There&#39;s an argument that splitting out</span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>   the OOM case is unnecessary also.</span></code></pre></div>
-<h2 id="a-bigger-problem">A Bigger Problem</h2>
-<p>A programming language is massive.</p>
+<h3 id="a-bigger-problem-needs-a-bigger-solution">A Bigger Problem Needs a Bigger Solution</h3>
+<p>Unfortunately, this is not enough for me. A programming language runtime is truly massive. Trying to reverse engineer and configure what's available on each machine with its own exotic (or even mundane) archetecture and version of the C ecosystem is linearly more painful on the best of days, and exponentially on the worst. All known approaches have failed me. I've come up with my own instead.</p>
+<p><br></p>
+<h2 id="a-layered-taxonomy-of-errors">A Layered Taxonomy of Errors</h2>
+<p>I found that what I really needed is to categorize. An error can happen during:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="ss">* </span>Compiler configuration</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="ss">* </span>Compile time</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="ss">* </span>Run time</span></code></pre></div>
+<p>An error is either recoverable or not recoverable. It may not even be an error necessarily. For example, not finding a <code>python</code> binary on the host system isn't necessarily a problem. It just means that the feature of being able to write inline python from daisho code is unavailable. It turns daisho code that is perfectly reasonable on one machine into a compile time error on another. It's only a problem if you're depending on it, but we still have to trace this information from compiler configuration into the compile time and runtime.</p>
 </body>
 </html>

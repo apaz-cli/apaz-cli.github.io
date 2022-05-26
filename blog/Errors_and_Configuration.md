@@ -1,18 +1,19 @@
 
+
 # Errors and Configuration
 
 If there's one thing that programmers hate, it's edge cases. They're annoying and time consuming.
 
-![Snake](images/Snake_moriya_suwako.jpg)
+![](images/Snake_moriya_suwako.jpg)
 
 The more sources for error you have, the more edge cases you're likely to have. Unfortunately, often the growth is not linear.
 You have to think about these edge cases, and write extra code to handle them.
 
 This sort of thing comes up a lot. An example would be opening a file in C. You have to:
 ```md
-* Get the size of the file on disk (either through `stat()` or the `fseek()` dance)
-* Allocate a buffer large enough to store the file's contents
 * Open the file for reading
+* Get the size of the file on disk
+* Allocate a buffer large enough to store the file's contents
 * Read from the file into the buffer
 * Close the file
 * Null terminate the buffer
@@ -51,7 +52,28 @@ What we need is some way to make sure the number edge cases stays manageable. He
    the OOM case is unnecessary also.
 ```
 
+### A Bigger Problem Needs a Bigger Solution
 
-## A Bigger Problem
+Unfortunately, this is not enough for me. A programming language runtime is truly massive. Trying to reverse engineer and configure what's
+available on each machine with its own exotic (or even mundane) archetecture and version of the C ecosystem is linearly more painful on
+the best of days, and exponentially on the worst. All known approaches have failed me. I've come up with my own instead.
 
-A programming language is massive.
+<br>
+
+
+## A Layered Taxonomy of Errors
+
+I found that what I really needed is to categorize. An error can happen during:
+```md
+* Compiler configuration
+* Compile time
+* Run time
+```
+
+An error is either recoverable or not recoverable. It may not even be an error necessarily. For example, not finding a `python` binary
+on the host system isn't necessarily a problem. It just means that the feature of being able to write inline python from daisho code is
+unavailable. It turns daisho code that is perfectly reasonable on one machine into a compile time error on another. It's only a problem
+if you're depending on it, but we still have to trace this information from compiler configuration into the compile time and runtime.
+
+
+
