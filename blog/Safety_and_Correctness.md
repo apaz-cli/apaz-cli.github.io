@@ -29,16 +29,9 @@ Opinions vary wildly. For example, some people on the internet seem to think tha
 potential for misuse. You could cause a segmentation fault and crash your program, or leak some memory, or do any other
 number of "dangerous" things.
 
-They tell you that airplane firmware should be written in Rust. When you tell them that most of the safety
-critical software in the world is written in C, and for good reason, their face goes red. Their hands go clammy.
-Their brains stop working. Could it be that they misunderstood the needs of an industry they know nothing about?
-No. It must be you, the airplane firmware engineer, who are wrong. You must not know your own needs. That is the
-only explaination. They must save the misguided firmware engineers from themselves.
-
-While this is definitely a story exaggurated for dramatic effect, I've had similar conversations. Explaining to
-people what software safety really means is such a frustrating and laborious process that I've stopped trying to
-correct people on an individual basis. They're usually very disrespectful and not worth interacting with. Instead,
-I've written this article to set the record straight on what safety really means outside of the aerospace world.
+Usually, when the rest of the world talks about if a program or language is "safe" or not, they're not talking
+about the physical safety of their fellows. They're talking about something else. Memory safety, or thread safety, or
+reference safety, or something of that sort.
 
 <br>
 
@@ -47,50 +40,58 @@ I've written this article to set the record straight on what safety really means
 <center><iframe width="560" height="315" src="https://www.youtube.com/embed/2FAi2mNYjFA?start=1430" title="YouTube video player" frameborder="0" allow="encrypted-media; picture-in-picture" align="center "allowfullscreen></iframe></center>
 <br>
 
-Recently, I watched the CPPCon talk above. It unified everything I know on the topic of what software safety is. Honestly, I wish it all clicked sooner.
+Recently, I watched the CPPCon talk above. It unified all of my thoughts about what software safety is. Honestly, I
+wish it all clicked sooner.
 
-This post is written about C and C++, but using other languages does not excuse you from having to think about these things. The common phrase that people use is "just because the language is safe, that doesn't mean the code you wrote is correct." Now I have a way to express what that means.
+This post is written about C and C++, but using other languages does not excuse you from having to think about these
+things. They may handle certain kinds of safety for you, but they cannot save you from yourself. The common phrase
+that people use is "just because the language is safe, that doesn't mean the code you wrote is correct." Now I have
+a way to express what each of those words mean.
 
-This new perspective presents an interesting and actionable path forward for the tooling surrounding Daisho and other programming languages. It may also solve some unique challenges inside the C portion of the Daisho standard library, as well as the age-old problem of what to do about a specific class of dangerous and difficult to track down UB bugs coming from problems like signed integer overflow, oversize shifts, and division by zero.
+The ideas presented here represent an interesting and actionable path forward for the tooling surrounding Daisho and
+other programming languages. It may also solve the age-old problem of what to do about a specific class of dangerous
+and difficult to track down UB bugs coming from problems like signed integer overflow, oversize shifts, unaligned
+pointers, and division by zero.
 
 <br>
 
 
 ## Definitions
 
+There are a lot of imprecice or subtly different definitions of bugs, safety, correctness. But we all seem to know
+what these words mean. Perhaps the real answer is in the akashic records. For the rest of the article though,
+here's what I mean by pre/postconditions, safety, correctness, and bug.
+
+I find these definitions to be extremely useful on their own. I originally planned just to write an article where
+I listed them off.
+
+
 ### Preconditions and Postconditions
 
 [Hoare logic](https://en.wikipedia.org/wiki/Hoare_logic) describes computations as a Hoare triple `{P}C{Q}` where
 `P` is assertions about preconditions, `Q` is assertions about postconditions, and `C` is the code being
-described. What I'm about to describe is not Hoare logic. But the ideas of Hoare logic (computations having well
-defined preconditions and postconditions) are what prop up the upcoming definitions of safety and correctness.
+described. What I'm about to describe is not Hoare logic. However, the ideas of Hoare logic (computations having
+well defined preconditions and postconditions) are what prop up the upcoming definitions of safety and correctness.
 
 Instead of using the definition provided by Hoare Logic, let's define the preconditions of a computation
 (or function or snippet) as the expected set of possible states that the program can be in before the
-computation takes place, relevant to the computation.
+computation takes place.
 
-Likewise, postconditions are the expected set of possible states the program can be in after the computation,
-also relevant to the computation.
+Likewise, postconditions are the expected set of possible states the program can be in after the computation.
 
-Even when we don't constantly try, odds are that we already think about functions as having preconditions
-and postconditions. If your code is well written, composed primarily of functions, and those functions are
-well named, then odds are that you have a good idea what your preconditions and postconditions are. But,
-you probably don't know exactly what they are. In fact, you almost definitely don't. Specifying the
-preconditions and postconditions of parts of your program can be an iterative process. You can design
-them up front, but the implementation of your program will almost certainly introduce new ones.
-
-In the aerospace industry, we are forced to think in terms of preconditions and postconditions. It's the
-nature of requirements based development, which is mandated by the FAA. However, we are forced to think
-about them from a requirements level, rather than an implementation level. The expectation is that the
-implementation is left up to the software engineer, and its correctness will come out in code review.
-The remainder of this post deals with the implementation level, not the requirements level.
+Odds are that you already think about functions as having preconditions and postconditions, even if you're not
+trying to. It makes code a lot cleaner and easier to reason about. If your functions are well named, odds are
+you know a lot about what those preconditions and postconditions are. Odds are though that you don't know
+precisely. Later, I'll give an example which should prove that to you.
 
 
 ### Safety:
 
-An operation is safe if it cannot lead to undefined behavior, either directly or indirectly, even if the operation's preconditions are violated. Otherwise, it is unsafe.
+An operation is safe if it cannot lead to undefined behavior, either directly or indirectly, even if the
+operation's preconditions are violated. Otherwise, it is unsafe.
 
-Safety only specifies whether every possible set of preconditions maps to a postcondition. It has nothing to do with whether those postconditions are intended, only what happens when unexpected conditions occur.
+Safety only specifies whether every possible set of preconditions maps to a postcondition. It has nothing
+to do with whether those postconditions are intended, only what happens when unexpected conditions occur.
 
 
 ### Correctness:
@@ -100,7 +101,7 @@ An operation that is correct satisfies the intended postconditions if its precon
 Correctness implies that you've thought about every possible precondition, and can justify that
 it maps to the intended postcondition.
 
-Correctness is incredibly difficult to obtain or be confident about. Hopefully the next section will convince you of that.
+Correctness is incredibly difficult to obtain or be confident about.
 
 ### Bug:
 
@@ -111,7 +112,8 @@ A bug is a violation of correctness. Not all bugs become observable unintended b
 
 ## Why do we write unsafe programs?
 
-Undefined Behavior introduces silent preconditions that are difficult to detect and reason about. Is the following code safe? Stare at it for a while.
+Undefined Behavior introduces silent preconditions that are difficult to detect and reason
+about. Is the following code safe? Stare at it for a while.
 
 ```c
 char strDeref(const char *str, int idx1, int idx2) {
@@ -128,7 +130,7 @@ char strDeref(const char *str, int idx1, int idx2) {
 }
 ```
 
-I would say that it sure looks right. But that's not what safe means.
+I would say that it sure looks right. But is it safe for any inputs?
 
 Even if you think you're covering all of your bases by checking the length of the string, and even using `strnlen()` over `strlen()` to do so because
 it's "safer" (that doesn't make it less dangerous), it's very hard to make sure your API is safe. The problem is `idx1 + idx2`. Signed integer overflow
@@ -212,7 +214,9 @@ builds.
 <br>
 
 
-## Background: The Halting Problem
+## What is the bare minimum that our tooling can do?
+
+### Background: The Halting Problem
 
 In the general case, detecting runtime conditions like those that would trigger undefined behavior is
 provably impossible by reduction to the [halting problem](https://en.wikipedia.org/wiki/Halting_problem),
@@ -221,23 +225,28 @@ I suggest looking into it.
 
 
 There are some programs that do obviously halt for all inputs, like `print("Hello World!");`. There are
-also some that obviously never halt like `while (true)`. But, there's a lot of them for which termination
-analysis is much more difficult. You could of course write programs to partially answer the halting problem,
-most optimizing compilers contain one or more mechanisms to attempt to make that determination, but the problem
-is still unsolvable in the general case.
+also some that obviously never halt like `while (true);`. But, there's a lot of them for which termination
+analysis is much more difficult. You could of course write programs to partially answer the halting problem.
+In fact, most optimizing compilers contain one or more mechanisms to attempt to make that determination, but
+the problem is still unsolvable in the general case.
 
 <br>
 
 
-## What is the bare minimum that our tooling can do?
-
 Since a compiler cannot solve the halting problem, it cannot detect undefined behavior at compile time.
 However, it can be detected at runtime. That's obviously no problem. It's easy, in fact. Just wrap every
-condition that could cause it.
+condition that could cause it. The halting problem becomes trivially solvable if we're allowed to modify
+the program. We can insert cycle handling in the difficult cases and make the answer to the question
+"does it halt" be "yes' by inserting any sort of runtime error handling we want. While the halting problem
+was never the reason for undefined behavior in the first place, it's nice to know that the problem is
+tractable again.
 
-Obviously, this is not a complete solution. There are a lot of kinds of undefined behavior that cannot be
-caught this way. ["C Compilers Disprove Fermat's Last Theorem"](https://blog.regehr.org/archives/140) is an
-excellent article that details the dangers of the offending clause in C11 and C99.
+This is not a complete solution to undefined behaviour. There are a lot of kinds of undefined behavior
+that cannot be caught this way. Some of the undefined behavior in C literally does depend on the answer to
+the halting problem. ["C Compilers Disprove Fermat's Last Theorem"](https://blog.regehr.org/archives/140)
+is an excellent article that details the dangers of the offending clause in C11 and C99. We're also
+pushing the problem off until runtime. However, having the option for error handling and defined semantics at runtime
+is better than not having the option.
 
 Although we can't eliminate all undefined behavior, doing the bare minimum to fix dereferences, alignment,
 overflow, underflow, and division by zero is a significant step in the right direction.
@@ -245,7 +254,7 @@ overflow, underflow, and division by zero is a significant step in the right dir
 <br>
 
 
-## Fixing undefined behavior:
+## The Fox to Undefined Behavior:
 
 
 Let's write a header to fix our favorite arithmetic operations.
