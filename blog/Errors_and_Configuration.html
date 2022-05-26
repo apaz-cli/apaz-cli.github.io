@@ -184,16 +184,33 @@
 <figure>
 <img src="images/Snake_moriya_suwako.jpg" alt="" /><figcaption>Snake</figcaption>
 </figure>
-<p>The more sources of error you have, the more edge cases you have. Unfortunately, often the growth is not linear. You have to think about them, and write extra code to handle them.</p>
+<p>The more sources for error you have, the more edge cases you're likely to have. Unfortunately, often the growth is not linear. You have to think about these edge cases, and write extra code to handle them.</p>
 <p>This sort of thing comes up a lot. An example would be opening a file in C. You have to:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="ss">* </span>Get the size of the file on disk (either through <span class="in">`stat()`</span> or the <span class="in">`fseek()`</span> dance)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="ss">* </span>Allocate a buffer large enough memory to store the file&#39;s contents</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="ss">* </span>Allocate a buffer large enough to store the file&#39;s contents</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="ss">* </span>Open the file for reading</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="ss">* </span>Read from the file into the buffer</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a><span class="ss">* </span>Close the file</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a><span class="ss">* </span>Null terminate the buffer</span></code></pre></div>
-<p>All but the last of these operations can go wrong. However, the buffer and the file pointer are resources that need to be cleaned up on failure. This complicates error handling. My first few tries had memory/resource leaks in them.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="ss">* </span>Time zones</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="ss">* </span>That code is often difficult to test, especially in firmware.</span></code></pre></div>
+<p>Basically all of these operations can go wrong. The buffer and the file pointer are resources that need to be cleaned up on failure. This complicates error handling. Opening a file isn't hard (although the language makes it much harder than it should be), but it's easy to accidentally leak the buffer or forget to close the file on one of the many errors if you're not careful. There's no other way to get it right than to squint at your monitor and trace through all the edge cases.</p>
+<p>Now suppose your code is firmware supposed to handle something truly unlikely. For example, the internal flash inside your microcontroller fails mid-write. Or, the wires attaching some sensors to your airplane's engine controller get struck by a bolt of lightning, causing the readings to spike to physically impossible levels and then go dead as the wires melt. These situations aren't very testable. How can we be confident that they're handled correctly so the plane doesn't crash?</p>
+<p><br></p>
+<h2 id="the-solution-to-the-problem">The Solution to the Problem</h2>
+<p>What we need is some way to make sure the number edge cases stays manageable. Here are a few ways.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="ss">* </span>Reduce the number of sources of error in project planning.</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="ss"> * </span>Limit the scope of the project.</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="ss"> * </span>Split the project up into manageable parts.</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="ss"> * </span>Use a library instead of rolling your own. (Ex: std::chrono/DateTime and leap seconds)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a><span class="ss">* </span>Group errors together with a uniform interface.</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a><span class="ss"> * </span>In POSIX C, <span class="in">`errno`</span> is 0 if no error, otherwise it&#39;s the error code.</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a><span class="ss"> * </span>In Java, the exception type is the error code, and it usually comes with a string explanation.</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a><span class="ss">* </span>Treat different kinds of errors the same.</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a><span class="ss"> * </span>In the Daisho <span class="in">`openFile()`</span> implementation, there are only two kinds of errors. There&#39;s &quot;out of memory&quot;, and there&#39;s &quot;couldn&#39;t open the file.&quot;</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>   The average programmer doesn&#39;t have to care if that&#39;s due to a failed integrity check or a sledgehammer. There&#39;s an argument that splitting out</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>   the OOM case is unnecessary also.</span></code></pre></div>
+<h2 id="a-bigger-problem">A Bigger Problem</h2>
+<p>A programming language is massive.</p>
 </body>
 </html>
