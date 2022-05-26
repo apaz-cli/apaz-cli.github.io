@@ -10,7 +10,8 @@ However, nobody really seems to be able to define what that means.
 
 ## Aerospace
 
-In the Aerospace and safety-critical software world, safety is well defined. It means "will this kill somebody?"
+In the Aerospace and safety-critical software world, safety is well defined. It means "Could this accidentally kill
+somebody? If so, it shouldn't fail. In the event that it does, it should fail in the least harmful way possible."
 
 Luckily, the vast majority of airplane firmware hasn't killed anybody. Setting out not to kill your passengers is
 admirable, but it's not actionable advice enough to be useful. Instead, we supplement with standards. The
