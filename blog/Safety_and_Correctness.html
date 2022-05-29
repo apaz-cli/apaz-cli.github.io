@@ -182,12 +182,14 @@
 <h1 id="safety-and-correctness">Safety and Correctness</h1>
 <p>Software safety is a lofty, but poorly defined goal. Everybody has their own opinion about how to achieve "safety" in software. However, nobody really seems to be able to define what that means.</p>
 <p><img src="images/PlaneClouds_skyrick9413.jpg" /></p>
-<h2 id="aerospace">Aerospace</h2>
-<p>In the Aerospace and safety-critical software world, safety is well defined. It means "Could this accidentally kill somebody? If so, it shouldn't fail. In the event that it does, it should fail in the least harmful way possible."</p>
-<p>Luckily, the vast majority of airplane firmware hasn't killed anybody. Setting out not to kill your passengers is admirable, but it's not actionable advice enough to be useful. Instead, we supplement with standards. The <a href="https://en.wikipedia.org/wiki/MISRA_C">MISRA C</a> coding standard is good, and <a href="https://en.wikipedia.org/wiki/DO-178C">RTCA DO-178C</a> does guarantee a level of safety through sheer amount of expensive documentation and testing effort, but both standards leave to be desired from a theoretical standpoint. Sure, these reduce the risk of flaws in the implementation and design respectively. But that's not really mathematically rigorous enough to satisfy me. Ideally, I'd like the software to be verified with a theorem prover. However, in many cases that isn't possible. Firmware has to interact with hardware, and the hardware has to work too.</p>
-<h2 id="everywhere-else">Everywhere Else</h2>
+<h2 id="safety-in-safety-critical-software">Safety in Safety Critical Software</h2>
+<p>In the aerospace and safety-critical software world, safety is well defined. It means "Could this accidentally kill somebody? If so, it shouldn't fail. In the event that it does, it should fail in the least harmful way possible."</p>
+<p>Luckily, the vast majority of airplane firmware hasn't killed anybody. Setting out not to kill your passengers is admirable, but it's not actionable advice enough to be useful. Instead, we supplement with standards. The <a href="https://en.wikipedia.org/wiki/MISRA_C">MISRA C</a> coding standard is good, and <a href="https://en.wikipedia.org/wiki/DO-178C">RTCA DO-178C</a> does guarantee a level of safety through sheer amount of expensive documentation and testing effort, but both standards leave a lot to be desired from a theoretical standpoint. Sure, they reduce the risk of flaws in the implementation and design respectively. But that's not really mathematically rigorous enough to satisfy me. Ideally, I'd like the software to be verified with a theorem prover. However, in many cases that isn't possible. Firmware has to interact with hardware, and the hardware is an important part as well.</p>
+<p>It's worth noting that aerospace's needs are a lot different from the needs of conventional computing. We care a lot about the software still functioning correctly if cosmic radiation starts flipping bits, and also with handling errors that come from sensors or the cpu itself getting struck by lighting. For most all conventional purposes, this is overkill.</p>
+<h2 id="safety-everywhere-else">Safety Everywhere Else</h2>
 <p>Software safety may be well defined inside of the safety critical software industry, but outside it's anybody's guess. Opinions vary wildly. For example, some people on the internet seem to think that "pointers are unsafe" because of the potential for misuse. You could cause a segmentation fault and crash your program, or leak some memory, or do any other number of "dangerous" things.</p>
 <p>Usually, when the rest of the world talks about if a program or language is "safe" or not, they're not talking about the physical safety of their fellows. They're talking about something else. Memory safety, or thread safety, or reference safety, or something of that sort.</p>
+<p>Since it seems like nobody can really define what safety is, here's my own definition.</p>
 <p><br></p>
 <h2 id="the-video">The Video:</h2>
 <center>
@@ -195,12 +197,12 @@
 </iframe>
 </center>
 <p><br></p>
-<p>Recently, I watched the CPPCon talk above. It unified all of my thoughts about what software safety is. Honestly, I wish it all clicked sooner.</p>
+<p>Recently, I watched the CPPCon talk above. It unified all of my thoughts about what software safety is. Honestly, I wish it all clicked sooner. The revelations begin at 23:50.</p>
 <p>This post is written about C and C++, but using other languages does not excuse you from having to think about these things. They may handle certain kinds of safety for you, but they cannot save you from yourself. The common phrase that people use is "just because the language is safe, that doesn't mean the code you wrote is correct." Now I have a way to express what each of those words mean.</p>
 <p>The ideas presented here represent an interesting and actionable path forward for the tooling surrounding Daisho and other programming languages. It may also solve the age-old problem of what to do about a specific class of dangerous and difficult to track down UB bugs coming from problems like signed integer overflow, oversize shifts, unaligned pointers, and division by zero.</p>
 <p><br></p>
 <h2 id="definitions">Definitions</h2>
-<p>There are a lot of imprecice or subtly different definitions of bugs, safety, correctness. But we all seem to know what these words mean. Perhaps the real answer is in the akashic records. For the rest of the article though, here's what I mean by pre/postconditions, safety, correctness, and bug.</p>
+<p>There are a lot of imprecise or subtly different definitions of bugs, safety, correctness. But we all seem to know what these words mean. Perhaps the real answer is in the akashic records. For the rest of the article though, here's what I mean by pre/postconditions, safety, correctness, and bug.</p>
 <p>I find these definitions to be extremely useful on their own. I originally planned just to write an article where I listed them off.</p>
 <h3 id="preconditions-and-postconditions">Preconditions and Postconditions</h3>
 <p><a href="https://en.wikipedia.org/wiki/Hoare_logic">Hoare logic</a> describes computations as a Hoare triple <code>{P}C{Q}</code> where <code>P</code> is assertions about preconditions, <code>Q</code> is assertions about postconditions, and <code>C</code> is the code being described. What I'm about to describe is not Hoare logic. However, the ideas of Hoare logic (computations having well defined preconditions and postconditions) are what prop up the upcoming definitions of safety and correctness.</p>
@@ -213,9 +215,9 @@
 <h3 id="correctness">Correctness:</h3>
 <p>An operation that is correct satisfies the intended postconditions if its preconditions are satisfied.</p>
 <p>Correctness implies that you've thought about every possible precondition, and can justify that it maps to the intended postcondition.</p>
-<p>Correctness is incredibly difficult to obtain or be confident about.</p>
+<p>Correctness is incredibly difficult to obtain or be confident about. When you forget to reason about an edge case, how can you be convinced that your code is correct? What does correct look like? Not handling every case is as good as writing undefined behavior.</p>
 <h3 id="bug">Bug:</h3>
-<p>A bug is a violation of correctness. Not all bugs become observable unintended behavior.</p>
+<p>A bug is a violation of correctness.</p>
 <p><br></p>
 <h2 id="why-do-we-write-unsafe-programs">Why do we write unsafe programs?</h2>
 <p>Undefined Behavior introduces silent preconditions that are difficult to detect and reason about. Is the following code safe? Stare at it for a while.</p>
@@ -271,10 +273,10 @@
 <p>There are some programs that do obviously halt for all inputs, like <code>print("Hello World!");</code>. There are also some that obviously never halt like <code>while (true);</code>. But, there's a lot of them for which termination analysis is much more difficult. You could of course write programs to partially answer the halting problem. In fact, most optimizing compilers contain one or more mechanisms to attempt to make that determination, but the problem is still unsolvable in the general case.</p>
 <p><br></p>
 <p>Since a compiler cannot solve the halting problem, it cannot detect undefined behavior at compile time. However, it can be detected at runtime. That's obviously no problem. It's easy, in fact. Just wrap every condition that could cause it. The halting problem becomes trivially solvable if we're allowed to modify the program. We can insert cycle handling in the difficult cases and make the answer to the question "does it halt" be "yes' by inserting any sort of runtime error handling we want. While the halting problem was never the reason for undefined behavior in the first place, it's nice to know that the problem is tractable again.</p>
-<p>This is not a complete solution to undefined behaviour. There are a lot of kinds of undefined behavior that cannot be caught this way. Some of the undefined behavior in C literally does depend on the answer to the halting problem. <a href="https://blog.regehr.org/archives/140">"C Compilers Disprove Fermat's Last Theorem"</a> is an excellent article that details the dangers of the offending clause in C11 and C99. We're also pushing the problem off until runtime. However, having the option for error handling and defined semantics at runtime is better than not having the option.</p>
+<p>This is not a complete solution to undefined behavior. There are a lot of kinds of undefined behavior that cannot be caught this way. Some of the undefined behavior in C literally does depend on the answer to the halting problem. <a href="https://blog.regehr.org/archives/140">"C Compilers Disprove Fermat's Last Theorem"</a> is an excellent article that details the dangers of the offending clause in C11 and C99. We're also pushing the problem off until runtime. However, having the option for error handling and defined semantics at runtime is better than not having the option.</p>
 <p>Although we can't eliminate all undefined behavior, doing the bare minimum to fix dereferences, alignment, overflow, underflow, and division by zero is a significant step in the right direction.</p>
 <p><br></p>
-<h2 id="the-fox-to-undefined-behavior">The Fox to Undefined Behavior:</h2>
+<h2 id="the-fix-to-undefined-behavior">The Fix to Undefined Behavior:</h2>
 <p>Let's write a header to fix our favorite arithmetic operations.</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="co">/* WrapOverflow.h */</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="pp">#ifndef WRAP_OVERFLOW_INCLUDED</span></span>

@@ -8,21 +8,27 @@ However, nobody really seems to be able to define what that means.
 ![](images/PlaneClouds_skyrick9413.jpg)
 
 
-## Aerospace
+## Safety in Safety Critical Software
 
-In the Aerospace and safety-critical software world, safety is well defined. It means "Could this accidentally kill
+In the aerospace and safety-critical software world, safety is well defined. It means "Could this accidentally kill
 somebody? If so, it shouldn't fail. In the event that it does, it should fail in the least harmful way possible."
 
 Luckily, the vast majority of airplane firmware hasn't killed anybody. Setting out not to kill your passengers is
 admirable, but it's not actionable advice enough to be useful. Instead, we supplement with standards. The
 [MISRA C](https://en.wikipedia.org/wiki/MISRA_C) coding standard is good, and
 [RTCA DO-178C](https://en.wikipedia.org/wiki/DO-178C) does guarantee a level of safety through sheer amount of expensive
-documentation and testing effort, but both standards leave to be desired from a theoretical standpoint. Sure, these
+documentation and testing effort, but both standards leave a lot to be desired from a theoretical standpoint. Sure, they
 reduce the risk of flaws in the implementation and design respectively. But that's not really mathematically rigorous
 enough to satisfy me. Ideally, I'd like the software to be verified with a theorem prover. However, in many cases that
-isn't possible. Firmware has to interact with hardware, and the hardware has to work too.
+isn't possible. Firmware has to interact with hardware, and the hardware is an important part as well.
 
-## Everywhere Else
+It's worth noting that aerospace's needs are a lot different from the needs of conventional computing. We care a lot
+about the software still functioning correctly if cosmic radiation starts flipping bits, and also with handling
+errors that come from sensors or the cpu itself getting struck by lighting. For most all conventional purposes,
+this is overkill.
+
+
+## Safety Everywhere Else
 
 Software safety may be well defined inside of the safety critical software industry, but outside it's anybody's guess.
 Opinions vary wildly. For example, some people on the internet seem to think that "pointers are unsafe" because of the
@@ -33,6 +39,8 @@ Usually, when the rest of the world talks about if a program or language is "saf
 about the physical safety of their fellows. They're talking about something else. Memory safety, or thread safety, or
 reference safety, or something of that sort.
 
+Since it seems like nobody can really define what safety is, here's my own definition.
+
 <br>
 
 ## The Video:
@@ -41,7 +49,7 @@ reference safety, or something of that sort.
 <br>
 
 Recently, I watched the CPPCon talk above. It unified all of my thoughts about what software safety is. Honestly, I
-wish it all clicked sooner.
+wish it all clicked sooner. The revelations begin at 23:50.
 
 This post is written about C and C++, but using other languages does not excuse you from having to think about these
 things. They may handle certain kinds of safety for you, but they cannot save you from yourself. The common phrase
@@ -58,7 +66,7 @@ pointers, and division by zero.
 
 ## Definitions
 
-There are a lot of imprecice or subtly different definitions of bugs, safety, correctness. But we all seem to know
+There are a lot of imprecise or subtly different definitions of bugs, safety, correctness. But we all seem to know
 what these words mean. Perhaps the real answer is in the akashic records. For the rest of the article though,
 here's what I mean by pre/postconditions, safety, correctness, and bug.
 
@@ -101,11 +109,14 @@ An operation that is correct satisfies the intended postconditions if its precon
 Correctness implies that you've thought about every possible precondition, and can justify that
 it maps to the intended postcondition.
 
-Correctness is incredibly difficult to obtain or be confident about.
+Correctness is incredibly difficult to obtain or be confident about. When you forget to reason about an
+edge case, how can you be convinced that your code is correct? What does correct look like? Not handling
+every case is as good as writing undefined behavior.
+
 
 ### Bug:
 
-A bug is a violation of correctness. Not all bugs become observable unintended behavior.
+A bug is a violation of correctness.
 
 <br>
 
@@ -241,7 +252,7 @@ the program. We can insert cycle handling in the difficult cases and make the an
 was never the reason for undefined behavior in the first place, it's nice to know that the problem is
 tractable again.
 
-This is not a complete solution to undefined behaviour. There are a lot of kinds of undefined behavior
+This is not a complete solution to undefined behavior. There are a lot of kinds of undefined behavior
 that cannot be caught this way. Some of the undefined behavior in C literally does depend on the answer to
 the halting problem. ["C Compilers Disprove Fermat's Last Theorem"](https://blog.regehr.org/archives/140)
 is an excellent article that details the dangers of the offending clause in C11 and C99. We're also
@@ -254,7 +265,7 @@ overflow, underflow, and division by zero is a significant step in the right dir
 <br>
 
 
-## The Fox to Undefined Behavior:
+## The Fix to Undefined Behavior:
 
 
 Let's write a header to fix our favorite arithmetic operations.
