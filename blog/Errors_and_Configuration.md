@@ -65,15 +65,21 @@ the best of days, and exponentially on the worst. All known approaches have fail
 
 I found that what I really needed is to categorize. An error can happen during:
 ```md
+* Environment detection
 * Compiler configuration
+* Package configuration
 * Compile time
 * Run time
 ```
 
+Each of these layers flows information down to the next layer.
+
 An error is either recoverable or not recoverable. It may not even be an error necessarily. For example, not finding a `python` binary
 on the host system isn't necessarily a problem. It just means that the feature of being able to write inline python from daisho code is
-unavailable. It turns daisho code that is perfectly reasonable on one machine into a compile time error on another. It's only a problem
-if you're depending on it, but we still have to trace this information from compiler configuration into the compile time and runtime.
+unavailable. It turns daisho code that is perfectly reasonable on one machine into a compile time (or package configuration) error on
+another. It's only a problem if having a python interpreter is something that ends up being depended on, but we still need to flow the
+information down.
+
 
 
 
