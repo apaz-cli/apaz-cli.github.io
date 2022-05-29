@@ -56,10 +56,10 @@ things. They may handle certain kinds of safety for you, but they cannot save yo
 that people use is "just because the language is safe, that doesn't mean the code you wrote is correct." Now I have
 a way to express what each of those words mean.
 
-The ideas presented here represent an interesting and actionable path forward for the tooling surrounding Daisho and
-other programming languages. It may also solve the age-old problem of what to do about a specific class of dangerous
-and difficult to track down UB bugs coming from problems like signed integer overflow, oversize shifts, unaligned
-pointers, and division by zero.
+The ideas presented here represent an interesting and actionable path forward for the tooling surrounding my own
+programming language Daisho, as well as other languages. It may also solve the age-old problem of what to do about
+a specific class of dangerous and difficult to track down UB bugs coming from problems like signed integer overflow,
+oversize shifts, unaligned pointers, and division by zero.
 
 <br>
 
@@ -329,13 +329,13 @@ you hours of debugging.
 
 ## Going a little further:
 
-Daisho takes a similar approach to the header above. However, it uses GCC/Clang builtins
-to perform the check when available, and also wraps the overflow/underflow of unsigned
-integers as well. This has two benefits.
+The Daisho runtime takes a similar approach to the header above. However, it uses GCC/Clang builtins
+to perform the check when available, and also wraps the overflow/underflow of unsigned integers as well.
+This has two benefits.
 
 The first benefit is that while unsigned arithmetic wrapping is not undefined behavior, it can often
-be unintended (incorrect) behavior. The benefits to debugging with wrapped unsigned integers are exactly
-the same as wrapped signed integers.
+be incorrect behavior when the wrapping is unintentional. The benefits to debugging with wrapped
+unsigned integers are exactly the same as wrapped signed integers.
 
 The benefit is the ability to force unsigned overflow to become undefined behavior. This has performance
 benefits. The clang static optimizer in particular is very good at optimizing with undefined wrapping for
@@ -461,7 +461,8 @@ That's the hope anyway.
 
 Ada is an interesting case study. It has range-based types, with runtime range checks.
 In the safety critical software space, we know the benefits of Ada well. Throwing runtime
-checks at everything protects against memory corruption caused by cosmic radiation.
+checks at everything protects both against memory corruption caused by cosmic radiation
+and programmer error.
 
 ```ada
 procedure Main is
@@ -483,7 +484,7 @@ For safety's sake, the `Grade` type does what we want it to. It's protected agai
 It's "safe."
 
 That's still unsatisfactory for me. I think we could do more. What if we could ensure that it's correct?
-Imagine a type system like the following.
+Imagine a type system sort of like the following.
 
 ```c++
 template <typename T, T min, T max> struct range {
@@ -491,14 +492,20 @@ template <typename T, T min, T max> struct range {
   operator T() const { return val; }
 
   template <T rmin, T rmax>
-  friend range<T, min + rmin, max + rmax> operator+(range<T, min, max> const &lhs, range<T, rmin, rmax> const &rhs) {
-    return lhs + rhs;
+  friend range<T, min + rmin, max + rmax>
+  operator+(range<T, min, max> const &lhs, range<T, rmin, rmax> const &rhs)
+  requires(((min > 0) && (rmin > std::numeric_limits<T>::min() - min)) and
+           ((max < 0) && (rmax < std::numeric_limits<T>::max() - max))) {
+    range<T, min + rmin, max + rmax> ret;
+    ret.val = lhs.val + rhs.val;
+    return ret;
   }
 };
 ```
 
-Let the result of arithmetic with two ranges be the mathematical range of the outputs given the domains.
-Now let the compiler automatically deduce it.
+This is a mess of C++ concept nonsense, but the important thing to note here is that the result
+of arithmetic with two ranges is a range with automatically deduced size. Now, let the compiler
+automatically deduce it.
 
 ```c++
 auto range_add(auto a, auto b) {

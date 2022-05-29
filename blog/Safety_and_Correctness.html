@@ -199,7 +199,7 @@
 <p><br></p>
 <p>Recently, I watched the CPPCon talk above. It unified all of my thoughts about what software safety is. Honestly, I wish it all clicked sooner. The revelations begin at 23:50.</p>
 <p>This post is written about C and C++, but using other languages does not excuse you from having to think about these things. They may handle certain kinds of safety for you, but they cannot save you from yourself. The common phrase that people use is "just because the language is safe, that doesn't mean the code you wrote is correct." Now I have a way to express what each of those words mean.</p>
-<p>The ideas presented here represent an interesting and actionable path forward for the tooling surrounding Daisho and other programming languages. It may also solve the age-old problem of what to do about a specific class of dangerous and difficult to track down UB bugs coming from problems like signed integer overflow, oversize shifts, unaligned pointers, and division by zero.</p>
+<p>The ideas presented here represent an interesting and actionable path forward for the tooling surrounding my own programming language Daisho, as well as other languages. It may also solve the age-old problem of what to do about a specific class of dangerous and difficult to track down UB bugs coming from problems like signed integer overflow, oversize shifts, unaligned pointers, and division by zero.</p>
 <p><br></p>
 <h2 id="definitions">Definitions</h2>
 <p>There are a lot of imprecise or subtly different definitions of bugs, safety, correctness. But we all seem to know what these words mean. Perhaps the real answer is in the akashic records. For the rest of the article though, here's what I mean by pre/postconditions, safety, correctness, and bug.</p>
@@ -331,8 +331,8 @@
 <span id="cb4-51"><a href="#cb4-51" aria-hidden="true"></a><span class="pp">#endif </span><span class="co">/* WRAP_OVERFLOW_INCLUDED */</span></span></code></pre></div>
 <p>Obviously, with <code>WRAP_OVERFLOW</code> on, this will slow the code down. However, it will potentially save you hours of debugging.</p>
 <h2 id="going-a-little-further">Going a little further:</h2>
-<p>Daisho takes a similar approach to the header above. However, it uses GCC/Clang builtins to perform the check when available, and also wraps the overflow/underflow of unsigned integers as well. This has two benefits.</p>
-<p>The first benefit is that while unsigned arithmetic wrapping is not undefined behavior, it can often be unintended (incorrect) behavior. The benefits to debugging with wrapped unsigned integers are exactly the same as wrapped signed integers.</p>
+<p>The Daisho runtime takes a similar approach to the header above. However, it uses GCC/Clang builtins to perform the check when available, and also wraps the overflow/underflow of unsigned integers as well. This has two benefits.</p>
+<p>The first benefit is that while unsigned arithmetic wrapping is not undefined behavior, it can often be incorrect behavior when the wrapping is unintentional. The benefits to debugging with wrapped unsigned integers are exactly the same as wrapped signed integers.</p>
 <p>The benefit is the ability to force unsigned overflow to become undefined behavior. This has performance benefits. The clang static optimizer in particular is very good at optimizing with undefined wrapping for unsigned arithmetic. Inside the optimizer, it applies attributes to each value (result of an expression). Integers with undefined unsigned wrapping semantics have their own attribute, <code>nuw</code> (no unsigned wrap). The LLVM IR emitted by clang for the following function returns such a value, and optimizes away the checks.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="pp">#include </span><span class="im">&lt;limits.h&gt;</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a></span>
@@ -407,7 +407,7 @@
 <p>That's the hope anyway.</p>
 <p><br></p>
 <h2 id="rediscovering-an-old-way-of-writing-software">Rediscovering an old way of writing software</h2>
-<p>Ada is an interesting case study. It has range-based types, with runtime range checks. In the safety critical software space, we know the benefits of Ada well. Throwing runtime checks at everything protects against memory corruption caused by cosmic radiation.</p>
+<p>Ada is an interesting case study. It has range-based types, with runtime range checks. In the safety critical software space, we know the benefits of Ada well. Throwing runtime checks at everything protects both against memory corruption caused by cosmic radiation and programmer error.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode ada"><code class="sourceCode ada"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">procedure</span> Main <span class="kw">is</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>   <span class="kw">type</span> Grade <span class="kw">is</span> <span class="kw">range</span> <span class="dv">0</span> .. <span class="dv">100</span>;</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a></span>
@@ -422,17 +422,22 @@
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true"></a>   G1 := (G1 + G2)/<span class="dv">2</span>; <span class="co">-- Legal, run-time range check</span></span>
 <span id="cb9-13"><a href="#cb9-13" aria-hidden="true"></a><span class="kw">end</span> Main;</span></code></pre></div>
 <p>For safety's sake, the <code>Grade</code> type does what we want it to. It's protected against overflow and underflow. It's "safe."</p>
-<p>That's still unsatisfactory for me. I think we could do more. What if we could ensure that it's correct? Imagine a type system like the following.</p>
+<p>That's still unsatisfactory for me. I think we could do more. What if we could ensure that it's correct? Imagine a type system sort of like the following.</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="kw">template</span> &lt;<span class="kw">typename</span> T, T min, T max&gt; <span class="kw">struct</span> range {</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a>  T val;</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a>  <span class="kw">operator</span> T() <span class="at">const</span> { <span class="cf">return</span> val; }</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a></span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a>  <span class="kw">template</span> &lt;T rmin, T rmax&gt;</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a>  <span class="kw">friend</span> range&lt;T, min + rmin, max + rmax&gt; <span class="kw">operator</span>+(range&lt;T, min, max&gt; <span class="at">const</span> &amp;lhs, range&lt;T, rmin, rmax&gt; <span class="at">const</span> &amp;rhs) {</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true"></a>    <span class="cf">return</span> lhs + rhs;</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true"></a>  }</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true"></a>};</span></code></pre></div>
-<p>Let the result of arithmetic with two ranges be the mathematical range of the outputs given the domains. Now let the compiler automatically deduce it.</p>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a>  <span class="kw">friend</span> range&lt;T, min + rmin, max + rmax&gt;</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true"></a>  <span class="kw">operator</span>+(range&lt;T, min, max&gt; <span class="at">const</span> &amp;lhs, range&lt;T, rmin, rmax&gt; <span class="at">const</span> &amp;rhs)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true"></a>  <span class="kw">requires</span>(((min &gt; <span class="dv">0</span>) &amp;&amp; (rmin &gt; <span class="bu">std::</span>numeric_limits&lt;T&gt;::min() - min)) <span class="kw">and</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true"></a>           ((max &lt; <span class="dv">0</span>) &amp;&amp; (rmax &lt; <span class="bu">std::</span>numeric_limits&lt;T&gt;::max() - max))) {</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true"></a>    range&lt;T, min + rmin, max + rmax&gt; ret;</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true"></a>    ret.val = lhs.val + rhs.val;</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true"></a>    <span class="cf">return</span> ret;</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true"></a>  }</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true"></a>};</span></code></pre></div>
+<p>This is a mess of C++ concept nonsense, but the important thing to note here is that the result of arithmetic with two ranges is a range with automatically deduced size. Now, let the compiler automatically deduce it.</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">auto</span> range_add(<span class="kw">auto</span> a, <span class="kw">auto</span> b) {</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>    <span class="cf">return</span> a + b;</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>}</span></code></pre></div>
