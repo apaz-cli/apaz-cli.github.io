@@ -213,9 +213,12 @@
 <p><br></p>
 <h2 id="a-layered-taxonomy-of-errors">A Layered Taxonomy of Errors</h2>
 <p>I found that what I really needed is to categorize. An error can happen during:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="ss">* </span>Compiler configuration</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="ss">* </span>Compile time</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="ss">* </span>Run time</span></code></pre></div>
-<p>An error is either recoverable or not recoverable. It may not even be an error necessarily. For example, not finding a <code>python</code> binary on the host system isn't necessarily a problem. It just means that the feature of being able to write inline python from daisho code is unavailable. It turns daisho code that is perfectly reasonable on one machine into a compile time error on another. It's only a problem if you're depending on it, but we still have to trace this information from compiler configuration into the compile time and runtime.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="ss">* </span>Environment detection</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="ss">* </span>Compiler configuration</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="ss">* </span>Package configuration</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="ss">* </span>Compile time</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a><span class="ss">* </span>Run time</span></code></pre></div>
+<p>Each of these layers flows information down to the next layer.</p>
+<p>An error is either recoverable or not recoverable. It may not even be an error necessarily. For example, not finding a <code>python</code> binary on the host system isn't necessarily a problem. It just means that the feature of being able to write inline python from daisho code is unavailable. It turns daisho code that is perfectly reasonable on one machine into a compile time (or package configuration) error on another. It's only a problem if having a python interpreter is something that ends up being depended on, but we still need to flow the information down.</p>
 </body>
 </html>
