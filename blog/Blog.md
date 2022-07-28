@@ -8,12 +8,12 @@
 
 ## Articles:
 
-1. [My Experience with Java](Java.html)
+[//a]: # (1. [My Experience with Java](Java.html))
 
-2. [Inspiration For Daisho](Inspiration.html)
+[//b]: # (2. [Inspiration For Daisho](Inspiration.html))
 
-3. [Safety and Correctness](Safety_and_Correctness.html)
+1. [Safety and Correctness](Safety_and_Correctness.html)
 
-[//a]: # (4. [Errors, Features, Configuration, and Builds (WIP)](EFCB.html))
+[//c]: # (4. [Errors, Features, Configuration, and Builds (WIP)](EFCB.html))
 
-[//b]: # (5. [Designing Daisho (WIP)](Design.html))
+[//d]: # (5. [Designing Daisho (WIP)](Design.html))
