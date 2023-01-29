@@ -4,12 +4,12 @@ How to Write a Compiler Without Going Insane | blog/How_to_Write_a_Compiler_With
 
 
 Projects:
-The Daisho Programming Language         | https://github.com/apaz-cli/Daisho
-Perceptual Image Hashing                | https://github.com/apaz-cli/Open-Image-Hashing-Tools
-Machine-Learned Perceptual Image Hash   | https://github.com/apaz-cli/ML-ImageHash
-Tiny Prolog Interpreter                 | https://github.com/apaz-cli/Prolog-Interpreter
-MLP-Mixer Implementation                | https://github.com/apaz-cli/Torch-MLP-Mixer
-C Vantage Point Tree KNN Search         | https://github.com/apaz-cli/VPTree
+The Daisho Programming Language       | https://github.com/apaz-cli/Daisho
+The pgen Parser Generator             | https://github.com/apaz-cli/pgen
+Perceptual Image Hashing              | https://github.com/apaz-cli/Open-Image-Hashing-Tools
+Machine-Learned Perceptual Image Hash | https://github.com/apaz-cli/ML-ImageHash
+MLP-Mixer Implementation              | https://github.com/apaz-cli/Torch-MLP-Mixer
+C Vantage Point Tree KNN Search       | https://github.com/apaz-cli/VPTree
 
 Contact:
 Github  | https://github.com/apaz-cli/
