@@ -31,3 +31,5 @@ for f in glob('*.md'):
         tmp.write(txt)
         tmp.truncate()
 
+    print(f"Generated article: {f}")
+

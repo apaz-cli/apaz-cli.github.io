@@ -118,4 +118,4 @@ if __name__ == "__main__":
     makeDoc(contents)
     print('Created main HTML page.')
     makeBlog()
-    print('Generated blog.\nDone.')
+    print('Done.')
