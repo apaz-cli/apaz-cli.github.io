@@ -1,11 +1,16 @@
+
+
+# How to Write a Compiler Without Going Insane
+
+#### There are plenty of tutorials out there on how to write compilers. They're all mostly the same.
+
+<br>
+
 ![](images/Tunnel.jpg)
 
 <hr>
 
-# How to Write a Compiler Without Going Insane
-#### There are plenty of tutorials out there on how to write compilers. They're all mostly the same.
-
-Usually, the pipeline looks something like:
+Usually, every compilation pipeline looks something like:
 
 * Raw text -> Tokens
 * Tokens -> Abstract Syntax Tree (AST)
