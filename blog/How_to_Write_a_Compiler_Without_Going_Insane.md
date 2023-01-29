@@ -79,7 +79,7 @@ Usually, the pipeline looks something like:
 
     The calling of computer scientists is to take an insurmountable problem (like writing a compiler), split it into a few difficult problems (steps in the compilation pipeline), split those problems into less difficult problems (algorithms used to implement those steps), and solve those problems (implement the algorithms).
 
-    Unless you're working with other developers and want to divide and conquer, you don't need to bust out the UML diagrams. But you do need a mental image of how the whole project will together. This same goes for any other software project.
+    Unless you're working with other developers and want to divide and conquer, you don't need to bust out the UML diagrams. But you do need a mental image of how the whole project will together. The same goes for any other software project.
 
     There's a lot of potential here to mess up in ways that could come back to haunt you. Forward planning should prevent most of them. But, there are also a lot of arbitrary decisions that don't matter. Should you use a GLR parser, a LALR parser, a packrat parser, or write your own with Pratt parsing or recursive decent? The truth is that it doesn't matter. What matters is that you get it done so that you can move on to the next step.
 
