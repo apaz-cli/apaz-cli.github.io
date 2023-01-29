@@ -117,7 +117,11 @@ Usually, the pipeline looks something like:
 
 <br>
 
-## In Conclusion
+## Conclusions
+
+<div style="text-align: center;">
+![](images/Haruhi_Thumbs_Up.jpg)
+</div>
 
  * Learn to cope with imperfection.
  * Constrain the scope of the work. Do not let it creep.
@@ -125,7 +129,7 @@ Usually, the pipeline looks something like:
    * In particular, do not spend too much time on syntax.
  * Spend more time thinking about decisions that could be difficult to paint over later.
    * Make sure there are no large gaps in your understanding, or in data flow.
-   * In particular, flesh out the internal APIs and representation of concepts in your language.
+   * In particular, flesh out the internal APIs and the representation of concepts in your language.
  * Manage your schedule.
    * Decide if you really want to do this.
    * Don't let yourself burn out.
