@@ -28,11 +28,7 @@ Usually, the pipeline looks something like:
 
     If you're the sort to write a compiler, you are not the sort to cope with imperfection. That's the reason you're here in the first place. It's a good thing. But it's also a very bad thing. Trying to get everything perfect in one go will crush you. Don't ask me how I know.
 
-<br>
-
-## The skills that you need are not technical skills.
-
-They're project management skills.
+    The skills that you need are not technical skills. They're project management skills.
 
     This is a Herculean undertaking. The amount of work is ridiculous. Each stage of the compilation pipeline is large enough to be a project of its own, and they all need to work together. Most programming projects are small enough that you can just write the code, it does the thing, and you can move on. Compilers are different. Mistakes compound, and can invalidate months of work if you're not careful.
 
@@ -53,7 +49,7 @@ They're project management skills.
  * Debugger
  * Language Server
 
-    These can all be accomplished later, and are best accomplished by support from either multiple teams or large communities. Not by independent devs trying to do everything. Don't try to undertake all of these. You'll die. Limit the scope of what you're doing as much as you can.
+    These can all be accomplished later, and are best accomplished with support from either multiple teams or large communities. Not by independent devs trying to do everything. Don't try to undertake all of these. You and your project will both die. Limit the scope of what you're doing as much as you can.
 
 <br>
 
@@ -74,6 +70,10 @@ They're project management skills.
 
 ## Plan out modular components
 
+<div style="text-align: center;">
+![](images/Puzzle.jpg)
+</div>
+
     Remember that part where I said "You can add, subtract, swap out, or combine steps, obsess over details, and argue over semantics all you like?" This is the part where you do that. The first step to writing any compiler is to plan out how all the different parts connect to each other.
 
     The calling of computer scientists is to take an insurmountable problem (like writing a compiler), split it into a few difficult problems (steps in the compilation pipeline), split those problems into less difficult problems (algorithms used to implement those steps), and solve those problems (implement the algorithms).
@@ -88,13 +88,21 @@ They're project management skills.
 
 ## Manage your schedule
 
-    Writing a compiler is a marathon, not a sprint. Much like deciding to run a marathon, you should probably first ask if this is a lifestyle decision that makes sense for you right now. Do you have time to set aside? Would you rather spend that time with friends or a significant other? If you want to write a compiler for a project to put on your resume, there are projects that look just as impressive and are at least 20x as time efficient.
+<div style="text-align: center;">
+![](images/What_Is_Sleep_Anyway.png)
+</div>
+
+    Writing a compiler is a marathon, not a sprint. Much like deciding to run a marathon, you should probably first ask if this is a lifestyle decision that makes sense for you right now. Do you have time to set aside? Would you rather spend that time with friends or a significant other? If you want to write a compiler for a project to put on your resume, there are projects that look just as impressive and are at least 20x more time efficient.
 
     My advice is to only work on your compiler when you want to. But make every session count. Also, don't let other things in your life become neglected.
 
 <br>
 
 ## Make incremental progress
+
+<div style="text-align: center;">
+![](images/Mountain_Girl.jpg)
+</div>
 
     Marathons are long. But they are also peppered with landmarks along the way. Getting to each landmark is its own battle that gets you closer to the goal. I believe that the same approach applies to compiler development. What follows is my own opinion and my own system. You should find a system that works for you.
 
