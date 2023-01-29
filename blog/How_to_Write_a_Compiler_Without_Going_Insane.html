@@ -268,12 +268,14 @@ mostly the same.</h4>
 <p>Usually, the pipeline looks something like:</p>
 <ul>
 <li>Raw text -&gt; Tokens</li>
-<li>Tokens -&gt; Abstract Syntax Tree</li>
-<li>Abstract Syntax Tree -&gt; Symbol Tables, IR, Control Flow Graph
-(CFG)</li>
-<li>Unoptimized IR / CFG -&gt; Optimized IR / CFG</li>
-<li>Optimized IR / CFG -&gt; Target <br></li>
+<li>Tokens -&gt; Abstract Syntax Tree (AST)</li>
+<li>AST -&gt; Symbol Table (Symtab), Intermediate Representation (IR),
+Control Flow Graph (CFG)</li>
+<li>Symtab, Unoptimized IR, CFG -&gt; Symtab, Optimized IR, Optimized
+CFG</li>
+<li>Symtab, Optimized IR, Optimized CFG -&gt; Target platform</li>
 </ul>
+<p><br></p>
 <p>    You can add, subtract, swap out, or combine steps, obsess over
 details, and argue over semantics all you like, but everyone agrees
 that's roughly how you make a compiler. There's a set of data
@@ -454,11 +456,11 @@ concepts in your language.</li>
 <li>Make incremental progress
 <ul>
 <li>Keep an eye on both the big picture and the small picture.</li>
-<li>Find a system for accomplishing that which works for you. <br></li>
+<li>Find a system for accomplishing that which works for you.</li>
 </ul></li>
 </ul>
+<p><br></p>
 <p>I may have just reinvented basic project management principles, but I
 hope that this unhinged rant has been useful to you.</p>
-<p>-apaz</p>
 </body>
 </html>

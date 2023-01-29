@@ -8,13 +8,14 @@
 Usually, the pipeline looks something like:
 
 * Raw text -> Tokens
-* Tokens -> Abstract Syntax Tree
-* Abstract Syntax Tree -> Symbol Tables, IR, Control Flow Graph (CFG)
-* Unoptimized IR / CFG -> Optimized IR / CFG
-* Optimized IR / CFG -> Target
+* Tokens -> Abstract Syntax Tree (AST)
+* AST -> Symbol Table (Symtab), Intermediate Representation (IR), Control Flow Graph (CFG)
+* Symtab, Unoptimized IR, CFG -> Symtab, Optimized IR, Optimized CFG
+* Symtab, Optimized IR, Optimized CFG -> Target platform
+
 <br>
 
-    You can add, subtract, swap out, or combine steps, obsess over details, and argue over semantics all you like, but everyone agrees that's roughly how you make a compiler. There's a set of data structures, algorithms, and techniques that everyone uses, mixes, and matches. Learning to build compilers is mostly about getting comfortable with them.
+    You can add, subtract, swap out, or combine steps, rename and reinvent things, obsess over details, and argue over semantics all you like, but everyone agrees that's roughly how you make a compiler. There's a set of data structures, algorithms, and techniques that everyone uses, mixes, and matches. Learning to build compilers is mostly about getting comfortable with them.
 
     This article is not about that. It's an unhinged rant about how to get all of that nonsense accomplished without ending up in a mental ward.
 
@@ -74,7 +75,7 @@ Usually, the pipeline looks something like:
 ![](images/Puzzle.jpg)
 </div>
 
-    Remember that part where I said "You can add, subtract, swap out, or combine steps, obsess over details, and argue over semantics all you like?" This is the part where you do that. The first step to writing any compiler is to plan out how all the different parts connect to each other.
+    Remember that part where I said "You can add, subtract, swap out, or combine steps, rename and reinvent things, obsess over details, and argue over semantics all you like?" This is the part where you do that. The first step to writing any compiler is to plan out how all the different parts connect to each other.
 
     The calling of computer scientists is to take an insurmountable problem (like writing a compiler), split it into a few difficult problems (steps in the compilation pipeline), split those problems into less difficult problems (algorithms used to implement those steps), and solve those problems (implement the algorithms).
 
@@ -131,8 +132,7 @@ Usually, the pipeline looks something like:
  * Make incremental progress
    * Keep an eye on both the big picture and the small picture.
    * Find a system for accomplishing that which works for you.
+
 <br>
 
 I may have just reinvented basic project management principles, but I hope that this unhinged rant has been useful to you.
-
--apaz
