@@ -265,8 +265,7 @@ Compiler Without Going Insane</h1>
 id="there-are-plenty-of-tutorials-out-there-on-how-to-write-compilers.-theyre-all-mostly-the-same.">There
 are plenty of tutorials out there on how to write compilers. They're all
 mostly the same.</h4>
-<h4 id="usually-the-pipeline-looks-something-like">Usually, the pipeline
-looks something like:</h4>
+<p>Usually, the pipeline looks something like:</p>
 <ul>
 <li>Raw text -&gt; Tokens</li>
 <li>Tokens -&gt; Abstract Syntax Tree</li>
@@ -280,17 +279,19 @@ details, and argue over semantics all you like, but everyone agrees
 that's roughly how you make a compiler. There's a set of data
 structures, algorithms, and techniques that everyone uses, mixes, and
 matches. Learning to build compilers is mostly about getting comfortable
-with and then the algorithms.</p>
+with them.</p>
 <p>    This article is not about that. It's an unhinged rant about how
 to get all of that nonsense accomplished without ending up in a mental
-ward. <br></p>
+ward.</p>
+<p><br></p>
 <h2 id="why-are-compiler-authors-their-own-worst-enemies">Why are
 compiler authors their own worst enemies?</h2>
 <p>    If you're the sort to write a compiler, you are not the sort to
 cope with imperfection. That's the reason you're here in the first
 place. It's a good thing. But it's also a very bad thing. Trying to get
-everything perfect in one go will crush you. Don't ask me how I know.
-<br></p>
+everything perfect in one go will crush you. Don't ask me how I
+know.</p>
+<p><br></p>
 <h2 id="the-skills-that-you-need-are-not-technical-skills.">The skills
 that you need are not technical skills.</h2>
 <p>They're project management skills.</p>
@@ -300,7 +301,8 @@ a project of its own, and they all need to work together. Most
 programming projects are small enough that you can just write the code,
 it does the thing, and you can move on. Compilers are different.
 Mistakes compound, and can invalidate months of work if you're not
-careful. <br></p>
+careful.</p>
+<p><br></p>
 <h2 id="resist-scope-creep">Resist scope creep</h2>
 <div style="text-align: center;">
 <p><img src="images/20_Minutes_Adventure.gif" /></p>
@@ -320,7 +322,8 @@ You could work on...</p>
 support from either multiple teams or large communities. Not by
 independent devs trying to do everything. Don't try to undertake all of
 these. You'll die. Limit the scope of what you're doing as much as you
-can. <br></p>
+can.</p>
+<p><br></p>
 <h2 id="dont-argue-over-the-color-of-the-bike-shed.">Don't argue over
 the color of the bike shed.</h2>
 <div style="text-align: center;">
@@ -339,9 +342,10 @@ not too much time here. It is bikeshedding, and will consume you if you
 let it.</p>
 <p>    To clarify, syntax is not something to spend time on, so long as
 there are no grammatical ambiguities. That is an issue which is an issue
-that actualy could compound into further issues down the road. In
+that actually could compound into further issues down the road. In
 general, whenever you need to make a decision, the time that you spend
-on it should be correlated to its importance. <br></p>
+on it should be correlated to its importance.</p>
+<p><br></p>
 <h2 id="plan-out-modular-components">Plan out modular components</h2>
 <p>    Remember that part where I said "You can add, subtract, swap out,
 or combine steps, obsess over details, and argue over semantics all you
@@ -368,23 +372,25 @@ move on to the next step.</p>
 bikeshedding. I hated all the options so much that I spent six months
 writing my own parser generator called <a
 href="https://github.com/apaz-cli/pgen">pgen</a>. Don't make the same
-mistake that I did. But, if you find <code>pgen</code> helpful, then I'm
-glad I could be of service. <br></p>
+mistake that I did. If you find <code>pgen</code> helpful though, then
+I'm glad I could be of service.</p>
+<p><br></p>
 <h2 id="manage-your-schedule">Manage your schedule</h2>
 <p>    Writing a compiler is a marathon, not a sprint. Much like
 deciding to run a marathon, you should probably first ask if this is a
-lifestyle decision that even makes sense for you right now. Do you have
-time to set aside? Would you rather spend that time with friends or a
+lifestyle decision that makes sense for you right now. Do you have time
+to set aside? Would you rather spend that time with friends or a
 significant other? If you want to write a compiler for a project to put
 on your resume, there are projects that look just as impressive and are
 at least 20x as time efficient.</p>
 <p>    My advice is to only work on your compiler when you want to. But
 make every session count. Also, don't let other things in your life
-become neglected. <br></p>
+become neglected.</p>
+<p><br></p>
 <h2 id="make-incremental-progress">Make incremental progress</h2>
 <p>    Marathons are long. But they are also peppered with landmarks
 along the way. Getting to each landmark is its own battle that gets you
-closer to the goal. I beleive that the same approach applies to compiler
+closer to the goal. I believe that the same approach applies to compiler
 development. What follows is my own opinion and my own system. You
 should find a system that works for you.</p>
 <p>    It's important to keep track of both be big and small picture. I

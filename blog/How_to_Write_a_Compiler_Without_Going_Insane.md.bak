@@ -64,7 +64,7 @@ They're project management skills.
 
     Often, compiler authors write languages for reasons of syntax. There's nothing wrong with that. However, the syntax of your language is not important to the way your compiler works. Any part of the syntax that you get wrong can be fixed later with minimal effort, and you'll end up with the same abstract syntax tree at the end of the parser anyway. Too many would-be language designers get stuck at this step. Do not too much time here. It is bikeshedding, and will consume you if you let it.
 
-    To clarify, syntax is not something to spend time on, so long as there are no grammatical ambiguities. That is an issue which is an issue that actually could compound into further issues down the road. In general, whenever you need to make a decision, the time that you spend on it should be correlated to its importance.
+    To clarify, syntax is not something to spend time on, so long as there are no grammatical ambiguities. That is an issue which is an issue that actualy could compound into further issues down the road. In general, whenever you need to make a decision, the time that you spend on it should be correlated to its importance.
 
 <br>
 
@@ -92,7 +92,7 @@ They're project management skills.
 
 ## Make incremental progress
 
-    Marathons are long. But they are also peppered with landmarks along the way. Getting to each landmark is its own battle that gets you closer to the goal. I believe that the same approach applies to compiler development. What follows is my own opinion and my own system. You should find a system that works for you.
+    Marathons are long. But they are also peppered with landmarks along the way. Getting to each landmark is its own battle that gets you closer to the goal. I beleive that the same approach applies to compiler development. What follows is my own opinion and my own system. You should find a system that works for you.
 
     It's important to keep track of both be big and small picture. I maintain two different TODO lists, one for each. Whenever I sit down to work on the project, I first spend a few minutes calling to mind and updating my mental model of the big picture, then decide on individual small tasks from the other list that I want to accomplish in that session. At the end of the session, before I step away from my laptop, I update the lists.
 
