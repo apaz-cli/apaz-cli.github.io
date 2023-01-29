@@ -24,7 +24,7 @@ Usually, the pipeline looks something like:
 ## Why are compiler authors their own worst enemies?
 
 <div style="text-align: center;">
-![](images/Straightjacket_Man.jpg)
+![This compiler author is enjoying his grippy sock vacation.](images/Straightjacket_Man.jpg)
 </div>
 
     If you're the sort to write a compiler, you are not the sort to cope with imperfection. That's the reason you're here in the first place. It's a good thing. But it's also a very bad thing. Trying to get everything perfect in one go will crush you. Don't ask me how I know.
