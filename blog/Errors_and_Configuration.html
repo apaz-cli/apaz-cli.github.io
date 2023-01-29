@@ -6,6 +6,145 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Errors and Configuration</title>
   <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+      font-size: 20px;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     span.underline{text-decoration: underline;}
@@ -15,6 +154,7 @@
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
     div.sourceCode { margin: 1em 0; }
     pre.sourceCode { margin: 0; }
@@ -49,7 +189,7 @@
     code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
     code span.at { color: #7d9029; } /* Attribute */
     code span.bn { color: #40a070; } /* BaseN */
-    code span.bu { } /* BuiltIn */
+    code span.bu { color: #008000; } /* BuiltIn */
     code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
     code span.ch { color: #4070a0; } /* Char */
     code span.cn { color: #880000; } /* Constant */
@@ -62,7 +202,7 @@
     code span.ex { } /* Extension */
     code span.fl { color: #40a070; } /* Float */
     code span.fu { color: #06287e; } /* Function */
-    code span.im { } /* Import */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
     code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
     code span.kw { color: #007020; font-weight: bold; } /* Keyword */
     code span.op { color: #666666; } /* Operator */
@@ -74,6 +214,7 @@
     code span.va { color: #19177c; } /* Variable */
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <style type="text/css">
   /* https://github.com/markdowncss/retro/blob/master/css/retro.css */
@@ -155,8 +296,8 @@
       color: #fafafa;
       /* font-family:  "lemon", "Courier New"; */
       line-height: 1.65;
-      margin: 6rem auto 1rem;
       max-width: 48rem;
+      margin: 6rem auto 1rem;
       /* padding: .25rem; */
   }
   pre, code {
@@ -180,45 +321,78 @@
 </head>
 <body>
 <h1 id="errors-and-configuration">Errors and Configuration</h1>
-<p>If there's one thing that programmers hate, it's edge cases. They're annoying and time consuming.</p>
+<p>If there's one thing that programmers hate, it's edge cases. They're
+annoying and time consuming.</p>
 <p><img src="images/Snake_moriya_suwako.jpg" /></p>
-<p>The more sources for error you have, the more edge cases you're likely to have. Unfortunately, often the growth is not linear. You have to think about these edge cases, and write extra code to handle them.</p>
-<p>This sort of thing comes up a lot. An example would be opening a file in C. You have to:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="ss">* </span>Open the file for reading</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a><span class="ss">* </span>Get the size of the file on disk</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a><span class="ss">* </span>Allocate a buffer large enough to store the file&#39;s contents</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a><span class="ss">* </span>Read from the file into the buffer</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a><span class="ss">* </span>Close the file</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a><span class="ss">* </span>Null terminate the buffer</span></code></pre></div>
-<p>Basically all of these operations can go wrong. The buffer and the file pointer are resources that need to be cleaned up on failure. This complicates error handling. Opening a file isn't hard (although the language makes it much harder than it should be), but it's easy to accidentally leak the buffer or forget to close the file on one of the many errors if you're not careful. There's no other way to get it right than to squint at your monitor and trace through all the edge cases.</p>
-<p>Now suppose your code is firmware supposed to handle something truly unlikely. For example, the internal flash inside your microcontroller fails mid-write. Or, the wires attaching some sensors to your airplane's engine controller get struck by a bolt of lightning, causing the readings to spike to physically impossible levels and then go dead as the wires melt. These situations aren't very testable. How can we be confident that they're handled correctly so the plane doesn't crash?</p>
+<p>The more sources for error you have, the more edge cases you're
+likely to have. Unfortunately, often the growth is not linear. You have
+to think about these edge cases, and write extra code to handle
+them.</p>
+<p>This sort of thing comes up a lot. An example would be opening a file
+in C. You have to:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Open the file for reading</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Get the size of the file on disk</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Allocate a buffer large enough to store the file&#39;s contents</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Read from the file into the buffer</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Null terminate the buffer</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Close the file</span></code></pre></div>
+<p>Basically all of these operations can go wrong. The buffer and the
+file pointer are resources that need to be cleaned up on failure. This
+complicates error handling. Opening a file isn't hard (although the
+language makes it much harder than it should be), but it's easy to
+accidentally leak the buffer or forget to close the file on one of the
+many errors if you're not careful. There's no other way to get it right
+than to squint at your monitor and trace through all the edge cases.</p>
+<p>Now suppose your code is firmware supposed to handle something truly
+unlikely. For example, the internal flash inside your microcontroller
+fails mid-write. Or, the wires attaching some sensors to your airplane's
+engine controller get struck by a bolt of lightning, causing the
+readings to spike to physically impossible levels and then go dead as
+the wires melt. These situations aren't very testable. How can we be
+confident that they're handled correctly so the plane doesn't crash?</p>
 <p><br></p>
 <h2 id="the-solution-to-the-problem">The Solution to the Problem</h2>
-<p>What we need is some way to make sure the number edge cases stays manageable. Here are a few ways.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="ss">* </span>Reduce the number of sources of error in project planning.</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a><span class="ss"> * </span>Limit the scope of the project.</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a><span class="ss"> * </span>Split the project up into manageable parts.</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a><span class="ss"> * </span>Use a library instead of rolling your own. (Ex: std::chrono/DateTime and leap seconds)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a><span class="ss">* </span>Group errors together with a uniform interface.</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a><span class="ss"> * </span>In POSIX C, <span class="in">`errno`</span> is 0 if no error, otherwise it&#39;s the error code.</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a><span class="ss"> * </span>In Java, the exception type is the error code, and it usually comes with a string explanation.</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a><span class="ss">* </span>Treat different kinds of errors the same.</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a><span class="ss"> * </span>In the Daisho <span class="in">`openFile()`</span> implementation, there are only two kinds of errors. There&#39;s &quot;out of memory&quot;, and there&#39;s &quot;couldn&#39;t open the file.&quot;</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>   The average programmer doesn&#39;t have to care if that&#39;s due to a failed integrity check or a sledgehammer. There&#39;s an argument that splitting out</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a>   the OOM case is unnecessary also.</span></code></pre></div>
-<h3 id="a-bigger-problem-needs-a-bigger-solution">A Bigger Problem Needs a Bigger Solution</h3>
-<p>Unfortunately, this is not enough for me. A programming language runtime is truly massive. Trying to reverse engineer and configure what's available on each machine with its own exotic (or even mundane) archetecture and version of the C ecosystem is linearly more painful on the best of days, and exponentially on the worst. All known approaches have failed me. I've come up with my own instead.</p>
+<p>What we need is some way to make sure the number edge cases stays
+manageable. Here are a few ways.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Reduce the number of sources of error in project planning.</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ss"> * </span>Limit the scope of the project.</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ss"> * </span>Split the project up into manageable parts.</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ss"> * </span>Use a library instead of rolling your own. (Ex: std::chrono/DateTime and leap seconds)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Group errors together with a uniform interface.</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="ss"> * </span>In POSIX C, <span class="in">`errno`</span> is 0 if no error, otherwise it&#39;s the error code.</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="ss"> * </span>In Java, the exception type is the error code, and it usually comes with a string explanation.</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Treat different kinds of errors the same.</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="ss"> * </span>In the Daisho <span class="in">`openFile()`</span> implementation, there are only two kinds of errors. There&#39;s &quot;out of memory&quot;, and there&#39;s &quot;couldn&#39;t open the file.&quot;</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>   The average programmer doesn&#39;t have to care if that&#39;s due to a failed integrity check or a sledgehammer. There&#39;s an argument that splitting out</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>   the OOM case is unnecessary also.</span></code></pre></div>
+<h3 id="a-bigger-problem-needs-a-bigger-solution">A Bigger Problem Needs
+a Bigger Solution</h3>
+<p>Unfortunately, this is not enough for me. A programming language
+runtime is truly massive. Trying to reverse engineer and configure
+what's available on each machine with its own exotic (or even mundane)
+archetecture and version of the C ecosystem is linearly more painful on
+the best of days, and exponentially on the worst. All known approaches
+have failed me. I've come up with my own instead.</p>
 <p><br></p>
 <h2 id="a-layered-taxonomy-of-errors">A Layered Taxonomy of Errors</h2>
-<p>I found that what I really needed is to categorize. An error can happen during:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a><span class="ss">* </span>Environment detection</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true"></a><span class="ss">* </span>Compiler configuration</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true"></a><span class="ss">* </span>Package configuration</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true"></a><span class="ss">* </span>Compile time</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true"></a><span class="ss">* </span>Run time</span></code></pre></div>
+<p>I found that what I really needed is to categorize. An error can
+happen during:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Environment detection</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Compiler configuration</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Package configuration</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Compile time</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Run time</span></code></pre></div>
 <p>Each of these layers flows information down to the next layer.</p>
-<p>An error is either recoverable or not recoverable. It may not even be an error necessarily. For example, not finding a <code>python</code> binary on the host system isn't necessarily a problem. It just means that the feature of being able to write inline python from daisho code is unavailable. It turns daisho code that is perfectly reasonable on one machine into a compile time (or package configuration) error on another. It's only a problem if having a python interpreter is something that ends up being depended on, but we still need to flow the information down.</p>
+<p>An error is either recoverable or not recoverable. It may not even be
+an error necessarily. For example, not finding a <code>python</code>
+binary on the host system isn't necessarily a problem. It just means
+that the feature of being able to write inline python from daisho code
+is unavailable. It turns daisho code that is perfectly reasonable on one
+machine into a compile time (or package configuration) error on another.
+It's only a problem if having a python interpreter is something that
+ends up being depended on, but we still need to flow the information
+down.</p>
 </body>
 </html>

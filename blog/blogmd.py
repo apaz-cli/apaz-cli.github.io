@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import re
 import os
 import sys
 import shutil
@@ -88,8 +89,8 @@ body {
     color: #fafafa;
     /* font-family:  "lemon", "Courier New"; */
     line-height: 1.65;
-    margin: 6rem auto 1rem;
     max-width: 48rem;
+    margin: 6rem auto 1rem;
     /* padding: .25rem; */
 }
 pre, code {
@@ -118,12 +119,24 @@ with open("pandoc.css", "w") as f:
 
 run = lambda s: subprocess.run(split(s), check=True)
 
+replace = "\s+.sourceCode {\s+background-color: transparent;\s+overflow: visible;\s+}"
+repwith = "\n    .sourceCode {\n      font-size: 20px;\n    }"
+
 for f in glob('*.md'):
     un="_";sp=" "
 
     title = os.path.splitext(f)[0]
     to = title + '.html'
+    tmpnam = "tmp.html"
 
-    run(f'pandoc --metadata pagetitle="{title.replace(un, sp)}" -f markdown-smart -H pandoc.css {f} -o {to}')
+    run(f'pandoc -s --metadata pagetitle="{title.replace(un, sp)}" -f markdown-smart -H pandoc.css {f} -o {to}')
+    
+    with open(to, 'r+') as tmp:
+        stxt = tmp.read()
+        txt = re.sub(replace, repwith, stxt, flags=re.DOTALL, count=1)
+        tmp.seek(0)
+        tmp.write(txt)
+        tmp.truncate()
+
 
 os.remove('pandoc.css')

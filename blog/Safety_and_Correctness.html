@@ -6,6 +6,145 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <title>Safety and Correctness</title>
   <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+      font-size: 20px;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
     span.underline{text-decoration: underline;}
@@ -15,6 +154,7 @@
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
     div.sourceCode { margin: 1em 0; }
     pre.sourceCode { margin: 0; }
@@ -49,7 +189,7 @@
     code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
     code span.at { color: #7d9029; } /* Attribute */
     code span.bn { color: #40a070; } /* BaseN */
-    code span.bu { } /* BuiltIn */
+    code span.bu { color: #008000; } /* BuiltIn */
     code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
     code span.ch { color: #4070a0; } /* Char */
     code span.cn { color: #880000; } /* Constant */
@@ -62,7 +202,7 @@
     code span.ex { } /* Extension */
     code span.fl { color: #40a070; } /* Float */
     code span.fu { color: #06287e; } /* Function */
-    code span.im { } /* Import */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
     code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
     code span.kw { color: #007020; font-weight: bold; } /* Keyword */
     code span.op { color: #666666; } /* Operator */
@@ -74,6 +214,7 @@
     code span.va { color: #19177c; } /* Variable */
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <style type="text/css">
   /* https://github.com/markdowncss/retro/blob/master/css/retro.css */
@@ -155,8 +296,8 @@
       color: #fafafa;
       /* font-family:  "lemon", "Courier New"; */
       line-height: 1.65;
-      margin: 6rem auto 1rem;
       max-width: 48rem;
+      margin: 6rem auto 1rem;
       /* padding: .25rem; */
   }
   pre, code {
@@ -180,16 +321,49 @@
 </head>
 <body>
 <h1 id="safety-and-correctness">Safety and Correctness</h1>
-<p>Software safety is a lofty, but poorly defined goal. Everybody has their own opinion about how to achieve "safety" in software. However, nobody really seems to be able to define what that means.</p>
+<p>Software safety is a lofty, but poorly defined goal. Everybody has
+their own opinion about how to achieve "safety" in software. However,
+nobody really seems to be able to define what that means.</p>
 <p><img src="images/PlaneClouds_skyrick9413.jpg" /></p>
-<h2 id="safety-in-safety-critical-software">Safety in Safety Critical Software</h2>
-<p>In the aerospace and safety-critical software world, safety is well defined. It means "Could this accidentally kill somebody? If so, it shouldn't fail. In the event that it does, it should fail in the least harmful way possible."</p>
-<p>Luckily, the vast majority of airplane firmware hasn't killed anybody. Setting out not to kill your passengers is admirable, but it's not actionable advice enough to be useful. Instead, we supplement with standards. The <a href="https://en.wikipedia.org/wiki/MISRA_C">MISRA C</a> coding standard is good, and <a href="https://en.wikipedia.org/wiki/DO-178C">RTCA DO-178C</a> does guarantee a level of safety through sheer amount of expensive documentation and testing effort, but both standards leave a lot to be desired from a theoretical standpoint. Sure, they reduce the risk of flaws in the implementation and design respectively. But that's not really mathematically rigorous enough to satisfy me. Ideally, I'd like the software to be verified with a theorem prover. However, in many cases that isn't possible. Firmware has to interact with hardware, and the hardware is an important part as well.</p>
-<p>It's worth noting that aerospace's needs are a lot different from the needs of conventional computing. We care a lot about the software still functioning correctly if cosmic radiation starts flipping bits, and also with handling errors that come from sensors or the cpu itself getting struck by lighting. For most all conventional purposes, this is overkill.</p>
+<h2 id="safety-in-safety-critical-software">Safety in Safety Critical
+Software</h2>
+<p>In the aerospace and safety-critical software world, safety is well
+defined. It means "Could this accidentally kill somebody? If so, it
+shouldn't fail. In the event that it does, it should fail in the least
+harmful way possible."</p>
+<p>Luckily, the vast majority of airplane firmware hasn't killed
+anybody. Setting out not to kill your passengers is admirable, but it's
+not actionable advice enough to be useful. Instead, we supplement with
+standards. The <a href="https://en.wikipedia.org/wiki/MISRA_C">MISRA
+C</a> coding standard is good, and <a
+href="https://en.wikipedia.org/wiki/DO-178C">RTCA DO-178C</a> does
+guarantee a level of safety through sheer amount of expensive
+documentation and testing effort, but both standards leave a lot to be
+desired from a theoretical standpoint. Sure, they reduce the risk of
+flaws in the implementation and design respectively. But that's not
+really mathematically rigorous enough to satisfy me. Ideally, I'd like
+the software to be verified with a theorem prover. However, in many
+cases that isn't possible. Firmware has to interact with hardware, and
+the hardware is an important part as well.</p>
+<p>It's worth noting that aerospace's needs are a lot different from the
+needs of conventional computing. We care a lot about the software still
+functioning correctly if cosmic radiation starts flipping bits, and also
+with handling errors that come from sensors or the cpu itself getting
+struck by lighting. For most all conventional purposes, this is
+overkill.</p>
 <h2 id="safety-everywhere-else">Safety Everywhere Else</h2>
-<p>Software safety may be well defined inside of the safety critical software industry, but outside it's anybody's guess. Opinions vary wildly. For example, some people on the internet seem to think that "pointers are unsafe" because of the potential for misuse. You could cause a segmentation fault and crash your program, or leak some memory, or do any other number of "dangerous" things.</p>
-<p>Usually, when the rest of the world talks about if a program or language is "safe" or not, they're not talking about the physical safety of their fellows. They're talking about something else. Memory safety, or thread safety, or reference safety, or something of that sort.</p>
-<p>Since it seems like nobody can really define what safety is, here's my own definition.</p>
+<p>Software safety may be well defined inside of the safety critical
+software industry, but outside it's anybody's guess. Opinions vary
+wildly. For example, some people on the internet seem to think that
+"pointers are unsafe" because of the potential for misuse. You could
+cause a segmentation fault and crash your program, or leak some memory,
+or do any other number of "dangerous" things.</p>
+<p>Usually, when the rest of the world talks about if a program or
+language is "safe" or not, they're not talking about the physical safety
+of their fellows. They're talking about something else. Memory safety,
+or thread safety, or reference safety, or something of that sort.</p>
+<p>Since it seems like nobody can really define what safety is, here's
+my own definition.</p>
 <p><br></p>
 <h2 id="the-video">The Video:</h2>
 <center>
@@ -197,271 +371,510 @@
 </iframe>
 </center>
 <p><br></p>
-<p>Recently, I watched the CPPCon talk above. It unified all of my thoughts about what software safety is. Honestly, I wish it all clicked sooner. The revelations begin at 23:50.</p>
-<p>This post is written about C and C++, but using other languages does not excuse you from having to think about these things. They may handle certain kinds of safety for you, but they cannot save you from yourself. The common phrase that people use is "just because the language is safe, that doesn't mean the code you wrote is correct." Now I have a way to express what each of those words mean.</p>
-<p>The ideas presented here represent an interesting and actionable path forward for the tooling surrounding my own programming language Daisho, as well as other languages. It may also solve the age-old problem of what to do about a specific class of dangerous and difficult to track down UB bugs coming from problems like signed integer overflow, oversize shifts, unaligned pointers, and division by zero.</p>
+<p>Recently, I watched the CPPCon talk above. It unified all of my
+thoughts about what software safety is. Honestly, I wish it all clicked
+sooner. The revelations begin at 23:50.</p>
+<p>This post is written about C and C++, but using other languages does
+not excuse you from having to think about these things. They may handle
+certain kinds of safety for you, but they cannot save you from yourself.
+The common phrase that people use is "just because the language is safe,
+that doesn't mean the code you wrote is correct." Now I have a way to
+express what each of those words mean.</p>
+<p>The ideas presented here represent an interesting and actionable path
+forward for the tooling surrounding my own programming language Daisho,
+as well as other languages. It may also solve the age-old problem of
+what to do about a specific class of dangerous and difficult to track
+down UB bugs coming from problems like signed integer overflow, oversize
+shifts, unaligned pointers, and division by zero.</p>
 <p><br></p>
 <h2 id="definitions">Definitions</h2>
-<p>There are a lot of imprecise or subtly different definitions of bugs, safety, correctness. But we all seem to know what these words mean. Perhaps the real answer is in the akashic records. For the rest of the article though, here's what I mean by pre/postconditions, safety, correctness, and bug.</p>
-<p>I find these definitions to be extremely useful on their own. I originally planned just to write an article where I listed them off.</p>
-<h3 id="preconditions-and-postconditions">Preconditions and Postconditions</h3>
-<p><a href="https://en.wikipedia.org/wiki/Hoare_logic">Hoare logic</a> describes computations as a Hoare triple <code>{P}C{Q}</code> where <code>P</code> is assertions about preconditions, <code>Q</code> is assertions about postconditions, and <code>C</code> is the code being described. What I'm about to describe is not Hoare logic. However, the ideas of Hoare logic (computations having well defined preconditions and postconditions) are what prop up the upcoming definitions of safety and correctness.</p>
-<p>Instead of using the definition provided by Hoare Logic, let's define the preconditions of a computation (or function or snippet) as the expected set of possible states that the program can be in before the computation takes place.</p>
-<p>Likewise, postconditions are the expected set of possible states the program can be in after the computation.</p>
-<p>Odds are that you already think about functions as having preconditions and postconditions, even if you're not trying to. It makes code a lot cleaner and easier to reason about. If your functions are well named, odds are you know a lot about what those preconditions and postconditions are. Odds are though that you don't know precisely. Later, I'll give an example which should prove that to you.</p>
+<p>There are a lot of imprecise or subtly different definitions of bugs,
+safety, correctness. But we all seem to know what these words mean.
+Perhaps the real answer is in the akashic records. For the rest of the
+article though, here's what I mean by pre/postconditions, safety,
+correctness, and bug.</p>
+<p>I find these definitions to be extremely useful on their own. I
+originally planned just to write an article where I listed them off.</p>
+<h3 id="preconditions-and-postconditions">Preconditions and
+Postconditions</h3>
+<p><a href="https://en.wikipedia.org/wiki/Hoare_logic">Hoare logic</a>
+describes computations as a Hoare triple <code>{P}C{Q}</code> where
+<code>P</code> is assertions about preconditions, <code>Q</code> is
+assertions about postconditions, and <code>C</code> is the code being
+described. What I'm about to describe is not Hoare logic. However, the
+ideas of Hoare logic (computations having well defined preconditions and
+postconditions) are what prop up the upcoming definitions of safety and
+correctness.</p>
+<p>Instead of using the definition provided by Hoare Logic, let's define
+the preconditions of a computation (or function or snippet) as the
+expected set of possible states that the program can be in before the
+computation takes place.</p>
+<p>Likewise, postconditions are the expected set of possible states the
+program can be in after the computation.</p>
+<p>Odds are that you already think about functions as having
+preconditions and postconditions, even if you're not trying to. It makes
+code a lot cleaner and easier to reason about. If your functions are
+well named, odds are you know a lot about what those preconditions and
+postconditions are. Odds are though that you don't know precisely.
+Later, I'll give an example which should prove that to you.</p>
 <h3 id="safety">Safety:</h3>
-<p>An operation is safe if it cannot lead to undefined behavior, either directly or indirectly, even if the operation's preconditions are violated. Otherwise, it is unsafe.</p>
-<p>Safety only specifies whether every possible set of preconditions maps to a postcondition. It has nothing to do with whether those postconditions are intended, only what happens when unexpected conditions occur.</p>
+<p>An operation is safe if it cannot lead to undefined behavior, either
+directly or indirectly, even if the operation's preconditions are
+violated. Otherwise, it is unsafe.</p>
+<p>Safety only specifies whether every possible set of preconditions
+maps to a postcondition. It has nothing to do with whether those
+postconditions are intended, only what happens when unexpected
+conditions occur.</p>
 <h3 id="correctness">Correctness:</h3>
-<p>An operation that is correct satisfies the intended postconditions if its preconditions are satisfied.</p>
-<p>Correctness implies that you've thought about every possible precondition, and can justify that it maps to the intended postcondition.</p>
-<p>Correctness is incredibly difficult to obtain or be confident about. When you forget to reason about an edge case, how can you be convinced that your code is correct? What does correct look like? Not handling every case is as good as writing undefined behavior.</p>
+<p>An operation that is correct satisfies the intended postconditions if
+its preconditions are satisfied.</p>
+<p>Correctness implies that you've thought about every possible
+precondition, and can justify that it maps to the intended
+postcondition.</p>
+<p>Correctness is incredibly difficult to obtain or be confident about.
+When you forget to reason about an edge case, how can you be convinced
+that your code is correct? What does correct look like? Not handling
+every case is as good as writing undefined behavior.</p>
 <h3 id="bug">Bug:</h3>
 <p>A bug is a violation of correctness.</p>
 <p><br></p>
-<h2 id="why-do-we-write-unsafe-programs">Why do we write unsafe programs?</h2>
-<p>Undefined Behavior introduces silent preconditions that are difficult to detect and reason about. Is the following code safe? Stare at it for a while.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true"></a><span class="dt">char</span> strDeref(<span class="dt">const</span> <span class="dt">char</span> *str, <span class="dt">int</span> idx1, <span class="dt">int</span> idx2) {</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true"></a>  <span class="cf">if</span> (str == NULL)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true"></a></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true"></a>  <span class="cf">if</span> ((idx1 + idx2) &lt; <span class="dv">0</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true"></a>  <span class="cf">if</span> (strnlen(str, <span class="dv">1000</span>) &lt;= (idx1 + idx2))</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true"></a>  <span class="cf">return</span> str[idx1 + idx2];</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true"></a>}</span></code></pre></div>
-<p>I would say that it sure looks right. But is it safe for any inputs?</p>
-<p>Even if you think you're covering all of your bases by checking the length of the string, and even using <code>strnlen()</code> over <code>strlen()</code> to do so because it's "safer" (that doesn't make it less dangerous), it's very hard to make sure your API is safe. The problem is <code>idx1 + idx2</code>. Signed integer overflow is undefined. So are a lot of other things. Truly safe code is difficult to achieve. Or it's literally impossible in some cases (in C, almost all cases). There are some other UB problems that can be fixed this way as well, just by checking before the operation that would trigger them. Oversize shift amounts and pointer alignment fall into this category.</p>
+<h2 id="why-do-we-write-unsafe-programs">Why do we write unsafe
+programs?</h2>
+<p>Undefined Behavior introduces silent preconditions that are difficult
+to detect and reason about. Is the following code safe? Stare at it for
+a while.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> strDeref<span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>str<span class="op">,</span> <span class="dt">int</span> idx1<span class="op">,</span> <span class="dt">int</span> idx2<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>str <span class="op">==</span> NULL<span class="op">)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span><span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">((</span>idx1 <span class="op">+</span> idx2<span class="op">)</span> <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span><span class="op">;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>strnlen<span class="op">(</span>str<span class="op">,</span> <span class="dv">1000</span><span class="op">)</span> <span class="op">&lt;=</span> <span class="op">(</span>idx1 <span class="op">+</span> idx2<span class="op">))</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span><span class="op">;</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> str<span class="op">[</span>idx1 <span class="op">+</span> idx2<span class="op">];</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>I would say that it sure looks right. But is it safe for any
+inputs?</p>
+<p>Even if you think you're covering all of your bases by checking the
+length of the string, and even using <code>strnlen()</code> over
+<code>strlen()</code> to do so because it's "safer" (that doesn't make
+it less dangerous), it's very hard to make sure your API is safe. The
+problem is <code>idx1 + idx2</code>. Signed integer overflow is
+undefined. So are a lot of other things. Truly safe code is difficult to
+achieve. Or it's literally impossible in some cases (in C, almost all
+cases). There are some other UB problems that can be fixed this way as
+well, just by checking before the operation that would trigger them.
+Oversize shift amounts and pointer alignment fall into this
+category.</p>
 <p>Let's fix the above example.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true"></a><span class="dt">char</span> strDeref(<span class="dt">const</span> <span class="dt">char</span> *str, <span class="dt">int</span> idx1, <span class="dt">int</span> idx2) {</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true"></a>  <span class="cf">if</span> ((idx1 &gt; <span class="dv">0</span> &amp;&amp; idx2 &gt; INT_MAX - idx1)</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true"></a>   || (idx1 &lt; <span class="dv">0</span> &amp;&amp; idx2 &lt; INT_MIN - idx1))</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true"></a>  <span class="co">/* str is aligned, since char* has no alignment requirements. */</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true"></a>  <span class="cf">if</span> (str == NULL)</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true"></a>  <span class="cf">if</span> ((idx1 + idx2) &lt; <span class="dv">0</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true"></a>  <span class="cf">if</span> (strnlen(str, <span class="dv">1000</span>) &lt;= (idx1 + idx2))</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span>;</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true"></a></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true"></a>  <span class="cf">return</span> str[idx1 + idx2];</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true"></a>}</span></code></pre></div>
-<p>Surely now it's safe for any possible preconditions, right? I raise you the following.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true"></a>strDeref((<span class="dt">char</span> *)(<span class="dt">void</span> *)(<span class="dt">intptr_t</span>)<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>);</span></code></pre></div>
-<p>Checking whether a memory region is valid is very difficult. It seems at this point that we're out of luck. We can't (reasonably) fix this. It's doable theoretically, but would require so much instrumentation that it would be easier just to buy the whole orchestra.</p>
-<p>Luckily, people don't often write code like this that's so obviously wrong. We know that dereferencing a wild pointer (one that isn't aligned inside of a valid memory region) is bad. But there are less obvious ways to obtain a pointer to an invalid memory region. We've covered the null pointer case, but there's also use after free. Unless we can guarantee that <code>str</code> is valid and aligned, we cannot call this function safely. It could cause undefined behavior by dereferencing that pointer, which is unfortunately the entire point of the function.</p>
-<p>From a language design perspective, it doesn't have to be this way. What if the creation of that pointer was the undefined behavior? What if obtaining such a pointer were impossible? What should the programming language's role in this be? We'll get to my opinions on that later.</p>
-<p>The code above is unsafe. But notably, it is not incorrect. I think we can agree that, even without all the checks, it does what you want it to for all sensible inputs. What exactly constitutes a "sensible input" is what we have to define here. Most programmers do not define their preconditions, and instead rely on tacit knowledge. We know that passing an invalid pointer probably violates some preconditions, so we don't. When we want to add two numbers, we don't think about the domain of the inputs. We also don't think to document that the behavior of our function is undefined if <code>((a &gt; 0 &amp;&amp; b &gt; INT_MAX - a) || (a &lt; 0 &amp;&amp; b &lt; INT_MIN - a))</code>. Instead, we just document what our code is supposed to do and go by feel. This is true even in the airplane firmware world.</p>
-<p>What's above is just a simple example. We have our definition, but with respect to our current practice of fuzzy preconditions, what does "correct" mean? Our definition assumes preconditions and postconditions are well defined. How APIs compose with respect to preconditions and postconditions gets progressively more difficult to reason about. Once your codebase approaches a certain size, it's anyone's guess.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> strDeref<span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>str<span class="op">,</span> <span class="dt">int</span> idx1<span class="op">,</span> <span class="dt">int</span> idx2<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">((</span>idx1 <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> idx2 <span class="op">&gt;</span> INT_MAX <span class="op">-</span> idx1<span class="op">)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>   <span class="op">||</span> <span class="op">(</span>idx1 <span class="op">&lt;</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> idx2 <span class="op">&lt;</span> INT_MIN <span class="op">-</span> idx1<span class="op">))</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span><span class="op">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* str is aligned, since char* has no alignment requirements. */</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>str <span class="op">==</span> NULL<span class="op">)</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span><span class="op">;</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">((</span>idx1 <span class="op">+</span> idx2<span class="op">)</span> <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span><span class="op">;</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>strnlen<span class="op">(</span>str<span class="op">,</span> <span class="dv">1000</span><span class="op">)</span> <span class="op">&lt;=</span> <span class="op">(</span>idx1 <span class="op">+</span> idx2<span class="op">))</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ch">&#39;\0&#39;</span><span class="op">;</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> str<span class="op">[</span>idx1 <span class="op">+</span> idx2<span class="op">];</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Surely now it's safe for any possible preconditions, right? I raise
+you the following.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>strDeref<span class="op">((</span><span class="dt">char</span> <span class="op">*)(</span><span class="dt">void</span> <span class="op">*)(</span><span class="dt">intptr_t</span><span class="op">)</span><span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span></code></pre></div>
+<p>Checking whether a memory region is valid is very difficult. It seems
+at this point that we're out of luck. We can't (reasonably) fix this.
+It's doable theoretically, but would require so much instrumentation
+that it would be easier just to buy the whole orchestra.</p>
+<p>Luckily, people don't often write code like this that's so obviously
+wrong. We know that dereferencing a wild pointer (one that isn't aligned
+inside of a valid memory region) is bad. But there are less obvious ways
+to obtain a pointer to an invalid memory region. We've covered the null
+pointer case, but there's also use after free. Unless we can guarantee
+that <code>str</code> is valid and aligned, we cannot call this function
+safely. It could cause undefined behavior by dereferencing that pointer,
+which is unfortunately the entire point of the function.</p>
+<p>From a language design perspective, it doesn't have to be this way.
+What if the creation of that pointer was the undefined behavior? What if
+obtaining such a pointer were impossible? What should the programming
+language's role in this be? We'll get to my opinions on that later.</p>
+<p>The code above is unsafe. But notably, it is not incorrect. I think
+we can agree that, even without all the checks, it does what you want it
+to for all sensible inputs. What exactly constitutes a "sensible input"
+is what we have to define here. Most programmers do not define their
+preconditions, and instead rely on tacit knowledge. We know that passing
+an invalid pointer probably violates some preconditions, so we don't.
+When we want to add two numbers, we don't think about the domain of the
+inputs. We also don't think to document that the behavior of our
+function is undefined if
+<code>((a &gt; 0 &amp;&amp; b &gt; INT_MAX - a) || (a &lt; 0 &amp;&amp; b &lt; INT_MIN - a))</code>.
+Instead, we just document what our code is supposed to do and go by
+feel. This is true even in the airplane firmware world.</p>
+<p>What's above is just a simple example. We have our definition, but
+with respect to our current practice of fuzzy preconditions, what does
+"correct" mean? Our definition assumes preconditions and postconditions
+are well defined. How APIs compose with respect to preconditions and
+postconditions gets progressively more difficult to reason about. Once
+your codebase approaches a certain size, it's anyone's guess.</p>
 <p><br></p>
-<h2 id="what-should-we-do-about-software-safety">What should we do about software safety?</h2>
-<p>There's been decades of argument over whether or not the compiler should try to stop you from writing bugs. That argument is still ongoing in the programming languages world. Rust says yes. C and C++ have been saying no for decades.</p>
-<p>Regardless of your opinion on this, perhaps you would agree that it would be cool if our compiler could help us keep bugs out of code that we release out into the world. Making them impossible to write by adding rules to the syntax and type system is not the only way to accomplish this. We can also accomplish it through tooling.</p>
-<p>It should also be noted that writing your code is the easy, non-time consuming part. Debugging your code is going to take longer. Undefined behavior is difficult to debug, so it's going to have to go, at least for debug builds.</p>
+<h2 id="what-should-we-do-about-software-safety">What should we do about
+software safety?</h2>
+<p>There's been decades of argument over whether or not the compiler
+should try to stop you from writing bugs. That argument is still ongoing
+in the programming languages world. Rust says yes. C and C++ have been
+saying no for decades.</p>
+<p>Regardless of your opinion on this, perhaps you would agree that it
+would be cool if our compiler could help us keep bugs out of code that
+we release out into the world. Making them impossible to write by adding
+rules to the syntax and type system is not the only way to accomplish
+this. We can also accomplish it through tooling.</p>
+<p>It should also be noted that writing your code is the easy, non-time
+consuming part. Debugging your code is going to take longer. Undefined
+behavior is difficult to debug, so it's going to have to go, at least
+for debug builds.</p>
 <p><br></p>
-<h2 id="what-is-the-bare-minimum-that-our-tooling-can-do">What is the bare minimum that our tooling can do?</h2>
-<h3 id="background-the-halting-problem">Background: The Halting Problem</h3>
-<p>In the general case, detecting runtime conditions like those that would trigger undefined behavior is provably impossible by reduction to the <a href="https://en.wikipedia.org/wiki/Halting_problem">halting problem</a>, first proven by <a href="https://en.wikipedia.org/wiki/Alan_Turing">Alan Turing</a> in 1936. The proof is really fun, I suggest looking into it.</p>
-<p>There are some programs that do obviously halt for all inputs, like <code>print("Hello World!");</code>. There are also some that obviously never halt like <code>while (true);</code>. But, there's a lot of them for which termination analysis is much more difficult. You could of course write programs to partially answer the halting problem. In fact, most optimizing compilers contain one or more mechanisms to attempt to make that determination, but the problem is still unsolvable in the general case.</p>
+<h2 id="what-is-the-bare-minimum-that-our-tooling-can-do">What is the
+bare minimum that our tooling can do?</h2>
+<h3 id="background-the-halting-problem">Background: The Halting
+Problem</h3>
+<p>In the general case, detecting runtime conditions like those that
+would trigger undefined behavior is provably impossible by reduction to
+the <a href="https://en.wikipedia.org/wiki/Halting_problem">halting
+problem</a>, first proven by <a
+href="https://en.wikipedia.org/wiki/Alan_Turing">Alan Turing</a> in
+1936. The proof is really fun, I suggest looking into it.</p>
+<p>There are some programs that do obviously halt for all inputs, like
+<code>print("Hello World!");</code>. There are also some that obviously
+never halt like <code>while (true);</code>. But, there's a lot of them
+for which termination analysis is much more difficult. You could of
+course write programs to partially answer the halting problem. In fact,
+most optimizing compilers contain one or more mechanisms to attempt to
+make that determination, but the problem is still unsolvable in the
+general case.</p>
 <p><br></p>
-<p>Since a compiler cannot solve the halting problem, it cannot detect undefined behavior at compile time. However, it can be detected at runtime. That's obviously no problem. It's easy, in fact. Just wrap every condition that could cause it. The halting problem becomes trivially solvable if we're allowed to modify the program. We can insert cycle handling in the difficult cases and make the answer to the question "does it halt" be "yes' by inserting any sort of runtime error handling we want. While the halting problem was never the reason for undefined behavior in the first place, it's nice to know that the problem is tractable again.</p>
-<p>This is not a complete solution to undefined behavior. There are a lot of kinds of undefined behavior that cannot be caught this way. Some of the undefined behavior in C literally does depend on the answer to the halting problem. <a href="https://blog.regehr.org/archives/140">"C Compilers Disprove Fermat's Last Theorem"</a> is an excellent article that details the dangers of the offending clause in C11 and C99. We're also pushing the problem off until runtime. However, having the option for error handling and defined semantics at runtime is better than not having the option.</p>
-<p>Although we can't eliminate all undefined behavior, doing the bare minimum to fix dereferences, alignment, overflow, underflow, and division by zero is a significant step in the right direction.</p>
+<p>Since a compiler cannot solve the halting problem, it cannot detect
+undefined behavior at compile time. However, it can be detected at
+runtime. That's obviously no problem. It's easy, in fact. Just wrap
+every condition that could cause it. The halting problem becomes
+trivially solvable if we're allowed to modify the program. We can insert
+cycle handling in the difficult cases and make the answer to the
+question "does it halt" be "yes' by inserting any sort of runtime error
+handling we want. While the halting problem was never the reason for
+undefined behavior in the first place, it's nice to know that the
+problem is tractable again.</p>
+<p>This is not a complete solution to undefined behavior. There are a
+lot of kinds of undefined behavior that cannot be caught this way. Some
+of the undefined behavior in C literally does depend on the answer to
+the halting problem. <a href="https://blog.regehr.org/archives/140">"C
+Compilers Disprove Fermat's Last Theorem"</a> is an excellent article
+that details the dangers of the offending clause in C11 and C99. We're
+also pushing the problem off until runtime. However, having the option
+for error handling and defined semantics at runtime is better than not
+having the option.</p>
+<p>Although we can't eliminate all undefined behavior, doing the bare
+minimum to fix dereferences, alignment, overflow, underflow, and
+division by zero is a significant step in the right direction.</p>
 <p><br></p>
-<h2 id="the-fix-to-undefined-behavior">The Fix to Undefined Behavior:</h2>
+<h2 id="the-fix-to-undefined-behavior">The Fix to Undefined
+Behavior:</h2>
 <p>Let's write a header to fix our favorite arithmetic operations.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true"></a><span class="co">/* WrapOverflow.h */</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true"></a><span class="pp">#ifndef WRAP_OVERFLOW_INCLUDED</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true"></a><span class="pp">#define WRAP_OVERFLOW_INCLUDED</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true"></a></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true"></a><span class="pp">#include </span><span class="im">&lt;limits.h&gt;</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true"></a><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true"></a></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true"></a><span class="pp">#ifndef WRAP_OVERFLOW</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true"></a><span class="pp">#define WRAP_OVERFLOW 1</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true"></a><span class="pp">#endif</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true"></a></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true"></a><span class="pp">#if WRAP_OVERFLOW</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true"></a><span class="pp">#define PANIC()                                \</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true"></a><span class="pp">    do {                                       \</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true"></a><span class="pp">        puts(&quot;UNDEFINED BEHAVIOR, ABORTING.&quot;); \</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true"></a><span class="pp">        exit(1);                               \</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true"></a><span class="pp">    } while (0)</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true"></a><span class="pp">#else</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true"></a><span class="pp">#define PANIC() (void)0</span></span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true"></a><span class="pp">#endif</span></span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true"></a></span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true"></a>add(<span class="dt">int</span> a, <span class="dt">int</span> b) {</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true"></a>    <span class="cf">if</span> ((a &gt; <span class="dv">0</span>) &amp;&amp; (b &gt; INT_MAX - a)) PANIC(); <span class="co">// Overflow</span></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true"></a>    <span class="cf">if</span> ((a &lt; <span class="dv">0</span>) &amp;&amp; (b &lt; INT_MIN - a)) PANIC(); <span class="co">// Underflow</span></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true"></a>    <span class="cf">return</span> a + b;</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true"></a>}</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true"></a></span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true"></a>sub(<span class="dt">int</span> a, <span class="dt">int</span> b) {</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true"></a>    <span class="cf">if</span> ((b &lt; <span class="dv">0</span>) &amp;&amp; (a &gt; INT_MAX + b)) PANIC(); <span class="co">// Overflow</span></span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true"></a>    <span class="cf">if</span> ((b &gt; <span class="dv">0</span>) &amp;&amp; (a &lt; INT_MIN + b)) PANIC(); <span class="co">// Underflow</span></span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true"></a>    <span class="cf">return</span> a - b;</span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true"></a>}</span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true"></a></span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true"></a>mult(<span class="dt">int</span> a, <span class="dt">int</span> b) {</span>
-<span id="cb4-39"><a href="#cb4-39" aria-hidden="true"></a>    <span class="cf">if</span> ((b != <span class="dv">0</span>) &amp;&amp; (a &gt; INT_MAX / b)) PANIC(); <span class="co">// Overflow</span></span>
-<span id="cb4-40"><a href="#cb4-40" aria-hidden="true"></a>    <span class="cf">if</span> ((b != <span class="dv">0</span>) &amp;&amp; (a &lt; INT_MIN / b)) PANIC(); <span class="co">// Underflow</span></span>
-<span id="cb4-41"><a href="#cb4-41" aria-hidden="true"></a>    <span class="cf">return</span> a * b;</span>
-<span id="cb4-42"><a href="#cb4-42" aria-hidden="true"></a>}</span>
-<span id="cb4-43"><a href="#cb4-43" aria-hidden="true"></a></span>
-<span id="cb4-44"><a href="#cb4-44" aria-hidden="true"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
-<span id="cb4-45"><a href="#cb4-45" aria-hidden="true"></a>divide(<span class="dt">int</span> a, <span class="dt">int</span> b) {</span>
-<span id="cb4-46"><a href="#cb4-46" aria-hidden="true"></a>    <span class="co">/* Division cannot overflow or underflow. */</span></span>
-<span id="cb4-47"><a href="#cb4-47" aria-hidden="true"></a>    <span class="cf">if</span> (b) PANIC(); <span class="co">// Division by zero</span></span>
-<span id="cb4-48"><a href="#cb4-48" aria-hidden="true"></a>    <span class="cf">return</span> a / b;</span>
-<span id="cb4-49"><a href="#cb4-49" aria-hidden="true"></a>}</span>
-<span id="cb4-50"><a href="#cb4-50" aria-hidden="true"></a></span>
-<span id="cb4-51"><a href="#cb4-51" aria-hidden="true"></a><span class="pp">#endif </span><span class="co">/* WRAP_OVERFLOW_INCLUDED */</span></span></code></pre></div>
-<p>Obviously, with <code>WRAP_OVERFLOW</code> on, this will slow the code down. However, it will potentially save you hours of debugging.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">/* WrapOverflow.h */</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef WRAP_OVERFLOW_INCLUDED</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#define WRAP_OVERFLOW_INCLUDED</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;limits.h&gt;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef WRAP_OVERFLOW</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="pp">#define WRAP_OVERFLOW 1</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="pp">#if WRAP_OVERFLOW</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="pp">#define PANIC()                                \</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="pp">    do {                                       \</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="pp">        puts(&quot;UNDEFINED BEHAVIOR, ABORTING.&quot;); \</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="pp">        exit(1);                               \</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="pp">    } while (0)</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="pp">#else</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="pp">#define PANIC() (void)0</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>add<span class="op">(</span><span class="dt">int</span> a<span class="op">,</span> <span class="dt">int</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">((</span>a <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span>b <span class="op">&gt;</span> INT_MAX <span class="op">-</span> a<span class="op">))</span> PANIC<span class="op">();</span> <span class="co">// Overflow</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">((</span>a <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span>b <span class="op">&lt;</span> INT_MIN <span class="op">-</span> a<span class="op">))</span> PANIC<span class="op">();</span> <span class="co">// Underflow</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">+</span> b<span class="op">;</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>sub<span class="op">(</span><span class="dt">int</span> a<span class="op">,</span> <span class="dt">int</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">((</span>b <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span>a <span class="op">&gt;</span> INT_MAX <span class="op">+</span> b<span class="op">))</span> PANIC<span class="op">();</span> <span class="co">// Overflow</span></span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">((</span>b <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span>a <span class="op">&lt;</span> INT_MIN <span class="op">+</span> b<span class="op">))</span> PANIC<span class="op">();</span> <span class="co">// Underflow</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">-</span> b<span class="op">;</span></span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>mult<span class="op">(</span><span class="dt">int</span> a<span class="op">,</span> <span class="dt">int</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">((</span>b <span class="op">!=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span>a <span class="op">&gt;</span> INT_MAX <span class="op">/</span> b<span class="op">))</span> PANIC<span class="op">();</span> <span class="co">// Overflow</span></span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">((</span>b <span class="op">!=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span>a <span class="op">&lt;</span> INT_MIN <span class="op">/</span> b<span class="op">))</span> PANIC<span class="op">();</span> <span class="co">// Underflow</span></span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">*</span> b<span class="op">;</span></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>divide<span class="op">(</span><span class="dt">int</span> a<span class="op">,</span> <span class="dt">int</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    <span class="co">/* Division cannot overflow or underflow. */</span></span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>b<span class="op">)</span> PANIC<span class="op">();</span> <span class="co">// Division by zero</span></span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">/</span> b<span class="op">;</span></span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif </span><span class="co">/* WRAP_OVERFLOW_INCLUDED */</span></span></code></pre></div>
+<p>Obviously, with <code>WRAP_OVERFLOW</code> on, this will slow the
+code down. However, it will potentially save you hours of debugging.</p>
 <h2 id="going-a-little-further">Going a little further:</h2>
-<p>The Daisho runtime takes a similar approach to the header above. However, it uses GCC/Clang builtins to perform the check when available, and also wraps the overflow/underflow of unsigned integers as well. This has two benefits.</p>
-<p>The first benefit is that while unsigned arithmetic wrapping is not undefined behavior, it can often be incorrect behavior when the wrapping is unintentional. The benefits to debugging with wrapped unsigned integers are exactly the same as wrapped signed integers.</p>
-<p>The benefit is the ability to force unsigned overflow to become undefined behavior. This has performance benefits. The clang static optimizer in particular is very good at optimizing with undefined wrapping for unsigned arithmetic. Inside the optimizer, it applies attributes to each value (result of an expression). Integers with undefined unsigned wrapping semantics have their own attribute, <code>nuw</code> (no unsigned wrap). The LLVM IR emitted by clang for the following function returns such a value, and optimizes away the checks.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true"></a><span class="pp">#include </span><span class="im">&lt;limits.h&gt;</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true"></a><span class="pp">#define PANIC() __builtin_unreachable()</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">unsigned</span> <span class="dt">int</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true"></a>add_unsigned(<span class="dt">unsigned</span> <span class="dt">int</span> a, <span class="dt">unsigned</span> <span class="dt">int</span> b) {</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true"></a>    <span class="cf">if</span> (b &gt; UINT_MAX - a) PANIC(); <span class="co">// Overflow</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true"></a>    <span class="cf">return</span> a + b;</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true"></a>}</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">unsigned</span> <span class="dt">int</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true"></a>sub_unsigned(<span class="dt">unsigned</span> <span class="dt">int</span> a, <span class="dt">unsigned</span> <span class="dt">int</span> b) {</span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true"></a>    <span class="cf">if</span> (a &lt; b) PANIC(); <span class="co">// Underflow</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true"></a>    <span class="cf">return</span> a - b;</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true"></a>}</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true"></a></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">unsigned</span> <span class="dt">int</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true"></a>mult_unsigned(<span class="dt">unsigned</span> <span class="dt">int</span> a, <span class="dt">unsigned</span> <span class="dt">int</span> b) {</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true"></a>    <span class="cf">if</span> ((b != <span class="dv">0</span>) &amp;&amp; (a &gt; UINT_MAX / b)) PANIC(); <span class="co">// Overflow</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true"></a>    <span class="cf">return</span> a * b;</span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true"></a>}</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true"></a></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">unsigned</span> <span class="dt">int</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true"></a>divide_unsigned(<span class="dt">unsigned</span> <span class="dt">int</span> a, <span class="dt">unsigned</span> <span class="dt">int</span> b) {</span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true"></a>    <span class="cf">if</span> (!b) PANIC(); <span class="co">// Division by zero</span></span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true"></a>    <span class="cf">return</span> a / b;</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true"></a>}</span></code></pre></div>
-<p>The Daisho compiler generates something similar to the above at <code>--insane</code> optimization level. Otherwise it takes the same approach as the header above for signed integers. However, it provides much more information to help you debug. It aborts the program for you, letting you know exactly where the precondition was violated, with what values, on what line, in what file.</p>
-<p>The same approach is being taken to wrap every dereference and every bit shift.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true"></a>is_aligned(<span class="dt">const</span> <span class="dt">void</span>* pointer, <span class="dt">size_t</span> to) {</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true"></a>    <span class="cf">return</span> (<span class="dt">uintptr_t</span>)pointer % to == <span class="dv">0</span>;</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true"></a>}</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true"></a></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true"></a>deref_int(<span class="dt">int</span> *to_deref) {</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true"></a>    <span class="cf">if</span> (!to_deref) PANIC(); <span class="co">// Null pointer</span></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true"></a>    <span class="cf">if</span> (!is_aligned(to_deref, <span class="kw">_Alignof</span>(<span class="dt">int</span>))) PANIC(); <span class="co">// Misaligned pointer</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true"></a>    <span class="cf">return</span> *to_deref;</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true"></a>}</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true"></a></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true"></a>right_shift(<span class="dt">int</span> to_shift, <span class="dt">int</span> by) {</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true"></a>    <span class="cf">if</span> (by &lt; <span class="dv">0</span>) PANIC(); <span class="co">// Negative shift</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true"></a>    <span class="cf">if</span> (by &gt; (CHAR_BIT * <span class="kw">sizeof</span>(<span class="dt">int</span>))) PANIC(); <span class="co">// Oversize shift</span></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true"></a>    <span class="cf">return</span> to_shift &gt;&gt; by;</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true"></a>}</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true"></a></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true"></a>left_shift(<span class="dt">int</span> to_shift, <span class="dt">int</span> by) {</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true"></a>    <span class="cf">if</span> (by &lt; <span class="dv">0</span>) PANIC(); <span class="co">// Negative shift</span></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true"></a>    <span class="cf">if</span> (by &gt; (CHAR_BIT * <span class="kw">sizeof</span>(<span class="dt">int</span>))) PANIC(); <span class="co">// Oversize shift</span></span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true"></a>    <span class="cf">return</span> to_shift &lt;&lt; by;</span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true"></a>}</span></code></pre></div>
-<p>The conversion of every pointer type to <code>void*</code> is intentional and important. On some platforms that might not be a no-op, and <code>uintptr_t</code> is only technically guaranteed to be compatible with <code>void*.</code> This is yet another excruciatingly painful dark corner of the standard. In my opinion, compilers should complain when you cast any other pointer type <code>intptr_t</code> or <code>uintptr_t</code>, and tell you to cast first. They should, but they don't.</p>
-<p>The other important thing that the Daisho code generator does to help you is write unambiguous code. Another sharp corner of the standard is that a variable should not be updated more than once between sequence points.</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true"></a><span class="dt">int</span> x = <span class="dv">1</span>;</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true"></a>x = ++x; <span class="co">// Undefined behavior.</span></span></code></pre></div>
-<p>It's fairly easy for a human to accidentally write this, especially when they don't know about this quirk. However, the Daisho compiler will not. It orders every operation (including the unspecified behavior of evaluation order inside of calls, for example), and puts it onto its own line in its own statement.</p>
-<p>Once it's done, if you find that the Daisho compiler (<code>daic</code>) generates code with UB, please file a bug report.</p>
+<p>The Daisho runtime takes a similar approach to the header above.
+However, it uses GCC/Clang builtins to perform the check when available,
+and also wraps the overflow/underflow of unsigned integers as well. This
+has two benefits.</p>
+<p>The first benefit is that while unsigned arithmetic wrapping is not
+undefined behavior, it can often be incorrect behavior when the wrapping
+is unintentional. The benefits to debugging with wrapped unsigned
+integers are exactly the same as wrapped signed integers.</p>
+<p>The benefit is the ability to force unsigned overflow to become
+undefined behavior. This has performance benefits. The clang static
+optimizer in particular is very good at optimizing with undefined
+wrapping for unsigned arithmetic. Inside the optimizer, it applies
+attributes to each value (result of an expression). Integers with
+undefined unsigned wrapping semantics have their own attribute,
+<code>nuw</code> (no unsigned wrap). The LLVM IR emitted by clang for
+the following function returns such a value, and optimizes away the
+checks.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;limits.h&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#define PANIC() __builtin_unreachable()</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">unsigned</span> <span class="dt">int</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>add_unsigned<span class="op">(</span><span class="dt">unsigned</span> <span class="dt">int</span> a<span class="op">,</span> <span class="dt">unsigned</span> <span class="dt">int</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>b <span class="op">&gt;</span> UINT_MAX <span class="op">-</span> a<span class="op">)</span> PANIC<span class="op">();</span> <span class="co">// Overflow</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">+</span> b<span class="op">;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">unsigned</span> <span class="dt">int</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>sub_unsigned<span class="op">(</span><span class="dt">unsigned</span> <span class="dt">int</span> a<span class="op">,</span> <span class="dt">unsigned</span> <span class="dt">int</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>a <span class="op">&lt;</span> b<span class="op">)</span> PANIC<span class="op">();</span> <span class="co">// Underflow</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">-</span> b<span class="op">;</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">unsigned</span> <span class="dt">int</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>mult_unsigned<span class="op">(</span><span class="dt">unsigned</span> <span class="dt">int</span> a<span class="op">,</span> <span class="dt">unsigned</span> <span class="dt">int</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">((</span>b <span class="op">!=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span>a <span class="op">&gt;</span> UINT_MAX <span class="op">/</span> b<span class="op">))</span> PANIC<span class="op">();</span> <span class="co">// Overflow</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">*</span> b<span class="op">;</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">unsigned</span> <span class="dt">int</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>divide_unsigned<span class="op">(</span><span class="dt">unsigned</span> <span class="dt">int</span> a<span class="op">,</span> <span class="dt">unsigned</span> <span class="dt">int</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(!</span>b<span class="op">)</span> PANIC<span class="op">();</span> <span class="co">// Division by zero</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">/</span> b<span class="op">;</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>The Daisho compiler generates something similar to the above at
+<code>--insane</code> optimization level. Otherwise it takes the same
+approach as the header above for signed integers. However, it provides
+much more information to help you debug. It aborts the program for you,
+letting you know exactly where the precondition was violated, with what
+values, on what line, in what file.</p>
+<p>The same approach is being taken to wrap every dereference and every
+bit shift.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>is_aligned<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span><span class="op">*</span> pointer<span class="op">,</span> <span class="dt">size_t</span> to<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span><span class="dt">uintptr_t</span><span class="op">)</span>pointer <span class="op">%</span> to <span class="op">==</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>deref_int<span class="op">(</span><span class="dt">int</span> <span class="op">*</span>to_deref<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(!</span>to_deref<span class="op">)</span> PANIC<span class="op">();</span> <span class="co">// Null pointer</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(!</span>is_aligned<span class="op">(</span>to_deref<span class="op">,</span> <span class="kw">_Alignof</span><span class="op">(</span><span class="dt">int</span><span class="op">)))</span> PANIC<span class="op">();</span> <span class="co">// Misaligned pointer</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">*</span>to_deref<span class="op">;</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>right_shift<span class="op">(</span><span class="dt">int</span> to_shift<span class="op">,</span> <span class="dt">int</span> by<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>by <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> PANIC<span class="op">();</span> <span class="co">// Negative shift</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>by <span class="op">&gt;</span> <span class="op">(</span>CHAR_BIT <span class="op">*</span> <span class="kw">sizeof</span><span class="op">(</span><span class="dt">int</span><span class="op">)))</span> PANIC<span class="op">();</span> <span class="co">// Oversize shift</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> to_shift <span class="op">&gt;&gt;</span> by<span class="op">;</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>left_shift<span class="op">(</span><span class="dt">int</span> to_shift<span class="op">,</span> <span class="dt">int</span> by<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>by <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> PANIC<span class="op">();</span> <span class="co">// Negative shift</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>by <span class="op">&gt;</span> <span class="op">(</span>CHAR_BIT <span class="op">*</span> <span class="kw">sizeof</span><span class="op">(</span><span class="dt">int</span><span class="op">)))</span> PANIC<span class="op">();</span> <span class="co">// Oversize shift</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> to_shift <span class="op">&lt;&lt;</span> by<span class="op">;</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>The conversion of every pointer type to <code>void*</code> is
+intentional and important. On some platforms that might not be a no-op,
+and <code>uintptr_t</code> is only technically guaranteed to be
+compatible with <code>void*.</code> This is yet another excruciatingly
+painful dark corner of the standard. In my opinion, compilers should
+complain when you cast any other pointer type <code>intptr_t</code> or
+<code>uintptr_t</code>, and tell you to cast first. They should, but
+they don't.</p>
+<p>The other important thing that the Daisho code generator does to help
+you is write unambiguous code. Another sharp corner of the standard is
+that a variable should not be updated more than once between sequence
+points.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> x <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="op">++</span>x<span class="op">;</span> <span class="co">// Undefined behavior.</span></span></code></pre></div>
+<p>It's fairly easy for a human to accidentally write this, especially
+when they don't know about this quirk. However, the Daisho compiler will
+not. It orders every operation (including the unspecified behavior of
+evaluation order inside of calls, for example), and puts it onto its own
+line in its own statement.</p>
+<p>Once it's done, if you find that the Daisho compiler
+(<code>daic</code>) generates code with UB, please file a bug
+report.</p>
 <p><br></p>
 <h2 id="going-above-and-beyond">Going above and beyond:</h2>
-<p>Here's a list of extreme things that tooling could do to improve the safety and correctness of C code.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true"></a><span class="ss">* </span>Memory boundary tracking analysis (like address sanitizer)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true"></a><span class="ss">* </span>Stack unwinding backtraces (already implemented in Daisho)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true"></a><span class="ss">* </span>Data race detection (like thread sanitizer)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true"></a><span class="ss">* </span>Automatic fuzzing and testing framework</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true"></a><span class="ss">* </span>Syntax for enforcing preconditions and postconditions</span></code></pre></div>
-<p>I plan on eventually implementing every item in this list but the last one. However, they are not a priority. The first priority is going to be having a working compiler.</p>
-<p>I think the last option is by far the most extreme. There's the potential here to reorient the entire way we look at safety and correctness. Even if the implementation is just "Fancy assert syntax and a theorem prover." The idea is that everything that can be statically analyzed by the prover to be safe and correct (as defined above) will be asserted at compile time, and everything that can't be will be moved to runtime. This will have tremendous runtime costs while you're debugging, but will lead to faster code for production and less human time spent chasing safety and correctness issues.</p>
+<p>Here's a list of extreme things that tooling could do to improve the
+safety and correctness of C code.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Memory boundary tracking analysis (like address sanitizer)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Stack unwinding backtraces (already implemented in Daisho)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Data race detection (like thread sanitizer)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Automatic fuzzing and testing framework</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Syntax for enforcing preconditions and postconditions</span></code></pre></div>
+<p>I plan on eventually implementing every item in this list but the
+last one. However, they are not a priority. The first priority is going
+to be having a working compiler.</p>
+<p>I think the last option is by far the most extreme. There's the
+potential here to reorient the entire way we look at safety and
+correctness. Even if the implementation is just "Fancy assert syntax and
+a theorem prover." The idea is that everything that can be statically
+analyzed by the prover to be safe and correct (as defined above) will be
+asserted at compile time, and everything that can't be will be moved to
+runtime. This will have tremendous runtime costs while you're debugging,
+but will lead to faster code for production and less human time spent
+chasing safety and correctness issues.</p>
 <p>That's the hope anyway.</p>
 <p><br></p>
-<h2 id="rediscovering-an-old-way-of-writing-software">Rediscovering an old way of writing software</h2>
-<p>Ada is an interesting case study. It has range-based types, with runtime range checks. In the safety critical software space, we know the benefits of Ada well. Throwing runtime checks at everything protects both against memory corruption caused by cosmic radiation and programmer error.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode ada"><code class="sourceCode ada"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true"></a><span class="kw">procedure</span> Main <span class="kw">is</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true"></a>   <span class="kw">type</span> Grade <span class="kw">is</span> <span class="kw">range</span> <span class="dv">0</span> .. <span class="dv">100</span>;</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true"></a>   G1, G2  : Grade;</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true"></a>   N       : <span class="dt">Integer</span>;</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true"></a><span class="kw">begin</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true"></a>   ...                <span class="co">-- Initialization of N</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true"></a>   G1 := <span class="dv">80</span>;          <span class="co">-- OK</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true"></a>   G1 := N;           <span class="co">-- Illegal (type mismatch)</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true"></a>   G1 := Grade (N);   <span class="co">-- Legal, run-time range check</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true"></a>   G2 := G1 + <span class="dv">10</span>;     <span class="co">-- Legal, run-time range check</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true"></a>   G1 := (G1 + G2)/<span class="dv">2</span>; <span class="co">-- Legal, run-time range check</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true"></a><span class="kw">end</span> Main;</span></code></pre></div>
-<p>For safety's sake, the <code>Grade</code> type does what we want it to. It's protected against overflow and underflow. It's "safe."</p>
-<p>That's still unsatisfactory for me. I think we could do more. What if we could ensure that it's correct? Imagine a type system sort of like the following.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true"></a><span class="kw">template</span> &lt;<span class="kw">typename</span> T, T min, T max&gt; <span class="kw">struct</span> range {</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true"></a>  T val;</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true"></a>  <span class="kw">operator</span> T() <span class="at">const</span> { <span class="cf">return</span> val; }</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true"></a></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true"></a>  <span class="kw">template</span> &lt;T rmin, T rmax&gt;</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true"></a>  <span class="kw">friend</span> range&lt;T, min + rmin, max + rmax&gt;</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true"></a>  <span class="kw">operator</span>+(range&lt;T, min, max&gt; <span class="at">const</span> &amp;lhs, range&lt;T, rmin, rmax&gt; <span class="at">const</span> &amp;rhs)</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true"></a>  <span class="kw">requires</span>(((min &gt; <span class="dv">0</span>) &amp;&amp; (rmin &gt; <span class="bu">std::</span>numeric_limits&lt;T&gt;::min() - min)) <span class="kw">and</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true"></a>           ((max &lt; <span class="dv">0</span>) &amp;&amp; (rmax &lt; <span class="bu">std::</span>numeric_limits&lt;T&gt;::max() - max))) {</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true"></a>    range&lt;T, min + rmin, max + rmax&gt; ret;</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true"></a>    ret.val = lhs.val + rhs.val;</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true"></a>    <span class="cf">return</span> ret;</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true"></a>  }</span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true"></a>};</span></code></pre></div>
-<p>This is a mess of C++ concept nonsense, but the important thing to note here is that the result of arithmetic with two ranges is a range with automatically deduced size. Now, let the compiler automatically deduce it.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true"></a><span class="kw">auto</span> range_add(<span class="kw">auto</span> a, <span class="kw">auto</span> b) {</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true"></a>    <span class="cf">return</span> a + b;</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true"></a>}</span></code></pre></div>
-<p>Now, disallow any sort of operation that could potentially break. Make them check for it and coerce the ranges back.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true"></a><span class="kw">auto</span> a = INT_MAX + <span class="dv">1</span> <span class="co">// Compile error, return type would overflow</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true"></a>range&lt;<span class="dt">int</span>, <span class="dv">0</span>, <span class="dv">50</span>&gt; b = <span class="dv">5</span>;</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true"></a><span class="kw">auto</span> x = <span class="dv">20</span> / b; <span class="co">// Compile error, b could be 0.</span></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true"></a></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true"></a>range&lt;<span class="dt">int</span>, <span class="dv">1</span>, <span class="dv">50</span>&gt; c = coerce(b != <span class="dv">0</span>);</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true"></a><span class="kw">auto</span> y = <span class="dv">20</span> / c; <span class="co">// Works, c cannot be 0.</span></span></code></pre></div>
-<p>This is of course a difficult to implement mess of dependently typed nonsense. It's also not exactly a great time to use. I think the approach has a lot of potential in the safety-critical software domain. However, this industry is very averse to change. Realistically, even though it's a good idea, it's never going to happen.</p>
+<h2 id="rediscovering-an-old-way-of-writing-software">Rediscovering an
+old way of writing software</h2>
+<p>Ada is an interesting case study. It has range-based types, with
+runtime range checks. In the safety critical software space, we know the
+benefits of Ada well. Throwing runtime checks at everything protects
+both against memory corruption caused by cosmic radiation and programmer
+error.</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode ada"><code class="sourceCode ada"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">procedure</span> Main <span class="kw">is</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>   <span class="kw">type</span> Grade <span class="kw">is</span> <span class="kw">range</span> <span class="dv">0</span> <span class="op">..</span> <span class="dv">100</span>;</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>   G1<span class="op">,</span> G2  <span class="op">:</span> Grade;</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>   N       <span class="op">:</span> <span class="dt">Integer</span>;</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="kw">begin</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>   <span class="op">...</span>                <span class="co">-- Initialization of N</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>   G1 <span class="op">:=</span> <span class="dv">80</span>;          <span class="co">-- OK</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>   G1 <span class="op">:=</span> N;           <span class="co">-- Illegal (type mismatch)</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>   G1 <span class="op">:=</span> Grade <span class="op">(</span>N<span class="op">)</span>;   <span class="co">-- Legal, run-time range check</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>   G2 <span class="op">:=</span> G1 <span class="op">+</span> <span class="dv">10</span>;     <span class="co">-- Legal, run-time range check</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>   G1 <span class="op">:=</span> <span class="op">(</span>G1 <span class="op">+</span> G2<span class="op">)/</span><span class="dv">2</span>; <span class="co">-- Legal, run-time range check</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span> Main;</span></code></pre></div>
+<p>For safety's sake, the <code>Grade</code> type does what we want it
+to. It's protected against overflow and underflow. It's "safe."</p>
+<p>That's still unsatisfactory for me. I think we could do more. What if
+we could ensure that it's correct? Imagine a type system sort of like
+the following.</p>
+<div class="sourceCode" id="cb10"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">typename</span> T<span class="op">,</span> T min<span class="op">,</span> T max<span class="op">&gt;</span> <span class="kw">struct</span> range <span class="op">{</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  T val<span class="op">;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">operator</span> T<span class="op">()</span> <span class="at">const</span> <span class="op">{</span> <span class="cf">return</span> val<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span> <span class="op">&lt;</span>T rmin<span class="op">,</span> T rmax<span class="op">&gt;</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">friend</span> range<span class="op">&lt;</span>T<span class="op">,</span> min <span class="op">+</span> rmin<span class="op">,</span> max <span class="op">+</span> rmax<span class="op">&gt;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">operator</span><span class="op">+(</span>range<span class="op">&lt;</span>T<span class="op">,</span> min<span class="op">,</span> max<span class="op">&gt;</span> <span class="at">const</span> <span class="op">&amp;</span>lhs<span class="op">,</span> range<span class="op">&lt;</span>T<span class="op">,</span> rmin<span class="op">,</span> rmax<span class="op">&gt;</span> <span class="at">const</span> <span class="op">&amp;</span>rhs<span class="op">)</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">requires</span><span class="op">(((</span>min <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span>rmin <span class="op">&gt;</span> <span class="bu">std::</span>numeric_limits<span class="op">&lt;</span>T<span class="op">&gt;::</span>min<span class="op">()</span> <span class="op">-</span> min<span class="op">))</span> <span class="kw">and</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>           <span class="op">((</span>max <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span>rmax <span class="op">&lt;</span> <span class="bu">std::</span>numeric_limits<span class="op">&lt;</span>T<span class="op">&gt;::</span>max<span class="op">()</span> <span class="op">-</span> max<span class="op">)))</span> <span class="op">{</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    range<span class="op">&lt;</span>T<span class="op">,</span> min <span class="op">+</span> rmin<span class="op">,</span> max <span class="op">+</span> rmax<span class="op">&gt;</span> ret<span class="op">;</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    ret<span class="op">.</span>val <span class="op">=</span> lhs<span class="op">.</span>val <span class="op">+</span> rhs<span class="op">.</span>val<span class="op">;</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ret<span class="op">;</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<p>This is a mess of C++ concept nonsense, but the important thing to
+note here is that the result of arithmetic with two ranges is a range
+with automatically deduced size. Now, let the compiler automatically
+deduce it.</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> range_add<span class="op">(</span><span class="kw">auto</span> a<span class="op">,</span> <span class="kw">auto</span> b<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">+</span> b<span class="op">;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Now, disallow any sort of operation that could potentially break.
+Make them check for it and coerce the ranges back.</p>
+<div class="sourceCode" id="cb12"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> a <span class="op">=</span> INT_MAX <span class="op">+</span> <span class="dv">1</span> <span class="co">// Compile error, return type would overflow</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>range<span class="op">&lt;</span><span class="dt">int</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">50</span><span class="op">&gt;</span> b <span class="op">=</span> <span class="dv">5</span><span class="op">;</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> x <span class="op">=</span> <span class="dv">20</span> <span class="op">/</span> b<span class="op">;</span> <span class="co">// Compile error, b could be 0.</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>range<span class="op">&lt;</span><span class="dt">int</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">50</span><span class="op">&gt;</span> c <span class="op">=</span> coerce<span class="op">(</span>b <span class="op">!=</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> y <span class="op">=</span> <span class="dv">20</span> <span class="op">/</span> c<span class="op">;</span> <span class="co">// Works, c cannot be 0.</span></span></code></pre></div>
+<p>This is of course a difficult to implement mess of dependently typed
+nonsense. It's also not exactly a great time to use. I think the
+approach has a lot of potential in the safety-critical software domain.
+However, this industry is very averse to change. Realistically, even
+though it's a good idea, it's never going to happen.</p>
 <p>Rest assured, Daisho will not be doing this.</p>
 <p><br></p>
 <h2 id="conclusion">Conclusion</h2>
-<p>Safety is the absence of undefined behavior. Correctness is that your program is fully specified and fully conforms to that specification in all cases, including the ones you haven't thought of. Preconditions and postconditions are the specification. A bug is a lapse in correctness due to a mistake in the implementation of the preconditions and postconditions.</p>
-<p>As you can see, the C standard is broken in a lot of obscure ways. Undefined behavior (as well as implementation-defined and unspecified behaviors) are great for enabling compiler optimizations, and making writing C compilers easier to write or port by eliminating corner cases, but push the corner cases onto the programmer. Debugging this stuff can be purgatory. It shouldn't have to be this way.</p>
-<p>Tooling can solve a lot of these issues. It doesn't technically have to be a whole new programming language. It could just be AST transformations on a C frontend that turn all your <code>+</code> operators to <code>add(a, b)</code>, your <code>&lt;&lt;</code> to <code>left_shift(to_shift, by)</code>, etc. Or you could do it by hand. Or you can just stare at the screen. That's what most people do, but I think we need a better option.</p>
-<p>When I started implementing this strategy, my debugging efficiency went up considerably. Suddenly, I could tell why large sections of my code were being optimized away. It's hard to debug code that doesn't exist, and wrapping common sources of UB lets me keep it around so I can get an error.</p>
-<p>There's also the nuclear option. You could redefine your entire type system around not allowing undefined operations. It's not exactly an ergonomic option, but it's an option.</p>
-<p>The biggest blunder you could make would be to mistake safety for correctness. Just because unsigned wrapping is safe (defined) in C doesn't mean that it isn't usually wrong. It's safe by the definition above, but in safety critical software it's very dangerous. Many people have died as a result of unintentional integer overflow and underflow.</p>
-<p>Whether you program in C, C++, or another language without undefined behavior doesn't matter. You still have to think about these things. You are not immune.</p>
-<p>For Daisho, I have decided that I want to wrap and eliminate all the undefined behavior that I can. It makes the program slower, but saves me time. Then, once the program is tested, I turn optimizations back on. The operations are undefined, the compiler is free to optimize aggressively, and all the speed returns. When I need to, I use <code>objdump</code> to check the code that's generated for missing sections and opportunities for optimization.</p>
-<p>In any case, people have been complaining about undefined behavior since the 90s. It's about time that people either got comfortable with it or started doing something about it.</p>
+<p>Safety is the absence of undefined behavior. Correctness is that your
+program is fully specified and fully conforms to that specification in
+all cases, including the ones you haven't thought of. Preconditions and
+postconditions are the specification. A bug is a lapse in correctness
+due to a mistake in the implementation of the preconditions and
+postconditions.</p>
+<p>As you can see, the C standard is broken in a lot of obscure ways.
+Undefined behavior (as well as implementation-defined and unspecified
+behaviors) are great for enabling compiler optimizations, and making
+writing C compilers easier to write or port by eliminating corner cases,
+but push the corner cases onto the programmer. Debugging this stuff can
+be purgatory. It shouldn't have to be this way.</p>
+<p>Tooling can solve a lot of these issues. It doesn't technically have
+to be a whole new programming language. It could just be AST
+transformations on a C frontend that turn all your <code>+</code>
+operators to <code>add(a, b)</code>, your <code>&lt;&lt;</code> to
+<code>left_shift(to_shift, by)</code>, etc. Or you could do it by hand.
+Or you can just stare at the screen. That's what most people do, but I
+think we need a better option.</p>
+<p>When I started implementing this strategy, my debugging efficiency
+went up considerably. Suddenly, I could tell why large sections of my
+code were being optimized away. It's hard to debug code that doesn't
+exist, and wrapping common sources of UB lets me keep it around so I can
+get an error.</p>
+<p>There's also the nuclear option. You could redefine your entire type
+system around not allowing undefined operations. It's not exactly an
+ergonomic option, but it's an option.</p>
+<p>The biggest blunder you could make would be to mistake safety for
+correctness. Just because unsigned wrapping is safe (defined) in C
+doesn't mean that it isn't usually wrong. It's safe by the definition
+above, but in safety critical software it's very dangerous. Many people
+have died as a result of unintentional integer overflow and
+underflow.</p>
+<p>Whether you program in C, C++, or another language without undefined
+behavior doesn't matter. You still have to think about these things. You
+are not immune.</p>
+<p>For Daisho, I have decided that I want to wrap and eliminate all the
+undefined behavior that I can. It makes the program slower, but saves me
+time. Then, once the program is tested, I turn optimizations back on.
+The operations are undefined, the compiler is free to optimize
+aggressively, and all the speed returns. When I need to, I use
+<code>objdump</code> to check the code that's generated for missing
+sections and opportunities for optimization.</p>
+<p>In any case, people have been complaining about undefined behavior
+since the 90s. It's about time that people either got comfortable with
+it or started doing something about it.</p>
 <p><br></p>
 </body>
 </html>

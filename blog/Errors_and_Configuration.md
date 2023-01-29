@@ -15,8 +15,8 @@ This sort of thing comes up a lot. An example would be opening a file in C. You 
 * Get the size of the file on disk
 * Allocate a buffer large enough to store the file's contents
 * Read from the file into the buffer
-* Close the file
 * Null terminate the buffer
+* Close the file
 ```
 
 Basically all of these operations can go wrong. The buffer and the file pointer are resources that need to be cleaned up on failure.
