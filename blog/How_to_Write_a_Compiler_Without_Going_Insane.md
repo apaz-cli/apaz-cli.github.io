@@ -22,6 +22,10 @@ Usually, the pipeline looks something like:
 
 ## Why are compiler authors their own worst enemies?
 
+<div style="text-align: center;">
+![](images/Straightjacket_Man.jpg)
+</div>
+
     If you're the sort to write a compiler, you are not the sort to cope with imperfection. That's the reason you're here in the first place. It's a good thing. But it's also a very bad thing. Trying to get everything perfect in one go will crush you. Don't ask me how I know.
 
 <br>
@@ -62,7 +66,7 @@ They're project management skills.
 
     There are a lot of decisions that are important. Mistakes can compound. Many mistakes however cannot compound. You don't have to get those decisions right on the first try.
 
-    Often, compiler authors write languages for reasons of syntax. There's nothing wrong with that. However, the syntax of your language is not important to the way your compiler works. Any part of the syntax that you get wrong can be fixed later with minimal effort, and you'll end up with the same abstract syntax tree at the end of the parser anyway. Too many would-be language designers get stuck at this step. Do not too much time here. It is bikeshedding, and will consume you if you let it.
+    Often, compiler authors write languages for reasons of syntax. There's nothing wrong with that. However, the syntax of your language is not important to the way your compiler works. Any part of the syntax that you get wrong can be fixed later with minimal effort, and you'll end up with the same abstract syntax tree at the end of the parser anyway. Too many would-be language designers get stuck at this step. Do not spend too much time here. It is bikeshedding, and will consume you if you let it.
 
     To clarify, syntax is not something to spend time on, so long as there are no grammatical ambiguities. That is an issue which is an issue that actually could compound into further issues down the road. In general, whenever you need to make a decision, the time that you spend on it should be correlated to its importance.
 
