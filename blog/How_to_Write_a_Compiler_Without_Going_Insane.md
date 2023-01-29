@@ -112,9 +112,10 @@ They're project management skills.
    * Decide if you really want to do this.
    * Don't let yourself burn out.
  * Make incremental progress
-   * Keep an eye on both the big picture and the small picture
-   * Find a system that works for you
+   * Keep an eye on both the big picture and the small picture.
+   * Find a system for accomplishing that which works for you.
+<br>
 
 I may have just reinvented basic project management principles, but I hope that this unhinged rant has been useful to you.
 
-
+-apaz
