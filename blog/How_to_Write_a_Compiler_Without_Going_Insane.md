@@ -88,15 +88,33 @@ They're project management skills.
 
     Marathons are long. But they are also peppered with landmarks along the way. Getting to each landmark is its own battle that gets you closer to the goal. I beleive that the same approach applies to compiler development. What follows is my own opinion and my own system. You should find a system that works for you.
 
-I keep a record of what immediate work needs to be done. Whenever I sit down to code, I decide on what I want to accomplish in that session.
+    It's important to keep track of both be big and small picture. I maintain two different TODO lists, one for each. Whenever I sit down to work on the project, I first spend a few minutes calling to mind and updating my mental model of the big picture, then decide on individual small tasks from the other list that I want to accomplish in that session. At the end of the session, before I step away from my laptop, I update the lists.
 
+    Big picture tasks are easy to keep track of. If you've written a tokenizer and a parser, and it's time to move on to AST desugaring, then it's relatively easy to know where you are in the process. What requires more thought is dealing with change, finalizing parts of the API, and making sure that everything still makes sense at a macro scale.
+
+    The small tasks are more difficult to keep track of. I find that I need to make a list, and oftentimes update it as I program, or I will forget most of it. Tasks on this list could be implementing certain functions or features, fixing bugs, testing functions or features, making decisions both large and small scale, and all the other tiny individual tasks that are part of the goal.
+
+    Prioritizing and building a queue out of the small task list is a great way to contextualize the large task list, especially since some tasks on the small list are to make large decisions. Many of my tasks are literally just thinking about things like type systems, optimizations, etc. The thinking tasks should generally be about the things that you really don't want to get wrong. Don't bikeshed. If you can make a wrong decision without having to redo a lot of work, then just do so and don't feel bad about it.
 
 <br>
 
 
+## In Conclusion
 
-* Make incremental progress
-  * Whenever you sit down to code, decide on what you want to get done in that session
-  * Keep a queue of work to be done
+ * Learn to cope with imperfection.
+ * Constrain the scope of the work. Do not let it creep.
+ * Don't bikeshed. You can always repaint the shed.
+   * In particular, do not spend too much time on syntax.
+ * Spend more time thinking about decisions that could be difficult to paint over later.
+   * Make sure there are no large gaps in your understanding, or in data flow.
+   * In particular, flesh out the internal APIs and representation of concepts in your language.
+ * Manage your schedule.
+   * Decide if you really want to do this.
+   * Don't let yourself burn out.
+ * Make incremental progress
+   * Keep an eye on both the big picture and the small picture
+   * Find a system that works for you
+
+I may have just reinvented basic project management principles, but I hope that this unhinged rant has been useful to you.
 
 
