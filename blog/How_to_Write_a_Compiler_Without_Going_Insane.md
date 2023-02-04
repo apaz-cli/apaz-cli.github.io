@@ -46,7 +46,7 @@ Usually, every compilation pipeline looks something like:
 ![](images/20_Minutes_Adventure.gif)
 </div>
 
-    This is perhaps the most important advice. Scope creep. Don't. You will feel to the urge to create endless complementary side projects. You could work on...
+    This is perhaps the most important advice. Scope creep. Don't. You will feel to the urge to create endless complementary side projects. You'll want to work on...
 
  * Editor support
  * Package Manager
@@ -55,7 +55,9 @@ Usually, every compilation pipeline looks something like:
  * Debugger
  * Language Server
 
-    These can all be accomplished later, and are best accomplished with support from either multiple teams or large communities. Not by independent devs trying to do everything. Don't try to undertake all of these. You and your project will both die. Limit the scope of what you're doing as much as you can.
+    These can all be accomplished later, and are best accomplished with support from either multiple teams or large communities. Not by independent devs trying to do everything. Don't try to undertake all of these. You and your project will both die trying. Limit the scope of what you're doing as much as you can.
+
+If you consider these things to be core to the experience of using your language, resolve to finish your compiler first. Do not attempt to finish one of these at the same time as your compiler.
 
 <br>
 

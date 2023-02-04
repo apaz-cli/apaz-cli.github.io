@@ -20,13 +20,21 @@ for f in glob('*.md'):
 
     title = splitext(f)[0]
     to = title + '.html'
-    tmpnam = "tmp.html"
+    unstyled = title + "-unstyled.html"
 
     run(f'pandoc -s --metadata pagetitle="{title.replace(un, sp)}" -f markdown-smart -H {stylefile} {f} -o {to}')
+    run(f'pandoc -s --metadata pagetitle="{title.replace(un, sp)}" -f markdown-smart {f} -o {unstyled}')
 
     with open(to, 'r+') as tmp:
         stxt = tmp.read()
         txt = re.sub(replace, repwith, stxt, flags=re.DOTALL, count=1)
+        tmp.seek(0)
+        tmp.write(txt)
+        tmp.truncate()
+
+    with open(unstyled, 'r+') as tmp:
+        stxt = tmp.read()
+        txt = re.sub("\s+<style>.*</style>", "", stxt, flags=re.DOTALL, count=1)
         tmp.seek(0)
         tmp.write(txt)
         tmp.truncate()
