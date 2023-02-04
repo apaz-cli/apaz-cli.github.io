@@ -55,6 +55,7 @@ def makeDoc(data):
         <div class="centerDivs">
             <div class="category">
 '''
+        # Write out the content, combining short lines.
         for category in data:
             page += '                <div class="categorytitle">' + \
                 category[0]+'</div>\n'
@@ -62,6 +63,8 @@ def makeDoc(data):
             linelength = 0
             for entry in category[1:]:
                 name, link = entry.split(' | ')
+                name = name.strip()
+                link = link.strip()
                 linelength += len(name)+3
                 if linelength > 50:
                     page = page[:-3]+'</div><div class="categorycontent">'
@@ -109,7 +112,6 @@ def makeDoc(data):
 def makeBlog():
     os.chdir('blog/')
     os.system('./blogmd.py')
-    pass
 
 
 if __name__ == "__main__":
