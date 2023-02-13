@@ -41,6 +41,13 @@ def makeDoc(data):
     <title>apaz's Website</title>
     <link rel="stylesheet" href="main.css">
     <link rel="icon" type="image/png" href="resources/images/favicon.png">
+
+    <link rel="preload"  href="resources/images/1.jpg">
+    <link rel="prefetch" href="resources/images/2.jpg">
+    <link rel="prefetch" href="resources/images/3.jpg">
+    <link rel="prefetch" href="resources/images/4.jpg">
+    <link rel="prefetch" href="resources/images/5.jpg">
+    <link rel="prefetch" href="resources/images/6.jpg">
 </head>
 <body>
     <div class="bg-image"></div>
