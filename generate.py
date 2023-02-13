@@ -63,9 +63,11 @@ def makeDoc(data):
             <div class="category">
 '''
         # Write out the content, combining short lines.
-        for category in data:
-            page += '                <div class="categorytitle">' + \
-                category[0]+'</div>\n'
+        for i, category in enumerate(data):
+            print(i)
+            page += ('\n' if i else '') + \
+                    '                <div class="categorytitle">' + \
+                    category[0] + '</div>\n'
             page += '                <div class="categorycontent">'
             linelength = 0
             for entry in category[1:]:
@@ -74,7 +76,7 @@ def makeDoc(data):
                 link = link.strip()
                 linelength += len(name)+3
                 if linelength > 50:
-                    page = page[:-3]+'</div><div class="categorycontent">'
+                    page = page[:-3]+'</div>\n                <div class="categorycontent">'
                     page += '<a href="'+link+'">'+name+'</a> - '
                     linelength = len(name)
                 else:
