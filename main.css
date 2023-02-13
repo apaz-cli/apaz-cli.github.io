@@ -1,209 +1,426 @@
 /*Most easy/basic changes can be done up here in the root area, edit the rest if you know what it does.*/
-:root{
---stripebackground:#e2c8d4;         /*The color of the small stripe just under the header*/
---windowbackground: #d0a4af;        /*The color of the background of the main window main area.*/
---maintextcolor:#000;               /*The color of the text in the main area.*/
---headercolor:#fff;                 /*The color of the text in the header/title.*/
-/* --linktextcolor:var(--maintextcolor); /*This line means that the links will have the same color as the normal text in the main area of the window. Change if you want different colors.*/
---backgroundImageUrl:url("resources/images/1.jpg");  /*The URL to the image you want to use as background.*/
---focusImageUrl:url("resources/images/sip.png");   /*The URL to the image you want to use for the foreground.*/
---backgroundBlur:blur(0px);                           /*Change how blurry the background is. Higher number is more blurry.*/
---backgroundBorder:#000;                           /*If you have a blurry background, set the color of the border around the image to fit it here.*/
---letterSpace:2px;                                    /*Define how far letters are spaced from each other in pixels.*/
-/* The font style doesn't seem to work as variable defined here. If you want to change the font, scroll to the bottom of the document to change the path.*/
+@media all and (orientation:landscape) {
+  :root{
+  --stripebackground:#e2c8d4;         /*The color of the small stripe just under the header*/
+  --windowbackground: #d0a4af;        /*The color of the background of the main window main area.*/
+  --maintextcolor:#000;               /*The color of the text in the main area.*/
+  --headercolor:#fff;                 /*The color of the text in the header/title.*/
+  /* --linktextcolor:var(--maintextcolor); /*This line means that the links will have the same color as the normal text in the main area of the window. Change if you want different colors.*/
+  --backgroundImageUrl:url("resources/images/1.jpg");  /*The URL to the image you want to use as background.*/
+  --focusImageUrl:url("resources/images/sip.png");   /*The URL to the image you want to use for the foreground.*/
+  --backgroundBlur:blur(0px);                           /*Change how blurry the background is. Higher number is more blurry.*/
+  --backgroundBorder:#000;                           /*If you have a blurry background, set the color of the border around the image to fit it here.*/
+  --letterSpace:calc(2 / 821 * 100vmin);                                    /*Define how far letters are spaced from each other in pixels.*/
+  /* The font style doesn't seem to work as variable defined here. If you want to change the font, scroll to the bottom of the document to change the path.*/
 
-/* These are the font sizes for every element with text respectively:*/
---windowtitlefontsize:17px;           /*Font size used by the window title and clock*/
---windowsubtitlefontsize:17px;        /*Font size used by the subtitle*/
---categorytitlefontsize:25px;         /*Font size used by the category titles*/
---categorycontentfontsize:17px;       /*Font size used by the category contents*/
+  /* These are the font sizes for every element with text respectively:*/
+  --windowtitlefontsize:calc(17 / 821 * 100vmin);           /*Font size used by the window title and clock*/
+  --windowsubtitlefontsize:calc(17 / 821 * 100vmin);        /*Font size used by the subtitle*/
+  --categorytitlefontsize:calc(25 / 821 * 100vmin);         /*Font size used by the category titles*/
+  --categorycontentfontsize:calc(17 / 821 * 100vmin);       /*Font size used by the category contents*/
 
-/* The following settings are for the pixel overlay effect:*/
---pixeloverlay-exists:visible;        /*Activate or deactivate the "pixel effect" overlay. Set to 'visible' to activate, set to 'hidden' to deactivate. When set to 'hidden' the other settings in this category don't matter.*/
---pixeloverlay-itensity:0.1;          /*How intense the overlay should be. Float between 0 and 1, but recommended range is more between 0 and 0.3. Higher values makes startpage darker.*/
---pixeloverlay-resolution:1;          /*A multiplier for the "pixel effect" size. 1 is default, higher means "bigger" pixels. If you use non whole numbers the probability of moiré patterns forming (and looking badly) increases a lot.*/
+  /* The following settings are for the pixel overlay effect:*/
+  --pixeloverlay-exists:visible;        /*Activate or deactivate the "pixel effect" overlay. Set to 'visible' to activate, set to 'hidden' to deactivate. When set to 'hidden' the other settings in this category don't matter.*/
+  --pixeloverlay-itensity:0.1;          /*How intense the overlay should be. Float between 0 and 1, but recommended range is more between 0 and 0.3. Higher values makes startpage darker.*/
+  --pixeloverlay-resolution:1;          /*A multiplier for the "pixel effect" size. 1 is default, higher means "bigger" pixels. If you use non whole numbers the probability of moiré patterns forming (and looking badly) increases a lot.*/
 
-/* The following setting are for the vignette overlay effect:*/
---vignetteoverlay-exists:visible;     /*Activate or deactivate the "vignette effect" overlay. Set to 'visible' to activate, set to 'hidden' to deactivate. When set to 'hidden' the other settings in this category don't matter.*/
---vignetteoverlay-intensity:0.5;      /*How intense the overlay should be. Float between 0 and 1, but recommended range is between 0 and 0.5. Higher values make the vignette much darker. */
---vignetteoverlay-size:50%;           /*How big the "radius" of the vignette should be. It is minimal at 0% and as big as the screen (and thus invisible) at 100%. Accepts % values. */
-}
+  /* The following setting are for the vignette overlay effect:*/
+  --vignetteoverlay-exists:visible;     /*Activate or deactivate the "vignette effect" overlay. Set to 'visible' to activate, set to 'hidden' to deactivate. When set to 'hidden' the other settings in this category don't matter.*/
+  --vignetteoverlay-intensity:0.5;      /*How intense the overlay should be. Float between 0 and 1, but recommended range is between 0 and 0.5. Higher values make the vignette much darker. */
+  --vignetteoverlay-size:50%;           /*How big the "radius" of the vignette should be. It is minimal at 0% and as big as the screen (and thus invisible) at 100%. Accepts % values. */
+  }
 
-:link { color: #0000EE; }
-:visited { color: #551A8B; }
-@keyframes chbg {
-  0% {
-    background:url(resources/images/1.jpg);
-  background-size:cover
+  :link { color: #0000EE; }
+  :visited { color: #551A8B; }
+  @keyframes chbg {
+    0% {
+      background:url(resources/images/1.jpg);
+    background-size:cover
+    }
+    20% {
+      background:url(resources/images/2.jpg);
+    background-size:cover
+    }
+    40% {
+      background:url(resources/images/3.jpg);
+    background-size:cover
+    }
+    60% {
+      background:url(resources/images/4.jpg);
+    background-size:cover
+    }
+    80% {
+      background:url(resources/images/5.jpg);
+    background-size:cover
+    }
+    100% {
+      background:url(resources/images/6.jpg);
+    background-size:cover
+    }
   }
-  20% {
-    background:url(resources/images/2.jpg);
-  background-size:cover
-  }
-  40% {
-    background:url(resources/images/3.jpg);
-  background-size:cover
-  }
-  60% {
-    background:url(resources/images/4.jpg);
-  background-size:cover
-  }
-  80% {
-    background:url(resources/images/5.jpg);
-  background-size:cover
-  }
-  100% {
-    background:url(resources/images/6.jpg);
-  background-size:cover
-  }
-}
 
-.bg-image {
-    background-image: var(--backgroundImageUrl);
-    filter: var(--backgroundBlur);
-    -webkit-filter: var(--backgroundBlur);
+  .bg-image {
+      background-image: var(--backgroundImageUrl);
+      filter: var(--backgroundBlur);
+      -webkit-filter: var(--backgroundBlur);
+      height: 100vh;
+      width: 100vw;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      animation: chbg 180s linear infinite;
+  }
+  .window-bg {
+      background-image: url(resources/images/window.png);
+      height: calc(485 / 821 * 100vh);
+      width: calc(960 / 1127 * 100vw);
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+  }
+  #clock{
+    text-align: right;
+    position: relative;
+    top: calc(3 / 25 * 100%);
+    right: calc(5 / 949 * 100%);
+  }
+  .centerDivs{
+    display: table;
+    top:0px;
+    left:0px;
     height: 100%;
+    width: 100%;
+  }
+  .front-img{
+    position: inherit;
+    width: calc(339 / 960 * 100%);
+    height: calc(446 / 485 * 100%);
+    left:calc(5 / 960 * 100%);
+    top:calc(34 / 485 * 100%);
+    background-image:var(--focusImageUrl);
     background-position: center;
-    background-repeat: no-repeat;
     background-size: cover;
-    animation: chbg 180s linear infinite;
-}
-.window-bg {
-    background-image: url("resources/images/window.png");
-    height: 485px;
-    width: 960px;
-    background-position: center;
     background-repeat: no-repeat;
-    background-size: cover;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-#clock{
-  text-align: right;
-  position: relative;
-  top: 3px;
-  right: 5px;
-}
-.centerDivs{
-  display: table;
-  top:0px;
-  left:0px;
-  height: 100%;
-  width: 100%;
-}
-.front-img{
-  position: inherit;
-  width: 339px;
-  height: 446px;
-  left:5px;
-  top:34px;
-  background-image:var(--focusImageUrl);
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-}
-.titlediv{
-  font-size: var(--windowtitlefontsize);
-  position: inherit;
-  width: 949px;
-  height: 25px;
-  left:5px;
-  top:5px;
-  color: var(--headercolor);
-}
-#titleb{
-  position:inherit;
-  top: 3px;
-  left:5px;
-}
-#Subtitle{
-  font-size: var(--windowsubtitlefontsize);
-  position: inherit;
-  top:5px;
-  margin-left: 10px;
-  margin-right: 10px;
-  text-align: left;
-  width: 100%;
-}
-.windowbackgroundarea1{
-  position: inherit;
-  width: 606px;
-  height: 26px;
-  left:349px;
-  top:34px;
-  background-color: var(--stripebackground);
-}
-.windowbackgroundarea2{
-  position: inherit;
-  width: 606px;
-  height: 415px;
-  left:349px;
-  top:65px;
-  background-color:var(--windowbackground);
-}
-.category{
-  height:100%;
-  width: 100%;
-  display:table-cell;
-  vertical-align:middle;
-  position: relative;
-  top: -20px; /*This is a bit hacky, but since each title has a top margin of 20px, the whole text is misaligned by 20px downwards. This compensates for that.*/
-}
-.categorytitle{
-  font-size: var(--categorytitlefontsize);
-  font-weight: normal;
-  width:605px;
-  text-align: center;
-  position: relative;
-  margin-top: 20px;
-}
-.categorycontent{
-  font-size: var(--categorycontentfontsize);
-  width:605px;
-  position:relative;
-  text-align: center;
-  font-weight: lighter;
-  margin-top: 5px;
-}
-.pixeloverlay{
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  pointer-events: none;
-  background: repeating-linear-gradient(90deg,rgba(0, 0, 255, var(--pixeloverlay-itensity)),rgba(0, 0, 255, var(--pixeloverlay-itensity)) calc(var(--pixeloverlay-resolution)*1px),rgba(255, 0, 0, var(--pixeloverlay-itensity)) calc(var(--pixeloverlay-resolution)*1px),rgba(255, 0, 0, var(--pixeloverlay-itensity)) calc(var(--pixeloverlay-resolution)*2px),rgba(0, 255, 0, var(--pixeloverlay-itensity)) calc(var(--pixeloverlay-resolution)*2px),rgba(0, 255, 0, var(--pixeloverlay-itensity)) calc(var(--pixeloverlay-resolution)*3px)),
-  repeating-linear-gradient(0deg,rgba(0, 0, 0, var(--pixeloverlay-itensity)),rgba(0, 0, 0, var(--pixeloverlay-itensity)) calc(var(--pixeloverlay-resolution)*1px), rgba(255, 255, 255, 0) 1px,rgba(255, 255, 255, 0) calc(var(--pixeloverlay-resolution)*3px));
-  visibility: var(--pixeloverlay-exists);
-}
-.vignette{
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  top: 0px;
-  left: 0px;
-  pointer-events: none;
-  visibility: var(--vignetteoverlay-exists);
-  background: radial-gradient(transparent,transparent var(--vignetteoverlay-size), rgba(0,0,0,var(--vignetteoverlay-intensity)));
-}
-a{
-  margin-left: 5px;
-  margin-right: 5px;
-  margin-top: 10px;
-  text-decoration: none;
-  color:var(--linktextcolor)
-}
-body, html {
+  }
+  .titlediv{
+    font-size: var(--windowtitlefontsize);
+    position: inherit;
+    width: calc(949 / 960 * 100%);
+    height: calc(25 / 485 * 100%);
+    left:calc(5 / 960 * 100%);
+    top:calc(5 / 485 * 100%);
+    color: var(--headercolor);
+  }
+  #titleb{
+    position:inherit;
+    top: calc(3 / 25 * 100%);
+    left: calc(5 / 949 * 100%);
+  }
+  #Subtitle{
+    font-size: var(--windowsubtitlefontsize);
+    position: inherit;
+    top:calc(5 / 26 * 100%);
+    margin-left: calc(10 / 606 * 100%);
+    margin-right: calc(10 / 606 * 100%);
+    text-align: left;
+    width: 100%;
+  }
+  .windowbackgroundarea1{
+    position: inherit;
+    width: calc(606 / 960 * 100%);
+    height: calc(26 / 485 * 100%);
+    left:calc(349 / 960 * 100%);
+    top:calc(34 / 485 * 100%);
+    background-color: var(--stripebackground);
+  }
+  .windowbackgroundarea2{
+    position: inherit;
+    width: calc(606 / 960 * 100%);
+    height: calc(415 / 485 * 100%);
+    left:calc(349 / 960 * 100%);
+    top:calc(65 / 485 * 100%);
+    background-color:var(--windowbackground);
+  }
+  .category{
+    height:100%;
+    width: 100%;
+    display:table-cell;
+    vertical-align:middle;
+    position: relative;
+    top: calc(-20 / 821 * 100vh); /*This is a bit hacky, but since each title has a top margin of 20px, the whole text is misaligned by 20px downwards. This compensates for that.*/
+  }
+  .categorytitle{
+    font-size: var(--categorytitlefontsize);
+    font-weight: normal;
+    width:100%;
+    text-align: center;
+    position: relative;
+    margin-top: calc(20 / 821 * 100vh);
+  }
+  .categorycontent{
+    font-size: var(--categorycontentfontsize);
+    width:100%;
+    position:relative;
+    text-align: center;
+    font-weight: lighter;
+    margin-top: calc(5 / 821 * 100vh);;
+  }
+  .pixeloverlay{
+    width: 100%;
     height: 100%;
-    margin: 0;
-    font-family: lemon;
-    color:var(--maintextcolor);
-    position: center;
-    letter-spacing:var(--letterSpace);
-    background: var(--backgroundBorder);
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    pointer-events: none;
+    background: repeating-linear-gradient(90deg,rgba(0, 0, 255, var(--pixeloverlay-itensity)),rgba(0, 0, 255, var(--pixeloverlay-itensity)) calc(var(--pixeloverlay-resolution)*1px),rgba(255, 0, 0, var(--pixeloverlay-itensity)) calc(var(--pixeloverlay-resolution)*1px),rgba(255, 0, 0, var(--pixeloverlay-itensity)) calc(var(--pixeloverlay-resolution)*2px),rgba(0, 255, 0, var(--pixeloverlay-itensity)) calc(var(--pixeloverlay-resolution)*2px),rgba(0, 255, 0, var(--pixeloverlay-itensity)) calc(var(--pixeloverlay-resolution)*3px)),
+    repeating-linear-gradient(0deg,rgba(0, 0, 0, var(--pixeloverlay-itensity)),rgba(0, 0, 0, var(--pixeloverlay-itensity)) calc(var(--pixeloverlay-resolution)*1px), rgba(255, 255, 255, 0) 1px,rgba(255, 255, 255, 0) calc(var(--pixeloverlay-resolution)*3px));
+    visibility: var(--pixeloverlay-exists);
+  }
+  .vignette{
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    pointer-events: none;
+    visibility: var(--vignetteoverlay-exists);
+    background: radial-gradient(transparent,transparent var(--vignetteoverlay-size), rgba(0,0,0,var(--vignetteoverlay-intensity)));
+  }
+  a{
+    margin-left: calc(5 / 1127 * 100vh);;
+    margin-right: calc(5 / 1127 * 100vh);;
+    margin-top: calc(10 / 821 * 100vh);;
+    text-decoration: none;
+    color:var(--linktextcolor)
+  }
+
+  body, html {
+      height: 100%;
+      margin: 0;
+      font-family: lemon;
+      color:var(--maintextcolor);
+      position: center;
+      letter-spacing:var(--letterSpace);
+      background: var(--backgroundBorder);
+  }
 }
+
+
+@media all and (orientation:portrait) {
+  :root{
+  --stripebackground:#e2c8d4;         /*The color of the small stripe just under the header*/
+  --windowbackground: #d0a4af;        /*The color of the background of the main window main area.*/
+  --maintextcolor:#000;               /*The color of the text in the main area.*/
+  --headercolor:#fff;                 /*The color of the text in the header/title.*/
+  /* --linktextcolor:var(--maintextcolor); /*This line means that the links will have the same color as the normal text in the main area of the window. Change if you want different colors.*/
+  --backgroundImageUrl:url("resources/images/1.jpg");  /*The URL to the image you want to use as background.*/
+  --focusImageUrl:url("resources/images/sip.png");   /*The URL to the image you want to use for the foreground.*/
+  --backgroundBlur:blur(0px);                           /*Change how blurry the background is. Higher number is more blurry.*/
+  --backgroundBorder:#000;                           /*If you have a blurry background, set the color of the border around the image to fit it here.*/
+  --letterSpace:calc(2 / 821 * 100vmin);                                    /*Define how far letters are spaced from each other in pixels.*/
+  /* The font style doesn't seem to work as variable defined here. If you want to change the font, scroll to the bottom of the document to change the path.*/
+
+  /* These are the font sizes for every element with text respectively:*/
+  --windowtitlefontsize:calc(17 / 821 * 100vmin);           /*Font size used by the window title and clock*/
+  --windowsubtitlefontsize:calc(17 / 821 * 100vmin);        /*Font size used by the subtitle*/
+  --categorytitlefontsize:calc(25 / 821 * 100vmin);         /*Font size used by the category titles*/
+  --categorycontentfontsize:calc(17 / 821 * 100vmin);       /*Font size used by the category contents*/
+
+  /* The following settings are for the pixel overlay effect:*/
+  --pixeloverlay-exists:visible;        /*Activate or deactivate the "pixel effect" overlay. Set to 'visible' to activate, set to 'hidden' to deactivate. When set to 'hidden' the other settings in this category don't matter.*/
+  --pixeloverlay-itensity:0.1;          /*How intense the overlay should be. Float between 0 and 1, but recommended range is more between 0 and 0.3. Higher values makes startpage darker.*/
+  --pixeloverlay-resolution:1;          /*A multiplier for the "pixel effect" size. 1 is default, higher means "bigger" pixels. If you use non whole numbers the probability of moiré patterns forming (and looking badly) increases a lot.*/
+
+  /* The following setting are for the vignette overlay effect:*/
+  --vignetteoverlay-exists:visible;     /*Activate or deactivate the "vignette effect" overlay. Set to 'visible' to activate, set to 'hidden' to deactivate. When set to 'hidden' the other settings in this category don't matter.*/
+  --vignetteoverlay-intensity:0.5;      /*How intense the overlay should be. Float between 0 and 1, but recommended range is between 0 and 0.5. Higher values make the vignette much darker. */
+  --vignetteoverlay-size:50%;           /*How big the "radius" of the vignette should be. It is minimal at 0% and as big as the screen (and thus invisible) at 100%. Accepts % values. */
+  }
+
+  :link { color: #0000EE; }
+  :visited { color: #551A8B; }
+  @keyframes chbg {
+    0% {
+      background:url(resources/images/1.jpg);
+    background-size:cover
+    }
+    20% {
+      background:url(resources/images/2.jpg);
+    background-size:cover
+    }
+    40% {
+      background:url(resources/images/3.jpg);
+    background-size:cover
+    }
+    60% {
+      background:url(resources/images/4.jpg);
+    background-size:cover
+    }
+    80% {
+      background:url(resources/images/5.jpg);
+    background-size:cover
+    }
+    100% {
+      background:url(resources/images/6.jpg);
+    background-size:cover
+    }
+  }
+
+  .bg-image {
+      background-image: var(--backgroundImageUrl);
+      filter: var(--backgroundBlur);
+      -webkit-filter: var(--backgroundBlur);
+      height: 100vh;
+      width: 100vw;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      animation: chbg 180s linear infinite;
+  }
+  .window-bg {
+      background-image: url(resources/images/window_port.png);
+      height: calc(940 / 821 * 75vh);
+      width: calc(614 / 1127 * 150vw);
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: 100% 100%;
+      position: absolute;
+      top: 10%;
+      left: 50%;
+      transform: translate(-50%, -0%);
+  }
+  #clock{
+    text-align: right;
+    position: relative;
+    top: calc(3 / 25 * 50%);
+    right: calc(5 / 949 * 100%);
+  }
+  .centerDivs{
+    display: table;
+    top:0px;
+    left:0px;
+    height: 100%;
+    width: 100%;
+  }
+  .front-img{
+    position: inherit;
+    width: calc(949 / 960 * 100%);
+    height: 37.5%;
+    left:calc(5 / 960 * 100%);
+    top:3.51%;
+    background-image:var(--focusImageUrl);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+  .titlediv{
+    font-size: var(--windowtitlefontsize);
+    position: inherit;
+    width: calc(949 / 960 * 100%);
+    height: calc(25 / 485 * 50%);
+    left:calc(5 / 960 * 100%);
+    top:calc(5 / 485 * 50%);
+    color: var(--headercolor);
+  }
+  #titleb{
+    position:inherit;
+    top: calc(3 / 25 * 50%);
+    left: calc(5 / 949 * 100%);
+  }
+  #Subtitle{
+    font-size: var(--windowsubtitlefontsize);
+    position: inherit;
+    top:calc(5 / 26 * 100%);
+    margin-left: calc(10 / 606 * 100%);
+    margin-right: calc(10 / 606 * 100%);
+    text-align: left;
+    width: 100%;
+  }
+  .windowbackgroundarea1{
+    position: inherit;
+    width: calc(949 / 960 * 100%);
+    height: 3.5%;
+    left: calc(5 / 960 * 100%);
+    top: 41.5%;
+    background-color: var(--stripebackground);
+  }
+  .windowbackgroundarea2{
+    position: inherit;
+    width: calc(949 / 960 * 100%);
+    height: 54.7%;
+    left:calc(5 / 960 * 100%);
+    top:45%;
+    background-color:var(--windowbackground);
+  }
+  .category{
+    height:100%;
+    width: 100%;
+    display:table-cell;
+    vertical-align:middle;
+    position: relative;
+    top: calc(-20 / 821 * 100vh); /*This is a bit hacky, but since each title has a top margin of 20px, the whole text is misaligned by 20px downwards. This compensates for that.*/
+  }
+  .categorytitle{
+    font-size: var(--categorytitlefontsize);
+    font-weight: normal;
+    width:100%;
+    text-align: center;
+    position: relative;
+    margin-top: calc(20 / 821 * 100vh);
+  }
+  .categorycontent{
+    font-size: var(--categorycontentfontsize);
+    width:100%;
+    position:relative;
+    text-align: center;
+    font-weight: lighter;
+    margin-top: calc(5 / 821 * 100vh);;
+  }
+  .pixeloverlay{
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    pointer-events: none;
+    background: repeating-linear-gradient(90deg,rgba(0, 0, 255, var(--pixeloverlay-itensity)),rgba(0, 0, 255, var(--pixeloverlay-itensity)) calc(var(--pixeloverlay-resolution)*1px),rgba(255, 0, 0, var(--pixeloverlay-itensity)) calc(var(--pixeloverlay-resolution)*1px),rgba(255, 0, 0, var(--pixeloverlay-itensity)) calc(var(--pixeloverlay-resolution)*2px),rgba(0, 255, 0, var(--pixeloverlay-itensity)) calc(var(--pixeloverlay-resolution)*2px),rgba(0, 255, 0, var(--pixeloverlay-itensity)) calc(var(--pixeloverlay-resolution)*3px)),
+    repeating-linear-gradient(0deg,rgba(0, 0, 0, var(--pixeloverlay-itensity)),rgba(0, 0, 0, var(--pixeloverlay-itensity)) calc(var(--pixeloverlay-resolution)*1px), rgba(255, 255, 255, 0) 1px,rgba(255, 255, 255, 0) calc(var(--pixeloverlay-resolution)*3px));
+    visibility: var(--pixeloverlay-exists);
+  }
+  .vignette{
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    pointer-events: none;
+    visibility: var(--vignetteoverlay-exists);
+    background: radial-gradient(transparent,transparent var(--vignetteoverlay-size), rgba(0,0,0,var(--vignetteoverlay-intensity)));
+  }
+  a{
+    margin-left: calc(5 / 1127 * 100vh);;
+    margin-right: calc(5 / 1127 * 100vh);;
+    margin-top: calc(10 / 821 * 100vh);;
+    text-decoration: none;
+    color:var(--linktextcolor)
+  }
+
+  body, html {
+      height: 100%;
+      margin: 0;
+      font-family: lemon;
+      color:var(--maintextcolor);
+      position: center;
+      letter-spacing:var(--letterSpace);
+      background: var(--backgroundBorder);
+  }
+}
+
+
 
 @font-face {
     font-family: "lemon";
