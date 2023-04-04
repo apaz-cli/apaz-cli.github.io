@@ -3,7 +3,7 @@ Airplanes, Safety, and Correctness           | blog/Safety_and_Correctness.html
 How to Write a Compiler Without Going Insane | blog/How_to_Write_a_Compiler_Without_Going_Insane.html
 
 Demos:
-Daisho Explorer | https://compiler-explorer.apaz.dev
+Daisho Explorer (Online pgen/Daisho compiler) | https://daisho-explorer.apaz.dev
 
 Projects:
 The Daisho Programming Language       | https://github.com/apaz-cli/Daisho
