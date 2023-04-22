@@ -55,9 +55,9 @@ Usually, every compilation pipeline looks something like:
  * Debugger
  * Language Server
 
-    These can all be accomplished later, and are best accomplished with support from either multiple teams or large communities. Not by independent devs trying to do everything. Don't try to undertake all of these. You and your project will both die trying. Limit the scope of what you're doing as much as you can.
+    These can all be accomplished later, and are best accomplished with support from either multiple teams or large communities. Not by independent devs trying to do everything. Limit the scope of what you're doing as much as you can.
 
-If you consider these things to be core to the experience of using your language, resolve to finish your compiler first. Do not attempt to finish one of these at the same time as your compiler.
+    Even if you consider these things to be core to the experience of using your language, resolve to finish your compiler first. Do not attempt to finish one of these at the same time as your compiler.
 
 <br>
 
@@ -70,7 +70,7 @@ If you consider these things to be core to the experience of using your language
 
     There are a lot of decisions that are important. Mistakes can compound. Many mistakes however cannot compound. You don't have to get those decisions right on the first try.
 
-    Often, compiler authors write languages for reasons of syntax. There's nothing wrong with that. However, the syntax of your language is not important to the way your compiler works. Any part of the syntax that you get wrong can be fixed later with minimal effort, and you'll end up with the same abstract syntax tree at the end of the parser anyway. Too many would-be language designers get stuck at this step. Do not spend too much time here. It is bikeshedding, and will consume you if you let it.
+    Often, compiler authors write languages for reasons of syntax. There's nothing wrong with that. However, the syntax of your language is not important to the way your compiler works. Any part of the syntax that you get wrong can be fixed later with minimal effort, and you'll end up with roughly the same abstract syntax tree at the end of the parser anyway. Too many would-be language designers get stuck at this step. Do not spend too much time on parsing. It is bikeshedding, and will consume you if you let it.
 
     To clarify, syntax is not something to spend time on, so long as there are no grammatical ambiguities. That is an issue which is an issue that actually could compound into further issues down the road. In general, whenever you need to make a decision, the time that you spend on it should be correlated to its importance.
 

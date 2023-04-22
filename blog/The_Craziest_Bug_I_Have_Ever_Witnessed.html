@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>The Craziest Bug I Have Ever Witnessed</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+      font-size: 20px;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style type="text/css">
+  /* https://github.com/markdowncss/retro/blob/master/css/retro.css */
+
+  @font-face {
+      font-family: "lemon";
+      src: url('lemon.woff');
+  }
+
+  /*
+  @media print {
+      *, *:before, *:after {
+          background: transparent !important;
+          color: #000 !important;
+          box-shadow: none !important;
+          text-shadow: none !important;
+      }
+      a, a:visited { text-decoration: underline; }
+      a[href]:after { content: " (" attr(href) ")"; }
+      abbr[title]:after { content: " (" attr(title) ")"; }
+      a[href^="#"]:after, a[href^="javascript:"]:after { content: ""; }
+      pre, blockquote { border: 1px solid #999; page-break-inside: avoid; }
+      thead { display: table-header-group; }
+      tr, img { page-break-inside: avoid; }
+      img { max-width: 100% !important; }
+      p, h2, h3 { orphans: 3; widows: 3; }
+      h2, h3 { page-break-after: avoid; }
+  }
+  */
+  a, a:visited { color: #01ff70; }
+  a:hover, a:focus, a:active { color: #2ecc40; }
+  .retro-no-decoration { text-decoration: none; }
+  p, .retro-p {
+      font-size: 1rem;
+      margin-bottom: 1.3rem;
+      /*text-indent: 50px*/
+  }
+  h1, .retro-h1, h2, .retro-h2, h3, .retro-h3, h4, .retro-h4 {
+      font-family: "lemon";
+      margin: 1.414rem 0 .5rem;
+      font-weight: inherit;
+      line-height: 1.42;
+  }
+  h1, .retro-h1 {
+      color: rgb(112, 221, 0);
+      margin-top: 0;
+      font-size: 3.998rem;
+  }
+  h2, .retro-h2 {
+      color: rgb(112, 221, 0);
+      margin-top: 0;
+      font-size: 2.827rem;
+  }
+  h3, .retro-h3 {
+      font-size: 1.999rem;
+  }
+  h4, .retro-h4 {
+      font-size: 1.414rem;
+  }
+  h5, .retro-h5 {
+      font-size: 1.121rem;
+  }
+  h6, .retro-h6 {
+      font-size: .88rem;
+  }
+  small, .retro-small {
+      font-size: .707em;
+  }
+
+  img, canvas, iframe, video, svg, select, textarea { max-width: 100%; }
+
+  html, body {
+      /* background-image: url(https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/pattern.png); */
+      background-color: #222;
+      min-height: 100%;
+      font-size: 20px;
+  }
+  body {
+      color: #fafafa;
+      /* font-family:  "lemon", "Courier New"; */
+      line-height: 1.65;
+      max-width: 48rem;
+      /* margin: 6rem auto 1rem; */
+      /* padding: .25rem; */
+  }
+  pre, code {
+      background-color: #333;
+      font-family: "lemon", "Menlo", "Monaco", "Courier New";
+      font-size: 12;
+  }
+
+  code span.dt { color: #e4a51e; } /* DataType */
+
+  pre {
+      padding: .5rem;
+      line-height: 1.25;
+      overflow-x: scroll;
+  }
+  blockquote {
+      border-left: 3px solid #01ff70;
+      padding-left: 1rem;
+  }
+  </style>
+</head>
+<body>
+<div style="text-align: center;">
+<p><img src="images/MessyRoom_arsenixc.jpg" /></p>
+</div>
+<h1 id="the-craziest-bug-i-have-ever-witnessed">The Craziest Bug I Have
+Ever Witnessed</h1>
+<p>Julia has a feature where you can report bugs and crashes from the
+command line. You just run your program with
+<code>julia --bug-report=rr</code>, and it sends a crash report plus an
+<code>rr</code> trace of the process to our servers for us to take a
+look at.</p>
+<div style="text-align: center;">
+<p><img src="images/rr-meme.jpeg" alt="rr-meme" /> <br> This is Keno's
+meme, and I have unabashedly stolen it.</p>
+</div>
+<p>Sometimes we get some crazy stuff. This is in fact not the first time
+that someone from the Julia team has found something crazy in a crash
+dump. Keno wrote a similar (and substantially more detailed) article <a
+href="https://julialang.org/blog/2020/09/rr-memory-magic/">here</a>,
+where he used <code>rr</code> to debug a process where the issue turned
+out to be faulty memory.</p>
+<p>Where Keno visually detailed how he found the bug, I'm just going to
+rant from memory. I wish that I had kept better records. Live and
+learn.</p>
+<h2 id="the-crash">The Crash</h2>
+<p>Julia is a dynamically dispatched and garbage collected language. The
+bug manifested itself as a random crash in function dispatch inside the
+interpreter, which is also written in Julia. The function dispatch code
+is well tested. When the interpreter crashes, it's generally the case
+that there was already memory corruption.</p>
+<p>These sorts of bugs generally suck to find. When you're writing C,
+you can usually just compile with <code>-fsanitize=address</code>.
+Address Sanitizer will tell you when you overwrite memory that doesn't
+belong to any known variable. Unfortunately, the Julia runtime doesn't
+support being compiled with asan because it depends on third party
+binaries that were <em>not</em> compiled with asan. This means that when
+our binary reaches into memory allocated for variables in those
+libraries, asan will throw a false positive and crash. When one part of
+the process is compiled with asan, it all must be.</p>
+<h2 id="finding-the-bug">Finding The Bug</h2>
+<p>Without msan as a crutch, I decided to do as my forebears did and
+guess. I loaded up <code>rr</code>, typed <code>bt full</code>, and...
+even after a while of gawking at it, this stack trace doesn't make any
+sense. It very clearly doesn't follow the control flow of the source
+code. Why?</p>
+<p>Dispatch in Julia is dynamic. What must have happened is that either
+a C function pointer or Julia object was written on top of another.
+But... how? And where?</p>
+<p>Reading through the backtrace, I found that the process crashed after
+a <code>jl_call</code> to <code>abstract_invoke()</code>. That rules out
+that a C function pointer is the culprit. We're looking for a Julia
+object written on top of another.</p>
+<p>I was still new to the Julia codebase at this point, so for a little
+while I was stuck. I spent half an hour reading different parts of the
+runtime that the process was touching. Nothing seemed to pop out at me.
+Eventually I started reading the garbage collector, and the answer
+seemed obvious.</p>
+<p>When Julia objects are allocated, they are never relocated. They stay
+there forever, until they are collected. Therefore, it is actualy
+impossible that an object was written on top of another... unless it
+happened in the garbage collector's allocator.</p>
+<p>So, I set a breakpoint on <code>jl_gc_alloc()</code>, and
+<code>jl_gc_sweep()</code> and watched the pointers that came out of the
+allocator. Sure enough, <code>jl_gc_alloc()</code> returned the same
+pointer twice before <code>jl_gc_sweep()</code>. That is not supposed to
+happen. The question remains, why is it happening?</p>
+<p>When I descended deeper, I found that <code>jl_gc_alloc()</code> just
+calls <code>malloc()</code>, offsets the resulting pointer, and does a
+bunch of bookkeeping, and it was actually <code>malloc()</code> that
+returned the same thing twice.</p>
+<p>... Excuse me, what?</p>
+<p>I time travelled back and set a breakpoint on <code>free()</code>.
+Nope. It isn't freed. Libc just straight up returned the same pointer
+twice. What? How does that happen?</p>
+<p>Collecting myself, I noted that there was an extra call to
+<code>malloc()</code> between the two calls to
+<code>jl_gc_alloc()</code>. What is that?</p>
+<p>When I travelled to it and typed <code>bt</code> once more into
+<code>rr</code>, I saw that call to <code>malloc()</code> happened on a
+signal stack inside a call to <code>dlopen()</code>. Suddenly, I knew
+exactly what the bug was and where.</p>
+<h2 id="explaination">Explaination</h2>
+<p>Most C programmers understand that the linker can do dynamic linking
+for you. Few understand dynamic linking's perilous interaction with
+signal handlers.</p>
+<p>It doesn't help that signal safety is a difficult topic for beginners
+to wrap their heads around in the first place.
+<code>man signal-safety</code> is present, but doesn't do the topic
+justice. The short version of the rant is that if a function is not on
+the list of allowed functions from <code>man signal-safety</code>, do
+not call it from a signal handler. If you do, then understand you are
+doing so at your own peril. It is also against the rules to modify any
+shared global state, or risk the same sort of corruption.</p>
+<p>This is because when a signal handler executes it pauses the current
+thread <em>wherever it is</em>. That is to say, suppose a thread calls
+<code>malloc()</code> and is interrupted halfway through by a signal
+handler. That signal handler then also calls <code>malloc()</code>.</p>
+<p>It obviously isn't, but for simplicity's sake suppose that
+<code>malloc()</code> is implemented something like this:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span><span class="op">*</span> freelist<span class="op">[</span>FREELIST_SIZE<span class="op">];</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dt">size_t</span> freelist_size <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> free<span class="op">(</span><span class="dt">void</span><span class="op">*</span> p<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  freelist<span class="op">[</span>freelist_size<span class="op">++]</span> <span class="op">=</span> p<span class="op">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span><span class="op">*</span> malloc<span class="op">(</span><span class="dt">size_t</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span><span class="op">*</span> ret <span class="op">=</span> freelist<span class="op">[</span>freelist_size <span class="op">-</span> <span class="dv">1</span><span class="op">];</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* THREAD PAUSED HERE FOR SIGNAL HANDLER */</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">--</span>freelist_size<span class="op">;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> ret<span class="op">;</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>In that circumstance, when the return value is decided and the thread
+is paused before the bookkeeping completes, you can see how
+<code>malloc()</code> would return the same thing twice. The same thing
+happens inside glibc. It grabs a pointer from the freelist, but doesn't
+completely erase the record of it in the same instruction. This can also
+lead to the allocator getting corrupted.</p>
+<p>What makes this bug so insidious is that people don't <em>know</em>
+they are doing something unsafe by calling ostensibly signal-safe code
+from a signal handler. The linker inserts a call to
+<code>dlopen()</code>, and that's what calls <code>malloc()</code>. Two
+hidden layers.</p>
+</body>
+</html>
