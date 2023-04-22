@@ -64,7 +64,6 @@ def makeDoc(data):
 '''
         # Write out the content, combining short lines.
         for i, category in enumerate(data):
-            print(i)
             page += ('\n' if i else '') + \
                     '                <div class="categorytitle">' + \
                     category[0] + '</div>\n'
