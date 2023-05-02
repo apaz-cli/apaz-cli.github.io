@@ -1,7 +1,7 @@
 
 
 <div style="text-align: center;">
-![](images/MessyRoom_arsenixc.jpg)
+![](images/Lain_Kernel_Panic.png)
 </div>
 
 # The Craziest Bug I Have Ever Witnessed
@@ -263,7 +263,8 @@ That allocator's bookkeeping was overwritten, but that wasn't the cause of the c
 The crash actually happened when the julia object that was allocated was used. Since the same
 pointer was returned twice, there were two objects that were supposed to be distinct but had the
 same address. By coincidence, they were both allocated in the same place, and so they had the same
-type but different data, which eventually led to a crash in function dispatch.
+type but were supposed to hold different data, which eventually led to the wrong function being called,
+a nonsense stack trace, and eventually a crash in function dispatch.
 
 I should also note that without making the use of multiple high end servers with 40 threads and
 what I assume must be an ungodly amount of RAM, this bug would have been impossible to reproduce.
