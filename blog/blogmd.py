@@ -7,6 +7,9 @@ from shlex import split
 from os import chdir as cd
 from os.path import splitext
 from glob import glob
+from sys import argv
+
+only = argv[1] if len(argv) > 1 else None
 
 stylefile = "../resources/style/pandoc.html"
 
@@ -15,7 +18,10 @@ run = lambda s: subprocess.run(split(s), check=True)
 replace = "\s+.sourceCode {\s+background-color: transparent;\s+overflow: visible;\s+}"
 repwith = "\n    .sourceCode {\n      font-size: 20px;\n    }"
 
-for f in glob('*.md'):
+for i, f in enumerate(glob('*.md')):
+    if only and not i + 1 == int(only):
+        continue
+
     un="_";sp=" "
 
     title = splitext(f)[0]
