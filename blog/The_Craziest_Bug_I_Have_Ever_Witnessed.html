@@ -321,7 +321,7 @@
 </head>
 <body>
 <div style="text-align: center;">
-<p><img src="images/MessyRoom_arsenixc.jpg" /></p>
+<p><img src="images/Lain_Kernel_Panic.png" /></p>
 </div>
 <h1 id="the-craziest-bug-i-have-ever-witnessed">The Craziest Bug I Have
 Ever Witnessed</h1>
@@ -562,8 +562,9 @@ the crash either.</p>
 was used. Since the same pointer was returned twice, there were two
 objects that were supposed to be distinct but had the same address. By
 coincidence, they were both allocated in the same place, and so they had
-the same type but different data, which eventually led to a crash in
-function dispatch.</p>
+the same type but were supposed to hold different data, which eventually
+led to the wrong function being called, a nonsense stack trace, and
+eventually a crash in function dispatch.</p>
 <p>I should also note that without making the use of multiple high end
 servers with 40 threads and what I assume must be an ungodly amount of
 RAM, this bug would have been impossible to reproduce. I had to run the
