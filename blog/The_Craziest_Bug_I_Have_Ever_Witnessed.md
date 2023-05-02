@@ -223,6 +223,7 @@ same thing happens inside glibc. It grabs a pointer from the freelist, but doesn
 completely erase the record of it in the same instruction. This can also lead to the
 allocator getting corrupted.
 
+<br>
 
 ## Why is this bug so hard to find?
 
