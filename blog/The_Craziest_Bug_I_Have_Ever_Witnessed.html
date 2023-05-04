@@ -460,21 +460,23 @@ felt nothing. I was numb.</p>
 id="how-many-c-programmers-do-you-know-that-know-all-of-the-following-facts-about-the-c-runtime-and-can-peice-together-they-mean-in-aggregate">How
 many C programmers do you know that know all of the following facts
 about the C runtime and can peice together they mean in aggregate?</h4>
-<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Dynamic linkers work by replacing calls to external libraries with trampolines</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>   that call <span class="in">`dlopen()`</span> and <span class="in">`dlsym()`</span>.</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span><span class="in">`dlopen()`</span> allocates memory for the library it loads using <span class="in">`malloc()`</span>.</span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Dynamic linkers work by &quot;lazy binding&quot;, replacing calls to external libraries</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>   with trampolines that load the library if its symbol cannot be found in the</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>   Global Offset Table (GOT). This library loading and stashing the symbol and</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>   offset in the GOT is roughly equivalent to a call to <span class="in">`dlopen()`</span> and <span class="in">`dlsym()`</span>.</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span><span class="in">`dlsym()`</span> does not allocate memory, it only returns a pointer inside the memory</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>   allocated by <span class="in">`dlopen()`</span>.</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span><span class="in">`malloc()`</span> is not listed in <span class="in">`man signal-safety`</span> as being <span class="in">`AS-Safe`</span>.</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span><span class="in">`dlopen()`</span> allocates memory for the library it loads using <span class="in">`malloc()`</span>.</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span><span class="in">`dlsym()`</span> does not allocate memory, it only returns a pointer inside the memory</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>   allocated by <span class="in">`dlopen()`</span>.</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Signal handlers interrupt the current thread herever it is, whenever it wants.</span></code></pre></div>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span><span class="in">`malloc()`</span> is not listed in <span class="in">`man signal-safety`</span> as being <span class="in">`AS-Safe`</span>.</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Signal handlers interrupt the current thread herever it is, whenever it wants.</span></code></pre></div>
 <p><br></p>
 <p>Most C programmers understand that the linker can do dynamic linking
-for you. Fewer understand how it works, and fewer have delved further
-into the standard for the other information.</p>
+for you. Fewer understand lazy binding, and fewer have delved further
+into the C or ELF standards for the other information.</p>
 <p>It is unsafe to call even AS-Safe functions from a signal handler, if
 the libraries they're from have not been loaded yet. If a library is
 dynamically loaded inside a signal handler, it may corrupt the
@@ -551,6 +553,12 @@ challenging to maintain a mental model of the entire project, and even
 more challenging to know where to look for a bug when you don't even
 have a mental model. So we are forced to rely on bug reports and tools
 like <code>rr</code> to help us.</p>
+<p><br></p>
+<div style="text-align: center;">
+<p><img src="images/cargo_cult.jpg" /> <br> Buildkite and other CI/CD
+tools are great, but not a substitute for understanding the code.</p>
+</div>
+<p><br></p>
 <p>Fourth, the bug is not reproducible. It only happens when the
 backtrace signal handler is called during a call to
 <code>malloc()</code>. That can happen basically anywhere. In the
@@ -558,7 +566,7 @@ original trace provided in the bug report, <code>malloc()</code> did not
 crash immediately, it just returned the same pointer twice. That
 allocator's bookkeeping was overwritten, but that wasn't the cause of
 the crash either.</p>
-<p>The crash actually happened when the julia object that was allocated
+<p>The crash actually happened when the Julia object that was allocated
 was used. Since the same pointer was returned twice, there were two
 objects that were supposed to be distinct but had the same address. By
 coincidence, they were both allocated in the same place, and so they had
@@ -580,8 +588,9 @@ Finally, it is time to squish the bug.</p>
 libraries and symbols are loaded, so that the call to
 <code>malloc()</code> injected by the linker can never be executed. We
 can, on the main thread before we install the signal handler, call
-<code>dlopen()</code> on the library, or just call a function from the
-library we want to load as a no-op.</p>
+<code>dlopen()</code> on the library so the symbols are in the Global
+Offset Table, or just call a function from the library we want to load
+as a no-op.</p>
 <p><br></p>
 <h2 id="conclusion">Conclusion</h2>
 <p>Honestly, I have no conclusions. I'd never seen a bug like this
