@@ -159,8 +159,10 @@ In this moment, I felt nothing. I was numb.
 #### How many C programmers do you know that know all of the following facts about the C runtime and can peice together they mean in aggregate?
 
 ```md
-1. Dynamic linkers work by replacing calls to external libraries with trampolines
-   that call `dlopen()` and `dlsym()`.
+1. Dynamic linkers work by "lazy binding", replacing calls to external libraries
+   with trampolines that load the library if its symbol cannot be found in the
+   Global Offset Table (GOT). This library loading and stashing the symbol and
+   offset in the GOT is roughly equivalent to a call to `dlopen()` and `dlsym()`.
 
 2. `dlopen()` allocates memory for the library it loads using `malloc()`.
 
@@ -175,7 +177,7 @@ In this moment, I felt nothing. I was numb.
 <br>
 
 Most C programmers understand that the linker can do dynamic linking for you. Fewer understand
-how it works, and fewer have delved further into the standard for the other information.
+lazy binding, and fewer have delved further into the C or ELF standards for the other information.
 
 It is unsafe to call even AS-Safe functions from a signal handler, if the libraries they're
 from have not been loaded yet. If a library is dynamically loaded inside a signal handler, it
@@ -255,12 +257,22 @@ up with. It's enormously challenging to maintain a mental model of the entire pr
 more challenging to know where to look for a bug when you don't even have a mental model. So we
 are forced to rely on bug reports and tools like `rr` to help us.
 
+<br>
+
+<div style="text-align: center;">
+![](images/cargo_cult.jpg)
+<br>
+Buildkite and other CI/CD tools are great, but not a substitute for understanding the code.
+</div>
+
+<br>
+
 Fourth, the bug is not reproducible. It only happens when the backtrace signal handler is called
 during a call to `malloc()`. That can happen basically anywhere. In the original trace provided
 in the bug report, `malloc()` did not crash immediately, it just returned the same pointer twice.
 That allocator's bookkeeping was overwritten, but that wasn't the cause of the crash either.
 
-The crash actually happened when the julia object that was allocated was used. Since the same
+The crash actually happened when the Julia object that was allocated was used. Since the same
 pointer was returned twice, there were two objects that were supposed to be distinct but had the
 same address. By coincidence, they were both allocated in the same place, and so they had the same
 type but were supposed to hold different data, which eventually led to the wrong function being called,
@@ -283,8 +295,9 @@ Finally, it is time to squish the bug.
 
 The fix for this bug is simple. We just need to make sure that the libraries and symbols are
 loaded, so that the call to `malloc()` injected by the linker can never be executed. We can,
-on the main thread before we install the signal handler, call `dlopen()` on the library, or
-just call a function from the library we want to load as a no-op.
+on the main thread before we install the signal handler, call `dlopen()` on the library so the
+symbols are in the Global Offset Table, or just call a function from the library we want to
+load as a no-op.
 
 <br>
 
