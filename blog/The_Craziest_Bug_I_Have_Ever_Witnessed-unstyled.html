@@ -153,21 +153,27 @@ In this moment, I felt nothing. I was numb.
 id="how-many-c-programmers-do-you-know-that-know-all-of-the-following-facts-about-the-c-runtime-and-can-piece-together-they-mean-in-aggregate">How
 many C programmers do you know that know all of the following facts
 about the C runtime and can piece together they mean in aggregate?</h4>
-<div class="sourceCode" id="cb2"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Dynamic linkers work by &quot;lazy binding&quot;, replacing calls to external libraries</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>   with trampolines that load the library if its symbol cannot be found in the</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>   Global Offset Table (GOT). This library loading and stashing the symbol and</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>   offset in the GOT is roughly equivalent to a call to <span class="in">`dlopen()`</span> and <span class="in">`dlsym()`</span>.</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span><span class="in">`dlopen()`</span> allocates memory for the library it loads using <span class="in">`malloc()`</span>. So does</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    the lazy binding trampoline.</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span><span class="in">`dlsym()`</span> does not allocate memory, it only returns a pointer inside the memory</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>   allocated by <span class="in">`dlopen()`</span>. Same with the lazy binding trampoline, as long as it can</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>   find the symbol in the GOT (the library has already been loaded).</span>
+<div class="sourceCode" id="cb2"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Linkers have the option to do &quot;lazy loading&quot;, replacing calls to external</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>   libraries with trampolines that load the library if its symbol cannot be</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>   found in the Global Offset Table (GOT). This library loading and stashing</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>   the symbol and offset in the GOT is roughly equivalent to a call to</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>   <span class="in">`dlopen()`</span> and <span class="in">`dlsym()`</span>.</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>libunwind relies on a dynamically linked and lazily loaded library to do</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>   its backtraces.</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span><span class="in">`dlopen()`</span> allocates memory for the library it loads using <span class="in">`malloc()`</span>.</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>   So does the lazy binding trampoline.</span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span><span class="in">`malloc()`</span> is not listed in <span class="in">`man signal-safety`</span> as being <span class="in">`AS-Safe`</span>.</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Signal handlers can interrupt the current thread wherever it is, whenever it wants.</span></code></pre></div>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span><span class="in">`dlsym()`</span> does not allocate memory, it only returns a pointer inside</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>   the memory allocated by <span class="in">`dlopen()`</span>. Same with the lazy binding trampoline,</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>   as long as it can find the symbol in the GOT (the library has already</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>   been loaded).</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span><span class="in">`malloc()`</span> is not listed in <span class="in">`man signal-safety`</span> as being <span class="in">`AS-Safe`</span>.</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Signal handlers can interrupt the current thread wherever it is, whenever</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>   they want.</span></code></pre></div>
 <p><br></p>
 <p>    Most C programmers understand that the linker can do dynamic
 linking for you. Fewer understand lazy binding, and fewer have delved
