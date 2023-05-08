@@ -140,21 +140,27 @@ Suddenly, I knew exactly what the bug was and where.
 #### How many C programmers do you know that know all of the following facts about the C runtime and can piece together they mean in aggregate?
 
 ```md
-1. Dynamic linkers work by "lazy binding", replacing calls to external libraries
-   with trampolines that load the library if its symbol cannot be found in the
-   Global Offset Table (GOT). This library loading and stashing the symbol and
-   offset in the GOT is roughly equivalent to a call to `dlopen()` and `dlsym()`.
+1. Linkers have the option to do "lazy loading", replacing calls to external
+   libraries with trampolines that load the library if its symbol cannot be
+   found in the Global Offset Table (GOT). This library loading and stashing
+   the symbol and offset in the GOT is roughly equivalent to a call to
+   `dlopen()` and `dlsym()`.
 
-2. `dlopen()` allocates memory for the library it loads using `malloc()`. So does
-    the lazy binding trampoline.
+2. libunwind relies on a dynamically linked and lazily loaded library to do
+   its backtraces.
 
-3. `dlsym()` does not allocate memory, it only returns a pointer inside the memory
-   allocated by `dlopen()`. Same with the lazy binding trampoline, as long as it can
-   find the symbol in the GOT (the library has already been loaded).
+3. `dlopen()` allocates memory for the library it loads using `malloc()`.
+   So does the lazy binding trampoline.
 
-4. `malloc()` is not listed in `man signal-safety` as being `AS-Safe`.
+4. `dlsym()` does not allocate memory, it only returns a pointer inside
+   the memory allocated by `dlopen()`. Same with the lazy binding trampoline,
+   as long as it can find the symbol in the GOT (the library has already
+   been loaded).
 
-5. Signal handlers can interrupt the current thread wherever it is, whenever it wants.
+5. `malloc()` is not listed in `man signal-safety` as being `AS-Safe`.
+
+6. Signal handlers can interrupt the current thread wherever it is, whenever
+   they want.
 ```
 
 <br>
