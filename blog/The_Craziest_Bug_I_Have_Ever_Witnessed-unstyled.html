@@ -12,267 +12,285 @@
 </div>
 <h1 id="the-craziest-bug-i-have-ever-witnessed">The Craziest Bug I Have
 Ever Witnessed</h1>
-<p>Julia has a feature where you can report bugs and crashes from the
-command line. You just run your program with
+<p>    Julia has a feature where you can report bugs and crashes from
+the command line. You just run your program with
 <code>julia --bug-report=rr</code>, and it sends a crash report plus an
 <code>rr</code> trace of the process to our servers for us to take a
 look at.</p>
-<div style="text-align: center;">
-<p><img src="images/rr-meme.jpeg" alt="rr-meme" /> <br> This is Keno's
-meme, and I have unabashedly stolen it.</p>
-</div>
-<p>Sometimes we get some crazy stuff. This is in fact not the first time
-that someone from the Julia team has found something crazy in a crash
-dump. Keno Fischer wrote a similar (and substantially more detailed)
-article <a
+<figure style="text-align: center;">
+<img src="images/rr-meme.jpg" alt="Keno rr meme">
+<figcaption>
+This is Keno's meme, and I have unabashedly stolen it.
+</figcaption>
+</figure>
+<p>    Sometimes we get some crazy stuff. This is in fact not the first
+time that someone from the Julia team has found something crazy in a
+crash dump. Keno Fischer wrote a similar (and substantially more
+detailed) article <a
 href="https://julialang.org/blog/2020/09/rr-memory-magic/">here</a>,
 where he used <code>rr</code> to debug a process where the issue turned
 out to be faulty memory.</p>
-<p>Where Keno visually detailed how he found the bug, I'm just going to
-rant from memory. I should have kept better records. Oh well. Live and
-learn.</p>
+<p>    Where Keno visually detailed how he found the bug, I'm just going
+to rant from memory. I should have kept better records. Oh well. Live
+and learn.</p>
 <p><br></p>
 <h2 id="the-crash">The Crash</h2>
-<p>Julia is a garbage collected language, writen mostly written in
+<p>    Julia is a garbage collected language, written mostly written in
 itself, but partially in C and C++. The bug manifested as a random crash
 in function dispatch inside the interpreter, which is also written in
 Julia. The function dispatch code is well tested. When the interpreter
 crashes, it's generally the case that there was already memory
 corruption.</p>
-<p>We contacted the user, and we asked them for the source code of the
-program that produced the crash and all the data they used to run it.
-Graciously, they were able to provide it.</p>
-<div style="text-align: center;">
-<p><img src="images/println.jpg" alt="println meme" /> <br>
-<code>s/println!/printf</code> is glorious.</p>
-</div>
-<p>Usually, my preferred method of debugging is <code>printf()</code>
-debugging. It's great. It's simple. It catches most things. However, not
-this time. This crash was random, and hard to reproduce. I tried to
-reproduce it, but I couldn't. That doesn't mean there's no bug, it just
-means it's hard. So, I am forced to take the "midwit" approach and try
-to figure it out using the <code>rr</code> trace.</p>
-<p>Memory corruption bugs generally suck to find. When you're writing C,
-you can usually just compile with <code>-fsanitize=address</code>.
-Address Sanitizer will tell you when you overwrite memory that shouldn't
-be impossible to assign to within the usual confines of C or C++.
-Unfortunately, the Julia runtime doesn't support being compiled with
-asan because it depends on third party binaries that were <em>not</em>
-compiled with asan. This means that when our binary reaches into memory
-allocated for variables in those libraries, asan will throw a false
-positive and crash. When one part of the process is compiled with asan,
-it all must be.</p>
+<p>    We contacted the user, and we asked them for the source code of
+the program that produced the crash and all the data they used to run
+it. Graciously, they were able to provide it.</p>
+<figure style="text-align: center;">
+<img src="images/println.jpg" alt="println meme">
+<figcaption>
+<code>printf()</code> debugging is glorious, in all its forms.
+</figcaption>
+</figure>
+<p>    Usually, my preferred method of debugging is
+<code>printf()</code> debugging. It's great. It's simple. It catches
+most things. However, not this time. This crash was random, and hard to
+reproduce. I tried to reproduce it, but could never reproduce it
+exactly. So, I was forced to take the "midwit" approach and try to
+figure it out using <code>rr</code> traces.</p>
+<p>    Memory corruption bugs generally suck to find. When you're
+writing C, you can usually just compile with
+<code>-fsanitize=address</code>. Address Sanitizer will tell you when
+you overwrite memory that shouldn't be impossible to assign to within
+the usual confines of C or C++. Unfortunately, the Julia runtime doesn't
+support being compiled with asan because it depends on third party
+binaries that were <em>not</em> compiled with asan. This means that when
+our binary reaches into memory allocated for variables in those
+libraries, asan will throw a false positive and crash. When one part of
+the process is compiled with asan, it all must be.</p>
 <p><br></p>
 <h2 id="finding-the-bug">Finding The Bug</h2>
-<p>Without asan as a crutch, I decided to do as my forebears did and
-guess.</p>
-<p>I loaded up <code>rr</code>, typed <code>bt full</code>, and... even
-after a while of gawking at it, this stack trace doesn't make any sense.
-The stack trace very clearly doesn't follow the control flow of the
-source code. Why? How is that possible?</p>
-<p>Dispatch in Julia is dynamic. From where the crash happened, my
+<p>    Without asan as a crutch, I decided to do as my forebears did and
+guessed.</p>
+<p>    I loaded up <code>rr</code>, typed <code>bt full</code>, and...
+even after a while of gawking at it, this stack trace doesn't make any
+sense. The stack trace very clearly doesn't follow the control flow of
+the source code. Why? How is that possible?</p>
+<p>    Dispatch in Julia is dynamic. From where the crash happened, my
 initial guess was that either a C function pointer or Julia object was
 written on top of another. But... how? And where?</p>
-<div style="text-align: center;">
-<img src="images/patrick_thinking.png" alt="Patrick thinking meme" />
-<br>
-</div>
-<p>Reading through the backtrace, I found that the process crashed after
-a <code>jl_call()</code> to <code>abstract_invoke()</code>. That rules
-out that a C function pointer is the culprit. We're looking for a Julia
-object written on top of another.</p>
-<p>I was still new to the Julia codebase at this point, so for a day or
-two I was stuck. I spent half an hour reading different parts of the
+<figure style="text-align: center;">
+<img src="images/patrick_thinking.png" alt="Patrick thinking meme">
+</figure>
+<p>    Reading through the backtrace, I found that the process crashed
+after a <code>jl_call()</code> to <code>abstract_invoke()</code>. That
+rules out that a C function pointer is the culprit. We're looking for a
+Julia object written on top of another.</p>
+<p>    I was still new to the Julia codebase at this point, so for a day
+or two I was stuck. I spent half an hour reading different parts of the
 runtime that the process was touching. Nothing seemed to pop out at
 me.</p>
-<p>New idea. I try to replicate the bug through brute force. I sshed 4
-different servers, downloaded the files, and ran the program 40 times at
-once with <code>rr</code>, on each machine. Eventually a few of them
-crashed. Some crashed in the same way. Others crashed in different ways.
-The crash almost always happened in a different place. Sometimes there
-was a nonsense backtrace, and sometimes there wasn't. Sometime it
-crashed in Julia code, and sometimes in C code. Often it crashed in
-external libraries. The bug was rare, I would get a new trace to look
-through every 10 minutes or so.</p>
-<p>Brute forcing it didn't give me the answer, but it did give me
+<p>    New idea. I try to replicate the bug through brute force. I sshed
+4 different servers, downloaded the files, and ran the program 40 times
+at once with <code>rr</code>, on each machine. Eventually a few of them
+crashed. Some crashed in similar ways, in well tested interpreter code.
+Others crashed in different ways. The crash almost always happened in a
+different place. Sometimes there was a nonsense backtrace, and sometimes
+there wasn't. Sometime it crashed in Julia code, and sometimes in C
+code. Often it crashed in external libraries. The bug was rare, I would
+get a new trace to look through every 10 minutes or so. So, I'm guessing
+one ten million or so.</p>
+<p>    Brute forcing it didn't give me the answer, but it did give me
 information.</p>
-<p>Eventually, I got an <code>rr</code> trace that seemed useful. This
-led me to start reading the Julia garbage collector, and at last the
-answer seemed obvious.</p>
-<p><br></p>
-<div style="text-align: center;">
-<p><img src="images/I_do_see_it.jpg" alt="I do see it" /> <br> The face
-I made when I had the epiphany</p>
-</div>
-<p><br></p>
-<p>When Julia objects are allocated, they are never relocated. They stay
-there forever, until they are garbage collected or the process exits.
-Therefore, it is actualy impossible that an object was written on top of
-another... unless it happened in the garbage collector's allocator.</p>
-<p>So, I set a breakpoint on <code>jl_gc_alloc()</code>, and
-<code>jl_gc_sweep()</code> and watched the pointers that came out of the
-allocator. Sure enough, <code>jl_gc_alloc()</code> returned the same
-pointer twice before <code>jl_gc_sweep()</code>. That is not supposed to
-happen. The question remains, why is it happening?</p>
-<p>When I descended deeper, I found that <code>jl_gc_alloc()</code> just
-calls <code>malloc()</code>, offsets the resulting pointer, and does a
-bunch of bookkeeping to register the new object with the Julia runtime.
-So, it was actually <code>malloc()</code> that returned the same thing
-twice.</p>
+<p>    Eventually, I got an <code>rr</code> trace that seemed useful.
+This led me to start reading the Julia garbage collector, and at last
+the answer seemed obvious.</p>
+<figure style="text-align: center;">
+<img src="images/I_do_see_it.jpg" alt="I do see it">
+<figcaption>
+The face I made when I had the epiphany
+</figcaption>
+</figure>
+<p>    When Julia objects are allocated, they are never relocated. They
+stay there forever, until they are garbage collected or the process
+exits. Therefore, it is actually impossible that an object was written
+on top of another... unless it happened in the garbage collector's
+allocator.</p>
+<pre><code>So, I set a breakpoint on `jl_gc_alloc()` and `jl_gc_sweep()`, and watched the pointers</code></pre>
+<p>that came out of the allocator. Sure enough,
+<code>jl_gc_alloc()</code> returned the same pointer twice before
+<code>jl_gc_sweep()</code>. That is not supposed to happen. The question
+remains, why is it happening?</p>
+<p>    When I descended deeper, I found that <code>jl_gc_alloc()</code>
+just calls <code>malloc()</code>, offsets the resulting pointer, and
+does a bunch of bookkeeping to register the new object with the Julia
+runtime. So, it was actually <code>malloc()</code> that returned the
+same thing twice.</p>
 <p>... Excuse me, what? This program is single threaded!</p>
-<p><br></p>
-<div style="text-align: center;">
-<p><img src="images/biting_keyboard.jpg" alt="Biting Keyboard" /> <br>
-Deliver me from this hell.</p>
-</div>
-<p><br></p>
-<p>I time travelled back and set a breakpoint on <code>free()</code>.
+<figure style="text-align: center;">
+<img src="images/biting_keyboard.jpg" alt="Biting Keyboard">
+<figcaption>
+Deliver me from this hell.
+</figcaption>
+</figure>
+<p>    I time traveled back and set a breakpoint on <code>free()</code>.
 Nope. It isn't freed. Libc just straight up returned the same pointer
 twice. What? How does that happen?</p>
-<p>Collecting myself, I noted that there was an extra call to
+<p>    Collecting myself, I noted that there was an extra call to
 <code>malloc()</code> between the two calls to
 <code>jl_gc_alloc()</code>. What is that?</p>
-<p>When I time travelled to the next call and typed <code>bt</code> once
-more into <code>rr</code>, I saw that the call to <code>malloc()</code>
-happened on a signal stack inside a call to <code>dlopen()</code>.
-Suddenly, I knew exactly what the bug was and where.</p>
-<p><br></p>
-<div style="text-align: center;">
-<p><img src="images/bug.jpg" alt="rr-meme" /> <br> In this moment, I
-felt nothing. I was numb.</p>
-</div>
-<p><br></p>
-<h2 id="explaination">Explaination</h2>
+<p>    When I time traveled to the next call and typed <code>bt</code>
+once more into <code>rr</code>, I saw that the call to
+<code>malloc()</code> happened on a signal stack, inside a call to
+<code>jl_backtrace_from_here()</code>. Suddenly, I knew exactly what the
+bug was and where.</p>
+<figure style="text-align: center;">
+<img src="images/bug.jpg" alt="I feel nothing">
+<figcaption>
+In this moment, I felt nothing. I was numb.
+</figcaption>
+</figure>
+<h2 id="explanation">Explanation</h2>
 <h4
-id="how-many-c-programmers-do-you-know-that-know-all-of-the-following-facts-about-the-c-runtime-and-can-peice-together-they-mean-in-aggregate">How
+id="how-many-c-programmers-do-you-know-that-know-all-of-the-following-facts-about-the-c-runtime-and-can-piece-together-they-mean-in-aggregate">How
 many C programmers do you know that know all of the following facts
-about the C runtime and can peice together they mean in aggregate?</h4>
-<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Dynamic linkers work by &quot;lazy binding&quot;, replacing calls to external libraries</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>   with trampolines that load the library if its symbol cannot be found in the</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>   Global Offset Table (GOT). This library loading and stashing the symbol and</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>   offset in the GOT is roughly equivalent to a call to <span class="in">`dlopen()`</span> and <span class="in">`dlsym()`</span>.</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span><span class="in">`dlopen()`</span> allocates memory for the library it loads using <span class="in">`malloc()`</span>.</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span><span class="in">`dlsym()`</span> does not allocate memory, it only returns a pointer inside the memory</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>   allocated by <span class="in">`dlopen()`</span>.</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span><span class="in">`malloc()`</span> is not listed in <span class="in">`man signal-safety`</span> as being <span class="in">`AS-Safe`</span>.</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Signal handlers interrupt the current thread herever it is, whenever it wants.</span></code></pre></div>
+about the C runtime and can piece together they mean in aggregate?</h4>
+<div class="sourceCode" id="cb2"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Dynamic linkers work by &quot;lazy binding&quot;, replacing calls to external libraries</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>   with trampolines that load the library if its symbol cannot be found in the</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>   Global Offset Table (GOT). This library loading and stashing the symbol and</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>   offset in the GOT is roughly equivalent to a call to <span class="in">`dlopen()`</span> and <span class="in">`dlsym()`</span>.</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span><span class="in">`dlopen()`</span> allocates memory for the library it loads using <span class="in">`malloc()`</span>. So does</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    the lazy binding trampoline.</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span><span class="in">`dlsym()`</span> does not allocate memory, it only returns a pointer inside the memory</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>   allocated by <span class="in">`dlopen()`</span>. Same with the lazy binding trampoline, as long as it can</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>   find the symbol in the GOT (the library has already been loaded).</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span><span class="in">`malloc()`</span> is not listed in <span class="in">`man signal-safety`</span> as being <span class="in">`AS-Safe`</span>.</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Signal handlers can interrupt the current thread wherever it is, whenever it wants.</span></code></pre></div>
 <p><br></p>
-<p>Most C programmers understand that the linker can do dynamic linking
-for you. Fewer understand lazy binding, and fewer have delved further
-into the C or ELF standards for the other information.</p>
-<p>It is unsafe to call even AS-Safe functions from a signal handler, if
-the libraries they're from have not been loaded yet. If a library is
-dynamically loaded inside a signal handler, it may corrupt the
-allocator, which may crash the program. Or worse, like in this case, it
-might not.</p>
-<p>Signal safety is a difficult topic for people wrap their heads
+<p>    Most C programmers understand that the linker can do dynamic
+linking for you. Fewer understand lazy binding, and fewer have delved
+further into the C or ELF standards for the other information.</p>
+<p>    It is unsafe to call even AS-Safe functions from a signal
+handler, if the libraries they're from have not been loaded yet. If a
+library is dynamically loaded inside a signal handler, it may corrupt
+the allocator, which may crash the program. Or worse, like in this case,
+it might not.</p>
+<p>    Signal safety is a difficult topic for people wrap their heads
 around. <code>man signal-safety</code> is present, but doesn't do the
 topic justice.</p>
-<p>The short version of the signal safety rant is that if a function is
-not on the list of allowed functions from
+<p>    The short version of the signal safety rant is that if a function
+is not on the list of allowed functions from
 <code>man signal-safety</code>, do not call it from a signal handler.
 Even if you did not type the call yourself. If you do call something
 that calls something not from that list, then understand it is undefined
 behavior and that you are doing so at your own peril. It is also against
 the rules to modify any shared global state, or risk the same sort of
 corruption.</p>
-<p>This explanation is sufficient to avoid all issues with signal
+<p>    This explanation is sufficient to avoid all issues with signal
 handlers, but is too restrictive, and so it is ignored. We want to be
 able to do interesting things in signal handlers, that's why they're
 there. So, in practice, we still have to understand the rules.</p>
-<p>To understand why <code>malloc()</code> is not signal safe, for
+<p>    To understand why <code>malloc()</code> is not signal safe, for
 simplicity's sake suppose that it's implemented something like this:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span><span class="op">*</span> freelist<span class="op">[</span>FREELIST_SIZE<span class="op">];</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">size_t</span> freelist_size <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> free<span class="op">(</span><span class="dt">void</span><span class="op">*</span> p<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  freelist<span class="op">[</span>freelist_size<span class="op">++]</span> <span class="op">=</span> p<span class="op">;</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span><span class="op">*</span> malloc<span class="op">(</span><span class="dt">size_t</span> n<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span><span class="op">*</span> ret <span class="op">=</span> freelist<span class="op">[</span>freelist_size <span class="op">-</span> <span class="dv">1</span><span class="op">];</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* THREAD PAUSED HERE FOR SIGNAL HANDLER */</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">--</span>freelist_size<span class="op">;</span></span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> ret<span class="op">;</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p>In that circumstance, when the return value is decided and the thread
-is paused before the bookkeeping completes, you can see how
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span><span class="op">*</span> freelist<span class="op">[</span>FREELIST_SIZE<span class="op">];</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">size_t</span> freelist_size <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> free<span class="op">(</span><span class="dt">void</span><span class="op">*</span> p<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  freelist<span class="op">[</span>freelist_size<span class="op">++]</span> <span class="op">=</span> p<span class="op">;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span><span class="op">*</span> malloc<span class="op">(</span><span class="dt">size_t</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span><span class="op">*</span> ret <span class="op">=</span> freelist<span class="op">[</span>freelist_size <span class="op">-</span> <span class="dv">1</span><span class="op">];</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* THREAD PAUSED HERE FOR SIGNAL HANDLER */</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">--</span>freelist_size<span class="op">;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> ret<span class="op">;</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>    In that circumstance, when the return value is decided and the
+thread is paused before the bookkeeping completes, you can see how
 <code>malloc()</code> would return the same thing twice. The same thing
 happens inside glibc. It grabs a pointer from the freelist, but doesn't
-completely erase the record of it in the same instruction. This can also
-lead to the allocator getting corrupted.</p>
+completely erase the record of it in the same instruction. Sometimes the
+allocator gets completely corrupted, and sometimes it doesn't. It
+depends on the timing of the signal, which is of course impossible to
+predict.</p>
 <p><br></p>
 <h2 id="why-is-this-bug-so-hard-to-find">Why is this bug so hard to
 find?</h2>
-<div style="text-align: center;">
-<p><img src="images/hunter_or_hunted.jpg"
-alt="Not sure if I am hunting the bugs, or if the bugs are hunting me" />
-<br></p>
-</div>
-<p>Four things make this bug particularly insidious.</p>
-<p>First, the bug is not even in the code the programmer wrote. It's in
-code that the linker injected, in a completely different section of the
-project from where the crash happens.</p>
-<p>Specifically, the crash happened inside of function dispatch inside
-of LLVM ORC JIT while compiling code that the runtime had not seen
-before. This was a massive red herring. LLVM had nothing to do with the
-bug, it was just the first thing that requested memory after the
+<figure style="text-align: center;">
+<img src="images/hunter_or_hunted.jpg" alt="Not sure if I am hunting the bugs, or if the bugs are hunting me">
+</figure>
+<p>    Four things make this bug particularly insidious.</p>
+<p>    First, the bug is not even in the code the programmer wrote. It's
+in code that the linker injected, in a completely different section of
+the project from where the crash happens.</p>
+<p>    Specifically, the crash happened inside of function dispatch
+inside of LLVM ORC JIT while compiling code that the runtime had not
+seen before. This was a massive red herring. LLVM had nothing to do with
+the bug, it was just the first thing that requested memory after the
 allocator was corrupted. Function dispatch is massively complicated,
 LLVM's JIT compiler is even more complicated, and none of them were the
 source of the issue.</p>
-<p>Second, the code looks totally reasonable. People don't know they are
-doing something unsafe by calling ostensibly signal-safe code from a
-signal handler. The linker inserts a call to <code>dlopen()</code>, and
-that's what calls <code>malloc()</code>. Two hidden layers. Even if you
-know about one of those, you may not know about the other.</p>
-<p>Third, Julia is a ridiculously large project. Working on Julia was
-the first time that I touched a codebase too large for any one person to
-understand, and it changes too fast to keep up with. It's enormously
-challenging to maintain a mental model of the entire project, and even
-more challenging to know where to look for a bug when you don't even
-have a mental model. So we are forced to rely on bug reports and tools
-like <code>rr</code> to help us.</p>
-<p><br></p>
-<div style="text-align: center;">
-<p><img src="images/cargo_cult.jpg" /> <br> Buildkite and other CI/CD
-tools are great, but not a substitute for understanding the code.</p>
-</div>
-<p><br></p>
-<p>Fourth, the bug is not reproducible. It only happens when the
+<p>    Second, the code looks totally reasonable. People don't know they
+are doing something unsafe by calling ostensibly signal-safe code from a
+signal handler. The linker inserts a trampoline, and that's what calls
+<code>malloc()</code>. Two hidden layers. Even if you know about one of
+those, you may not know about the other.</p>
+<figure style="text-align: center;">
+<img src="images/lgtm.jpg" alt="Looks good to me monkey">
+<figcaption>
+You can see how this code could get a stamp of approval from a reviewer.
+</figcaption>
+</figure>
+<p>    Third, Julia is a ridiculously large project. Working on Julia
+was the first time that I touched a codebase too large for any one
+person to understand, and it changes too fast to keep up with. It's
+enormously challenging to maintain a mental model of the entire project,
+and even more challenging to know where to look for a bug when you don't
+even have a mental model. So we are forced to rely on bug reports and
+tools like <code>rr</code> to help us.</p>
+<figure style="text-align: center;">
+<img src="images/cargo_cult.jpg" alt="Buildkite cargo cult">
+<figcaption>
+Buildkite and other CI/CD tools are great, but not a substitute for
+understanding the code.
+</figcaption>
+</figure>
+<p>    Fourth, the bug is not reproducible. It only happens when the
 backtrace signal handler is called during a call to
 <code>malloc()</code>. That can happen basically anywhere. In the
 original trace provided in the bug report, <code>malloc()</code> did not
 crash immediately, it just returned the same pointer twice. That
 allocator's bookkeeping was overwritten, but that wasn't the cause of
 the crash either.</p>
-<p>The crash actually happened when the Julia object that was allocated
-was used. Since the same pointer was returned twice, there were two
-objects that were supposed to be distinct but had the same address. By
-coincidence, they were both allocated in the same place, and so they had
-the same type but were supposed to hold different data, which eventually
-led to the wrong function being called, a nonsense stack trace, and
-eventually a crash in function dispatch.</p>
-<p>I should also note that without making the use of multiple high end
-servers with 40 threads and what I assume must be an ungodly amount of
-RAM, this bug would have been impossible to reproduce. I had to run the
-program millions of times before I could get a single crash, and many
-more times before I got a useful one.</p>
+<p>    The crash actually happened when the Julia object that was
+allocated was used. Since the same pointer was returned twice, there
+were two objects that were supposed to be distinct but had the same
+address. By coincidence, they were both allocated in the same place, and
+so they had the same type but were supposed to hold different data,
+which eventually led to the wrong function being called from a different
+julia object, a nonsense stack trace, and eventually a crash in function
+dispatch.</p>
+<p>    I should also note that without making the use of multiple high
+end servers with 40 threads and what I assume must be an ungodly amount
+of RAM, this bug would have been impossible to reproduce. I had to run
+the program millions of times before I could get a single crash, and
+many more times before I got a useful one.</p>
 <p><br></p>
 <h2 id="squishing-the-bug">Squishing The Bug</h2>
-<div style="text-align: center;">
-<p><img src="images/squish_bug.jpg" alt="Squish the bug" /> <br>
-Finally, it is time to squish the bug.</p>
-</div>
-<p>The fix for this bug is simple. We just need to make sure that the
-libraries and symbols are loaded, so that the call to
+<figure style="text-align: center;">
+<img src="images/squish_bug.jpg" alt="Squish the bug">
+<figcaption>
+Finally, it is time to squish the bug.
+</figcaption>
+</figure>
+<p>    The fix for this bug is simple. We just need to make sure that
+the libraries and symbols are loaded, so that the call to
 <code>malloc()</code> injected by the linker can never be executed. We
 can, on the main thread before we install the signal handler, call
 <code>dlopen()</code> on the library so the symbols are in the Global
@@ -280,21 +298,22 @@ Offset Table, or just call a function from the library we want to load
 as a no-op.</p>
 <p><br></p>
 <h2 id="conclusion">Conclusion</h2>
-<p>Honestly, I have no conclusions. I'd never seen a bug like this
+<p>    Honestly, I have no conclusions. I'd never seen a bug like this
 before, I've not seen any since, and I hope I never see a similar bug
 ever again.</p>
-<p>I knew that something like this was possible, but it's the bug
+<p>    I knew that something like this was possible, but it's the bug
 hunting equivalent of a Lovecraftian horror rising from the depths, only
-to be beaten back by a coallition of sleep paralysis demons and Mr. Ouch
-from those warning signs on pad-mounted transformers. It's not something
-you expect to see in real life.</p>
+to be beaten back by a multinational coalition of sleep paralysis demons
+and Mr. Ouch from those warning signs on pad-mounted transformers. It's
+absurd, terrifying, and not something you expect to see in real
+life.</p>
 <div style="text-align: center;">
 <p><img src="images/mr_ouch_cropped.png" alt="Mr. Ouch" /> <br> Mr Ouch
-scared me as a kid, but now I just think he's pretty neat.</p>
+scared me as a kid. Now I just think he's pretty neat.</p>
 </div>
-<p>I want to stop thinking about it, but I can't. It's too interesting
-not to share. I have to write about it. Now that I'm no longer working
-on Julia full time and the blog post is written, hopefully we can put
-this bug to rest.</p>
+<p>    I want to stop thinking about it, but I can't. It's too
+interesting not to share. I have to write about it. Now that I'm no
+longer working on Julia full time and the blog post is written,
+hopefully we can put this bug to rest.</p>
 </body>
 </html>
