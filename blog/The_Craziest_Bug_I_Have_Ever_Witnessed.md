@@ -79,8 +79,8 @@ looking for a Julia object written on top of another.
 spent half an hour reading different parts of the runtime that the process was touching.
 Nothing seemed to pop out at me.
 
-    New idea. I try to replicate the bug through brute force. I sshed 4 different servers,
-downloaded the files, and ran the program 40 times at once with `rr`, on each machine.
+    New idea. I try to replicate the bug through brute force. I sshed into 4 different
+servers, downloaded the files, and ran the program 40 times at once with `rr`, on each machine.
 Eventually a few of them crashed. Some crashed in similar ways, in well tested interpreter
 code. Others crashed in different ways. The crash almost always happened in a different
 place. Sometimes there was a nonsense backtrace, and sometimes there wasn't. Sometime
@@ -100,10 +100,10 @@ Julia garbage collector, and at last the answer seemed obvious.
 
     When Julia objects are allocated, they are never relocated. They stay there forever, until
 they are garbage collected or the process exits. Therefore, it is actually impossible that an
-object was written on top of another... unless it happened in the garbage collector's
-allocator.
+object was written on top of another... unless the memory corruption happened in the garbage
+collector's allocator.
 
-    So, I set a breakpoint on `jl_gc_alloc()` and `jl_gc_sweep()`, and watched the pointers
+    So, I set a breakpoint on `jl_gc_alloc()` and `jl_gc_sweep()`, and watched the pointers
 that came out of the allocator. Sure enough, `jl_gc_alloc()` returned the same pointer
 twice before `jl_gc_sweep()`. That is not supposed to happen. The question remains, why
 is it happening?
@@ -112,7 +112,7 @@ is it happening?
 resulting pointer, and does a bunch of bookkeeping to register the new object with the
 Julia runtime. So, it was actually `malloc()` that returned the same thing twice.
 
-... Excuse me, what? This program is single threaded!
+... Excuse me, what?
 
 <figure style="text-align: center;">
 <img src="images/biting_keyboard.jpg" alt="Biting Keyboard">
@@ -146,7 +146,7 @@ Suddenly, I knew exactly what the bug was and where.
    the symbol and offset in the GOT is roughly equivalent to a call to
    `dlopen()` and `dlsym()`.
 
-2. libunwind relies on a dynamically linked and lazily loaded library to do
+2. `libunwind` relies on a dynamically linked and lazily loaded library to do
    its backtraces.
 
 3. `dlopen()` allocates memory for the library it loads using `malloc()`.
@@ -165,15 +165,17 @@ Suddenly, I knew exactly what the bug was and where.
 
 <br>
 
-    Most C programmers understand that the linker can do dynamic linking for you. Fewer understand
-lazy binding, and fewer have delved further into the C or ELF standards for the other information.
+    Most C programmers understand that the linker can do dynamic linking for you. Fewer
+understand lazy binding, and fewer have delved further into the C or ELF standards for the
+other information.
 
     It is unsafe to call even AS-Safe functions from a signal handler, if the libraries they're
 from have not been loaded yet. If a library is dynamically loaded inside a signal handler, it
-may corrupt the allocator, which may crash the program. Or worse, like in this case, it might not.
+may corrupt the allocator, which may crash the program. Or worse, like in this case, it might
+not.
 
-    Signal safety is a difficult topic for people wrap their heads around. `man signal-safety` is
-present, but doesn't do the topic justice.
+    Signal safety is a difficult topic for people wrap their heads around. `man signal-safety`
+is present, but doesn't do the topic justice.
 
     The short version of the signal safety rant is that if a function is not on the list of
 allowed functions from `man signal-safety`, do not call it from a signal handler. Even
@@ -208,12 +210,13 @@ void* malloc(size_t n) {
 }
 ```
 
-    In that circumstance, when the return value is decided and the thread is paused before the
-bookkeeping completes, you can see how `malloc()` would return the same thing twice. The
-same thing happens inside glibc. It grabs a pointer from the freelist, but doesn't
-completely erase the record of it in the same instruction. Sometimes the allocator gets
-completely corrupted, and sometimes it doesn't. It depends on the timing of the signal,
-which is of course impossible to predict.
+    Suppose the thread pauses for the signal handler where I've left the comment. In that
+circumstance, when the return value is decided and the thread is paused before bookkeeping
+completes, you can see how `malloc()` would return the same thing twice. The same thing
+happens inside glibc. It grabs a pointer from the freelist, but doesn't completely erase the
+record of it in the same instruction. Sometimes the allocator gets completely corrupted, and
+sometimes it doesn't. It depends on the timing of the signal, which is of course impossible
+to predict.
 
 <br>
 
@@ -255,22 +258,23 @@ are forced to rely on bug reports and tools like `rr` to help us.
 <figcaption>Buildkite and other CI/CD tools are great, but not a substitute for understanding the code.</figcaption>
 </figure>
 
-    Fourth, the bug is not reproducible. It only happens when the backtrace signal handler is called
-during a call to `malloc()`. That can happen basically anywhere. In the original trace provided
-in the bug report, `malloc()` did not crash immediately, it just returned the same pointer twice.
-That allocator's bookkeeping was overwritten, but that wasn't the cause of the crash either.
+    Fourth, the bug is not reproducible. It only happens when the backtrace signal handler is
+called during a call to `malloc()`. That can happen basically anywhere. In the original trace
+provided in the bug report, `malloc()` did not crash immediately, it just returned the same
+pointer twice. That allocator's bookkeeping was overwritten, but that wasn't the cause of the
+crash either.
 
-    The crash actually happened when the Julia object that was allocated was used. Since the same
-pointer was returned twice, there were two objects that were supposed to be distinct but had the
-same address. By coincidence, they were both allocated in the same place, and so they had the same
-type but were supposed to hold different data, which eventually led to the wrong function being
-called from a different julia object, a nonsense stack trace, and eventually a crash in function
-dispatch.
+    The crash actually happened when the Julia object that was allocated was used. Since the
+same pointer was returned twice, there were two objects that were supposed to be distinct but
+had the same address. By coincidence, they were both allocated in the same place, and so they
+had the same type but were supposed to hold different data, which eventually led to the wrong
+function being called from a different julia object, a nonsense stack trace, and eventually a
+crash in function dispatch.
 
-    I should also note that without making the use of multiple high end servers with 40 threads and
-what I assume must be an ungodly amount of RAM, this bug would have been impossible to reproduce.
-I had to run the program millions of times before I could get a single crash, and many more times
-before I got a useful one.
+    I should also note that without making the use of multiple high end servers with 40 threads
+and what I assume must be an ungodly amount of RAM, this bug would have been impossible to
+reproduce. I had to run the program millions of times before I could get a single crash, and
+many more times before I got a useful one.
 
 <br>
 
@@ -281,30 +285,37 @@ before I got a useful one.
 <figcaption>Finally, it is time to squish the bug.</figcaption>
 </figure>
 
-    The fix for this bug is simple. We just need to make sure that the libraries and symbols are
-loaded, so that the call to `malloc()` injected by the linker can never be executed. We can,
-on the main thread before we install the signal handler, call `dlopen()` on the library so the
-symbols are in the Global Offset Table, or just call a function from the library we want to
-load as a no-op.
+    The fix for this bug is simple. We just need to make sure that the libraries and symbols
+are loaded, so that the call to `malloc()` injected by the linker can never be executed. We
+can, on the main thread before we install the signal handler, call `dlopen()` on the library
+so the symbols are in the Global Offset Table, or just call a function from the library we
+want to load as a no-op.
 
 <br>
 
 ## Conclusion
 
-    Honestly, I have no conclusions. I'd never seen a bug like this before, I've not seen any since,
-and I hope I never see a similar bug ever again.
+    Honestly, I have no conclusions. I'd never seen a bug like this before, I've not seen any
+since, and I hope I never see a similar bug ever again.
 
-    I knew that something like this was possible, but it's the bug hunting equivalent of a Lovecraftian
-horror rising from the depths, only to be beaten back by a multinational coalition of sleep paralysis
-demons and Mr. Ouch from those warning signs on pad-mounted transformers. It's absurd, terrifying,
-and not something you expect to see in real life.
+    I knew that something like this was possible, but it's the bug hunting equivalent of a
+Lovecraftian horror rising from the depths, only to be beaten back by a multinational
+coalition of sleep paralysis demons and Mr. Ouch from those warning signs on pad-mounted
+transformers. It's absurd, terrifying, and not something you expect to see in real life.
 
 <div style="text-align: center;">
 ![Mr. Ouch](images/mr_ouch_cropped.png)
 <br>
-Mr Ouch scared me as a kid. Now I just think he's pretty neat.
+<figcaption>
+Mr Ouch scared me as a kid. Now I think he's pretty neat, and bring him up at every
+opportunity.
+</figcaption>
 </div>
 
-    I want to stop thinking about it, but I can't. It's too interesting not to share. I have to
-write about it. Now that I'm no longer working on Julia full time and the blog post is written,
-hopefully we can put this bug to rest.
+<br>
+
+    I want to stop thinking about this incident, but I can't. It's too interesting not to
+share. I have to write about it. Now that I'm no longer working on Julia full time and the
+blog post is written, hopefully we can put this bug to rest.
+
+Happy debugging.

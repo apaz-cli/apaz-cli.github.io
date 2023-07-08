@@ -402,15 +402,15 @@ or two I was stuck. I spent half an hour reading different parts of the
 runtime that the process was touching. Nothing seemed to pop out at
 me.</p>
 <p>    New idea. I try to replicate the bug through brute force. I sshed
-4 different servers, downloaded the files, and ran the program 40 times
-at once with <code>rr</code>, on each machine. Eventually a few of them
-crashed. Some crashed in similar ways, in well tested interpreter code.
-Others crashed in different ways. The crash almost always happened in a
-different place. Sometimes there was a nonsense backtrace, and sometimes
-there wasn't. Sometime it crashed in Julia code, and sometimes in C
-code. Often it crashed in external libraries. The bug was rare, I would
-get a new trace to look through every 10 minutes or so. So, I'm guessing
-one ten million or so.</p>
+into 4 different servers, downloaded the files, and ran the program 40
+times at once with <code>rr</code>, on each machine. Eventually a few of
+them crashed. Some crashed in similar ways, in well tested interpreter
+code. Others crashed in different ways. The crash almost always happened
+in a different place. Sometimes there was a nonsense backtrace, and
+sometimes there wasn't. Sometime it crashed in Julia code, and sometimes
+in C code. Often it crashed in external libraries. The bug was rare, I
+would get a new trace to look through every 10 minutes or so. So, I'm
+guessing one ten million or so.</p>
 <p>    Brute forcing it didn't give me the answer, but it did give me
 information.</p>
 <p>    Eventually, I got an <code>rr</code> trace that seemed useful.
@@ -425,19 +425,19 @@ The face I made when I had the epiphany
 <p>    When Julia objects are allocated, they are never relocated. They
 stay there forever, until they are garbage collected or the process
 exits. Therefore, it is actually impossible that an object was written
-on top of another... unless it happened in the garbage collector's
-allocator.</p>
-<pre><code>So, I set a breakpoint on `jl_gc_alloc()` and `jl_gc_sweep()`, and watched the pointers</code></pre>
-<p>that came out of the allocator. Sure enough,
-<code>jl_gc_alloc()</code> returned the same pointer twice before
-<code>jl_gc_sweep()</code>. That is not supposed to happen. The question
-remains, why is it happening?</p>
+on top of another... unless the memory corruption happened in the
+garbage collector's allocator.</p>
+<p>    So, I set a breakpoint on <code>jl_gc_alloc()</code> and
+<code>jl_gc_sweep()</code>, and watched the pointers that came out of
+the allocator. Sure enough, <code>jl_gc_alloc()</code> returned the same
+pointer twice before <code>jl_gc_sweep()</code>. That is not supposed to
+happen. The question remains, why is it happening?</p>
 <p>    When I descended deeper, I found that <code>jl_gc_alloc()</code>
 just calls <code>malloc()</code>, offsets the resulting pointer, and
 does a bunch of bookkeeping to register the new object with the Julia
 runtime. So, it was actually <code>malloc()</code> that returned the
 same thing twice.</p>
-<p>... Excuse me, what? This program is single threaded!</p>
+<p>... Excuse me, what?</p>
 <figure style="text-align: center;">
 <img src="images/biting_keyboard.jpg" alt="Biting Keyboard">
 <figcaption>
@@ -466,27 +466,27 @@ In this moment, I felt nothing. I was numb.
 id="how-many-c-programmers-do-you-know-that-know-all-of-the-following-facts-about-the-c-runtime-and-can-piece-together-they-mean-in-aggregate">How
 many C programmers do you know that know all of the following facts
 about the C runtime and can piece together they mean in aggregate?</h4>
-<div class="sourceCode" id="cb2"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Linkers have the option to do &quot;lazy loading&quot;, replacing calls to external</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>   libraries with trampolines that load the library if its symbol cannot be</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>   found in the Global Offset Table (GOT). This library loading and stashing</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>   the symbol and offset in the GOT is roughly equivalent to a call to</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>   <span class="in">`dlopen()`</span> and <span class="in">`dlsym()`</span>.</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>libunwind relies on a dynamically linked and lazily loaded library to do</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>   its backtraces.</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span><span class="in">`dlopen()`</span> allocates memory for the library it loads using <span class="in">`malloc()`</span>.</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>   So does the lazy binding trampoline.</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span><span class="in">`dlsym()`</span> does not allocate memory, it only returns a pointer inside</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>   the memory allocated by <span class="in">`dlopen()`</span>. Same with the lazy binding trampoline,</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>   as long as it can find the symbol in the GOT (the library has already</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>   been loaded).</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span><span class="in">`malloc()`</span> is not listed in <span class="in">`man signal-safety`</span> as being <span class="in">`AS-Safe`</span>.</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Signal handlers can interrupt the current thread wherever it is, whenever</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>   they want.</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Linkers have the option to do &quot;lazy loading&quot;, replacing calls to external</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>   libraries with trampolines that load the library if its symbol cannot be</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>   found in the Global Offset Table (GOT). This library loading and stashing</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>   the symbol and offset in the GOT is roughly equivalent to a call to</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>   <span class="in">`dlopen()`</span> and <span class="in">`dlsym()`</span>.</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span><span class="in">`libunwind`</span> relies on a dynamically linked and lazily loaded library to do</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>   its backtraces.</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span><span class="in">`dlopen()`</span> allocates memory for the library it loads using <span class="in">`malloc()`</span>.</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>   So does the lazy binding trampoline.</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="ss">4. </span><span class="in">`dlsym()`</span> does not allocate memory, it only returns a pointer inside</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>   the memory allocated by <span class="in">`dlopen()`</span>. Same with the lazy binding trampoline,</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>   as long as it can find the symbol in the GOT (the library has already</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>   been loaded).</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span><span class="in">`malloc()`</span> is not listed in <span class="in">`man signal-safety`</span> as being <span class="in">`AS-Safe`</span>.</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Signal handlers can interrupt the current thread wherever it is, whenever</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>   they want.</span></code></pre></div>
 <p><br></p>
 <p>    Most C programmers understand that the linker can do dynamic
 linking for you. Fewer understand lazy binding, and fewer have delved
@@ -513,25 +513,26 @@ able to do interesting things in signal handlers, that's why they're
 there. So, in practice, we still have to understand the rules.</p>
 <p>    To understand why <code>malloc()</code> is not signal safe, for
 simplicity's sake suppose that it's implemented something like this:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span><span class="op">*</span> freelist<span class="op">[</span>FREELIST_SIZE<span class="op">];</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="dt">size_t</span> freelist_size <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> free<span class="op">(</span><span class="dt">void</span><span class="op">*</span> p<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  freelist<span class="op">[</span>freelist_size<span class="op">++]</span> <span class="op">=</span> p<span class="op">;</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span><span class="op">*</span> malloc<span class="op">(</span><span class="dt">size_t</span> n<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span><span class="op">*</span> ret <span class="op">=</span> freelist<span class="op">[</span>freelist_size <span class="op">-</span> <span class="dv">1</span><span class="op">];</span></span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* THREAD PAUSED HERE FOR SIGNAL HANDLER */</span></span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">--</span>freelist_size<span class="op">;</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> ret<span class="op">;</span></span>
-<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p>    In that circumstance, when the return value is decided and the
-thread is paused before the bookkeeping completes, you can see how
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span><span class="op">*</span> freelist<span class="op">[</span>FREELIST_SIZE<span class="op">];</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">size_t</span> freelist_size <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> free<span class="op">(</span><span class="dt">void</span><span class="op">*</span> p<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  freelist<span class="op">[</span>freelist_size<span class="op">++]</span> <span class="op">=</span> p<span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span><span class="op">*</span> malloc<span class="op">(</span><span class="dt">size_t</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span><span class="op">*</span> ret <span class="op">=</span> freelist<span class="op">[</span>freelist_size <span class="op">-</span> <span class="dv">1</span><span class="op">];</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* THREAD PAUSED HERE FOR SIGNAL HANDLER */</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">--</span>freelist_size<span class="op">;</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> ret<span class="op">;</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>    Suppose the thread pauses for the signal handler where I've left
+the comment. In that circumstance, when the return value is decided and
+the thread is paused before bookkeeping completes, you can see how
 <code>malloc()</code> would return the same thing twice. The same thing
 happens inside glibc. It grabs a pointer from the freelist, but doesn't
 completely erase the record of it in the same instruction. Sometimes the
@@ -627,12 +628,17 @@ and Mr. Ouch from those warning signs on pad-mounted transformers. It's
 absurd, terrifying, and not something you expect to see in real
 life.</p>
 <div style="text-align: center;">
-<p><img src="images/mr_ouch_cropped.png" alt="Mr. Ouch" /> <br> Mr Ouch
-scared me as a kid. Now I just think he's pretty neat.</p>
+<img src="images/mr_ouch_cropped.png" alt="Mr. Ouch" /> <br>
+<figcaption>
+Mr Ouch scared me as a kid. Now I think he's pretty neat, and bring him
+up at every opportunity.
+</figcaption>
 </div>
-<p>    I want to stop thinking about it, but I can't. It's too
-interesting not to share. I have to write about it. Now that I'm no
+<p><br></p>
+<p>    I want to stop thinking about this incident, but I can't. It's
+too interesting not to share. I have to write about it. Now that I'm no
 longer working on Julia full time and the blog post is written,
 hopefully we can put this bug to rest.</p>
+<p>Happy debugging.</p>
 </body>
 </html>
