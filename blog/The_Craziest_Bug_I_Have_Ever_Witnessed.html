@@ -410,7 +410,8 @@ in a different place. Sometimes there was a nonsense backtrace, and
 sometimes there wasn't. Sometime it crashed in Julia code, and sometimes
 in C code. Often it crashed in external libraries. The bug was rare, I
 would get a new trace to look through every 10 minutes or so. So, I'm
-guessing one ten million or so.</p>
+guessing the bug's reproduction rate was one in ten million or
+something.</p>
 <p>    Brute forcing it didn't give me the answer, but it did give me
 information.</p>
 <p>    Eventually, I got an <code>rr</code> trace that seemed useful.
@@ -512,7 +513,9 @@ handlers, but is too restrictive, and so it is ignored. We want to be
 able to do interesting things in signal handlers, that's why they're
 there. So, in practice, we still have to understand the rules.</p>
 <p>    To understand why <code>malloc()</code> is not signal safe, for
-simplicity's sake suppose that it's implemented something like this:</p>
+simplicity's sake suppose that it's implemented something like this. It
+isn't implemented anything like this, but for the sake of argument,
+pretend that it is.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span><span class="op">*</span> freelist<span class="op">[</span>FREELIST_SIZE<span class="op">];</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">size_t</span> freelist_size <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -533,12 +536,12 @@ simplicity's sake suppose that it's implemented something like this:</p>
 <p>    Suppose the thread pauses for the signal handler where I've left
 the comment. In that circumstance, when the return value is decided and
 the thread is paused before bookkeeping completes, you can see how
-<code>malloc()</code> would return the same thing twice. The same thing
-happens inside glibc. It grabs a pointer from the freelist, but doesn't
-completely erase the record of it in the same instruction. Sometimes the
-allocator gets completely corrupted, and sometimes it doesn't. It
-depends on the timing of the signal, which is of course impossible to
-predict.</p>
+<code>malloc()</code> could return the same thing twice. The same sort
+of thing happens inside glibc. It grabs a pointer from the freelist, but
+doesn't completely erase the record of it before <code>malloc()</code>
+is called again in the signal handler. Sometimes the allocator gets
+completely corrupted, and sometimes it doesn't. It depends on the timing
+of the signal, which is of course impossible to predict.</p>
 <p><br></p>
 <h2 id="why-is-this-bug-so-hard-to-find">Why is this bug so hard to
 find?</h2>
