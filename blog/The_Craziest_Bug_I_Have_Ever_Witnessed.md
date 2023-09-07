@@ -86,7 +86,7 @@ code. Others crashed in different ways. The crash almost always happened in a di
 place. Sometimes there was a nonsense backtrace, and sometimes there wasn't. Sometime
 it crashed in Julia code, and sometimes in C code. Often it crashed in external libraries.
 The bug was rare, I would get a new trace to look through every 10 minutes or so. So, I'm
-guessing one ten million or so.
+guessing the bug's reproduction rate was one in ten million or something.
 
     Brute forcing it didn't give me the answer, but it did give me information.
 
@@ -189,7 +189,10 @@ restrictive, and so it is ignored. We want to be able to do interesting things i
 handlers, that's why they're there. So, in practice, we still have to understand the rules.
 
     To understand why `malloc()` is not signal safe, for simplicity's sake suppose that it's
-implemented something like this:
+implemented something like this. It isn't implemented anything like this, but for the sake of
+argument, pretend that it is.
+
+
 ```c
 void* freelist[FREELIST_SIZE];
 size_t freelist_size = 0;
@@ -212,11 +215,11 @@ void* malloc(size_t n) {
 
     Suppose the thread pauses for the signal handler where I've left the comment. In that
 circumstance, when the return value is decided and the thread is paused before bookkeeping
-completes, you can see how `malloc()` would return the same thing twice. The same thing
+completes, you can see how `malloc()` could return the same thing twice. The same sort of thing
 happens inside glibc. It grabs a pointer from the freelist, but doesn't completely erase the
-record of it in the same instruction. Sometimes the allocator gets completely corrupted, and
-sometimes it doesn't. It depends on the timing of the signal, which is of course impossible
-to predict.
+record of it before `malloc()` is called again in the signal handler. Sometimes the allocator
+gets completely corrupted, and sometimes it doesn't. It depends on the timing of the signal,
+which is of course impossible to predict.
 
 <br>
 
