@@ -119,7 +119,7 @@ def makeDoc(data):
 
 def makeBlog():
     os.chdir('blog/')
-    os.system('./blogmd.py')
+    os.system('./generate.py')
 
 
 if __name__ == "__main__":
