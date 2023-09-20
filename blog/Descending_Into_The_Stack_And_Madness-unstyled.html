@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Descending Into The Stack And Madness</title>
+</head>
+<body>
+<h1 id="descending-into-the-stack-and-madness">Descending Into the Stack
+and Madness</h1>
+<p>A descent into madness. A death by a thousand cuts.</p>
+<p>Call me melodramatic, but all I want is a nice, pretty, formatted
+backtrace from a signal handler.</p>
+<p>What am I to do?</p>
+<p><img src="images/Samurai_Gate.jpg" /></p>
+<h1 id="background">Background</h1>
+<ul>
+<li><p>What is a signal handler?</p></li>
+<li><p>Why is signal-safety a thing?</p></li>
+<li><p>Ideal implementation</p>
+<ul>
+<li>Event loop</li>
+</ul></li>
+</ul>
+<h1 id="implementation">Implementation</h1>
+<ul>
+<li>Let's try to implement one
+<ul>
+<li>First, we need a library that does the actual tracing the stack.
+<ul>
+<li>libunwind impl</li>
+<li>glibc impl</li>
+<li>Implement it yourself</li>
+</ul></li>
+<li>glibc provides <code>backtrace()</code>,
+<code>backtrace_symbols()</code>, and
+<code>backtrace_symbols_fd()</code>.
+<ul>
+<li><code>backtrace_symbols()</code> returns a <code>malloc()</code>ed
+array, so it's out of the picture.</li>
+<li>So, we need to write to a file descriptor. Sure, I thought. How bad
+could it be?</li>
+</ul></li>
+<li>We need a temp file descriptor to write into.
+<ul>
+<li><code>memfd_create()</code>? Nope. Not signal-safe.</li>
+<li><code>mkstemp()</code>? Nope. Not signal-safe either.</li>
+<li>So actually, what we need to do is create the file descriptor to
+print the trace into, before the handler is even called.
+<ul>
+<li>We will be calling <code>memfd_create()</code> after all.</li>
+</ul></li>
+</ul></li>
+<li>Now we have symbol addresses. We want function names.
+<ul>
+<li>There's a tool for this, and it's called
+<code>addr2line</code>.</li>
+<li>It's specified in POSIX. We have to shell out.</li>
+<li>This is the classic, <code>pipe()</code>, <code>dup2()</code>,
+<code>fork()</code>, <code>exec()</code> song and dance.
+<ul>
+<li>On the child end of the pipe, we replace the execution image with
+<code>addr2line</code>.</li>
+<li>On the parent end of the pipe, we parse the output of
+<code>addr2line</code>.</li>
+</ul></li>
+</ul></li>
+<li>We now can build and print the stack trace.
+<ul>
+<li>Ah, but wait. Not so easy. <code>addr2line</code> gives us
+unresolved file paths with a bunch of dots in them. We should probably
+resolve them first.
+<ul>
+<li>It turns out that this has to be done manually, can't call
+realpath().
+<ul>
+<li>Maybe this is actually AS-Safe in glibc, but I haven't checked, I
+just did it myself.</li>
+<li>Which is to say that I stole it off some nerd on StackOverflow.</li>
+</ul></li>
+</ul></li>
+<li>We can't exactly call <code>printf()</code> and write to stdout.
+<code>printf()</code> is unsafe.
+<ul>
+<li>You could create a memfd and <code>fdopen()</code> it, then
+<code>fprintf()</code> to that. Why not?
+<ul>
+<li>It turns out that <code>fprintf()</code> isn't standardized to be
+AS-Safe when it has exclusive access to the backing <code>FILE*</code>
+structure, so this is nonstandard and may just break on some machines.
+It probably does break at least on some.</li>
+</ul></li>
+<li>The correct thing to do is to do all the formatting yourself,
+manually. Then make one singlular <code>write()</code> to the file
+descriptor you wish to write to.
+<ul>
+<li>It is not possible to do this write to any arbitrary
+<code>FILE*</code> structure, because <code>fileno()</code> is
+apparently unsafe as well, unsure as to why. It would be nice to be able
+to write to any <code>FILE*</code>, but sadly that is not possible.</li>
+<li>The rationale for doing one single write is so that your stack trace
+doesn't get split up between calls to <code>write()</code> on different
+threads.</li>
+</ul></li>
+<li>There's no real way to deal with the fact that stdout, stderr, etc
+may have unflushed data. Even if you could call <code>fflush()</code>
+(you can't, it's unsafe), it would be impossible to garuntee that
+another thread won't just immediately buffer more. So there's the
+possibility that the backtrace you <code>write()</code> gets mixed in
+with other stuff. But that's probably acceptable, which is good because
+we need to accept it.</li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+<h1 id="bonus-gotchas">Bonus Gotchas</h1>
+<ul>
+<li>Bonus Gotchas
+<ul>
+<li>Lazy library loading through the linker calls <code>malloc()</code>
+and is unsafe.
+<ul>
+<li>Must be preloaded, either by <code>dlopen()</code>ing it or by
+inserting a dummy call to make sure the <code>malloc()</code> isn't
+incurred inside the signal handler.</li>
+<li>By sheer coincidence, this was the cause of the bug that I found in
+another of my articles, <a
+href="The_Craziest_Bug_I_Have_Ever_Witnessed.html">The Craziest Bug I
+have Ever Witnessed</a>.</li>
+</ul></li>
+<li>The starting value of <code>errno</code> should be saved at the
+beginning, and restored at the end. Other threads are not a concern
+here, but it could otherwise overwite the error value for the current
+thread at any time, which would be very unfortunate. It would seem as
+though a syscall failed when it hadn't, or vice-versa.</li>
+</ul></li>
+<li>Takeaways, and the implementation:
+<ul>
+<li>Okay, that was a lot. So, here you go. Here's the code.
+<ul>
+<li><a
+href="https://github.com/apaz-cli/daisho/master/tree/stdlib/Native/PreStart/Backtrace.h">code</a></li>
+</ul></li>
+<li>Do not do any work in signal handlers, unless you really really know
+what you are doing. Ideally, set a flag and gtfo.</li>
+<li>You can also choose to do it like I do, but honestly don't. It's
+absolute purgatory.</li>
+</ul></li>
+</ul>
+<p>I hope that you find this useful. May you never feel my pain.</p>
+</body>
+</html>

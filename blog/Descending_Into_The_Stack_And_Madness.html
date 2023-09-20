@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Descending Into The Stack And Madness</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+      font-size: 20px;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style type="text/css">
+  /* https://github.com/markdowncss/retro/blob/master/css/retro.css */
+
+  @font-face {
+      font-family: "lemon";
+      src: url('lemon.woff');
+  }
+
+  /*
+  @media print {
+      *, *:before, *:after {
+          background: transparent !important;
+          color: #000 !important;
+          box-shadow: none !important;
+          text-shadow: none !important;
+      }
+      a, a:visited { text-decoration: underline; }
+      a[href]:after { content: " (" attr(href) ")"; }
+      abbr[title]:after { content: " (" attr(title) ")"; }
+      a[href^="#"]:after, a[href^="javascript:"]:after { content: ""; }
+      pre, blockquote { border: 1px solid #999; page-break-inside: avoid; }
+      thead { display: table-header-group; }
+      tr, img { page-break-inside: avoid; }
+      img { max-width: 100% !important; }
+      p, h2, h3 { orphans: 3; widows: 3; }
+      h2, h3 { page-break-after: avoid; }
+  }
+  */
+  a, a:visited { color: #01ff70; }
+  a:hover, a:focus, a:active { color: #2ecc40; }
+  .retro-no-decoration { text-decoration: none; }
+  p, .retro-p {
+      font-size: 1rem;
+      margin-bottom: 1.3rem;
+      /*text-indent: 50px*/
+  }
+  h1, .retro-h1, h2, .retro-h2, h3, .retro-h3, h4, .retro-h4 {
+      font-family: "lemon";
+      margin: 1.414rem 0 .5rem;
+      font-weight: inherit;
+      line-height: 1.42;
+  }
+  h1, .retro-h1 {
+      color: rgb(112, 221, 0);
+      margin-top: 0;
+      font-size: 3.998rem;
+  }
+  h2, .retro-h2 {
+      color: rgb(112, 221, 0);
+      margin-top: 0;
+      font-size: 2.827rem;
+  }
+  h3, .retro-h3 {
+      font-size: 1.999rem;
+  }
+  h4, .retro-h4 {
+      font-size: 1.414rem;
+  }
+  h5, .retro-h5 {
+      font-size: 1.121rem;
+  }
+  h6, .retro-h6 {
+      font-size: .88rem;
+  }
+  small, .retro-small {
+      font-size: .707em;
+  }
+
+  img, canvas, iframe, video, svg, select, textarea { max-width: 100%; }
+
+  html, body {
+      /* background-image: url(https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/pattern.png); */
+      background-color: #222;
+      min-height: 100%;
+      font-size: 20px;
+  }
+  body {
+      color: #fafafa;
+      /* font-family:  "lemon", "Courier New"; */
+      line-height: 1.65;
+      max-width: 48rem;
+      /* margin: 6rem auto 1rem; */
+      /* padding: .25rem; */
+  }
+  pre, code {
+      background-color: #333;
+      font-family: "lemon", "Menlo", "Monaco", "Courier New";
+      font-size: 12;
+  }
+
+  code span.dt { color: #e4a51e; } /* DataType */
+
+  pre {
+      padding: .5rem;
+      line-height: 1.25;
+      overflow-x: scroll;
+  }
+  blockquote {
+      border-left: 3px solid #01ff70;
+      padding-left: 1rem;
+  }
+  </style>
+</head>
+<body>
+<h1 id="descending-into-the-stack-and-madness">Descending Into the Stack
+and Madness</h1>
+<p>A descent into madness. A death by a thousand cuts.</p>
+<p>Call me melodramatic, but all I want is a nice, pretty, formatted
+backtrace from a signal handler.</p>
+<p>What am I to do?</p>
+<p><img src="images/Samurai_Gate.jpg" /></p>
+<h1 id="background">Background</h1>
+<ul>
+<li><p>What is a signal handler?</p></li>
+<li><p>Why is signal-safety a thing?</p></li>
+<li><p>Ideal implementation</p>
+<ul>
+<li>Event loop</li>
+</ul></li>
+</ul>
+<h1 id="implementation">Implementation</h1>
+<ul>
+<li>Let's try to implement one
+<ul>
+<li>First, we need a library that does the actual tracing the stack.
+<ul>
+<li>libunwind impl</li>
+<li>glibc impl</li>
+<li>Implement it yourself</li>
+</ul></li>
+<li>glibc provides <code>backtrace()</code>,
+<code>backtrace_symbols()</code>, and
+<code>backtrace_symbols_fd()</code>.
+<ul>
+<li><code>backtrace_symbols()</code> returns a <code>malloc()</code>ed
+array, so it's out of the picture.</li>
+<li>So, we need to write to a file descriptor. Sure, I thought. How bad
+could it be?</li>
+</ul></li>
+<li>We need a temp file descriptor to write into.
+<ul>
+<li><code>memfd_create()</code>? Nope. Not signal-safe.</li>
+<li><code>mkstemp()</code>? Nope. Not signal-safe either.</li>
+<li>So actually, what we need to do is create the file descriptor to
+print the trace into, before the handler is even called.
+<ul>
+<li>We will be calling <code>memfd_create()</code> after all.</li>
+</ul></li>
+</ul></li>
+<li>Now we have symbol addresses. We want function names.
+<ul>
+<li>There's a tool for this, and it's called
+<code>addr2line</code>.</li>
+<li>It's specified in POSIX. We have to shell out.</li>
+<li>This is the classic, <code>pipe()</code>, <code>dup2()</code>,
+<code>fork()</code>, <code>exec()</code> song and dance.
+<ul>
+<li>On the child end of the pipe, we replace the execution image with
+<code>addr2line</code>.</li>
+<li>On the parent end of the pipe, we parse the output of
+<code>addr2line</code>.</li>
+</ul></li>
+</ul></li>
+<li>We now can build and print the stack trace.
+<ul>
+<li>Ah, but wait. Not so easy. <code>addr2line</code> gives us
+unresolved file paths with a bunch of dots in them. We should probably
+resolve them first.
+<ul>
+<li>It turns out that this has to be done manually, can't call
+realpath().
+<ul>
+<li>Maybe this is actually AS-Safe in glibc, but I haven't checked, I
+just did it myself.</li>
+<li>Which is to say that I stole it off some nerd on StackOverflow.</li>
+</ul></li>
+</ul></li>
+<li>We can't exactly call <code>printf()</code> and write to stdout.
+<code>printf()</code> is unsafe.
+<ul>
+<li>You could create a memfd and <code>fdopen()</code> it, then
+<code>fprintf()</code> to that. Why not?
+<ul>
+<li>It turns out that <code>fprintf()</code> isn't standardized to be
+AS-Safe when it has exclusive access to the backing <code>FILE*</code>
+structure, so this is nonstandard and may just break on some machines.
+It probably does break at least on some.</li>
+</ul></li>
+<li>The correct thing to do is to do all the formatting yourself,
+manually. Then make one singlular <code>write()</code> to the file
+descriptor you wish to write to.
+<ul>
+<li>It is not possible to do this write to any arbitrary
+<code>FILE*</code> structure, because <code>fileno()</code> is
+apparently unsafe as well, unsure as to why. It would be nice to be able
+to write to any <code>FILE*</code>, but sadly that is not possible.</li>
+<li>The rationale for doing one single write is so that your stack trace
+doesn't get split up between calls to <code>write()</code> on different
+threads.</li>
+</ul></li>
+<li>There's no real way to deal with the fact that stdout, stderr, etc
+may have unflushed data. Even if you could call <code>fflush()</code>
+(you can't, it's unsafe), it would be impossible to garuntee that
+another thread won't just immediately buffer more. So there's the
+possibility that the backtrace you <code>write()</code> gets mixed in
+with other stuff. But that's probably acceptable, which is good because
+we need to accept it.</li>
+</ul></li>
+</ul></li>
+</ul></li>
+</ul>
+<h1 id="bonus-gotchas">Bonus Gotchas</h1>
+<ul>
+<li>Bonus Gotchas
+<ul>
+<li>Lazy library loading through the linker calls <code>malloc()</code>
+and is unsafe.
+<ul>
+<li>Must be preloaded, either by <code>dlopen()</code>ing it or by
+inserting a dummy call to make sure the <code>malloc()</code> isn't
+incurred inside the signal handler.</li>
+<li>By sheer coincidence, this was the cause of the bug that I found in
+another of my articles, <a
+href="The_Craziest_Bug_I_Have_Ever_Witnessed.html">The Craziest Bug I
+have Ever Witnessed</a>.</li>
+</ul></li>
+<li>The starting value of <code>errno</code> should be saved at the
+beginning, and restored at the end. Other threads are not a concern
+here, but it could otherwise overwite the error value for the current
+thread at any time, which would be very unfortunate. It would seem as
+though a syscall failed when it hadn't, or vice-versa.</li>
+</ul></li>
+<li>Takeaways, and the implementation:
+<ul>
+<li>Okay, that was a lot. So, here you go. Here's the code.
+<ul>
+<li><a
+href="https://github.com/apaz-cli/daisho/master/tree/stdlib/Native/PreStart/Backtrace.h">code</a></li>
+</ul></li>
+<li>Do not do any work in signal handlers, unless you really really know
+what you are doing. Ideally, set a flag and gtfo.</li>
+<li>You can also choose to do it like I do, but honestly don't. It's
+absolute purgatory.</li>
+</ul></li>
+</ul>
+<p>I hope that you find this useful. May you never feel my pain.</p>
+</body>
+</html>
