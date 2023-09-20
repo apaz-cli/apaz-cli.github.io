@@ -13,6 +13,7 @@ What am I to do?
 # Background
 
 * What is a signal handler?
+
 * Why is signal-safety a thing?
 
 * Ideal implementation
@@ -86,7 +87,7 @@ What am I to do?
 
 * Takeaways, and the implementation:
   * Okay, that was a lot. So, here you go. Here's the code.
-    * [code](https://github.com/apaz-cli/daisho/master/tree/stdlib/Native/PreStart/Backtrace.h)
+    * [code](https://github.com/apaz-cli/daisho/blob/master/stdlib/Native/PreStart/Backtrace.h)
   * Do not do any work in signal handlers, unless you really really know what you are doing.
     Ideally, set a flag and gtfo.
   * You can also choose to do it like I do, but honestly don't. It's absolute purgatory.
