@@ -15,23 +15,118 @@ backtrace from a signal handler.</p>
 <p>What am I to do?</p>
 <p><img src="images/Samurai_Gate.jpg" /></p>
 <h1 id="background">Background</h1>
-<ul>
-<li><p>What is a signal handler?</p></li>
-<li><p>Why is signal-safety a thing?</p></li>
-<li><p>Ideal implementation</p>
-<ul>
-<li>Event loop</li>
-</ul></li>
-</ul>
+<h3 id="what-is-a-signal-handler">What is a signal handler?</h3>
+<p>Here's an example.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;signal.h&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> handle_sigint<span class="op">(</span><span class="dt">int</span> sig<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  printf<span class="op">(</span><span class="st">&quot;Received SIGINT</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  signal<span class="op">(</span>SIGINT<span class="op">,</span> handle_sigint<span class="op">);</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">);</span> <span class="co">// Loop forever</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>If you compile and run this, you'll see "Recieved SIGINT" whenever it
+receives one, which you can do by pressing <code>ctrl + c</code> in your
+terminal. You can send it <code>SIGQUIT</code> to exit by pressing
+<code>ctrl + \</code>.</p>
+<h3 id="what-is-signal-safety">What is signal safety?</h3>
+<p>It might surprise you to learn that the example given above is not
+signal-safe. Why, and what does that mean?</p>
+<p>First, open your terminal, and type <code>man signal-safety</code>.
+Read it. Read it all. It could, metaphorically speaking, save your life.
+Or a few hours debugging.</p>
+<div style="text-align: center;">
+<p><img src="images/signal-safety1.png" /></p>
+</div>
+<p>And also the notes at the end.</p>
+<div style="text-align: center;">
+<p><img src="images/signal-safety2.png" /></p>
+</div>
+<p>While this man page does lay out a lot of crucial information, it
+leaves a lot to be desired. What's actually more important than what's
+written there is what isn't. It also explains what you aren't allowed to
+do, but doesn't explain why. Let's explain why.</p>
+<p>The man page says:</p>
+<pre><code>If, at that moment, the program is interrupted by a signal handler
+that also calls printf(3), then the second call to printf(3) will
+operate on inconsistent data, with unpredictable results.</code></pre>
+<p>Why is this? I thought that <code>printf()</code> was threadsafe?</p>
+<p>Well... it is. The problem is, signal handlers are not executed on a
+different thread. They're actually executed on the <em>same</em> thread.
+On linux, always the main thread, unless you cleverly configure signal
+masks. This means that mutexes are useless at preventing race conditions
+from signal handlers. In fact, note that the man page does not contain
+any mention of mutexes at all. Even attempting to acquire a mutex is
+unsafe, and prone to deadlocks.</p>
+<p>Other functions are prone to these issues as well.
+<code>malloc()</code>, for example, is ALSO not listed as AS-Safe in
+<code>man signal-safety</code>, for the same reasons as
+<code>printf()</code>. It's inherently required to operate on global
+data, the bookkeeping for which could be overwritten at any time. Losing
+<code>malloc()</code> rules out most other libraries. It also creates
+some very unintuitive results, such as <a
+href="The_Craziest_Bug_I_Have_Ever_Witnessed.html">The Craziest Bug I
+have Ever Witnessed</a>, which is a real world example of this where I
+found a bug in the julia runtime implementation of its own backtrace
+signal handler.</p>
 <h1 id="implementation">Implementation</h1>
+<div style="text-align: center;">
+<p><img src="images/signal-safety3.png" /></p>
+</div>
+<p>Now that we understand signal safety, let's think about what we need
+to do to implement backtraces.</p>
+<p>First, we need a library capable of tracing the stack. You could
+write this yourself. However, it would require extensive knowledge of
+the specific platform, and would not be portable. So, if you haven't
+also written your own platform, you should probably use a library.</p>
+<p>In practice, on ARM/x86/RISC-V/Whatever, you have a choice. You can
+either use glibc (which is no doubt already installed unless you're
+using an all-musl distribution) or <code>libunwind</code>. Since it's
+already installed, let's use glibc. To view the docs for the glibc
+backtrace library, consult the manual once again and type
+<code>man backtrace</code> in your terminal.</p>
+<p>The glibc functions are <code>backtrace()</code>,
+<code>backtrace_symbols()</code>, <code>backtrace_symbols_fd()</code>.
+<code>backtrace_symbols()</code> returns a <code>malloc()</code>ed
+array, so it's out of the picture immediately. The rest of the functions
+are not documented as AS-Safe. But, I went on IRC and asked the glibc
+maintainers about it, and they said it was safe.</p>
+<div style="text-align: center;">
+<p><img src="images/signal-safety4.png" /></p>
+</div>
+<p>So, we need to write to a file descriptor. Sure, I thought. How bad
+could it be? What ensued was agony beyond reason, horror beyond
+imagination. Or something, I don't know. I think that I found a small
+hole in the POSIX standard.</p>
+<h3 id="a-hole-in-posix">A Hole in POSIX?</h3>
+<p>We need to create a file descriptor to write into. How will we do
+that?</p>
+<p>Ideally, the bits and bytes backing the file descriptor should remain
+in memory. So, we should call <code>memfd_create()</code>. So, we look
+it up in <code>man signal-safety</code>, and... It isn't there. It's not
+required by POSIX to be AS-Safe.</p>
+<p>The glibc implementation of <code>memfd_create()</code> is probably
+AS-Safe. Probably. I could go ask the maintainers again. But, I haven't.
+There's another issue. It's linux-only. So, let's use
+<code>mkstemp()</code>. But... that isn't marked as AS-Safe either.</p>
+<p>-- REST OF DRAFT BEYOND THIS POINT --</p>
+<h1 id="implementation-1">Implementation</h1>
 <ul>
 <li>Let's try to implement one
 <ul>
 <li>First, we need a library that does the actual tracing the stack.
 <ul>
+<li>You could write this yourself. However, it would require extensive
+knowledge of the specific platform, and would not be portable. So, if
+you haven't also written your own platform, you should use a library.
+<ul>
 <li>libunwind impl</li>
 <li>glibc impl</li>
-<li>Implement it yourself</li>
+</ul></li>
 </ul></li>
 <li>glibc provides <code>backtrace()</code>,
 <code>backtrace_symbols()</code>, and
@@ -95,18 +190,18 @@ It probably does break at least on some.</li>
 manually. Then make one singlular <code>write()</code> to the file
 descriptor you wish to write to.
 <ul>
+<li>If you make multiple <code>write()</code>s, they might get
+interleaved with writes on other threads.</li>
 <li>It is not possible to do this write to any arbitrary
 <code>FILE*</code> structure, because <code>fileno()</code> is
 apparently unsafe as well, unsure as to why. It would be nice to be able
 to write to any <code>FILE*</code>, but sadly that is not possible.</li>
-<li>The rationale for doing one single write is so that your stack trace
-doesn't get split up between calls to <code>write()</code> on different
-threads.</li>
 </ul></li>
 <li>There's no real way to deal with the fact that stdout, stderr, etc
 may have unflushed data. Even if you could call <code>fflush()</code>
 (you can't, it's unsafe), it would be impossible to garuntee that
-another thread won't just immediately buffer more. So there's the
+another thread won't just immediately buffer more. This cannot be
+circumvented, because mutexes are not signal safe. So there's the
 possibility that the backtrace you <code>write()</code> gets mixed in
 with other stuff. But that's probably acceptable, which is good because
 we need to accept it.</li>
