@@ -12,20 +12,135 @@ What am I to do?
 
 # Background
 
-* What is a signal handler?
+### What is a signal handler?
 
-* Why is signal-safety a thing?
+Here's an example.
 
-* Ideal implementation
-  * Event loop
+```c
+#include <stdio.h>
+#include <signal.h>
+
+void handle_sigint(int sig) {
+  printf("Received SIGINT\n");
+}
+
+int main() {
+  signal(SIGINT, handle_sigint);
+  while (1); // Loop forever
+  return 0;
+}
+```
+
+If you compile and run this, you'll see "Recieved SIGINT\n" whenever it receives one,
+which you can do by pressing `ctrl + c` in your terminal. You can send it `SIGQUIT` to
+exit by pressing `ctrl + \`.
+
+### What is signal safety?
+
+It might surprise you to learn that the example given above is not signal-safe.
+Why, and what does that mean?
+
+First, open your terminal, and type `man signal-safety`. Read it. Read it all.
+It could, metaphorically speaking, save your life. Or a few hours debugging.
+
+<div style="text-align: center;">
+![](images/signal-safety1.png)
+</div>
+
+And also the notes at the end.
+
+<div style="text-align: center;">
+![](images/signal-safety2.png)
+</div>
+
+While this man page does lay out a lot of crucial information, it leaves a lot to be
+desired. What's actually more important than what's written there is what isn't. It also
+explains what you aren't allowed to do, but doesn't explain why. Let's explain why.
+
+The man page says:
+```
+If, at that moment, the program is interrupted by a signal handler
+that also calls printf(3), then the second call to printf(3) will
+operate on inconsistent data, with unpredictable results.
+```
+
+Why is this? I thought that `printf()` was threadsafe?
+
+Well... it is. The problem is, signal handlers are not executed on a different thread.
+They're actually executed on the *same* thread. On linux, always the main thread, unless
+you cleverly configure signal masks. This means that mutexes are useless at preventing
+race conditions from signal handlers. In fact, note that the man page does not contain
+any mention of mutexes at all. Even attempting to acquire a mutex is unsafe, and prone
+to deadlocks.
+
+Other functions are prone to these issues as well. `malloc()`, for example, is ALSO not
+listed as AS-Safe in `man signal-safety`, for the same reasons as `printf()`. It's
+inherently required to operate on global data, the bookkeeping for which could be
+overwritten at any time. Losing `malloc()` rules out most other libraries. It also
+creates some very unintuitive results, such as
+[The Craziest Bug I have Ever Witnessed](The_Craziest_Bug_I_Have_Ever_Witnessed.html),
+which is a real world example of this where I found a bug in the julia runtime
+implementation of its own backtrace signal handler.
+
+# Implementation
+
+<div style="text-align: center;">
+![](images/signal-safety3.png)
+</div>
+
+Now that we understand signal safety, let's think about what we need to do to implement
+backtraces.
+
+First, we need a library capable of tracing the stack. You could write this yourself.
+However, it would require extensive knowledge of the specific platform, and would not
+be portable. So, if you haven't also written your own platform, you should probably use
+a library.
+
+In practice, on ARM/x86/RISC-V/Whatever, you have a choice. You can either use glibc
+(which is no doubt already installed unless you're using an all-musl distribution) or
+`libunwind`. Since it's already installed, let's use glibc. To view the docs for the
+glibc backtrace library, consult the manual once again and type `man backtrace` in your
+terminal.
+
+The glibc functions are `backtrace()`, `backtrace_symbols()`, `backtrace_symbols_fd()`.
+`backtrace_symbols()` returns a `malloc()`ed array, so it's out of the picture
+immediately. The rest of the functions are not documented as AS-Safe. But, I went on
+IRC and asked the glibc maintainers about it, and they said it was safe.
+
+<div style="text-align: center;">
+![](images/signal-safety4.png)
+</div>
+
+So, we need to write to a file descriptor. Sure, I thought. How bad could it be? What
+ensued was agony beyond reason, horror beyond imagination. Or something, I don't know.
+I think that I found a small hole in the POSIX standard.
+
+### A Hole in POSIX?
+
+We need to create a file descriptor to write into. How will we do that?
+
+Ideally, the bits and bytes backing the file descriptor should remain in memory.
+So, we should call `memfd_create()`. So, we look it up in `man signal-safety`, and...
+It isn't there. It's not required by POSIX to be AS-Safe.
+
+The glibc implementation of `memfd_create()` is probably AS-Safe. Probably. I could go
+ask the maintainers again. But, I haven't. There's another issue. It's linux-only. So,
+let's use `mkstemp()`. But... that isn't marked as AS-Safe either.
+
+
+
+
+-- REST OF DRAFT BEYOND THIS POINT --
 
 # Implementation
 
 * Let's try to implement one
   * First, we need a library that does the actual tracing the stack.
-    * libunwind impl
-    * glibc impl
-    * Implement it yourself
+    * You could write this yourself. However, it would require extensive knowledge of
+      the specific platform, and would not be portable. So, if you haven't also written
+      your own platform, you should use a library.
+      * libunwind impl
+      * glibc impl
 
   * glibc provides `backtrace()`, `backtrace_symbols()`, and `backtrace_symbols_fd()`.
     * `backtrace_symbols()` returns a `malloc()`ed array, so it's out of the picture.
@@ -59,17 +174,16 @@ What am I to do?
           on some machines. It probably does break at least on some.
       * The correct thing to do is to do all the formatting yourself, manually. Then make
         one singlular `write()` to the file descriptor you wish to write to.
+        * If you make multiple `write()`s, they might get interleaved with writes on other threads.
         * It is not possible to do this write to any arbitrary `FILE*` structure, because
           `fileno()` is apparently unsafe as well, unsure as to why. It would be nice to be
           able to write to any `FILE*`, but sadly that is not possible.
-        * The rationale for doing one single write is so that your stack trace doesn't get
-          split up between calls to `write()` on different threads.
-
       * There's no real way to deal with the fact that stdout, stderr, etc may have unflushed
         data. Even if you could call `fflush()` (you can't, it's unsafe), it would be
-        impossible to garuntee that another thread won't just immediately buffer more. So
-        there's the possibility that the backtrace you `write()` gets mixed in with other
-        stuff. But that's probably acceptable, which is good because we need to accept it.
+        impossible to garuntee that another thread won't just immediately buffer more. This
+        cannot be circumvented, because mutexes are not signal safe. So there's the possibility
+        that the backtrace you `write()` gets mixed in with other stuff. But that's probably
+        acceptable, which is good because we need to accept it.
 
 # Bonus Gotchas
 
