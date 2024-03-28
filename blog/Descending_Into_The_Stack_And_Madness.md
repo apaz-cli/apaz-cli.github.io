@@ -66,18 +66,25 @@ operate on inconsistent data, with unpredictable results.
 
 Why is this? I thought that `printf()` was threadsafe?
 
+<div style="text-align: center;">
+  <img src="images/math.gif" width="400">
+</div>
+
 Well... it is. The problem is, signal handlers are not executed on a different thread.
 They're actually executed on the *same* thread. On linux, always the main thread, unless
 you cleverly configure signal masks. This means that mutexes are useless at preventing
-race conditions from signal handlers. In fact, note that the man page does not contain
-any mention of mutexes at all. Even attempting to acquire a mutex is unsafe, and prone
-to deadlocks.
+race conditions from signal handlers. In fact, they are less than useless. When used
+correctly, they deadlock.
+
+Note that `man signal-safety` does not contain even a single mention of mutexes at all.
+It should. It should provide a stern warning. Yet, it doesn't. I reiterate that even
+more important than what's written there is what isn't.
 
 Other functions are prone to these issues as well. `malloc()`, for example, is ALSO not
 listed as AS-Safe in `man signal-safety`, for the same reasons as `printf()`. It's
 inherently required to operate on global data, the bookkeeping for which could be
-overwritten at any time. Losing `malloc()` rules out most other libraries. It also
-creates some very unintuitive results, such as
+overwritten at any time and cannot be protected by a mutex. Losing `malloc()` rules
+out most other libraries. It also creates some very unintuitive situations, such as
 [The Craziest Bug I have Ever Witnessed](The_Craziest_Bug_I_Have_Ever_Witnessed.html),
 which is a real world example of this where I found a bug in the julia runtime
 implementation of its own backtrace signal handler.
@@ -85,11 +92,11 @@ implementation of its own backtrace signal handler.
 # Implementation
 
 <div style="text-align: center;">
-![](images/signal-safety3.png)
+![](images/trolling.gif)
 </div>
 
 Now that we understand signal safety, let's think about what we need to do to implement
-backtraces.
+backtraces that can be obtained from a signal handler.
 
 First, we need a library capable of tracing the stack. You could write this yourself.
 However, it would require extensive knowledge of the specific platform, and would not
@@ -103,34 +110,72 @@ glibc backtrace library, consult the manual once again and type `man backtrace` 
 terminal.
 
 The glibc functions are `backtrace()`, `backtrace_symbols()`, `backtrace_symbols_fd()`.
-`backtrace_symbols()` returns a `malloc()`ed array, so it's out of the picture
-immediately. The rest of the functions are not documented as AS-Safe. But, I went on
-IRC and asked the glibc maintainers about it, and they said it was safe.
-
+The `backtrace_symbols()` function returns a `malloc()`ed array, so it's out of the
+picture immediately. The rest of the functions are not documented as AS-Safe. But, I
+went on IRC, asked the glibc maintainers about it, and they said it was safe.
+z
 <div style="text-align: center;">
-![](images/signal-safety4.png)
+![](images/signal-safety5.png)
 </div>
 
 So, we need to write to a file descriptor. Sure, I thought. How bad could it be? What
 ensued was agony beyond reason, horror beyond imagination. Or something, I don't know.
-I think that I found a small hole in the POSIX standard.
+Melodrama aside, it was much more difficult than I anticipated, and I think that I
+found a small (but disproportionately painful) oversight in the POSIX standard.
 
-### A Hole in POSIX?
+## My Kingdom for a File Descriptor
 
 We need to create a file descriptor to write into. How will we do that?
 
 Ideally, the bits and bytes backing the file descriptor should remain in memory.
-So, we should call `memfd_create()`. So, we look it up in `man signal-safety`, and...
-It isn't there. It's not required by POSIX to be AS-Safe.
+We should call `memfd_create()`. So, we look it up in `man signal-safety`, and...
+It isn't there. It's not required by POSIX to be AS-Safe. That makes sense. It's
+not even from posix, it's linux-specific, not portable, and so it wouldn't be listed.
 
-The glibc implementation of `memfd_create()` is probably AS-Safe. Probably. I could go
-ask the maintainers again. But, I haven't. There's another issue. It's linux-only. So,
-let's use `mkstemp()`. But... that isn't marked as AS-Safe either.
+The glibc implementation of `memfd_create()` is probably AS-Safe. Probably. I just read
+the source, and it's a direct syscall. I could go ask the maintainers again to make sure.
+But, even being a direct syscall isn't enough. Some syscalls are intercepted by libvdso.
+And, besides, the POSIX standard doesn't know anything about syscalls. But, it might
+actually be safe, depending on what guru you trust. Who is to say.
+
+Anyway. It's not technically portable. It's not on the list. So, let's look for other
+options. How about using `mkstemp()`?. It turns out, that isn't marked as AS-Safe either.
+Strangely enough, if we want to create a file descriptor in a way that's fully AS-Safe,
+we have to create a temp file, on disk, manually, with `open()`. I think that's a travesty.
+What if the signal was sent because a disk error?
+
+It pains me, but let's just call `memfd_create()` outside the signal handler and store it
+to a global variable at the start of the program, before the signal handler is
+registered and before it can be called. We already have to do some setup. We have to
+preemptively load the library that glibc's `backtrace()` is implemented in, so we may
+as well do a little extra.
+
+Notably though, we now rely on global state. So, if the signal handler has to run on
+multiple threads, or interrupts another signal handler, it'll clobber the memfile.
+Luckily, `pthread_sigmask()` exists (and newly spun threads inherit the signal mask)
+to make sure signal handlers run on only one thread by default. Also, and
+`struct sigaction::sa_mask` exists so that the signal handling thread cannot be interrupted.
+So, these are problems, but solvable ones.
+
+
+# Backtraces Time
+
+Okay, so now we've called `backtrace()` and `backtrace_symbols_fd()`. Astounding. We
+have symbol addresses. But they're printed into a temp file, whether it's a memfile or
+a real file on disk. Now, all we have to do is parse them out. I wrote a parser. It's
+not that fancy.
+
+How do we get function names? Luckily there's a tool for this, and it's `addr2line`,
+which is part of the ubiquitous `binutils` package. If you're wondering if you have it,
+you probably do.
+
+
 
 
 
 
 -- REST OF DRAFT BEYOND THIS POINT --
+
 
 # Implementation
 
