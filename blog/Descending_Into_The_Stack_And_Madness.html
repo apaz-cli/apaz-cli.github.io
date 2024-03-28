@@ -368,30 +368,37 @@ do, but doesn't explain why. Let's explain why.</p>
 that also calls printf(3), then the second call to printf(3) will
 operate on inconsistent data, with unpredictable results.</code></pre>
 <p>Why is this? I thought that <code>printf()</code> was threadsafe?</p>
+<div style="text-align: center;">
+<p><img src="images/math.gif" width="400"></p>
+</div>
 <p>Well... it is. The problem is, signal handlers are not executed on a
 different thread. They're actually executed on the <em>same</em> thread.
 On linux, always the main thread, unless you cleverly configure signal
 masks. This means that mutexes are useless at preventing race conditions
-from signal handlers. In fact, note that the man page does not contain
-any mention of mutexes at all. Even attempting to acquire a mutex is
-unsafe, and prone to deadlocks.</p>
+from signal handlers. In fact, they are less than useless. When used
+correctly, they deadlock.</p>
+<p>Note that <code>man signal-safety</code> does not contain even a
+single mention of mutexes at all. It should. It should provide a stern
+warning. Yet, it doesn't. I reiterate that even more important than
+what's written there is what isn't.</p>
 <p>Other functions are prone to these issues as well.
 <code>malloc()</code>, for example, is ALSO not listed as AS-Safe in
 <code>man signal-safety</code>, for the same reasons as
 <code>printf()</code>. It's inherently required to operate on global
-data, the bookkeeping for which could be overwritten at any time. Losing
-<code>malloc()</code> rules out most other libraries. It also creates
-some very unintuitive results, such as <a
-href="The_Craziest_Bug_I_Have_Ever_Witnessed.html">The Craziest Bug I
-have Ever Witnessed</a>, which is a real world example of this where I
-found a bug in the julia runtime implementation of its own backtrace
-signal handler.</p>
+data, the bookkeeping for which could be overwritten at any time and
+cannot be protected by a mutex. Losing <code>malloc()</code> rules out
+most other libraries. It also creates some very unintuitive situations,
+such as <a href="The_Craziest_Bug_I_Have_Ever_Witnessed.html">The
+Craziest Bug I have Ever Witnessed</a>, which is a real world example of
+this where I found a bug in the julia runtime implementation of its own
+backtrace signal handler.</p>
 <h1 id="implementation">Implementation</h1>
 <div style="text-align: center;">
-<p><img src="images/signal-safety3.png" /></p>
+<p><img src="images/trolling.gif" /></p>
 </div>
 <p>Now that we understand signal safety, let's think about what we need
-to do to implement backtraces.</p>
+to do to implement backtraces that can be obtained from a signal
+handler.</p>
 <p>First, we need a library capable of tracing the stack. You could
 write this yourself. However, it would require extensive knowledge of
 the specific platform, and would not be portable. So, if you haven't
@@ -404,28 +411,41 @@ backtrace library, consult the manual once again and type
 <code>man backtrace</code> in your terminal.</p>
 <p>The glibc functions are <code>backtrace()</code>,
 <code>backtrace_symbols()</code>, <code>backtrace_symbols_fd()</code>.
-<code>backtrace_symbols()</code> returns a <code>malloc()</code>ed
-array, so it's out of the picture immediately. The rest of the functions
-are not documented as AS-Safe. But, I went on IRC and asked the glibc
-maintainers about it, and they said it was safe.</p>
+The <code>backtrace_symbols()</code> function returns a
+<code>malloc()</code>ed array, so it's out of the picture immediately.
+The rest of the functions are not documented as AS-Safe. But, I went on
+IRC, asked the glibc maintainers about it, and they said it was
+safe.</p>
 <div style="text-align: center;">
-<p><img src="images/signal-safety4.png" /></p>
+<p><img src="images/signal-safety5.png" /></p>
 </div>
 <p>So, we need to write to a file descriptor. Sure, I thought. How bad
 could it be? What ensued was agony beyond reason, horror beyond
-imagination. Or something, I don't know. I think that I found a small
-hole in the POSIX standard.</p>
-<h3 id="a-hole-in-posix">A Hole in POSIX?</h3>
+imagination. Or something, I don't know. Melodrama aside, it was much
+more difficult than I anticipated, and I think that I found a small
+oversight in the POSIX standard.</p>
+<h2 id="an-oversight-in-posix">An Oversight in POSIX?</h2>
 <p>We need to create a file descriptor to write into. How will we do
 that?</p>
 <p>Ideally, the bits and bytes backing the file descriptor should remain
 in memory. So, we should call <code>memfd_create()</code>. So, we look
 it up in <code>man signal-safety</code>, and... It isn't there. It's not
-required by POSIX to be AS-Safe.</p>
+required by POSIX to be AS-Safe. That makes sense. It's linux-specific,
+and not portable, so it wouldn't be listed.</p>
 <p>The glibc implementation of <code>memfd_create()</code> is probably
-AS-Safe. Probably. I could go ask the maintainers again. But, I haven't.
-There's another issue. It's linux-only. So, let's use
-<code>mkstemp()</code>. But... that isn't marked as AS-Safe either.</p>
+AS-Safe. Probably. I just read it, and it's a direct syscall. I could go
+ask the maintainers again to make sure. But, I haven't, since it's
+linux-only anyway. So, let's use <code>mkstemp()</code>. But... that
+isn't marked as AS-Safe either. Strangely enough, if we want to create a
+file descriptor in a way that's fully AS-Safe, we have to create a temp
+file, on disk, manually. That's awful, and a lot of work.</p>
+<p>The best thing to do is to do actually is to just create the file
+descriptor at the start of the program, before the signal handler is
+called. We already have to preemptively load the library that glibc's
+<code>backtrace()</code> is implemented in, so we may as well do a
+little extra.</p>
+<p>We now rely on global state. We store the file descriptor as a global
+variable. However, it's not shared global state. We can set</p>
 <p>-- REST OF DRAFT BEYOND THIS POINT --</p>
 <h1 id="implementation-1">Implementation</h1>
 <ul>
