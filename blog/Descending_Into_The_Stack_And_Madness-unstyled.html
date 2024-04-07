@@ -9,7 +9,8 @@
 <body>
 <h1 id="descending-into-the-stack-and-madness">Descending Into the Stack
 and Madness</h1>
-<p>A descent into madness. A death by a thousand cuts.</p>
+<p>AS-Safe glibc stack traces. A descent into madness. A death by a
+thousand cuts.</p>
 <p>Call me melodramatic, but all I want is a nice, pretty, formatted
 backtrace from a signal handler.</p>
 <p>What am I to do?</p>
@@ -55,30 +56,33 @@ do, but doesn't explain why. Let's explain why.</p>
 that also calls printf(3), then the second call to printf(3) will
 operate on inconsistent data, with unpredictable results.</code></pre>
 <p>Why is this? I thought that <code>printf()</code> was threadsafe?</p>
+<div style="text-align: center;">
+<p><img src="images/math.gif" width="400"></p>
+</div>
 <p>Well... it is. The problem is, signal handlers are not executed on a
 different thread. They're actually executed on the <em>same</em> thread.
 On linux, always the main thread, unless you cleverly configure signal
 masks. This means that mutexes are useless at preventing race conditions
-from signal handlers. In fact, note that the man page does not contain
-any mention of mutexes at all. Even attempting to acquire a mutex is
-unsafe, and prone to deadlocks.</p>
+from signal handlers. In fact, they are less than useless. When used
+correctly, they deadlock.</p>
+<p>Note that <code>man signal-safety</code> does not contain even a
+single mention of mutexes at all. It should. It should provide a stern
+warning. Yet, it doesn't. I reiterate that even more important than
+what's written there is what isn't.</p>
 <p>Other functions are prone to these issues as well.
 <code>malloc()</code>, for example, is ALSO not listed as AS-Safe in
 <code>man signal-safety</code>, for the same reasons as
 <code>printf()</code>. It's inherently required to operate on global
-data, the bookkeeping for which could be overwritten at any time. Losing
-<code>malloc()</code> rules out most other libraries. It also creates
-some very unintuitive results, such as <a
-href="The_Craziest_Bug_I_Have_Ever_Witnessed.html">The Craziest Bug I
-have Ever Witnessed</a>, which is a real world example of this where I
-found a bug in the julia runtime implementation of its own backtrace
-signal handler.</p>
+data, the bookkeeping for which could be overwritten at any time and
+cannot be protected by a mutex. Losing <code>malloc()</code> rules out
+most other libraries.</p>
 <h1 id="implementation">Implementation</h1>
 <div style="text-align: center;">
-<p><img src="images/signal-safety3.png" /></p>
+<p><img src="images/trolling.gif" /></p>
 </div>
 <p>Now that we understand signal safety, let's think about what we need
-to do to implement backtraces.</p>
+to do to implement backtraces that can be obtained from a signal
+handler.</p>
 <p>First, we need a library capable of tracing the stack. You could
 write this yourself. However, it would require extensive knowledge of
 the specific platform, and would not be portable. So, if you haven't
@@ -91,145 +95,159 @@ backtrace library, consult the manual once again and type
 <code>man backtrace</code> in your terminal.</p>
 <p>The glibc functions are <code>backtrace()</code>,
 <code>backtrace_symbols()</code>, <code>backtrace_symbols_fd()</code>.
-<code>backtrace_symbols()</code> returns a <code>malloc()</code>ed
-array, so it's out of the picture immediately. The rest of the functions
-are not documented as AS-Safe. But, I went on IRC and asked the glibc
-maintainers about it, and they said it was safe.</p>
+The <code>backtrace_symbols()</code> function returns a
+<code>malloc()</code>ed array, so it's out of the picture immediately.
+The rest of the functions are not documented as AS-Safe. But, I went on
+IRC, asked the glibc maintainers about it, and they said it was
+safe.</p>
+<h3 id="some-sort-of-shrug-meme">Some sort of shrug meme</h3>
 <div style="text-align: center;">
-<p><img src="images/signal-safety4.png" /></p>
+<p><img src="images/signal-safety5.png" /></p>
 </div>
 <p>So, we need to write to a file descriptor. Sure, I thought. How bad
 could it be? What ensued was agony beyond reason, horror beyond
-imagination. Or something, I don't know. I think that I found a small
-hole in the POSIX standard.</p>
-<h3 id="a-hole-in-posix">A Hole in POSIX?</h3>
+imagination. Or something, I don't know. Melodrama aside, it was much
+more difficult than I anticipated, and I think that I found a small (but
+disproportionately painful) oversight in the POSIX standard.</p>
+<h2 id="my-kingdom-for-a-file-descriptor">My Kingdom for a File
+Descriptor</h2>
 <p>We need to create a file descriptor to write into. How will we do
 that?</p>
+<div style="text-align: center;">
+<p><img src="images/I_am_having_a_panic_attack.png" /></p>
+</div>
 <p>Ideally, the bits and bytes backing the file descriptor should remain
-in memory. So, we should call <code>memfd_create()</code>. So, we look
-it up in <code>man signal-safety</code>, and... It isn't there. It's not
-required by POSIX to be AS-Safe.</p>
+in memory. We should call <code>memfd_create()</code>. So, we look it up
+in <code>man signal-safety</code>, and... It isn't there. It's not
+required by POSIX to be AS-Safe. That makes sense. It's not even from
+posix, it's linux-specific, not portable, and so it wouldn't be
+listed.</p>
 <p>The glibc implementation of <code>memfd_create()</code> is probably
-AS-Safe. Probably. I could go ask the maintainers again. But, I haven't.
-There's another issue. It's linux-only. So, let's use
-<code>mkstemp()</code>. But... that isn't marked as AS-Safe either.</p>
-<p>-- REST OF DRAFT BEYOND THIS POINT --</p>
-<h1 id="implementation-1">Implementation</h1>
-<ul>
-<li>Let's try to implement one
-<ul>
-<li>First, we need a library that does the actual tracing the stack.
-<ul>
-<li>You could write this yourself. However, it would require extensive
-knowledge of the specific platform, and would not be portable. So, if
-you haven't also written your own platform, you should use a library.
-<ul>
-<li>libunwind impl</li>
-<li>glibc impl</li>
-</ul></li>
-</ul></li>
-<li>glibc provides <code>backtrace()</code>,
-<code>backtrace_symbols()</code>, and
-<code>backtrace_symbols_fd()</code>.
-<ul>
-<li><code>backtrace_symbols()</code> returns a <code>malloc()</code>ed
-array, so it's out of the picture.</li>
-<li>So, we need to write to a file descriptor. Sure, I thought. How bad
-could it be?</li>
-</ul></li>
-<li>We need a temp file descriptor to write into.
-<ul>
-<li><code>memfd_create()</code>? Nope. Not signal-safe.</li>
-<li><code>mkstemp()</code>? Nope. Not signal-safe either.</li>
-<li>So actually, what we need to do is create the file descriptor to
-print the trace into, before the handler is even called.
-<ul>
-<li>We will be calling <code>memfd_create()</code> after all.</li>
-</ul></li>
-</ul></li>
-<li>Now we have symbol addresses. We want function names.
-<ul>
-<li>There's a tool for this, and it's called
-<code>addr2line</code>.</li>
-<li>It's specified in POSIX. We have to shell out.</li>
-<li>This is the classic, <code>pipe()</code>, <code>dup2()</code>,
-<code>fork()</code>, <code>exec()</code> song and dance.
-<ul>
-<li>On the child end of the pipe, we replace the execution image with
-<code>addr2line</code>.</li>
-<li>On the parent end of the pipe, we parse the output of
-<code>addr2line</code>.</li>
-</ul></li>
-</ul></li>
-<li>We now can build and print the stack trace.
-<ul>
-<li>Ah, but wait. Not so easy. <code>addr2line</code> gives us
-unresolved file paths with a bunch of dots in them. We should probably
-resolve them first.
-<ul>
-<li>It turns out that this has to be done manually, can't call
-realpath().
-<ul>
-<li>Maybe this is actually AS-Safe in glibc, but I haven't checked, I
-just did it myself.</li>
-<li>Which is to say that I stole it off some nerd on StackOverflow.</li>
-</ul></li>
-</ul></li>
-<li>We can't exactly call <code>printf()</code> and write to stdout.
-<code>printf()</code> is unsafe.
-<ul>
-<li>You could create a memfd and <code>fdopen()</code> it, then
-<code>fprintf()</code> to that. Why not?
-<ul>
-<li>It turns out that <code>fprintf()</code> isn't standardized to be
-AS-Safe when it has exclusive access to the backing <code>FILE*</code>
-structure, so this is nonstandard and may just break on some machines.
-It probably does break at least on some.</li>
-</ul></li>
-<li>The correct thing to do is to do all the formatting yourself,
-manually. Then make one singlular <code>write()</code> to the file
-descriptor you wish to write to.
-<ul>
-<li>If you make multiple <code>write()</code>s, they might get
-interleaved with writes on other threads.</li>
-<li>It is not possible to do this write to any arbitrary
-<code>FILE*</code> structure, because <code>fileno()</code> is
-apparently unsafe as well, unsure as to why. It would be nice to be able
-to write to any <code>FILE*</code>, but sadly that is not possible.</li>
-</ul></li>
-<li>There's no real way to deal with the fact that stdout, stderr, etc
-may have unflushed data. Even if you could call <code>fflush()</code>
-(you can't, it's unsafe), it would be impossible to garuntee that
-another thread won't just immediately buffer more. This cannot be
-circumvented, because mutexes are not signal safe. So there's the
-possibility that the backtrace you <code>write()</code> gets mixed in
-with other stuff. But that's probably acceptable, which is good because
-we need to accept it.</li>
-</ul></li>
-</ul></li>
-</ul></li>
-</ul>
+AS-Safe. Probably. I just read the source, and it's a direct syscall. I
+could go ask the maintainers again to make sure. But, even being a
+direct syscall isn't enough. Some syscalls are intercepted by libvdso.
+And, besides, the POSIX standard doesn't know anything about syscalls.
+But, it might actually be safe, depending on what guru you trust. Who is
+to say.</p>
+<p>Anyway. It's not technically portable. It's not on the list. So,
+let's look for other options. How about using <code>mkstemp()</code>?.
+It turns out, that isn't marked as AS-Safe either. Strangely enough, if
+we want to create a file descriptor in a way that's fully AS-Safe, we
+have to create a temp file, on disk, manually, with <code>open()</code>.
+I think that's a travesty. What if the signal was sent because a disk
+error?</p>
+<p>It pains me, but let's just call <code>memfd_create()</code> outside
+the signal handler and store it to a global variable at the start of the
+program, before the signal handler is registered and before it can be
+called. We already have to do some setup. We have to preemptively load
+the library that glibc's <code>backtrace()</code> is implemented in, so
+we may as well do a little extra.</p>
+<p>Notably though, we now rely on global state. So, if the signal
+handler has to run on multiple threads, or interrupts another signal
+handler, it'll clobber the memfile. Luckily,
+<code>pthread_sigmask()</code> exists (and newly spun threads inherit
+the signal mask) to make sure signal handlers run on only one thread by
+default. Also, and <code>struct sigaction::sa_mask</code> exists so that
+the signal handling thread cannot be interrupted. So, these are
+problems, but solvable ones.</p>
+<h3 id="insert-meme-about-bane-and-pthread_sigmask.">Insert meme about
+Bane and pthread_sigmask().</h3>
+<h2 id="backtraces-time">Backtraces Time</h2>
+<p>Okay, so now we've called <code>backtrace()</code> and
+<code>backtrace_symbols_fd()</code>. Astounding. We have symbol
+addresses. But they're printed into a temp file, whether it's a memfile
+or a real file on disk. Now, all we have to do is parse them out. So I
+wrote the parser. It's not that fancy.</p>
+<h3 id="insert-no-file-names-no-bitches-meme">Insert "No file names?" No
+bitches meme</h3>
+<p>How do we get function names? Luckily there's a tool for this, and
+it's <code>addr2line</code>, which is part of the ubiquitous GNU
+<code>binutils</code> package. If you're wondering if you have it, you
+probably do. We have to shell out. But it's C, and we're sticking to
+posix. So, we do the classic <code>pipe()</code>, <code>dup2()</code>,
+<code>fork()</code>, <code>exec()</code> song and dance. On the child
+end of the pipe, we replace the execution image of the running process
+with that of <code>addr2line</code>. On the parent end of the pipe, we
+parse the output printed into the temp file.</p>
+<p>Agonizingly though, we're still not done. The <code>addr2line</code>
+tool doesn't canonicalize file paths. This can be done with
+<code>realpath()</code>, but this is a signal handler, and it isn't
+listed under <code>man signal-safety</code>. Excellent. So we implement
+it manually once again. And by "implement it manually" what I really
+mean is steal it from a nerd on StackOverflow. It's very plausible that
+the glibc implementation of <code>realpath()</code> is AS-Safe, but it
+takes less effort to yoink an implementation than it does to check.</p>
+<h3 id="insert-meme-about-stealing-code">Insert meme about stealing
+code</h3>
+<p>Now that we have all of this information, we can finally print the
+stack trace. But... it's not like we can call <code>printf()</code>,
+even when we control the output file. Because it's still technically not
+AS-Safe. Once again, the correct thing to do is to do all the formatting
+manually, then call <code>write()</code> a single time on the output
+file descriptor.</p>
+<p>Unfortunately, since we must call <code>write()</code> and not
+<code>printf()</code>, and <code>fflush()</code> is not AS-Safe for good
+reason, there's no real way to deal with the fact that
+<code>stdout</code>, <code>stderr</code>, or whatever other
+<code>FILE*</code> you're writing to the file descriptor of might have
+unflushed data. Even if you could actually call <code>fflush()</code>,
+there would be no way to prevent another thread from buffering more data
+to it before your <code>write()</code>, since mutexes are unsafe also.
+This cannot be circumvented, in any way. So, there's the possibility
+that the bactrace you <code>write()</code> to <code>stderr</code> gets
+mixed up with other output.</p>
+<p>So... that's the implementation. Agony. Here's the <a
+href="https://github.com/apaz-cli/daisho/blob/master/stdlib/Native/PreStart/Backtrace.h">code</a>.</p>
 <h1 id="bonus-gotchas">Bonus Gotchas</h1>
+<ol type="1">
+<li><p>Did you know that lazy library loading through the linker calls
+<code>malloc()</code>? Did you know this fucks everything up? See my
+other article, <a href="The_Craziest_Bug_I_Have_Ever_Witnessed.html">The
+Craziest Bug I have Ever Witnessed</a>.</p></li>
+<li><p>Did you know that signal handlers should not modify the value of
+<code>errno</code>? We need to save the value of <code>errno</code>
+before we start doing things, and restore it after. This is because
+signal handlers hijack the execution of a running thread. If
+<code>errno</code> is set in a hijacked thread, it may appear as though
+a system call outside the signal hander has failed, or
+vice-versa.</p></li>
+</ol>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;errno.h&gt;</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> signal_handler<span class="op">(</span><span class="dt">int</span> sig<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> fd <span class="op">=</span> open<span class="op">(</span><span class="st">&quot;does_not_exist.txt&quot;</span><span class="op">,</span> <span class="st">&quot;r&quot;</span><span class="op">);</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  assert<span class="op">(</span>fd <span class="op">==</span> <span class="op">-</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  assert<span class="op">(</span>errno <span class="op">==</span> ENOENT<span class="op">);</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> calling_thread<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  errno <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> fd <span class="op">=</span> open<span class="op">(</span><span class="st">&quot;file.txt&quot;</span><span class="op">,</span> <span class="st">&quot;r&quot;</span><span class="op">);</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* Everything is fine, the file opened. */</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>  assert<span class="op">(</span>fd <span class="op">!=</span> <span class="op">-</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>  assert<span class="op">(</span>errno <span class="op">==</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* Thread hijacked */</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>errno <span class="op">==</span> ENOENT<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    puts<span class="op">(</span><span class="st">&quot;AAAAAAAAGH FUCK HOW&quot;</span><span class="op">);</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h1 id="a-conclusion-of-sorts">A Conclusion, of Sorts</h1>
+<p>If I committed the grave sin of accidentally publishing a factual
+inaccuracy, I don't apologize.</p>
+<h3
+id="insert-me-when-spreading-misinformation-on-the-internet-meme">Insert
+"Me when spreading misinformation on the internet" meme</h3>
+<p>Signals are hard. I wish they weren't. I spent too much time
+implementing this, and too much time writing this article. I'm done. Let
+me know on Discord if you find an inaccuracy, but I'm not rewriting this
+post or the accompanying <a
+href="https://github.com/apaz-cli/daisho/blob/master/stdlib/Native/PreStart/Backtrace.h">code</a>,
+I've already done it too many times. Use it for whatever you want.</p>
+<h1 id="bonus-gotchas-1">Bonus Gotchas</h1>
 <ul>
-<li>Bonus Gotchas
-<ul>
-<li>Lazy library loading through the linker calls <code>malloc()</code>
-and is unsafe.
-<ul>
-<li>Must be preloaded, either by <code>dlopen()</code>ing it or by
-inserting a dummy call to make sure the <code>malloc()</code> isn't
-incurred inside the signal handler.</li>
-<li>By sheer coincidence, this was the cause of the bug that I found in
-another of my articles, <a
-href="The_Craziest_Bug_I_Have_Ever_Witnessed.html">The Craziest Bug I
-have Ever Witnessed</a>.</li>
-</ul></li>
-<li>The starting value of <code>errno</code> should be saved at the
-beginning, and restored at the end. Other threads are not a concern
-here, but it could otherwise overwite the error value for the current
-thread at any time, which would be very unfortunate. It would seem as
-though a syscall failed when it hadn't, or vice-versa.</li>
-</ul></li>
 <li>Takeaways, and the implementation:
 <ul>
 <li>Okay, that was a lot. So, here you go. Here's the code.
