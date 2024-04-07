@@ -19,7 +19,8 @@ replace = "\s+.sourceCode {\s+background-color: transparent;\s+overflow: visible
 repwith = "\n    .sourceCode {\n      font-size: 20px;\n    }"
 
 for i, f in enumerate(glob('*.md')):
-    if only and not i + 1 == int(only):
+    i += 1
+    if only and not i == int(only):
         continue
 
     un="_";sp=" "
@@ -45,5 +46,5 @@ for i, f in enumerate(glob('*.md')):
         tmp.write(txt)
         tmp.truncate()
 
-    print(f"Generated article: {f}")
+    print(f"Generated article {i}: {f}")
 
