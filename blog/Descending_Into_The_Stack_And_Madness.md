@@ -209,7 +209,8 @@ So... that's the implementation. Agony. Here's the [code](https://github.com/apa
 
 1. Did you know that lazy library loading through the linker calls `malloc()`? Did you know
 this fucks everything up? See my other article,
-[The Craziest Bug I have Ever Witnessed](The_Craziest_Bug_I_Have_Ever_Witnessed.html).
+[The Craziest Bug I have Ever Witnessed](The_Craziest_Bug_I_Have_Ever_Witnessed.html),
+where I found a bug in the julia runtime implementation of its own backtrace signal handler.
 
 2. Did you know that signal handlers should not modify the value of `errno`? We need to
 save the value of `errno` before we start doing things, and restore it after. This is
