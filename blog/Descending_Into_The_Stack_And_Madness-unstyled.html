@@ -203,7 +203,8 @@ href="https://github.com/apaz-cli/daisho/blob/master/stdlib/Native/PreStart/Back
 <li><p>Did you know that lazy library loading through the linker calls
 <code>malloc()</code>? Did you know this fucks everything up? See my
 other article, <a href="The_Craziest_Bug_I_Have_Ever_Witnessed.html">The
-Craziest Bug I have Ever Witnessed</a>.</p></li>
+Craziest Bug I have Ever Witnessed</a>, where I found a bug in the julia
+runtime implementation of its own backtrace signal handler.</p></li>
 <li><p>Did you know that signal handlers should not modify the value of
 <code>errno</code>? We need to save the value of <code>errno</code>
 before we start doing things, and restore it after. This is because
