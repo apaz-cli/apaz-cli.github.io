@@ -38,11 +38,7 @@ the American cultural ideals. There should be no boot.
 All that I've said so far is, I feel, fairly incontrovertible by our cultural 
 standards. Now let's get controversial. I think that these three objectives, life, 
 liberty, and the right to pursue happiness, are a philosophical razor which cut to the 
-core of many social issues today. I don't think that this makes me a libertarian 
-though. It makes me a pragmatist. A libertarian is someone who advocates maximizing 
-individual rights and minimizing the role of the state. But if the best steady-state 
-solution to a problem involves the government stepping in to impose order, at the 
-expense of some individual rights, then so be it. Whatever gets the job done.
+core of many social issues today.
 
 Gender is perhaps the most obvious application of the new (old) razor. People need the 
 liberty to figure out (or save) their life and pursue their happiness. The degree to 
