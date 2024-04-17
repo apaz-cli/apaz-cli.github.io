@@ -1,4 +1,6 @@
 
+# Grifters
+
 Forgive me, but today we will talk about politics. I will be speaking in hyperbole. 
 Note that for every broad generalization that I make there is bound to be a 
 counterexample, and for every simplification an elaboration. But this is, for the most 
@@ -60,7 +62,8 @@ high density ones which could bring down the cost of living in the areas where t
 needed most. This pushes people out onto the street, leading many kill themselves 
 rather than go homeless. I feel as though life, liberty, and the pursuit of happiness 
 are not being maximized here. Therefore, these laws are bad. It's a shame that nobody 
-in a position to actually change things wants to bring down the cost of living.
+in a position to actually change things wants to bring down the cost of living. I'm
+left wondering why we put up with this.
 
 Nowadays, it feels like everyone is conspiring to juice each other for dollars. 
 Capitalism has to pick winners and losers, and nobody wants to lose. It's no wonder why 
@@ -89,7 +92,8 @@ who they know will default. Suddenly the price goes down. Oh no. Panic ensues, t
 government steps in to bail out the grifters, and still nothing of value has been 
 produced. The whole thing smells suspiciously like a pump and dump, just with 
 "accredited investors" and houses instead of NFT profile pictures on Twitter and 
-digital coins with dogs on them. That is to say, they are playing with people's lives. 
+digital coins with dogs on them. That is to say, the speculators are playing with
+people's lives and livelihoods. 
 
 More sophisticated investment vehicles do not do the world any modicum of good either. 
 I'm not referring to just mortgage-backed securities. Finance makes up 8% of the US 
@@ -123,4 +127,4 @@ you make less money. If it meant that the world would be a structurally better p
 would live under a bridge. Actually though, it works the opposite way. To change the 
 world, I first need to obtain power.
 
-What's the easiest way to gain power? Ah, yeah, to grift. Fuck.
+What's the easiest way to gain power? Ah yeah, to grift. Fuck.
