@@ -13,7 +13,7 @@ should be a fundamental right.
 But once they got to America, at some point things changed. Once they established their 
 own society, suddenly there were religious in groups and out groups again. They 
 enforced their way of life, and at one point even hunted their own as witches. Is 
-religious freedom really what they wanted? Or did they just want freedom for 
+religious freedom for all really what they wanted? Or did they just want freedom for 
 themselves?
 
 There are innumerable examples of this. Maybe it's the nature of societies. Maybe it's 
@@ -36,12 +36,12 @@ the American cultural ideals. There should be no boot.
 
 
 All that I've said so far is, I feel, fairly incontrovertible by our cultural 
-standards. Now let's get controversial. I think that these three objectives, life, 
+standards. Now let's get controversial. I think that those three objectives, life, 
 liberty, and the right to pursue happiness, are a philosophical razor which cut to the 
 core of many social issues today. I don't think that this makes me a libertarian 
 though. It makes me a pragmatist. A libertarian is someone who advocates maximizing 
 individual rights and minimizing the role of the state. But if the best steady-state 
-solution to a problem involves the government stepping in to impose order, at the 
+solution to a problem involves the government stepping in to impose order at the 
 expense of some individual rights, then so be it. Whatever gets the job done.
 
 Gender is perhaps the most obvious application of the new (old) razor. People need the 
@@ -52,9 +52,9 @@ and ability to pursue happiness of all citizens, we should be supportive.
 
 On the other side of the political spectrum, I think it's naive to dismiss the fact 
 that an entire culture has grown up around the idea of gun ownership. These people want 
-to maximize their happiness too, and fear the destruction of their micro-culture. Then 
-again, the government does have the right to maximize the life of its citizens. I don't 
-have strong opinions on gun control, but I feel that we're approaching the problem from 
+to maximize their happiness too, and fear the destruction of their culture. Then again, 
+the government does have the right to maximize the life of its citizens. I don't have 
+strong opinions on gun control, but I feel that we're approaching the problem from 
 entirely the wrong angle. We are talking past each other. We should be trying to 
 understand the culture and motivations of our counterparty.
 
@@ -93,7 +93,7 @@ who they know will default. Suddenly the price goes down. Oh no. Panic ensues, t
 government steps in to bail out the grifters, and still nothing of value has been 
 produced. The whole thing smells suspiciously like a pump and dump, just with 
 "accredited investors" and houses instead of NFT profile pictures on Twitter and 
-digital coins with dogs on them. That is to say, they are playing with people's lives. 
+digital coins with dogs on them.
 
 More sophisticated investment vehicles do not do the world any modicum of good either. 
 I'm not referring to just mortgage-backed securities. Finance makes up 8% of the US 
@@ -102,29 +102,29 @@ anything. How many talented students have left promising fields to toil in this
 bottomless pit? Even Warren Buffet has commented that this is a gargantuan waste of 
 talent, and society would be better served if their talents were directed elsewhere.
 
-How many advancements have we given up on for the privilege of shuffling money around? 
-How many cures? Why does it matter who exactly holds onto the pile of money if nothing 
-ever changes structurally? How many people have had to say goodbye to their family 
-members early because of innovation that didn't happen? Don't even get me started on 
-the perverse incentives in healthcare. I don't need to elaborate, you already know what 
-the problem is. More grifters. And they're killing people, and we can't seem to do a 
-thing about it.
+How many advancements have we given up on for the privilege of shuffling money 
+around? How many cures? Does it really matter who exactly holds onto the pile of 
+money if nothing ever changes structurally? How many people have had to say goodbye 
+to their family members early because of innovation that didn't happen? Don't even 
+get me started on the perverse incentives in healthcare. I don't need to elaborate, 
+you already know what the problem is. More grifters. And they're killing people, and 
+we can't seem to do a thing about it.
 
 I feel like, if we Americans still believed in our founding ideals, we would not stand 
 for this zero sum thinking. We would recognize what's happening, awaken whatever's left 
 of our political consciousness, oust the grifters, and maximize the life, liberty, and 
-pursuit of happiness for all Americans, and ideally all people in general. The current 
+pursuit of happiness for all Americans. Ideally, for all people in general. The current 
 system deprives us of these rights, or at least doesn't enable us to pursue them to the 
 extent that it could. It seems that we're no better than the Puritans. And sadly, 
 grifting for campaign money is a prerequisite for getting into office. We're so fucked.
 
-I hope that we all make it. I got out from under the boot, and I hope you do too. But 
-once you do, don't put on the boot. Don't hate, don't grift, and don't try to regulate 
-your competition. That would make you a truly detestable and pathetic human being. If 
-you're complicit in this grifting behavior, and you have the choice not to be, then 
-don't be. Go do something that actually produces value of some sort, any sort. Even if 
-you make less money. If it meant that the world would be a structurally better place, I 
-would live under a bridge. Actually though, it works the opposite way. To change the 
-world, I first need to obtain power.
+I'm working on getting out from under the boot, and I hope you do too. But once 
+you're in a position of power, don't put on the boot. Don't hate, don't grift, and 
+don't try to regulate your competition. That would make you a truly detestable and 
+pathetic human being. If you're complicit in this grifting behavior, and you have 
+the choice not to be, then don't be. Go do something that actually produces value of 
+some sort, any sort. Even if you make less money. If it meant that the world would 
+be a structurally better place, I would live under a bridge. Actually though, it 
+works the opposite way. To change the world, I first need to obtain power.
 
 What's the easiest way to gain power? Ah, yeah, to grift. Fuck.
