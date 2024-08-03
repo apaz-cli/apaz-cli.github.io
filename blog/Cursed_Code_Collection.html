@@ -414,8 +414,10 @@ a string and runs it. What if I told you it existed in C as well?</p>
 <span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <hr>
 <p>My favorite hello world program. The compiler replaces the while loop
-with a call to memset, and it calls our memset rather than the one from
-the stdlib, because that one hasn't been included.</p>
+with a call to <code>memset()</code>, and it calls our memset rather
+than the one from the stdlib, because that one hasn't been included. To
+disable this behavior, you can use the compiler flag
+<code>-fno-builtin</code>.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span><span class="op">*</span> memset<span class="op">(</span><span class="dt">void</span><span class="op">*</span> s<span class="op">,</span> <span class="dt">int</span> c<span class="op">,</span> <span class="dt">size_t</span> n<span class="op">)</span> <span class="op">{</span></span>

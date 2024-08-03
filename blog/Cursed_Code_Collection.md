@@ -122,8 +122,9 @@ int main() {
 
 
 My favorite hello world program. The compiler replaces the while loop 
-with a call to memset, and it calls our memset rather than the one from 
-the stdlib, because that one hasn't been included.
+with a call to `memset()`, and it calls our memset rather than the one 
+from the stdlib, because that one hasn't been included. To disable this 
+behavior, you can use the compiler flag `-fno-builtin`.
 
 ```c
 #include <stdio.h>
