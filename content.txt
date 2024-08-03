@@ -2,6 +2,7 @@ Blog Posts:
 Airplanes, Safety, and Correctness           | blog/Safety_and_Correctness.html
 How to Write a Compiler Without Going Insane | blog/How_to_Write_a_Compiler_Without_Going_Insane.html
 The Craziest Bug I Have Ever Witnessed       | blog/The_Craziest_Bug_I_Have_Ever_Witnessed.html
+Cursed Code Collection                       | blog/Cursed_Code_Collection.html
 
 Open Source:
 Thunder (Deep Learning Compiler)      | https://github.com/lightning-ai/lightning-thunder
