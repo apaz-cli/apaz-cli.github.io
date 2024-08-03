@@ -116,8 +116,9 @@ disable this behavior, you can use the compiler flag
 <span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <hr>
 <p>Melt your compiler. GCC does the right thing and tries to read
-/dev/urandom forever. For some reason, clang does not, doesn't even
-error, and compiles a functional hello world program.</p>
+/dev/urandom forever. For some reason Clang does not, doesn't even
+error, and compiles a functional hello world program. Absolutely
+wild.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;/dev/urandom&gt;</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>

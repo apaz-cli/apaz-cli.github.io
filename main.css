@@ -20,7 +20,7 @@
   --categorycontentfontsize:calc(17 / 821 * 100vmin);       /*Font size used by the category contents*/
 
   /* The following settings are for the pixel overlay effect:*/
-  --pixeloverlay-exists:visible;        /*Activate or deactivate the "pixel effect" overlay. Set to 'visible' to activate, set to 'hidden' to deactivate. When set to 'hidden' the other settings in this category don't matter.*/
+  --pixeloverlay-exists:hidden;        /*Activate or deactivate the "pixel effect" overlay. Set to 'visible' to activate, set to 'hidden' to deactivate. When set to 'hidden' the other settings in this category don't matter.*/
   --pixeloverlay-itensity:0.1;          /*How intense the overlay should be. Float between 0 and 1, but recommended range is more between 0 and 0.3. Higher values makes startpage darker.*/
   --pixeloverlay-resolution:1;          /*A multiplier for the "pixel effect" size. 1 is default, higher means "bigger" pixels. If you use non whole numbers the probability of moiré patterns forming (and looking badly) increases a lot.*/
 

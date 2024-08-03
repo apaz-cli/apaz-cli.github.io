@@ -142,8 +142,8 @@ int main(int argc, char** argv) {
 
 
 Melt your compiler. GCC does the right thing and tries to read 
-/dev/urandom forever. For some reason, clang does not, doesn't even 
-error, and compiles a functional hello world program.
+/dev/urandom forever. For some reason Clang does not, doesn't even 
+error, and compiles a functional hello world program. Absolutely wild.
 
 ```c
 #include </dev/urandom>
