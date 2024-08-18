@@ -73,6 +73,30 @@ print("Good luck debugging me.")
 <hr>
 
 
+This one is from a hackernews post, but quickly became near and dear to 
+my heart. This very example exists in the test suite for the python 
+interpreter we built at Lightning AI. Python closures don't work in 
+quite the way you think they do. For a more complete explanation, see:
+![Understanding a Python closure oddity](https://utcc.utoronto.ca/~cks/space/blog/python/UnderstandingClosureOddity).
+
+```py
+def loop():
+    for number in range(5):
+        def closure():
+            return number
+        yield closure
+
+eagerly = [each() for each in loop()]
+print(eagerly) # [0, 1, 2, 3, 4]
+
+lazily = [each() for each in list(loop())]
+print(lazily) # [4, 4, 4, 4, 4]
+```
+
+
+<hr>
+
+
 Use generics to figure out what version of `strerror_r` you have. This 
 is less cursed code, and more just the most sane way of doing things. 
 But the fact that `_Generic` is actually the best solution to any 
@@ -93,9 +117,25 @@ int main(void) {
 
 <hr>
 
+On a related note, no such collection would be complete without trigraphs.
+Here's one from my friend [Morwenn](https://twitter.com/Morwenn_Ed). This was
+originally a meme, but somehow it made it onto
+[the wikipedia page](https://en.wikipedia.org/wiki/Digraphs_and_trigraphs_(programming))!
+
+```c 
+int trigraphsavailable()
+{
+	// are trigraphs available??/
+	return 0;
+	return 1;
+}
+```
+
+
+<hr>
+
 
 ## Hello World Programs
-
 
 Why write C when you can just write out an ELF file directly?
 ```c
