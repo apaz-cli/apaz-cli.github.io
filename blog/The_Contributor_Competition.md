@@ -105,18 +105,37 @@ wouldn't want to contribute? But if you need to find someone willing to review y
 and you haven't already befriended a maintainer, and you're not sure if you can even 
 understand the code in the first place, then maybe not.
 
+TODO: Write about empowering contributors to make the project their own.
+
 
 # Actionable advice.
 
 <hr>
 
+1. Automated testing is a must. Write good, exhaustive tests so that contributors can 
+be confident that their features and fixes don't cause regressions elsewhere. Equally 
+important, write up a guide on how run tests and add tests, and place this guide 
+somewhere prominent. This should be as frictionless as possible.
 
+2. Document anything that would not be immediately understandable by a layperson. As a 
+Julia example, nobody without a Master's degree in compiler engineering is going to 
+understand what a phi node or a dominance frontier is. If you want contributors, then 
+this is unacceptable. At very least, point to resources that can be consumed in < 15 
+minutes.
 
+3. APIs should be self documenting, but you should document them anyway. Exhaustively. 
+You can do this with LLMs, they're very good at it. If it's python, add type 
+annotations. Not as a tool for communicating with a type checked, but as a rule for 
+communicating with humans. It makes the code more readable. I find myself spending a 
+long time figuring out all the different places a function could be called from so that 
+I can figure out its types. The better solution is to just put it there.
 
+4. Set up a Discord server. Be active there answering questions. Think of this time 
+investment as an investment. More people will arrive later with the same question.
 
+5. Acknowledge and appreciate contributions. Doesn't matter how large or small. You 
+want contributing to your project to feel good. Make sure they feel proud of their 
+work. This too is an investment.
 
 <br>
 
-<div style="text-align: center;">
-![](images/Haruhi_Thumbs_Up.jpg)
-</div>
