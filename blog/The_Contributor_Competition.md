@@ -82,8 +82,8 @@ them, or offer some other incentive. Nobody wants to clean up your mess for you.
     I consider Julia to be a cautionary tale. I've had multiple conversations with the 
 maintainers to the effect of "We have a long list of good first issues, why is nobody 
 picking them up? We have like three hundred of them! Fix our type inference bugs! Debug 
-our segfaults! Why are there no new contributors?" They forget that nobody wants to do 
-that. People have their own problems to deal with.
+our segfaults! Why are there no new contributors? They should be cleaning up after us!" 
+They forget that nobody wants to do that. People have their own problems to deal with.
 
 
 ## The Solution
@@ -121,7 +121,9 @@ somewhere prominent. This should be as frictionless as possible.
 Julia example, nobody without a Master's degree in compiler engineering is going to 
 understand what a phi node or a dominance frontier is. If you want contributors, then 
 this is unacceptable. At very least, point to resources that can be consumed in < 15 
-minutes.
+minutes. If it doesn't exist, then write it yourself. No single problem is so 
+complicated that it takes more than 15 minutes to explain. If it does, then it can be 
+broken up.
 
 3. APIs should be self documenting, but you should document them anyway. Exhaustively. 
 You can do this with LLMs, they're very good at it. If it's python, add type 
