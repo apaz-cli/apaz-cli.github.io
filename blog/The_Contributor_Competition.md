@@ -75,15 +75,15 @@ problems as much as the maintainer may hope. Especially if they cannot at a glan
 understand those problems.
 
     Potential contributors may support your mission, but they won't sacrifice 
-anything for it. Julia is too complicated to contribute to without sacrifice. I 
-know because I have sacrificed. This is Julia's biggest problem.
+anything for it. Julia is too complicated to contribute to without sacrifice. I know 
+because I have sacrificed. This is Julia's biggest problem.
 
     Contributors want to contribute so that they can avoid pain, not take on more 
 pain. They also have a very short attention span. If they can't immediately solve 
 their problem, they will leave. They'll find a workaround without upstreaming a fix, 
 or they will just find some other project. The only way to get someone to sacrifice 
 for your cause is to pay them, or offer some other incentive. Nobody wants to clean 
-up your mess for you. Open sourcing your code is not going to change that. Nobody is
+up your mess for you. Open sourcing your code is not going to change that. Nobody is 
 going to materialize next to you with a solution.
 
     I've had multiple conversations with maintainers to the effect of "We have a 
@@ -112,14 +112,14 @@ those short term contributors will keep using your project and turn into long te
 contributors and maintainers. People that you can design new features with, who can 
 review your code and point out conceptual issues.
 
-    It's actually not enough to lower the barrier to entry. You need to make sure 
-that people know it's low. This is more important than it actually being low. 
-Frequent communication is key. If people know that they can go on discord for help 
-implementing a feature and expect that it will be approved and merged within a day, 
-then they will do that. But if you need to find someone willing to review your PR 
-and you haven't already befriended a maintainer, and you're not sure that the code 
-will be readable in the first place, then maybe not. Your time is probably better 
-spent elsewhere.
+    In addition to lowering the barrier to entry, You need to make sure that people 
+know it's low. Otherwise they will make a subconcious error in their risk/reward 
+analysis. Frequent communication is key for this. If they see people on discord 
+asking how a feature works, they know that if they write a PR, if they encounter 
+issues they can ask questions as well. Then they will go do that. But if you need to 
+find someone willing to review your PR and you haven't already befriended a 
+maintainer, and you're not sure that the code will be readable in the first place, 
+then maybe not. Your time is probably better spent elsewhere.
 
     "Low attention span" describes most first time contributors, but there do exist 
 other kinds. The other kind is a contributor with a difficult problem and some 
@@ -147,10 +147,10 @@ guide somewhere prominent. Both should be as frictionless as possible.
 a Julia example, nobody without a degree in compiler engineering is going to 
 understand what a phi node or a dominance frontier is. It's core knowledge for 
 understanding how Julia works, but that doesn't matter. If you want contributors, 
-then this is unacceptable. Make it simple. At very least, point to resources that 
-can be consumed in < 15 minutes. If it doesn't exist, then write it yourself. No 
-single problem is so complicated that it should take more than 15 minutes to 
-explain. If it does, the explanation can probably be broken up.
+then this is unacceptable. It needs to be documented and made simple. At very least, 
+point to resources that can be consumed in < 15 minutes. If it doesn't exist, then 
+write it yourself. No single problem is so complicated that it should take more than 
+15 minutes to explain. If it does, the explanation can probably be broken up.
 
 3. APIs should be self documenting, but you should document them anyway. 
 Exhaustively. You can do this with LLMs, they're very good at it. If it's python, 
@@ -174,8 +174,10 @@ want contributing to your project to feel good. Make sure they feel proud of the
 work. This too is an investment. The goal is to turn short term contributors into 
 long term contributors.
 
-6. Create tutorials. If your project has a feature, then it needs a tutorial.
-These tutorials can also serve as marketing material.
+6. Create tutorials. If your project has a feature, then it needs a tutorial. These 
+tutorials can also serve as marketing material.
+
+7. Office hours are incredibly useful.
 
 <br>
 
