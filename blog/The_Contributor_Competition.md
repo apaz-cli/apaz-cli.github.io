@@ -53,7 +53,7 @@ ipython) the best REPL in the world, built into the base language. It solves the
 cannot. It has a more principled package manager. You can run Julia code on the GPU. 
 The compiler is extensible. Very fancy. It's a complex and incredible marvel of 
 engineering. It has everything going for it, from a technical perspective, minus the 
-maintainability issues.here's the problem.
+maintainability issues.
 
     Why, then, does Julia not attract contributors? Surely all of that should make 
 people want to work on it, right?
