@@ -8,7 +8,8 @@ from os import chdir as cd
 from os.path import splitext
 from glob import glob
 from sys import argv
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor
 
 only = argv[1] if len(argv) > 1 else None
 
@@ -50,9 +51,12 @@ if only:
     md_files = [(i, f) for i, f in md_files if i == int(only)]
 
 with ThreadPoolExecutor() as executor:
-    futures = [executor.submit(generate_article, i, f) for i, f in md_files]
+    futures = {executor.submit(generate_article, i, f): (i, f) for i, f in md_files}
     
-    for future in as_completed(futures):
-        i, f = future.result()
-        print(f"Generated article {i}: {f}")
+    while futures:
+        done, _ = concurrent.futures.wait(futures, timeout=0.1, return_when=concurrent.futures.FIRST_COMPLETED)
+        for future in done:
+            i, f = future.result()
+            print(f"Generated article {i}: {f}")
+            futures.pop(future)
 
