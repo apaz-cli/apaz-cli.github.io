@@ -8,6 +8,7 @@ from os import chdir as cd
 from os.path import splitext
 from glob import glob
 from sys import argv
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 only = argv[1] if len(argv) > 1 else None
 
@@ -18,11 +19,7 @@ run = lambda s: subprocess.run(split(s), check=True)
 replace = "\s+.sourceCode {\s+background-color: transparent;\s+overflow: visible;\s+}"
 repwith = "\n    .sourceCode {\n      font-size: 20px;\n    }"
 
-for i, f in enumerate(glob('*.md')):
-    i += 1
-    if only and not i == int(only):
-        continue
-
+def generate_article(i, f):
     un="_";sp=" "
 
     title = splitext(f)[0]
@@ -46,5 +43,16 @@ for i, f in enumerate(glob('*.md')):
         tmp.write(txt)
         tmp.truncate()
 
-    print(f"Generated article {i}: {f}")
+    return i, f
+
+md_files = list(enumerate(glob('*.md'), 1))
+if only:
+    md_files = [(i, f) for i, f in md_files if i == int(only)]
+
+with ThreadPoolExecutor() as executor:
+    futures = [executor.submit(generate_article, i, f) for i, f in md_files]
+    
+    for future in as_completed(futures):
+        i, f = future.result()
+        print(f"Generated article {i}: {f}")
 
