@@ -14,13 +14,13 @@ counterexample, and for every simplification an elaboration. But this is, for th
 part, what I believe.
 
     America was founded by and run by the Puritans. Religious freedom was very very 
-important to them, because they were exiled to and branded as heretics by multiple 
-different countries before they were essentially kicked off the continent. They, 
-rightfully, believed that nobody should have to experience that. That religious freedom 
-should be a fundamental right.
+important to them, because they were exiled to and subsequently branded as heretics by 
+multiple different countries before they were essentially kicked off the continent. 
+They rightfully believed that nobody should have to experience that. That religious 
+freedom should be a fundamental right.
 
-    But once they got to America, at some point things changed. Once they established their 
-own society, suddenly there were religious in groups and out groups again. They 
+    But once they got to America, at some point things changed. Once they established 
+their own society, suddenly there were religious in groups and out groups again. They 
 enforced their way of life, and at one point even hunted their own as witches. Is 
 religious freedom for all really what they wanted? Or did they just want freedom for 
 themselves?
@@ -36,12 +36,13 @@ downtrodden don't want to reform the system so that nobody gets stepped on. They
 don't want to be stepped on anymore. If possible, they may even like to wear the boot 
 one day. Nothing changes structurally, and so the stepping continues.
 
-    From time to time, I've been astonished at the foresight of the founding fathers. Other 
-times less astonished. A lot of them owned slaves, after all. The deepest hypocrisy 
-imaginable. But perhaps the Declaration of Independence says it best. Life, liberty, 
-and the pursuit of happiness. The duty of government is to maximize things, for all 
-citizens. Failure to optimize for these things is, in my mind, a failure to commit to 
-the American cultural ideals. There should be no boot.
+    From time to time, I've been astonished at the foresight of the founding fathers. 
+Other times less astonished. A lot of them owned slaves, after all. The deepest 
+hypocrisy imaginable. But perhaps the Declaration of Independence says it best. Life, 
+liberty, and the pursuit of happiness. The duty of government is to ensure the right to 
+for all citizens to maximize these things. Failure to allow for the optimization of 
+these things is, in my mind, a failure to commit to the American cultural ideals. There 
+should be no boot.
 
 
     All of what I've said so far is, I feel, fairly incontrovertible by our cultural 
@@ -53,11 +54,15 @@ individual rights and minimizing the role of the state. But if the best steady-s
 solution to a problem involves the government stepping in to impose order at the 
 expense of some individual rights, then so be it. Whatever gets the job done.
 
-    Gender is perhaps the most obvious application of the new (old) razor. People need the 
-liberty to figure out (or save) their life and pursue their happiness. The degree to 
-which the existence of queer people affects the lives of people who may have a problem 
-with their queerness is relatively minuscule. Therefore to maximize the life, liberty, 
-and ability to pursue happiness of all citizens, we should be supportive.
+    Gender is perhaps the most obvious application of the new (old) razor. People need 
+the liberty to figure out (or save) their life and pursue their happiness. The degree 
+to which the existence of queer people affects the lives of people who may have a 
+problem with their queerness is relatively minuscule. Most arguments that I've heard to 
+the contrary seem to boil down to "me or my family might have to look at them." 
+Therefore to maximize the life, liberty, and ability to pursue happiness of all 
+citizens, we should be supportive. Or at least not unsupportive. The thought of passing 
+a law for the explicit purpose of preventing certain people from acheiving happiness 
+seems very unamerican to me.
 
     On the other side of the political spectrum, I think it's naive to dismiss the fact 
 that an entire culture has grown up around the idea of gun ownership. These people want 
@@ -90,8 +95,8 @@ trying to help society directly. Growing the business is supposed to grow the ec
 which raises the standard of living. A story we've all heard before. This probably used 
 to be the case, but looking around, it's getting harder and harder to believe Adam 
 Smith in the modern day. It turns out that creating real lasting value is hard. It's 
-much easier to grift, or to skim off the top, or to squeeze a monopoly. And capitalism 
-rewards efficiency.
+much easier to grift, or to skim off the top, or to squeeze a monopoly. It's a lot more 
+efficient too. And capitalism rewards efficiency.
 
     Many fortunes have been made over the past twenty years in real estate. "Investors" 
 (speculators) buy houses, prices go up, and now the houses are worth more. Often they 
@@ -131,10 +136,11 @@ grifting for campaign money is a prerequisite for getting into office. We're so 
     I'm working on getting out from under the boot, and I hope you do too. But once 
 you're in a position of power, don't put on the boot. Don't hate, don't grift, and 
 don't try to regulate your competition. That would make you a truly detestable and 
-pathetic human being. If you're complicit in this grifting behavior, and you have 
-the choice not to be, then don't be. Go do something that actually produces value of 
-some sort, any sort. Even if you make less money. If it meant that the world would 
-be a structurally better place, I would live under a bridge. Actually though, it 
-works the opposite way. To change the world, I first need to obtain power.
+pathetic human being. I'm looking at you, Sam Altman. If you're complicit in this 
+grifting behavior, and you have the choice not to be, then don't be. Go do something 
+that actually produces value of some sort, any sort. Even if you make less money. If 
+it meant that the world would be a structurally better place, I would live under a 
+bridge. Actually though, it works the opposite way. To change the world, I first 
+need to obtain power.
 
     What's the easiest way to gain power? Ah yeah, to grift. Fuck.
