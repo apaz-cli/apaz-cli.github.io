@@ -77,7 +77,7 @@ This one is from a hackernews post, but quickly became near and dear to
 my heart. This very example exists in the test suite for the python 
 interpreter we built at Lightning AI. Python closures don't work in 
 quite the way you think they do. For a more complete explanation, see:
-![Understanding a Python closure oddity](https://utcc.utoronto.ca/~cks/space/blog/python/UnderstandingClosureOddity).
+[Understanding a Python closure oddity](https://utcc.utoronto.ca/~cks/space/blog/python/UnderstandingClosureOddity).
 
 ```py
 def loop():
