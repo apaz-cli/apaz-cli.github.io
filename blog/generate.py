@@ -52,7 +52,7 @@ if only:
 
 with ThreadPoolExecutor() as executor:
     futures = {executor.submit(generate_article, i, f): (i, f) for i, f in md_files}
-    
+
     while futures:
         done, _ = concurrent.futures.wait(futures, timeout=0.1, return_when=concurrent.futures.FIRST_COMPLETED)
         for future in done:
