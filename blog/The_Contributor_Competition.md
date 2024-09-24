@@ -14,28 +14,27 @@
 
 ## The Problem
 
-    The difficulty of contributing to a particular open source project matters. It 
-matters a lot. I'm talking primarily about mature open source projects, but parts of 
-this are still applicable for new and closed source projects as well.
+    How difficult it is to contribute to any particular open source project matters. 
+It matters a lot. I'm talking primarily about mature open source projects, but parts 
+of this rant are still applicable for new and closed source projects as well. Most 
+of it is just generaly good advice for running any sort of team.
 
-    Fundamentally, what contributors want is to solve their own problems and 
-optimize their own experience. They are selfish. They think about how to use the 
-project to accomplish their own goals. They don't care about the maintainer's 
-problems as much as the maintainer may hope. Especially if they cannot at a glance 
-understand those problems.
+    Contributors are usually there to solve their own problems and optimize their 
+own experience. They care about their own use case. Generally speaking, contributors 
+don't care about the maintainer's problems as much as the maintainer may hope. 
+Especially if they cannot at a glance understand those problems.
 
     Potential contributors may support your mission, but it's hard to make them 
-sacrifice for it.
-
-    Contributors want to contribute so that they can avoid pain, not take on more 
-pain. They have a very short attention span. If they can't immediately solve their 
-problem, they will leave. They'll find a workaround without upstreaming a fix, or 
-just find some other project.
+sacrifice for it. Contributors want to contribute so that they can avoid pain, not 
+take on more pain. They have a very short attention span. If they can't immediately 
+solve their problem, they will leave. They'll find a workaround without upstreaming 
+a fix, or just find some other project.
 
 <div style="text-align: center;">
-
-![This is what your contributors look like.](images/goldfish.png)
-
+<figure>
+<img src="images/goldfish.jpg" height=400>
+<figcaption aria-hidden="true">This is what your contributors look like.</figcaption>
+</figure>
 </div>
 
     Unless you can find a select few rare and ideologically motivated individuals, 
@@ -69,9 +68,10 @@ growth. But not only is it important to have a product that feels great to use, 
 important to have a product that feels fun to work on.
 
 <div style="text-align: center;">
-
-![Don't waste my time.](image/dwmt.png)
-
+<figure>
+<img src="image/dwmt.png">
+<figcaption aria-hidden="true">Don't waste my time.</figcaption>
+</figure>
 </div>
 
     So put your thumb on the scale. Change the risk/reward calculation. Make 
@@ -160,14 +160,19 @@ there nitpicking.
 
 ## Conclusion
 
-TLDR, empower your contributors. Do this by identifying potential roadblocks to 
+### TLDR
+
+    Empower your contributors. Do this by identifying potential roadblocks to 
 drive-by contributions, and ripping them out.
 
+<br>
 <div style="text-align: center;">
-
-![You want your contributors to feel like Goku emote.](images/goku.png)
-
+<figure>
+<img src="images/goku.png" height=400>
+<figcaption aria-hidden="true">You want your contributors to feel like Goku emote.</figcaption>
+</figure>
 </div>
+<br>
 
     In the path from "demo" to "product" there are a lot of tiny annoyances that 
 will irk users. They're hard to identify, and can sink a project. It's why QA 
@@ -176,6 +181,9 @@ will persist. A tremendous amount of the value of a product is locked up in fixi
 these tiny annoyances.
 
     The benefit of open source is primarily in crowdsourcing the QA process. 
-Ideologues can grin and bear it, but neglect drive-by contributors and your project 
-will have lots of features but will still suck, suffering a death by a thousand cuts 
-and never finding product-market fit. You need both kinds of contributors.
+Ideologues can grin and bear it, but neglect drive-by contributors at your peril. 
+Your project will have lots of features, but will still suck, suffering a death by a 
+thousand cuts and never finding product-market fit.
+
+    You need both kinds of contributors.
+
