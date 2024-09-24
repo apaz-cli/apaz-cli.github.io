@@ -9,7 +9,7 @@
 
 </div>
 
-#### Open source is a copetition. How can you win?
+#### Open source is a competition. How can you win?
 <br>
 
 ## The Problem
@@ -17,7 +17,7 @@
     How difficult it is to contribute to any particular open source project matters. 
 It matters a lot. I'm talking primarily about mature open source projects, but parts 
 of this rant are still applicable for new and closed source projects as well. Most 
-of it is just generaly good advice for running any sort of team.
+of it is just generally good advice for running any sort of team.
 
     Contributors are usually there to solve their own problems and optimize their 
 own experience. They care about their own use case. Generally speaking, contributors 
