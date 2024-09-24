@@ -69,7 +69,7 @@ important to have a product that feels fun to work on.
 
 <div style="text-align: center;">
 <figure>
-<img src="image/dwmt.png">
+<img src="images/wasted_time.jpg">
 <figcaption aria-hidden="true">Don't waste my time.</figcaption>
 </figure>
 </div>
@@ -153,8 +153,8 @@ question you should be asking as a reviewer is "is this maintainable?" This ques
 comes even before the question "is this correct." If unmaintainable code gets 
 merged, it will complicate things down the road. But don't let reviews drag on, or 
 it will add friction to contributing. If the PR is sensible, maintainable, and 
-correct, it's often better just to merge and submit a cleanup PR yourself than sit 
-there nitpicking.
+correct, it's often better just to merge and submit a cleanup PR yourself than to 
+nitpick.
 
 <br>
 
@@ -182,8 +182,7 @@ these tiny annoyances.
 
     The benefit of open source is primarily in crowdsourcing the QA process. 
 Ideologues can grin and bear it, but neglect drive-by contributors at your peril. 
-Your project will have lots of features, but will still suck, suffering a death by a 
-thousand cuts and never finding product-market fit.
+Your project will have lots of features, but it might still suck, suffering a death 
+by a thousand cuts and never finding product-market fit.
 
-    You need both kinds of contributors.
-
+    I hope that you found this rant useful.
