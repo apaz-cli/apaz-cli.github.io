@@ -9,7 +9,7 @@
 
 </div>
 
-#### Open source project maintaners compete for contributors. How can you win?
+#### Open source is a copetition. How can you win?
 <br>
 
 ## The Problem
