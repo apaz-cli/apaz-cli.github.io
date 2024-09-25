@@ -38,7 +38,7 @@ a fix, or just find some other project.
 </div>
 
     Unless you can find a select few rare and ideologically motivated individuals, 
-the only way to get contributors who will sacrifice for your cause is to pay them. 
+the only way to find contributors who will sacrifice for your cause is to pay them. 
 Nobody wants to clean up your mess for you. Open sourcing your code is not going to 
 change that. Nobody is going to materialize next to you with a solution.
 
@@ -64,7 +64,7 @@ is wasted time. The reward is getting features and fixes merged.
     I think about open source in much the same way as I think about a startup trying 
 to find product-market fit. The more annoying the experience, the more users and 
 contributors will churn. But get it right, and you could experience explosive 
-growth. But not only is it important to have a product that feels great to use, it's 
+growth. Not only is it important to have a product that feels great to use, it's 
 important to have a product that feels fun to work on.
 
 <div style="text-align: center;">
