@@ -192,11 +192,11 @@ they're miserable.
 <br>
 
 
-    Additionally, in the path from "demo" to "product" there are a lot of tiny annoyances 
-that will irk users. They're hard to identify, and can sink a project. It's why QA 
-testing exists as a concept. If drive-by contributions are difficult, these problems 
-will persist. A tremendous amount of the value of a product is locked up in fixing 
-these tiny annoyances.
+    Additionally, in the path from "demo" to "product" there are a lot of tiny 
+annoyances that will irk users. They're hard to identify, and enough of them can 
+sink a project. It's why QA testing exists as a concept. If drive-by contributions 
+are difficult, these problems will persist. A tremendous amount of the value of a 
+product is locked up in fixing these tiny annoyances.
 
     The benefit of open source is primarily in crowdsourcing the QA process. 
 Ideologues can grin and bear it, but neglect drive-by contributors at your peril. 
