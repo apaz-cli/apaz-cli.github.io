@@ -182,12 +182,14 @@ quit and become a goose farmer. Better than dealing with layers of technical deb
 and political nonsense. Maybe you've felt the same. People are not productive when 
 they're miserable.
 
+<br>
 <div style="text-align: center;">
 <figure>
 <img src="images/Feng_Yuan.jpg" height=400>
 <figcaption aria-hidden="true">I wasn't joking about the <a href="https://www.linkedin.com/in/dryuan/">goose farming</a>.</figcaption>
 </figure>
 </div>
+<br>
 
 
     Additionally, in the path from "demo" to "product" there are a lot of tiny annoyances 
