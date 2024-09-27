@@ -163,7 +163,7 @@ nitpick.
 ### TLDR
 
     Empower your contributors. Do this by identifying potential roadblocks to 
-drive-by contributions, and ripping them out.
+drive-by contributions, and ripping them out. Give them as much agency as possible.
 
 <br>
 <div style="text-align: center;">
@@ -174,8 +174,24 @@ drive-by contributions, and ripping them out.
 </div>
 <br>
 
-    In the path from "demo" to "product" there are a lot of tiny annoyances that 
-will irk users. They're hard to identify, and can sink a project. It's why QA 
+    This beneficial for a few reasons. One of them is purely psychological. I feel 
+like the progress I make as a contributor is dependent on my mental state. If 
+contributing to a project is draining I can't work nearly as many hours, and my 
+code quality drops noticeably. Sometimes it can get so miserable that I want to 
+quit and become a goose farmer. Better than dealing with layers of technical debt 
+and political nonsense. Maybe you've felt the same. People are not productive when 
+they're miserable.
+
+<div style="text-align: center;">
+<figure>
+<img src="images/Feng_Yuan.jpg" height=400>
+<figcaption aria-hidden="true">I wasn't joking about the <a href="https://www.linkedin.com/in/dryuan/">goose farming</a>.</figcaption>
+</figure>
+</div>
+
+
+    Additionally, in the path from "demo" to "product" there are a lot of tiny annoyances 
+that will irk users. They're hard to identify, and can sink a project. It's why QA 
 testing exists as a concept. If drive-by contributions are difficult, these problems 
 will persist. A tremendous amount of the value of a product is locked up in fixing 
 these tiny annoyances.
