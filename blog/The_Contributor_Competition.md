@@ -200,7 +200,7 @@ product is locked up in fixing these tiny annoyances.
 
     The benefit of open source is primarily in crowdsourcing the QA process. 
 Ideologues can grin and bear it, but neglect drive-by contributors at your peril. 
-Your project will have lots of features, but it might still suck, suffering a death 
+Your project may have a lot of features, but it might still suck, suffering a death 
 by a thousand cuts and never finding product-market fit.
 
     I hope that you found this rant useful.
