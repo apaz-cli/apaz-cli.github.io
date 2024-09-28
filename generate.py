@@ -40,7 +40,7 @@ def makeDoc(data):
 
     <meta name="og:title" content="apaz's Website">
     <meta name="og:description" content="My blog and projects.">
-    <meta name="og:image" content="resources/images/sip.png">
+    <meta name="og:image" content="https://apaz-cli.github.io/resources/images/sip.png">
 
     <title>apaz's Website</title>
     <link rel="stylesheet" href="main.css">
