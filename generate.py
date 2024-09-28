@@ -38,6 +38,10 @@ def makeDoc(data):
     <meta name="author" content="apaz">
     <meta name="viewport" content="width=device-width,initial-scale=1">
 
+    <meta name="og:title" content="apaz's Website">
+    <meta name="og:description" content="My blog and projects.">
+    <meta name="og:image" content="resources/images/sip.png">
+
     <title>apaz's Website</title>
     <link rel="stylesheet" href="main.css">
     <link rel="icon" type="image/png" href="resources/images/favicon.png">
