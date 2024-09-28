@@ -5,11 +5,12 @@
 
 <div style="text-align: center;">
 
-![](images/Ibuki_Maya.png)
+<!-- ![](images/Ibuki_Maya.png) -->
+![](images/91199411_p0.png)
 
 </div>
 
-#### Open source is a competition. How can you win?
+#### Open source is a team competition. How can you win?
 <br>
 
 ## The Problem
@@ -19,10 +20,10 @@ It matters a lot. I'm talking primarily about mature open source projects, but p
 of this rant are still applicable for new and closed source projects as well. Most 
 of it is just generally good advice for running any sort of team.
 
-    Contributors are usually there to solve their own problems and optimize their 
-own experience. They care about their own use case. Generally speaking, contributors 
-don't care about the maintainer's problems as much as the maintainer may hope. 
-Especially if they cannot at a glance understand those problems.
+    Contributors usually want solve their own problems and optimize their own 
+experience. Generally speaking, contributors don't care about the maintainer's 
+problems as much as the maintainer may hope. Especially if they cannot at a glance 
+understand those problems.
 
     Potential contributors may support your mission, but it's hard to make them 
 sacrifice for it. Contributors want to contribute so that they can avoid pain, not 
