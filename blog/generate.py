@@ -24,7 +24,9 @@ repwith = "\n    .sourceCode {\n      font-size: 20px;\n    }"
 def generate_article(i, f):
 
     def replace_meta_with_opengraph(html):
-        meta_rep = "  <!-- meta -->\n"
+        rep_str = "  <title>"
+
+        # Use content to generate opengraph meta tags.
         titlegroup = re.search("<h1.*>(.*?)</h1>", html)
         subtitlegroup = re.search("<h4.*>(.*?)</h4>", html)
         first_image = re.search('<img.*src="(.*?)".*>', html)
@@ -36,7 +38,8 @@ def generate_article(i, f):
                 meta_with += f"  <meta name=\"og:description\" content=\"{subtitlegroup.group(1) if subtitlegroup else ''}\">\n"
             if first_image:
                 meta_with += f"  <meta name=\"og:image\" content=\"{first_image.group(1) if first_image else ''}\">\n"
-        return html.replace(meta_rep, meta_with)
+        meta_with += rep_str
+        return html.replace(rep_str, meta_with)
 
     title = splitext(f)[0]
     to = title + ".html"
