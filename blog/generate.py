@@ -31,7 +31,7 @@ def generate_article(i, f):
 
         meta_with = ""
         if titlegroup:
-            meta_with += f"<meta name=\"og:title\" content=\"{titlegroup.group(1) if titlegroup else ''}\">\n"
+            meta_with += f"  <meta name=\"og:title\" content=\"{titlegroup.group(1) if titlegroup else ''}\">\n"
             if subtitlegroup:
                 meta_with += f"  <meta name=\"og:description\" content=\"{subtitlegroup.group(1) if subtitlegroup else ''}\">\n"
             if first_image:
