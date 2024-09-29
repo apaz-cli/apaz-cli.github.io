@@ -55,8 +55,6 @@ Never make this mistake, it can kill your project. I've seen it happen.
 
 ## The Solution
 
-<hr>
-
     Understanding how to operate in such a world where contributors are selfish, 
 pain-averse, and low attention span requires a paradigm shift. For an open source 
 contributor, the decision to contribute or not is a simple risk vs reward. The risk 
@@ -92,8 +90,6 @@ analysis and not contribute, to the detriment of all parties.
 <br>
 
 ## Actionable Advice.
-
-<hr>
 
 This is all well and good. But it's not actionable advice. Here is some actionable 
 advice.
