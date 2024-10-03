@@ -74,7 +74,8 @@ important to have a product that feels fun to work on.
 </div>
 
     So put your thumb on the scale. Change the risk/reward calculation. Make 
-something useful, that's a delight to work on. Both are equally important.
+something useful, that's a delight to work on. For success in the long term, both
+are equally important.
 
     The eventual hope is that maybe some of short term contributors will keep using 
 your project and turn into long term contributors and maintainers. People that you 
