@@ -1,7 +1,4 @@
 
-# Hyperparameter Heuristics
-
-<br>
 
 <div style="text-align: center;">
 
@@ -9,22 +6,32 @@
 
 </div>
 
-<br> <br>
+# Hyperparameter Heuristics
 
     It would be cool if there was a guide on heuristics for scaling training experiments.
 
-    The information is sort of trapped inside the heads and notebooks of individual researchers at the moment. It's true that it doesn't make sense for companies other than 
-Meta/OpenAI/Anthropic to do pretraining runs. But I feel like the information for running the experiments for doing so should be more accessible. Maybe such a guide exists somewhere 
-and I'm an idiot for not finding it. But this knowledge is certainly not as widespread as projects like litgpt (which I maintain) and torchtune, which are the projects that 
-researchers typically use for running training and scaling experiments.
+    At the moment, the information is sort of trapped inside the heads and notebooks of individual researchers. Maybe a guide exists somewhere and I'm an idiot for not being able to 
+find it. But this knowledge is certainly not as widespread as the projects (like litgpt which I maintain, or HF transformers, or torchtune) that researchers typically use for running 
+training and finetuning experiments.
 
-    In particular I'm interested in using hparam sweeps on smaller models to figure out the optimal hparams for larger models. I know that the choice of hyperparameters that's optimal 
-for training a small model doesn't necessarily generalize to training a large model. But some of them do, and there are heuristics that people use to make guesses. The learning rate, 
-for example, is highly dependent on the batch size and other aspects of numerical stability that change in a predictable fashion as you add parameters. What formula can we use to make 
-a good guess for the larger model? These things are not very well known. There are certain papers (like Chinchilla for example) that contain a lot of these useful heuristics. But what 
-about the people who have never heard of Chinchilla or the twenty other papers the heuristics are scattered across?
+    I think that people need to be able to use hparam sweeps on smaller models to figure out the optimal hparams for larger models. I know that the choice of hyperparameters that's 
+optimal for training a small model won't necessarily generalize to training a large model. But some of them do, and some of them change in predictable ways. There are heuristics that 
+people use to make good guesses at what's optimal for larger models. The learning rate, for example, is highly dependent on the batch size and other aspects of numerical stability 
+that change in a predictable fashion as you add parameters. What formula can we use to make a good guess? These things are not very well known. There are certain papers (like 
+Chinchilla for example) that contain a lot of these useful heuristics. But what about the people who have never heard of Chinchilla or the twenty other papers the heuristics are 
+scattered across?
 
-    Most of the time, people just copy over the hparams from training runs they knew were successful. I think we can do better. People need to be able to discover their own hparams 
+
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/chinchilla.png">
+<figcaption aria-hidden="true">The famous Chinchilla scaling laws are good examples of the heuristics I'm talking about.</figcaption>
+</figure>
+</div>
+<br>
+
+    Most of the time, people just copy over the hparams from training runs they know were successful. I think we can do better. People need to be able to discover their own hparams 
 for their experiments, and they need to be able to verify the work of others.
 
     I'm reminded of chemists that buy chemicals and then re-purify them themselves, because they don't trust the chemical companies. Although it's probably fine, what if it isn't? 
@@ -33,7 +40,9 @@ get published are just wrong. I've had many conversations with people along the 
 initializations."
 
     A lot of researchers also just don't do hparam sweeps, because they're too expensive, because they can't run small experiments and generalize the results to larger ones. Because 
-they don't know the heuristics either. The result is that we just don't know what recipes are good vs bad. I think that increasing the rigor here could benefit the field 
-substantially, and also make the field more accessible.
+they don't know the heuristics either. The only way to learn is to hear about individual heuristics by word of mouth. The result is that we just don't know what recipes are good vs 
+bad.
+
+    This problem can be solved. I think that a guide to hyperparameter scaling heuristics could increase the rigor of the field substantially, while also making it more accessible.
 
 
