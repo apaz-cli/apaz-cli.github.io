@@ -32,7 +32,7 @@ scattered across?
 <br>
 
     Most of the time, people just copy over the hparams from training runs they know were successful. I think we can do better. People need to be able to discover their own hparams 
-for their experiments, and they need to be able to verify the work of others.
+for their experiments, and they need to be able to verify the work of others. This should be easy. Right now it's a lot of effort.
 
     I'm reminded of chemists that buy chemicals and then re-purify them themselves, because they don't trust the chemical companies. Although it's probably fine, what if it isn't? 
 Your experiment is screwed, and you might not even know it. The same is very true with hparams. Always purify your chems and validate your hparams. Because sometimes, the hparams that 
