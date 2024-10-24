@@ -8,6 +8,12 @@
 
 # Hyperparameter Heuristics
 
+    Suppose you've invented a new neural architecture, or optimizer, or whatever, and you 
+want to scale it up. You have 100 million dollars to do this with, and you want to train the 
+best model you possibly can with that budget. But how should you choose your 
+hyperparameters? There's no existing literature exists on your methods! Who knows what settings are 
+optimal, and if you guess wrong, you're out a cool 100m.
+
     It would be cool if there were a guide on heuristics for scaling training experiments.
 
     At the moment, the information is sort of trapped inside the heads and notebooks of individual researchers. Maybe a guide exists somewhere and I'm an idiot for not being able to 
