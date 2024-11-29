@@ -26,7 +26,14 @@ def parseContents():
         contents = contents[:-1]
     contents = re.sub('\n{3,}', '\n\n', contents)
     contents = contents.split('\n\n')
-    return [x.split('\n') for x in contents]
+    # Filter out lines starting with # and empty categories
+    parsed = []
+    for section in contents:
+        lines = section.split('\n')
+        filtered = [line for line in lines if not line.strip().startswith('#')]
+        if len(filtered) > 1:  # Keep section if it has title and at least one item
+            parsed.append(filtered)
+    return parsed
 
 
 def makeDoc(data):
