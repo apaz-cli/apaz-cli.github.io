@@ -26,13 +26,12 @@ def parseContents():
         contents = contents[:-1]
     contents = re.sub('\n{3,}', '\n\n', contents)
     contents = contents.split('\n\n')
-    # Filter out lines starting with # and empty categories
     parsed = []
     for section in contents:
-        lines = section.split('\n')
-        filtered = [line for line in lines if not line.strip().startswith('#')]
-        if len(filtered) > 1:  # Keep section if it has title and at least one item
-            parsed.append(filtered)
+        lines = [line for line in section.split('\n') 
+                if not line.strip().startswith('#')]
+        if len(lines) > 1:  # Need at least title + one item
+            parsed.append(lines)
     return parsed
 
 
