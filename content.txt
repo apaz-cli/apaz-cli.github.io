@@ -14,5 +14,6 @@ Perceptual Image Hashing              | https://github.com/apaz-cli/Open-Image-H
 
 Contact:
 Github          | https://github.com/apaz-cli/
-Email           | mailto://aarpazdera@gmail.com 
+Email           | mailto:aarpazdera@gmail.com
+Linkedin        | https://www.linkedin.com/in/aaron-pazdera-b32155194/
 Discord (@apaz) | https://discord.com/channels/@me
