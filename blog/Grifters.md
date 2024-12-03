@@ -13,6 +13,17 @@ hyperbole. Note that for every broad generalization that I make there is bound t
 counterexample, and for every simplification an elaboration. But this is, for the most 
 part, what I believe.
 
+
+
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/politics_arguing.png" height=400>
+<figcaption aria-hidden="true"></figcaption>
+</figure>
+</div>
+<br>
+
     America was founded by and run by the Puritans. Religious freedom was very very 
 important to them, because they were exiled to and subsequently branded as heretics by 
 multiple different countries before they were essentially kicked off the continent. 
@@ -45,6 +56,8 @@ these things is, in my mind, a failure to commit to the American cultural ideals
 should be no boot.
 
 
+
+
     All of what I've said so far is, I feel, fairly incontrovertible by our cultural 
 standards. Now let's get controversial. I think that those three objectives, life, 
 liberty, and the right to pursue happiness, are a philosophical razor which cut to the 
@@ -55,22 +68,19 @@ solution to a problem involves the government stepping in to impose order at the
 expense of some individual rights, then so be it. Whatever gets the job done.
 
     Gender is perhaps the most obvious application of the new (old) razor. People need 
-the liberty to figure out (or save) their life and pursue their happiness. The degree 
-to which the existence of queer people affects the lives of people who may have a 
-problem with their queerness is relatively minuscule. Most arguments that I've heard to 
-the contrary seem to boil down to "me or my family might have to look at them." 
-Therefore to maximize the life, liberty, and ability to pursue happiness of all 
-citizens, we should be supportive. Or at least not unsupportive. The thought of passing 
-a law for the explicit purpose of preventing certain people from acheiving happiness 
-seems very unamerican to me.
+the liberty to figure out (or save) their life and pursue their happiness. Therefore we 
+should be supportive. Or at least not unsupportive. The thought of passing a law for 
+the explicit purpose of preventing certain people from acheiving happiness seems very 
+unamerican to me. We've tried it before with Jim Crow laws, and many laws before that 
+too. None of those laws have been on the right side of history.
 
     On the other side of the political spectrum, I think it's naive to dismiss the fact 
 that an entire culture has grown up around the idea of gun ownership. These people want 
-to maximize their happiness too, and fear the destruction of their culture. Then again, 
-the government does have the right to maximize the life of its citizens. I don't have 
-strong opinions on gun control, but I feel that we're approaching the problem from 
-entirely the wrong angle. We are talking past each other. We should be trying to 
-understand the culture and motivations of our counterparty.
+to maximize their happiness too, and like the queers of today, fear the destruction of 
+their culture. Then again, the government does have the right to maximize the life of 
+its citizens. I don't have strong opinions on gun control, but I feel that we're 
+approaching the problem from entirely the wrong angle. We are talking past each other. 
+We should be trying to understand the culture and motivations of our counterparty.
 
     Housing is another application of the razor. Zoning rules and red tape make it 
 difficult and expensive to build new housing units, especially the sort of low cost 
@@ -82,21 +92,20 @@ in a position to actually change things wants to bring down the cost of living. 
 left wondering why we put up with this.
 
     Nowadays, it feels like everyone is conspiring to juice each other for dollars. 
-Capitalism has to pick winners and losers, and nobody wants to lose. It's no wonder why 
-even the ones who have money want to accrue more of it, there's always another vying 
-for their position. While there are plenty of ideologues who would take issue with 
-there being winners and losers. I've accepted it. But I wish that it wasn't such a zero 
-sum game.
+Capitalism has to pick winners and losers, and nobody wants to lose. While there are 
+plenty of ideologues who would take issue with winners and losers, I've accepted it. 
+But I wish that it wasn't such a zero sum game. It would be nice if everyone could live 
+a life of dignity.
 
-    It's not supposed to be. In "The Wealth of Nations," Adam Smith said "By pursuing his 
-own interest he frequently promotes that of the society more effectually than when he 
-really intends to promote it." Basically, that greed does societal good, more so than 
-trying to help society directly. Growing the business is supposed to grow the economy, 
-which raises the standard of living. A story we've all heard before. This probably used 
-to be the case, but looking around, it's getting harder and harder to believe Adam 
-Smith in the modern day. It turns out that creating real lasting value is hard. It's 
-much easier to grift, or to skim off the top, or to squeeze a monopoly. It's a lot more 
-efficient too. And capitalism rewards efficiency.
+    It's not supposed to be zero sum. In "The Wealth of Nations," Adam Smith said "By 
+pursuing his own interest he frequently promotes that of the society more effectually 
+than when he really intends to promote it." Basically, that greed does societal good, 
+more so than trying to help society directly. Growing the business is supposed to grow 
+the economy, which raises the standard of living. A story we've all heard before. This 
+probably used to be the case, but looking around, it's getting harder and harder to 
+believe Adam Smith in the modern day. It turns out that creating real lasting value is 
+hard. It's much easier to grift, or to skim off the top, or to squeeze a monopoly. It's 
+a lot more efficient too. And capitalism rewards efficiency.
 
     Many fortunes have been made over the past twenty years in real estate. "Investors" 
 (speculators) buy houses, prices go up, and now the houses are worth more. Often they 
@@ -142,5 +151,14 @@ that actually produces value of some sort, any sort. Even if you make less money
 it meant that the world would be a structurally better place, I would live under a 
 bridge. Actually though, it works the opposite way. To change the world, I first 
 need to obtain power.
+
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/You_have_the_power_to_end_these_patterns.jpg" height=400>
+<figcaption aria-hidden="true">You can't fix society, but in your sphere of influence you can at least.</figcaption>
+</figure>
+</div>
+<br>
 
     What's the easiest way to gain power? Ah yeah, to grift. Fuck.
