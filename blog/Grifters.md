@@ -3,23 +3,17 @@
 
 <br>
 
-![](images/Thailand Countryside Pixel 3.png)
 
-<hr>
-
-
-    Forgive me, but today we will be talking about politics. I will be speaking in
+    Forgive me, but today we will be talking about politics. I will be speaking in 
 hyperbole. Note that for every broad generalization that I make there is bound to be a 
 counterexample, and for every simplification an elaboration. But this is, for the most 
-part, what I believe.
-
-
+part, what I believe. I am open to argument in good faith.
 
 <br>
 <div style="text-align: center;">
 <figure>
-<img src="images/politics_arguing.png" height=400>
-<figcaption aria-hidden="true"></figcaption>
+<img src="images/politics_arguing.png">
+<figcaption aria-hidden="true">Truly, words to live by.</figcaption>
 </figure>
 </div>
 <br>
@@ -36,16 +30,27 @@ enforced their way of life, and at one point even hunted their own as witches. I
 religious freedom for all really what they wanted? Or did they just want freedom for 
 themselves?
 
-    There are innumerable examples of this. Maybe it's the nature of societies. Maybe it's 
-the nature of individuals. Perhaps new generations are in general worse at acting upon 
-the ideals of the previous, even if they are adept at enforcing the inherited cultural 
-norms and policies. I don't know. Whatever the case, it seems like we never learn this 
-lesson.
+    There are innumerable examples of this. Maybe it's the nature of societies. Maybe 
+it's the nature of individuals. Perhaps new generations are in general worse at acting 
+upon the ideals of the previous, even if they are adept at enforcing the inherited 
+cultural norms and policies. I don't know. Whatever the case, it seems like we never 
+learn this lesson.
 
     It seems that, as they gain control of the cultural narrative, the previously 
 downtrodden don't want to reform the system so that nobody gets stepped on. They just 
 don't want to be stepped on anymore. If possible, they may even like to wear the boot 
 one day. Nothing changes structurally, and so the stepping continues.
+
+
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/boot_forever.jpg" width=600>
+<figcaption aria-hidden="true">This is the boot I'm referring to.</figcaption>
+</figure>
+</div>
+<br>
+
 
     From time to time, I've been astonished at the foresight of the founding fathers. 
 Other times less astonished. A lot of them owned slaves, after all. The deepest 
@@ -55,32 +60,35 @@ for all citizens to maximize these things. Failure to allow for the optimization
 these things is, in my mind, a failure to commit to the American cultural ideals. There 
 should be no boot.
 
-
-
-
     All of what I've said so far is, I feel, fairly incontrovertible by our cultural 
 standards. Now let's get controversial. I think that those three objectives, life, 
 liberty, and the right to pursue happiness, are a philosophical razor which cut to the 
 core of many social issues today. I don't think that this makes me a libertarian 
-though. It makes me a pragmatist. A libertarian is someone who advocates maximizing 
-individual rights and minimizing the role of the state. But if the best steady-state 
-solution to a problem involves the government stepping in to impose order at the 
-expense of some individual rights, then so be it. Whatever gets the job done.
+though. It makes me a pragmatist. These three are a means of measuring what policies 
+actually work.
 
     Gender is perhaps the most obvious application of the new (old) razor. People need 
 the liberty to figure out (or save) their life and pursue their happiness. Therefore we 
-should be supportive. Or at least not unsupportive. The thought of passing a law for 
-the explicit purpose of preventing certain people from acheiving happiness seems very 
-unamerican to me. We've tried it before with Jim Crow laws, and many laws before that 
-too. None of those laws have been on the right side of history.
+should be supportive. Or at least not unsupportive and mean. The thought of passing a 
+law for the explicit purpose of preventing certain people from acheiving happiness 
+seems very unamerican to me. We've tried it before with Jim Crow laws, and many more 
+laws before that. No such law has ever been on the right side of history.
 
     On the other side of the political spectrum, I think it's naive to dismiss the fact 
 that an entire culture has grown up around the idea of gun ownership. These people want 
 to maximize their happiness too, and like the queers of today, fear the destruction of 
-their culture. Then again, the government does have the right to maximize the life of 
-its citizens. I don't have strong opinions on gun control, but I feel that we're 
-approaching the problem from entirely the wrong angle. We are talking past each other. 
-We should be trying to understand the culture and motivations of our counterparty.
+their subculture. The root of the fear is the same. But neither party understands the 
+culture and motivations of its counterparty. If you believe in cultural relativism, 
+that's a problem. For this reason and many others, I hate the culture war.
+
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/gender_vs_guns.jpg" height=400>
+<figcaption aria-hidden="true">Do you think that these two are making a legitimate effort to understand each other?</figcaption>
+</figure>
+</div>
+<br>
 
     Housing is another application of the razor. Zoning rules and red tape make it 
 difficult and expensive to build new housing units, especially the sort of low cost 
@@ -88,24 +96,7 @@ high density ones which could bring down the cost of living in the areas where t
 needed most. This pushes people out onto the street, leading many kill themselves 
 rather than go homeless. I feel as though life, liberty, and the pursuit of happiness 
 are not being maximized here. Therefore, these laws are bad. It's a shame that nobody 
-in a position to actually change things wants to bring down the cost of living. I'm
-left wondering why we put up with this.
-
-    Nowadays, it feels like everyone is conspiring to juice each other for dollars. 
-Capitalism has to pick winners and losers, and nobody wants to lose. While there are 
-plenty of ideologues who would take issue with winners and losers, I've accepted it. 
-But I wish that it wasn't such a zero sum game. It would be nice if everyone could live 
-a life of dignity.
-
-    It's not supposed to be zero sum. In "The Wealth of Nations," Adam Smith said "By 
-pursuing his own interest he frequently promotes that of the society more effectually 
-than when he really intends to promote it." Basically, that greed does societal good, 
-more so than trying to help society directly. Growing the business is supposed to grow 
-the economy, which raises the standard of living. A story we've all heard before. This 
-probably used to be the case, but looking around, it's getting harder and harder to 
-believe Adam Smith in the modern day. It turns out that creating real lasting value is 
-hard. It's much easier to grift, or to skim off the top, or to squeeze a monopoly. It's 
-a lot more efficient too. And capitalism rewards efficiency.
+in a position to actually change things wants to bring down the cost of living.
 
     Many fortunes have been made over the past twenty years in real estate. "Investors" 
 (speculators) buy houses, prices go up, and now the houses are worth more. Often they 
@@ -113,52 +104,114 @@ rent them out, then take out loans against the value of these houses, and rinse 
 repeat until they have a ridiculous amount of both real estate and debt. They get laws 
 passed to prevent more houses from being built. The price increases. Banks, 
 understanding what's going on and wanting a piece of the action, start lending to those 
-who they know will default. Suddenly the price goes down. Oh no. Panic ensues, the 
-government steps in to bail out the grifters, and still nothing of value has been 
-produced. The whole thing smells suspiciously like a pump and dump, just with 
-"accredited investors" and houses instead of NFT profile pictures on Twitter and 
-digital coins with dogs on them.
+who they know will default. Suddenly the price goes down. Oh no. That's not supposed to 
+happen. Panic ensues, the government steps in to bail out the grifters, and still 
+nothing of value has been produced. The whole thing smells suspiciously like a pump and 
+dump, just with "accredited investors" and houses instead of NFT profile pictures on 
+Twitter and digital coins with dogs on them.
 
-    More sophisticated investment vehicles do not do the world any modicum of good either. 
-I'm not referring to just mortgage-backed securities. Finance makes up 8% of the US 
-economy. Why? Surely finance has a place, but this is ridiculous. It doesn't produce 
-anything. How many talented students have left promising fields to toil in this 
-bottomless pit? Even Warren Buffet has commented that this is a gargantuan waste of 
-talent, and society would be better served if their talents were directed elsewhere.
+    So, why bring the gravy train to a halt? Why not just keep riding it?
+
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/moral_hazard.jpg" height=400>
+<figcaption aria-hidden="true">Wouldn't you rather be the guy on the right?</figcaption>
+</figure>
+</div>
+<br>
+
+    I'm left wondering why we put up with this. Capitalism has to pick winners and 
+losers, and nobody wants to lose. But still, it would be nice if everyone could live a 
+life of dignity. It's relatively cheap to do the bare minimum to keep people alive. 
+Just because some people win doesn't mean that everybody else has to lose. I wish that 
+it wasn't such a zero sum game.
+
+    Capitalism is not supposed to be zero sum. In "The Wealth of Nations," Adam Smith 
+argues that greed does societal good, even more so than trying to help society 
+directly. Growing the business is supposed to grow the economy, which raises the 
+standard of living. A story we've all heard before.
+
+    This probably used to be the case, and there are lots of examples throughout 
+history of it working. It's how just about every nation got wealthy. But looking 
+around, it's getting harder and harder to believe that greed is what we need more of. 
+We need to figure out how to change some incentive structures.
+
+    There turns out to be a difference between good and bad kinds of greed. When the United 
+Healthcare CEO was shot dead in the streets a few days ago, the people rejoiced. I'm 
+not happy about violence, and I think that mob justice is not a form of justice that is 
+good for society. But neither is taking advantage of vulnerable and dying old people. 
+Brian Thompson was a murderor too.
+
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/UHC_AO3.png" height=400>
+<figcaption aria-hidden="true">My friends generally approve of the actions of the assassin, and keep sending me horny fanfiction.</figcaption>
+</figure>
+</div>
+<br>
+
+    Greed is only good if you stand to benefit more from creating net value than 
+destroying it. It turns out that creating real lasting value is hard. It's much easier 
+to grift, or to skim off the top, or to squeeze a monopoly. It's a lot more efficient 
+too. And capitalism rewards efficiency.
+
+    What bothers me so much is not the moral issue of ordinary people getting screwed. 
+It's that the grifts have gotten so elaborate, and yet still nothing of value is 
+created.
+
+    More sophisticated investment vehicles do not do the world any modicum of good 
+either. I'm not referring to just mortgage-backed securities. Finance makes up 8% of 
+the US economy. Why? Surely finance has a place, but this is ridiculous. It doesn't 
+directly produce anything. How many talented students have left promising fields to 
+toil in this bottomless pit? Even Warren Buffet has commented that this is a gargantuan 
+waste of talent, and society would be better served if their talents were directed 
+elsewhere.
 
     How many advancements have we given up on for the privilege of shuffling money 
-around? How many cures? Does it really matter who exactly holds onto the pile of 
-money if nothing ever changes structurally? How many people have had to say goodbye 
-to their family members early because of innovation that didn't happen? Don't even 
-get me started on the perverse incentives in healthcare. I don't need to elaborate, 
-you already know what the problem is. More grifters. They're killing people, and 
-we can't seem to do a thing about it.
+around? How many cures? Does it really matter who exactly holds onto the pile of money 
+if nothing ever changes structurally? How many people have had to say goodbye to their 
+family members early because of innovation that didn't happen? Don't even get me 
+started on the perverse incentives in healthcare. I don't need to elaborate, you 
+already know what the problem is. More grifters. They're killing people, and we can't 
+seem to do a thing about it. Shooting them isn't a long term solution.
 
-    I feel like, if we Americans still believed in our founding ideals, we would not stand 
-for this zero sum thinking. We would recognize what's happening, awaken whatever's left 
-of our political consciousness, oust the grifters, and maximize the life, liberty, and 
-pursuit of happiness for all Americans. Ideally, for all people in general. The current 
-system deprives us of these rights, or at least doesn't enable us to pursue them to the 
-extent that it could. It seems that we're no better than the Puritans. And sadly, 
-grifting for campaign money is a prerequisite for getting into office. We're so fucked.
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/republic_of_virtue.png" height=500>
+<figcaption aria-hidden="true">Will mob justice lead us to a republic of virtue as Robespierre intended?</figcaption>
+</figure>
+</div>
+<br>
 
-    I'm working on getting out from under the boot, and I hope you do too. But once 
-you're in a position of power, don't put on the boot. Don't hate, don't grift, and 
-don't try to regulate your competition. That would make you a truly detestable and 
-pathetic human being. I'm looking at you, Sam Altman. If you're complicit in this 
-grifting behavior, and you have the choice not to be, then don't be. Go do something 
-that actually produces value of some sort, any sort. Even if you make less money. If 
-it meant that the world would be a structurally better place, I would live under a 
-bridge. Actually though, it works the opposite way. To change the world, I first 
-need to obtain power.
+
+    I feel like, if we Americans still believed in our founding ideals, we would not 
+stand for this zero sum thinking. We would recognize what's happening, awaken 
+whatever's left of our political consciousness, oust the grifters, and maximize the 
+life, liberty, and pursuit of happiness for all Americans. Ideally, for all people in 
+general. The current system deprives us of these rights, or at least doesn't enable us 
+to pursue them to the extent that it could. It seems that we're no better than the 
+Puritans. And sadly, grifting for campaign money is a prerequisite for getting into 
+office. We're so fucked.
+
+    I'm getting out from under the boot, and I hope you do too. But once you're in a 
+position of power, don't put on the boot. Don't hate, don't grift, and don't try to 
+regulate your competition. That would make you a truly detestable and pathetic human 
+being. I'm looking at you, Sam Altman. If you're complicit in this grifting behavior, 
+and you have the choice not to be, then don't be. Go do something that actually 
+produces value of some sort, any sort. Even if you make less money. If it meant that 
+the world would be a structurally better place, I would live under a bridge. Actually 
+though, it works the opposite way. To change the world, I first need to obtain power.
+
+    What's the easiest way to gain power? Ah yeah, to grift. Fuck.
 
 <br>
 <div style="text-align: center;">
 <figure>
 <img src="images/You_have_the_power_to_end_these_patterns.jpg" height=400>
-<figcaption aria-hidden="true">You can't fix society, but in your sphere of influence you can at least.</figcaption>
+<figcaption aria-hidden="true">You can't fix society, but at least you can change yourself. Maybe that's enough.</figcaption>
 </figure>
 </div>
 <br>
-
-    What's the easiest way to gain power? Ah yeah, to grift. Fuck.

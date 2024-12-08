@@ -5,7 +5,7 @@ The Craziest Bug I Have Ever Witnessed       | blog/The_Craziest_Bug_I_Have_Ever
 Cursed Code Collection                       | blog/Cursed_Code_Collection.html
 Hyperparameter Heuristics                    | blog/Hyperparameter_Heuristics.html
 The Competition For Contributors             | blog/The_Contributor_Competition.html
-Grifters                                     | blog/Grifters.html
+#Grifters                                     | blog/Grifters.html
 
 Open Source:
 Thunder (Deep Learning Compiler)      | https://github.com/lightning-ai/lightning-thunder
