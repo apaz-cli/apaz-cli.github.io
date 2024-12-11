@@ -141,7 +141,7 @@ We need to figure out how to change some incentive structures.
 Healthcare CEO was shot dead in the streets a few days ago, the people rejoiced. I'm 
 not happy about violence, and I think that mob justice is not a form of justice that is 
 good for society. But neither is taking advantage of vulnerable and dying old people. 
-Brian Thompson was a murderor too.
+Brian Thompson was a murderor too. A serial killer, in my opinion.
 
 <br>
 <div style="text-align: center;">
