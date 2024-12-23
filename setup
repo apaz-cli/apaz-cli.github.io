@@ -40,22 +40,9 @@ GIT_PARENT_DIR="$HOME"
 cd "$GIT_PARENT_DIR"
 
 # Check if we're using apt
-if ! command -v apt &> /dev/null
-then
-    APT="true"
-fi
+APT="$(which apt)"
 
 ensure_installed python3 python3-pip
-
-# Check for required commands
-REQUIRED_COMMANDS="sed"
-for cmd in $REQUIRED_COMMANDS; do
-    if ! command -v $cmd &> /dev/null
-    then
-        echo "$cmd could not be found. Exiting..."
-        exit 1
-    fi
-done
 
 # Make sure python aliases python3, and create it if it doesn't
 if ! command -v python &> /dev/null
