@@ -19,11 +19,11 @@ install_package() {
 
 ensure_installed() {
     # $1 = command to check
-    # $2 = packages to install if command not found
+    # $2 = package name
 
     if ! command -v $1 &> /dev/null
     then
-        echo "$1 could not be found, installing required packages..."
+        echo "$1 could not be found, installing..."
         install_package $2
     fi
 }
@@ -68,5 +68,5 @@ cp -r Dotifiles/.nano* "$HOME/"
 # Install the important packages
 install_package "wget curl nano tree locate jq kitty-terminfo"
 
-# Create a subshell with the new bashrc
+# Create a subshell with the new bashrc, which contains the new $PATH.
 bash
