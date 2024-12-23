@@ -45,8 +45,15 @@ then
     APT="true"
 fi
 
+# Ensure python3 is installed
+if ! command -v python3 &> /dev/null
+then
+    echo "python3 could not be found, installing..."
+    install_package python3
+fi
+
 # Check for required commands
-REQUIRED_COMMANDS="python3 sed"
+REQUIRED_COMMANDS="sed"
 for cmd in $REQUIRED_COMMANDS; do
     if ! command -v $cmd &> /dev/null
     then
