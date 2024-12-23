@@ -1,19 +1,19 @@
 #!/bin/sh
 
 install_package() {
-    # $1 = package name
+    # $@ = packages
 
     if [ "$APT" = "" ]; then
-        echo "This script only supports apt-based systems. Exiting..."
+        echo "This is not an apt system, so cannot install packages. Exiting..."
         exit 1
     fi
 
-    if [ "$EUID" -ne 0 ]; then
+    if [ "$(id -u)" -ne 0 ]; then
         sudo apt update
-        sudo apt install $1 -y
+        sudo apt install -y $@
     else
         apt update
-        apt install $1 -y
+        apt install -y $@
     fi
 }
 
@@ -65,18 +65,8 @@ git clone https://github.com/apaz-cli/Scripts
 cp Dotfiles/.bashrc "$HOME/.bashrc"
 cp -r Dotifiles/.nano* "$HOME/"
 
-# Ensure bash, wget, curl, nano, tree, locate, jq are installed
-if [ "$APT" = "" ]; then
-    if [ "$EUID" -ne 0 ]; then
-        sudo apt update
-        sudo apt install -y wget curl nano tree locate jq
-    else
-        apt update
-        apt install -y wget curl nano tree locate jq
-    fi
-else
-    echo "This is not an apt system, so cannot install packages."
-fi
+# Install the important packages
+install_package "wget curl nano tree locate jq kitty-terminfo"
 
 # Create a subshell with the new bashrc
 bash
