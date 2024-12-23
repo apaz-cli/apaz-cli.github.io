@@ -23,8 +23,8 @@ ensure_installed() {
 
     if ! command -v $1 &> /dev/null
     then
-        echo "$2 could not be found, installing..."
-        install_package $2
+        echo "$1 could not be found, installing..."
+        install_package "$2"
     fi
 }
 
@@ -42,7 +42,7 @@ cd "$GIT_PARENT_DIR"
 # Check if we're using apt
 APT="$(which apt)"
 
-ensure_installed python3 python3-pip
+ensure_installed python3 "python3-pip git"
 
 # Make sure python aliases python3, and create it if it doesn't
 if ! command -v python &> /dev/null
@@ -50,7 +50,7 @@ then
     echo "Python alias not found. Creating..."
     PY3PATH="$(which python3)"
     PY_ALIAS_PATH="$(echo $PY3PATH | sed 's/.$//' )" # Remove the last character
-    ln -s $PY3PATH $PY_ALIAS_PATH
+    ln -s $PY3PATH $PY_ALIAS_PATH 2> /dev/null
 fi
 
 # Ensure git is installed
