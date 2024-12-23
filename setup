@@ -1,0 +1,91 @@
+#!/bin/sh
+
+install_package() {
+    # $1 = package name
+
+    if [ "$APT" = "" ]; then
+        echo "This script only supports apt-based systems. Exiting..."
+        exit 1
+    fi
+
+    if [ "$EUID" -ne 0 ]; then
+        sudo apt update
+        sudo apt install $1 -y
+    else
+        apt update
+        apt install $1 -y
+    fi
+}
+
+ensure_installed() {
+    # $1 = command to check
+    # $2 = package name
+
+    if ! command -v $1 &> /dev/null
+    then
+        echo "$2 could not be found, installing..."
+        install_package $2
+    fi
+}
+
+
+# Let's do some sanity checks. Make sure $HOME is set
+if [ -z "$HOME" ]; then
+    echo "HOME is not set. Exiting..."
+    exit 1
+fi
+
+# Go there
+GIT_PARENT_DIR="$HOME"
+cd "$GIT_PARENT_DIR"
+
+# Check if we're using apt
+if ! command -v apt &> /dev/null
+then
+    APT="true"
+fi
+
+# Check for required commands
+REQUIRED_COMMANDS="python3 sed"
+for cmd in $REQUIRED_COMMANDS; do
+    if ! command -v $cmd &> /dev/null
+    then
+        echo "$cmd could not be found. Exiting..."
+        exit 1
+    fi
+done
+
+# Make sure python aliases python3, and create it if it doesn't
+if ! command -v python &> /dev/null
+then
+    echo "Python alias not found. Creating..."
+    PY3PATH="$(which python3)"
+    PY_ALIAS_PATH="$(echo $PY3PATH | sed 's/.$//' )" # Remove the last character
+    ln -s $PY3PATH $PY_ALIAS_PATH
+fi
+
+# Ensure git is installed
+ensure_installed git git
+
+# Clone the repos
+git clone https://github.com/apaz-cli/Dotfiles
+git clone https://github.com/apaz-cli/Scripts
+#git clone https://github.com/apaz-cli/Secrets
+
+# Move dotfiles into place.
+cp Dotfiles/.bashrc "$HOME/.bashrc"
+cp -r Dotifiles/.nano* "$HOME/"
+
+# Ensure bash, wget, curl, nano, tree, locate, jq are installed
+if [ "$APT" = "" ]; then
+    if [ "$EUID" -ne 0 ]; then
+        sudo apt update
+        sudo apt install -y wget curl nano tree locate jq
+    else
+        apt update
+        apt install -y wget curl nano tree locate jq
+    fi
+else
+    echo "This is not an apt system, so cannot install packages."
+fi
+
