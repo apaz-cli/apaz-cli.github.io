@@ -89,3 +89,5 @@ else
     echo "This is not an apt system, so cannot install packages."
 fi
 
+# Create a subshell with the new bashrc
+bash
