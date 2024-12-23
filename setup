@@ -19,12 +19,12 @@ install_package() {
 
 ensure_installed() {
     # $1 = command to check
-    # $2 = package name
+    # $2 = packages to install if command not found
 
     if ! command -v $1 &> /dev/null
     then
-        echo "$1 could not be found, installing..."
-        install_package "$2"
+        echo "$1 could not be found, installing required packages..."
+        install_package $2
     fi
 }
 
