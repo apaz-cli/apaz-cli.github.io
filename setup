@@ -63,7 +63,9 @@ git clone https://github.com/apaz-cli/Scripts
 
 # Move dotfiles into place.
 cp Dotfiles/.bashrc "$HOME/.bashrc"
-cp -r Dotifiles/.nano* "$HOME/"
+cp -r Dotfiles/.nano* "$HOME/"
+
+# TODO: Extract only relevant secrets
 
 # Install the important packages
 install_package "wget curl nano tree locate jq kitty-terminfo"

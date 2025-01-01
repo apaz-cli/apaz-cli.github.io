@@ -5,7 +5,6 @@
 
 <div style="text-align: center;">
 
-<!-- ![](images/Ibuki_Maya.png) -->
 ![](images/91199411_p0.png)
 
 </div>
