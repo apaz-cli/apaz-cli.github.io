@@ -40,6 +40,7 @@ Once you've got my trust, how do you know? Honestly, it's hard. Besides some sub
 Before you do, it's best to know beforehand what my relationship status is, if it's open, what my sexuality is, etc. Ideally at the start of the conversation. Otherwise you probably don't know me well enough to ask me out. If you don't know beforehand, that's not a dealbreaker. Just try to sequence these questions towards the beginning of the conversation. 
 
 Usually, I start with "Hey, I think you're cute..." and follow up with:
+
 * Can I flirt with you?
 * Can I pet your hair?
 * Wanna hug?
@@ -61,6 +62,7 @@ Once you have my enthusiastic consent, be sure to take advantage of it. Touch me
 Or rather, that's what I would say. Unfortunately there's no play allowed at munches. Can't go further than gentle biting. Unfortunate. But you get the idea. I'm yours now. Act like you know it.
 
 Setting the mood is very important. I feel like I could write a lot more about this. I feel like I probably will. But for now, Aella gives the best advice. Read these two articles, and apply the lessons. I can't believe that this information is available for free on the internet. This is a cognitohazard. This should be literally illegal. You used to have to threaten a cult leader or serial killer for this sort of information.
+
 * [Frame Control](https://aella.substack.com/p/frame-control)
 * [Sex as a Status Game](https://aella.substack.com/p/good-at-sex-sex-as-a-status-game)
 
