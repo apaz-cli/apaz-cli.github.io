@@ -10,10 +10,10 @@ The Competition For Contributors             | blog/The_Contributor_Competition.
 
 Open Source:
 Thunder (Deep Learning Compiler)      | https://github.com/Lightning-AI/lightning-thunder
-Litgpt (Implementation of 50+ LLMs)   | https://github.com/Lightning-AI/litgpt/
+LitGPT (Train/Finetune 50+ LLMs)      | https://github.com/Lightning-AI/litgpt/
 The Julia Programming Language        | https://github.com/JuliaLang/julia
 The pgen Parser Generator             | https://github.com/apaz-cli/pgen
-#Perceptual Image Hashing             | https://github.com/apaz-cli/Open-Image-Hashing-Tools
+#Perceptual Image Hashing              | https://github.com/apaz-cli/Open-Image-Hashing-Tools
 
 Contact:
 Github          | https://github.com/apaz-cli/
