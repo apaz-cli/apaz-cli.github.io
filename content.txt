@@ -6,9 +6,11 @@ Cursed Code Collection                       | blog/Cursed_Code_Collection.html
 Hyperparameter Heuristics                    | blog/Hyperparameter_Heuristics.html
 The Competition For Contributors             | blog/The_Contributor_Competition.html
 #Grifters                                     | blog/Grifters.html
+#Seduction                                    | blog/Seduction.html
 
 Open Source:
-Thunder (Deep Learning Compiler)      | https://github.com/lightning-ai/lightning-thunder
+Thunder (Deep Learning Compiler)      | https://github.com/Lightning-AI/lightning-thunder
+Litgpt (Implementation of 50+ LLMs)   | https://github.com/Lightning-AI/litgpt/
 The Julia Programming Language        | https://github.com/JuliaLang/julia
 The pgen Parser Generator             | https://github.com/apaz-cli/pgen
 #Perceptual Image Hashing             | https://github.com/apaz-cli/Open-Image-Hashing-Tools
