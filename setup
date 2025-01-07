@@ -9,11 +9,11 @@ install_package() {
     fi
 
     if [ "$(id -u)" -ne 0 ]; then
-        sudo apt update
-        sudo apt install -y $@
+        DEBIAN_FRONTEND=noninteractive sudo apt update
+        DEBIAN_FRONTEND=noninteractive sudo apt install -y $@
     else
-        apt update
-        apt install -y $@
+        DEBIAN_FRONTEND=noninteractive apt update
+        DEBIAN_FRONTEND=noninteractive apt install -y $@
     fi
 }
 
@@ -68,7 +68,7 @@ install_package "wget curl nano tree locate jq kitty-terminfo"
 if [ ! "$PRIME" = "" ]; then
     curl -sSL https://raw.githubusercontent.com/PrimeIntellect-ai/prime/main/scripts/install/install.sh > /tmp/prime_install.sh
     chmod +x /tmp/prime_install.sh
-    /tmp/prime_install.sh
+    DEBIAN_NONINTERACTIVE=1 /tmp/prime_install.sh
     rm /tmp/prime_install.sh
 fi
 
