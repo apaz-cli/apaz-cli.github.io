@@ -42,9 +42,12 @@ GIT_PARENT_DIR="$HOME"
 cd "$GIT_PARENT_DIR"
 
 # Clone the repos in the background while packages are installing
-git clone https://github.com/apaz-cli/Dotfiles &
-git clone https://github.com/apaz-cli/Scripts &
+git clone https://github.com/apaz-cli/Dotfiles --depth=1 &
+pid1=$!
+git clone https://github.com/apaz-cli/Scripts --depth=1 &
+pid2=$!
 git clone https://github.com/apaz-cli/Secrets --depth=1 &
+pid3=$!
 
 # Install the important packages
 install_package python3-pip python3-venv git wget curl nano tree locate jq kitty-terminfo
@@ -59,12 +62,18 @@ then
 fi
 
 # Move dotfiles into place.
-wait # Await repos cloned
+echo "Waiting for repos to clone..."
+wait $pid1
+wait $pid2
+wait $pid3
+
+echo "Repos are cloned. Moving dotfiles into place..."
 cp Dotfiles/.bashrc "$HOME/.bashrc"
 cp -r Dotfiles/.nano* "$HOME/"
 
 # Set up prime intellect server
 if [ ! "$PRIME" = "" ]; then
+    echo "Setting up Prime..."
     curl -sSL https://raw.githubusercontent.com/PrimeIntellect-ai/prime/main/scripts/install/install.sh > /tmp/prime_install.sh
     chmod +x /tmp/prime_install.sh
     DEBIAN_FRONTEND=noninteractive /tmp/prime_install.sh
