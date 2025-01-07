@@ -46,8 +46,8 @@ git clone https://github.com/apaz-cli/Dotfiles --depth=1 &
 pid1=$!
 git clone https://github.com/apaz-cli/Scripts --depth=1 &
 pid2=$!
-git clone https://github.com/apaz-cli/Secrets --depth=1 &
-pid3=$!
+#git clone https://github.com/apaz-cli/Secrets --depth=1 &
+#pid3=$!
 
 # Install the important packages
 install_package python3-pip python3-venv git wget curl nano tree locate jq kitty-terminfo
@@ -65,7 +65,7 @@ fi
 echo "Waiting for repos to clone..."
 wait $pid1
 wait $pid2
-wait $pid3
+#wait $pid3
 
 echo "Repos are cloned. Moving dotfiles into place..."
 cp Dotfiles/.bashrc "$HOME/.bashrc"
