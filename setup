@@ -28,7 +28,6 @@ ensure_installed() {
     fi
 }
 
-
 # Let's do some sanity checks. Make sure $HOME is set
 if [ -z "$HOME" ]; then
     echo "HOME is not set. Exiting..."
@@ -42,7 +41,7 @@ cd "$GIT_PARENT_DIR"
 # Check if we're using apt
 APT="$(which apt)"
 
-ensure_installed python3 "python3-pip git"
+install_package python3-pip python3-venv git
 
 # Make sure python aliases python3, and create it if it doesn't
 if ! command -v python &> /dev/null
@@ -53,22 +52,26 @@ then
     ln -s $PY3PATH $PY_ALIAS_PATH 2> /dev/null
 fi
 
-# Ensure git is installed
-ensure_installed git git
-
 # Clone the repos
-git clone https://github.com/apaz-cli/Dotfiles
-git clone https://github.com/apaz-cli/Scripts
-#git clone https://github.com/apaz-cli/Secrets
+git clone https://github.com/apaz-cli/Dotfiles &
+git clone https://github.com/apaz-cli/Scripts &
+#git clone https://github.com/apaz-cli/Secrets --depth=1 &
+wait
 
 # Move dotfiles into place.
 cp Dotfiles/.bashrc "$HOME/.bashrc"
 cp -r Dotfiles/.nano* "$HOME/"
 
-# TODO: Extract only relevant secrets
-
 # Install the important packages
-install_package "wget curl nano tree locate jq kitty-terminfo"
+install_package "wget curl nano tree locate jq kitty-terminfo" &
 
-# Create a subshell with the new bashrc, which contains the new $PATH.
-bash
+if [ ! "$PRIME" = "" ]; then
+    curl -sSL https://raw.githubusercontent.com/PrimeIntellect-ai/prime/main/scripts/install/install.sh > /tmp/prime_install.sh
+    chmod +x /tmp/prime_install.sh
+    /tmp/prime_install.sh
+    rm /tmp/prime_install.sh
+fi
+
+wait
+
+echo -e "\n\e[35mSetup complete.\e[0m\n"
