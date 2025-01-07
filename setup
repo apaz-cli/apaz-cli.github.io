@@ -50,7 +50,7 @@ pid2=$!
 #pid3=$!
 
 # Install the important packages
-install_package python3-pip python3-venv git wget curl nano tree locate jq kitty-terminfo
+install_package python3-pip python3-venv git wget curl nano tree less locate jq kitty-terminfo
 
 # Make sure python aliases python3, and create it if it doesn't
 if ! command -v python &> /dev/null
@@ -80,4 +80,4 @@ if [ ! "$PRIME" = "" ]; then
     rm /tmp/prime_install.sh
 fi
 
-echo -e "\n\e[35mSetup complete.\e[0m\n"
+echo "\n\e[35mSetup complete.\e[0m\n"
