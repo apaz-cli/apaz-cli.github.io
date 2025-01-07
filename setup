@@ -50,7 +50,7 @@ pid2=$!
 #pid3=$!
 
 # Install the important packages
-install_package python3-pip python3-venv git wget curl nano tree less locate jq kitty-terminfo
+install_package python3-pip python3-venv git wget curl nano tree less locate jq kitty-terminfo gcc g++ clang htop
 
 # Make sure python aliases python3, and create it if it doesn't
 if ! command -v python &> /dev/null
