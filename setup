@@ -12,11 +12,11 @@ install_package() {
     fi
 
     if [ "$(id -u)" -ne 0 ]; then
-        DEBIAN_FRONTEND=noninteractive sudo apt update
-        DEBIAN_FRONTEND=noninteractive sudo apt install -y $@
+        NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive sudo apt update
+        NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive sudo apt install -y $@
     else
-        DEBIAN_FRONTEND=noninteractive apt update
-        DEBIAN_FRONTEND=noninteractive apt install -y $@
+        NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive apt update
+        NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive apt install -y $@
     fi
 }
 
@@ -41,6 +41,10 @@ fi
 GIT_PARENT_DIR="$HOME"
 cd "$GIT_PARENT_DIR"
 
+# Set git creds
+git config --global user.name apaz-cli
+git config --global user.email aarpazdera@gmail.com
+
 # Clone the repos in the background while packages are installing
 git clone https://github.com/apaz-cli/Dotfiles --depth=1 &
 pid1=$!
@@ -49,8 +53,14 @@ pid2=$!
 #git clone https://github.com/apaz-cli/Secrets --depth=1 &
 #pid3=$!
 
+#if [ "$(id -u)" -ne 0 ]; then
+#    sudo sed -i "/#\$nrconf{restart} = 'i';/s/.*/\$nrconf{restart} = 'a';/" /etc/needrestart/needrestart.conf
+#else
+#    sed -i "/#\$nrconf{restart} = 'i';/s/.*/\$nrconf{restart} = 'a';/" /etc/needrestart/needrestart.conf
+#fi
+
 # Install the important packages
-install_package python3-pip python3-venv git wget curl nano tree less locate jq kitty-terminfo gcc g++ clang htop
+install_package python3-pip python3-venv git wget curl nano tree less file locate jq kitty-terminfo gcc g++ clang htop
 
 # Make sure python aliases python3, and create it if it doesn't
 if ! command -v python &> /dev/null
@@ -76,7 +86,7 @@ if [ ! "$PRIME" = "" ]; then
     echo "Setting up Prime..."
     curl -sSL https://raw.githubusercontent.com/PrimeIntellect-ai/prime/main/scripts/install/install.sh > /tmp/prime_install.sh
     chmod +x /tmp/prime_install.sh
-    DEBIAN_FRONTEND=noninteractive /tmp/prime_install.sh
+    NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive /tmp/prime_install.sh
     rm /tmp/prime_install.sh
 fi
 
