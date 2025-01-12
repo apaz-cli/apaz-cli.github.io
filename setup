@@ -42,6 +42,7 @@ GIT_PARENT_DIR="$HOME"
 cd "$GIT_PARENT_DIR"
 
 # Set git creds
+git config --global credential.helper store
 git config --global user.name apaz-cli
 git config --global user.email aarpazdera@gmail.com
 
@@ -88,6 +89,10 @@ if [ ! "$PRIME" = "" ]; then
     chmod +x /tmp/prime_install.sh
     NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive /tmp/prime_install.sh
     rm /tmp/prime_install.sh
+
+    cd prime/
+    . .venv/bin/activate
+    export LD_LIBRARY_PATH=$(python -c "import site; print(site.getsitepackages()[0] + '/nvidia/nvjitlink/lib')"):$LD_LIBRARY_PATH
 fi
 
 echo "\n\e[35mSetup complete.\e[0m\n"
