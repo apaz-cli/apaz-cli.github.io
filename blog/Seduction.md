@@ -72,10 +72,12 @@ Or rather, that's what I would say. Unfortunately there's no play allowed at mun
 When we meet again, we should probably talk about consent and explain our kinks to each other. Discord is a great place for these conversations, because it's often hard to explain them in person. Even people who aren't shy about their kinks often need a long time to formulate what they're saying.
 
 Here is the best explanation I've seen for the concept of consent being a conversation.
+
 * [Rope and Trust](https://www.kinbakutoday.com/rope-and-trust/)
 
 This checklist can be a good starting point for consent conversations. They tend to meander, and that is fine and good.
-* [Consent checklist]()
+
+* [Consent checklist (I am still trying to find the link)]()
 
 
 ### General advice and remarks
