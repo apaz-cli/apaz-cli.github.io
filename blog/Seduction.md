@@ -35,13 +35,20 @@ It's actually really easy to gain people's trust. Otherwise Ted Bundy would not 
 
 ### Consent
 
-The easiest way to prove that you're not malicious is for one of my friends to introduce you. If you're a friend of a friend, then I trust my friend, so I trust you. If you hurt me you'll also damage your relationship with our mutual friend. Which, clearly, has not happened so far. You have a track record of being reliable, so I will trust you by proxy.
+The easiest way to prove that you're not malicious is for one of my friends to introduce you. If you're a friend of a friend, then I trust my friend, so I trust you. If you hurt me you'll also damage your relationship with our mutual friend. Which, clearly, has not happened so far with anyone else. You have a track record of being reliable, so I will trust you by proxy.
 
-The other way to prove you're not malicious is to show that you understand consent. Popular culture in general does not understand consent in the same way that we do. People seem to think that it's about not raping people. A good start, for sure. But polyamorous kink is a whole different ball game. Much more complicated. It's simple and natural for us, but most people would be lost.
+The other way to prove you're not malicious is to show that you understand consent. Popular culture in general does not understand consent in the same way that we do. People seem to think that it's about not raping people. A good start, for sure. But poly kink is a whole different ball game. Much more complicated. It feels simple and natural for us, but there's a learning curve. Most people don't get it.
 
 Consent is not a binary thing, it's a conversation. Usually a multi-hour months-ongoing conversation about what makes people tick and why. That discussion continues during play. Consent is a feeling I get. It's the trust you'll be there for me at my most vulnerable.
 
-It's not that a normie can't learn how to navigate this stuff. But they would be playing on hard mode. If I'm going to let you take the offensive, I need to know that you're familiar with and ready for that conversation. Most cis people are not. But if you want to deeply understand me and be deeply understood, then I trust you to make the next move.
+Here is the best explanation I've seen for the concept of consent being a conversation about trust.
+
+* [Rope and Trust](https://www.kinbakutoday.com/rope-and-trust/)
+
+This checklist can be a good starting point for consent conversations. They tend to meander, and that is fine and good.
+
+* [Consent checklist (I am still trying to find the link)](https://pytorch.org/docs/stable/fsdp.html)
+
 
 ### Interest
 
@@ -53,11 +60,21 @@ The other way to make me interested in you is to hit it off in conversation. Be 
 
 ## Step 2: Flirt aggressively.
 
+### Setting the mood.
+
+It's long been known that people communicate mostly nonverbally. Even the verbal communication is less about what you're saying, and more about what words you choose and how you say them. Most of the communication bandwidth is hidden in subltle implications that act on the listener's reference frame.
+
+Effective communication is sort of the act of mind reading. Not only is it bad if your body language tells a different story than your words, it's also bad if I'm not in the headspace to hear those words in the first place.
+
+Guys (and especially girls with autism, and also myself) are incredibly dense sometimes. I do not pick up on it. I'm 1 for 7. Pay attention to whether I've picked up on it. If not, it may be useful to ask directly.
+
+I've actually built up a comprehensive theory of communication, but it is too complicated and too pointless to describe here. It's not very practically useful. So instead, if you want to get better at setting the mood, pay close attention to your body language and word choice. Does it convey what you want it to convey? How could it be better? More confident? More interesting? More comforting?
+
 ### When do I pivot?
 
-Once you've got my trust, how do you know? Honestly, it's hard. Besides some subtle and often misleading body language there won't be many external signs. The best thing to do is to ask.
+Okay, so you've gained my trust. How do you know? Honestly, it's hard. Besides some subtle and often misleading body language there won't be many external signs. I'm pretty good at pretending to be comfortable in social situations. I imagine most people are. The best thing to do is to ask.
 
-Before you do, it's best to know beforehand what my relationship status is, if it's open, what my sexuality is, etc. Ideally towards the start of the conversation. If you don't know beforehand, that's not a dealbreaker. But if you ask at the end that makes it kinda awkward. So try to sequence these questions towards the beginning of the conversation.
+Before you do, it's best to know beforehand what my relationship status is, what my sexuality is, etc. Ideally towards the start of the conversation. If you don't know beforehand, that's not a dealbreaker. But if you ask at the end that makes it kinda awkward. So try to sequence these questions towards the beginning of the conversation.
 
 Usually, I start with "Hey, I think you're cute..." and follow up with:
 
@@ -81,21 +98,6 @@ Once you have my enthusiastic consent, be sure to take advantage of it. Touch me
 
 Or rather, that's what I would say. Unfortunately there's no play allowed at munches. Can't go further than gentle biting. Even that is really pushing it. Unfortunate. But you get the idea. Since we can't play at a munch, you should ask for my phone number and/or discord. Then we can go further than just gentle biting. I'll happily oblige.
 
-When we meet again, we should probably talk about consent and explain our kinks to each other. Discord is a great place for these conversations, because it's often hard to explain them in person. Even people who aren't shy about their kinks often need a long time to formulate what they're saying.
+When we meet again, we should probably talk about consent and explain our kinks to each other. Discord is a great place for these conversations, because it's often hard to explain them in person. Even people who aren't shy about their kinks often need a long time to formulate what they're saying, and edit it so the wording is right.
 
-Here is the best explanation I've seen for the concept of consent being a conversation about trust.
-
-* [Rope and Trust](https://www.kinbakutoday.com/rope-and-trust/)
-
-This checklist can be a good starting point for consent conversations. They tend to meander, and that is fine and good.
-
-* [Consent checklist (I am still trying to find the link)](https://pytorch.org/docs/stable/fsdp.html)
-
-
-### General advice and remarks
-
-Setting the mood is very important. I feel like I could write a lot more about this. I feel like I probably will. But for now, Aella gives the best advice. Read these two articles, and apply the lessons. I can't believe that this information is available for free on the internet. This is a cognitohazard. This should be literally illegal. You used to have to threaten a cult leader or serial killer for this sort of information.
-
-* [Frame Control](https://aella.substack.com/p/frame-control)
-* [Sex as a Status Game](https://aella.substack.com/p/good-at-sex-sex-as-a-status-game)
-
+Anyway, enjoy your new bottom :heart:
