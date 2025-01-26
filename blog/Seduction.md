@@ -28,6 +28,15 @@ Although humans are very different, there is some commonality. I'm a terrible ju
 
 Or maybe I gave you this document specifically so you can use it on me. Please do :)
 
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/some_of_you.png" height=400>
+<figcaption aria-hidden="true">Open invitation.</figcaption>
+</figure>
+</div>
+<br>
+
 
 ## Step 1: Gain my trust.
 
@@ -57,6 +66,16 @@ You do have to catch my eye in some way. If you're a turbonormie, then gtfo. If 
 The easiest way to make me interested in you is to be incredibly hot. Easier said than done. But I don't care about how big your tiddies are. Being conventionally attractive isn't necessary, I have different standards. But it helps to appear well put together, for any definition of "put together." Have an aesthetic. Maybe I'll like it. For example, walk around a sex dungeon in a dress with dinosaurs on it, holding a dinosaur plushie. That's an aesthetic. Now you're dinosaur girl. Incredibly hot and interesting. 10/10. Holy shit.
 
 The other way to make me interested in you is to hit it off in conversation. Be passionate about something. That makes hitting it off a lot more likely, and if we do, that makes you interesting. If there's an attractiveness scale out of 10, which there isn't, an interesting conversation bumps you up at least three points.
+
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/awesome_freak.jpg" height=400>
+<figcaption aria-hidden="true">Open invitation.</figcaption>
+</figure>
+</div>
+<br>
+
 
 ## Step 2: Flirt aggressively.
 
