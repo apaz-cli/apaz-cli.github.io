@@ -119,4 +119,4 @@ Or rather, that's what I would say. Unfortunately there's no play allowed at mun
 
 When we meet again, we should probably talk about consent and explain our kinks to each other. Discord is a great place for these conversations, because it's often hard to explain them in person. Even people who aren't shy about their kinks often need a long time to formulate what they're saying, and edit it so the wording is right.
 
-Anyway, enjoy your new bottom :heart:
+Anyway, enjoy your new bottom 🥰
