@@ -71,7 +71,7 @@ The other way to make me interested in you is to hit it off in conversation. Be 
 <div style="text-align: center;">
 <figure>
 <img src="images/awesome_freak.jpg" height=400>
-<figcaption aria-hidden="true">Open invitation.</figcaption>
+<figcaption aria-hidden="true">I cannot help but feel this way about interesting people.</figcaption>
 </figure>
 </div>
 <br>
@@ -85,7 +85,7 @@ It's long been known that people communicate mostly nonverbally. Even the verbal
 
 Effective communication is sort of the act of mind reading. Not only is it bad if your body language tells a different story than your words, it's also bad if I'm not in the headspace to hear those words in the first place.
 
-Guys (and especially girls with autism, and also myself) are incredibly dense sometimes. I do not pick up on it. I'm 1 for 7. Pay attention to whether I've picked up on it. If not, it may be useful to ask directly.
+Guys (and especially girls with autism, and also myself) are incredibly dense sometimes. I do not pick up on it. I'm 1 for 7 on detecting flirting. Pay attention to whether I've picked up on it. If not, it may be useful to ask directly.
 
 I've actually built up a comprehensive theory of communication, but it is too complicated and too pointless to describe here. It's not very practically useful. So instead, if you want to get better at setting the mood, pay close attention to your body language and word choice. Does it convey what you want it to convey? How could it be better? More confident? More interesting? More comforting?
 
