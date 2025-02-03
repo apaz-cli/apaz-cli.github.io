@@ -42,6 +42,7 @@ Or maybe I gave you this document specifically so you can use it on me. Please d
 
 It's actually really easy to gain people's trust. Otherwise Ted Bundy would not have been nearly as successful. In light of that, there are two sorts of trust that you need to proceed further. I need to know that you aren't malicious, and that you're interesting to be around. After that, I find that I warm up to people pretty quickly.
 
+
 ### Consent
 
 The easiest way to prove that you're not malicious is for one of my friends to introduce you. If you're a friend of a friend, then I trust my friend, so I trust you. If you hurt me you'll also damage your relationship with our mutual friend. Which, clearly, has not happened so far with anyone else. You have a track record of being reliable, so I will trust you by proxy.
@@ -105,6 +106,7 @@ I've actually built up a comprehensive theory of communication, but it is too co
 </div>
 <br>
 
+
 ### When do I pivot?
 
 Okay, so you've gained my trust. How do you know? Honestly, it's hard. Besides some subtle and often misleading body language there won't be many external signs. I'm pretty good at pretending to be comfortable in social situations. I imagine most people are. The best thing to do is to ask.
@@ -122,7 +124,7 @@ Usually, I start with "Hey, I think you're cute..." and follow up with:
 <br>
 <div style="text-align: center;">
 <figure>
-<img src="images/Can_I_Bite_You.jpg" height=400>
+<img src="images/Can_I_Bite_You.jpg" height=500>
 <figcaption aria-hidden="true">Please? 🥺</figcaption>
 </figure>
 </div>
@@ -130,11 +132,25 @@ Usually, I start with "Hey, I think you're cute..." and follow up with:
 
 These are actual questions. You're asking a question that you genuinely want to know the answer to. Be ready for the answer to be no, and to potentially have a conversation about why. Or not, whatever's most comfortable. Whichever way it goes, you still probably get a friend out of the deal.
 
-They say that "the worst they can say is no." That's obviously not true. I can do a lot worse to you. But I probably won't. If I reject you, you're either not my type, or you're incredibly socially inept. I'm assuming we're going to be talking for a while before you decide to pivot though. So you should have a pretty well calibrated expectation of how I'll respond.
+They say that "the worst they can say is no." That's obviously not true. I can do a lot worse to you. But I probably won't. Same is true of most people.
 
 When you make your move, it's important that you're confident. Remember, bottoms want to feel wanted. It's not as effective if it seems like you just kinda sorta casually want me. It needs to be convincing. The vibe that you might want to set is something along the lines of "When I see someone cute, I tell them like it is." That way it's convincing, but doesn't come across as creepy obsession.
 
-Confidence is... a skill. It's not easy. But if you get the mood right, I'll absolutely melt. I'll be putty in your hands. I love gentle assertive tops.
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/kabedon.jpg" height=500>
+<figcaption aria-hidden="true">You can kabedon people. I recommend it :3</figcaption>
+</figure>
+</div>
+<br>
+
+Confidence is... a skill. It's not easy. It's hard to explain. I think that confidence comes naturally when you have the right worldview.
+
+If you feel that you live in a world where you have a low chance of success, that may be likely. And if you feel that you live in a world with a high chance of success, that too may be likely. Just don't use this fact as an excuse not to let social ques influence your thoughts, actions, feelings, etc. That's the wrong message. The right message is that from the outset you should believe that things are attainable, and update that assumption as you go. Don't just admit defeat from the beginning.
+
+It's also true that if you don't think you can have something, you probably won't realize that you want it. Just like how people who aren't confident never consider shooting their shot, I wonder how many other things in my life I don't realize I want yet. What would I do if I have 10x as much agency? I think there's a lot of confidence to gain from pondering this question.
+
 
 ### After the pivot
 

@@ -2,6 +2,7 @@
 
 import re
 import os
+import sys
 """
 The variables that you are meant to change are those that are defined in the first block here before the function definitions.
 Note that this is just plaintext that gets inserted into the string below. It's not elegant, but it works.
@@ -129,7 +130,8 @@ def makeDoc(data):
 
 def makeBlog():
     os.chdir('blog/')
-    os.system('./generate.py')
+    os.system(f"./generate.py {sys.argv[1] if len(sys.argv) > 1 else ''}")
+
 
 
 if __name__ == "__main__":
