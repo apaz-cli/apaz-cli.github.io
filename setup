@@ -84,6 +84,11 @@ cp -r Dotfiles/.nano* "$HOME/"
 
 # Set up prime intellect server
 if [ ! "$PRIME" = "" ]; then
+
+    echo "Cloning related repos."
+    git clone https://github.com/primeintellect-ai/CPUOptimizer
+    git clone https://github.com/primeintellect-ai/pccl
+
     echo "Setting up Prime..."
     curl -sSL https://raw.githubusercontent.com/PrimeIntellect-ai/prime/main/scripts/install/install.sh > /tmp/prime_install.sh
     chmod +x /tmp/prime_install.sh
