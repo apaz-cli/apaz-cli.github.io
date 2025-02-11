@@ -63,8 +63,10 @@ pid2=$!
 # Install the important packages
 install_package \
   python3-pip python3-venv \
-  git wget curl nano tree less file locate jq kitty-terminfo \
-  gcc g++ clang htop nvtop btop \
+  nano tree less file locate jq ranger \
+  kitty-terminfo \
+  git wget curl gcc g++ clang \
+  htop nvtop btop \
   linux-tools-$(uname -r) linux-tools-generic # for perf
 
 # Make sure python aliases python3, and create it if it doesn't
