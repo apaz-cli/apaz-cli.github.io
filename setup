@@ -51,8 +51,6 @@ git clone https://github.com/apaz-cli/Dotfiles --depth=1 &
 pid1=$!
 git clone https://github.com/apaz-cli/Scripts --depth=1 &
 pid2=$!
-#git clone https://github.com/apaz-cli/Secrets --depth=1 &
-#pid3=$!
 
 #if [ "$(id -u)" -ne 0 ]; then
 #    sudo sed -i "/#\$nrconf{restart} = 'i';/s/.*/\$nrconf{restart} = 'a';/" /etc/needrestart/needrestart.conf
@@ -83,6 +81,9 @@ echo "Waiting for repos to clone..."
 wait $pid1
 wait $pid2
 #wait $pid3
+
+# Install secrets repo.
+git clone https://github.com/apaz-cli/Secrets --depth=1
 
 echo "Repos are cloned. Moving dotfiles into place..."
 cp Dotfiles/.bashrc "$HOME/.bashrc"
