@@ -65,6 +65,7 @@ install_package \
   kitty-terminfo \
   git wget curl gcc g++ clang \
   htop nvtop btop \
+  numactl libnuma-dev \
   linux-tools-$(uname -r) linux-tools-generic # for perf
 
 # Make sure python aliases python3, and create it if it doesn't
