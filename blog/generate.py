@@ -72,7 +72,7 @@ def generate_article(i, f):
     return i, f
 
 
-md_files = list(enumerate(glob("*.md"), 1))
+md_files: list[tuple[int, str]] = list(enumerate([f for f in glob("*.md") if not f.startswith("_")], 1))
 if only:
     md_files = [(i, f) for i, f in md_files if i == int(only)]
 
