@@ -51,8 +51,6 @@ git clone https://github.com/apaz-cli/Dotfiles --depth=1 &
 pid1=$!
 git clone https://github.com/apaz-cli/Scripts --depth=1 &
 pid2=$!
-#git clone https://github.com/apaz-cli/Secrets --depth=1 &
-#pid3=$!
 
 #if [ "$(id -u)" -ne 0 ]; then
 #    sudo sed -i "/#\$nrconf{restart} = 'i';/s/.*/\$nrconf{restart} = 'a';/" /etc/needrestart/needrestart.conf
@@ -61,7 +59,14 @@ pid2=$!
 #fi
 
 # Install the important packages
-install_package python3-pip python3-venv git wget curl nano tree less file locate jq kitty-terminfo gcc g++ clang htop nvtop
+install_package \
+  python3-pip python3-venv \
+  nano tree less file locate jq ranger \
+  kitty-terminfo \
+  git wget curl gcc g++ clang \
+  htop nvtop btop \
+  numactl libnuma-dev \
+  linux-tools-$(uname -r) linux-tools-generic # for perf
 
 # Make sure python aliases python3, and create it if it doesn't
 if ! command -v python &> /dev/null
@@ -78,12 +83,20 @@ wait $pid1
 wait $pid2
 #wait $pid3
 
+# Install secrets repo.
+git clone https://github.com/apaz-cli/Secrets --depth=1
+
 echo "Repos are cloned. Moving dotfiles into place..."
 cp Dotfiles/.bashrc "$HOME/.bashrc"
 cp -r Dotfiles/.nano* "$HOME/"
 
 # Set up prime intellect server
 if [ ! "$PRIME" = "" ]; then
+
+    echo "Cloning related repos."
+    git clone https://github.com/primeintellect-ai/CPUOptimizer
+    git clone https://github.com/primeintellect-ai/pccl
+
     echo "Setting up Prime..."
     curl -sSL https://raw.githubusercontent.com/PrimeIntellect-ai/prime/main/scripts/install/install.sh > /tmp/prime_install.sh
     chmod +x /tmp/prime_install.sh

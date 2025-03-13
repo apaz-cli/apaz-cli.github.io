@@ -32,7 +32,7 @@ Or maybe I gave you this document specifically so you can use it on me. Please d
 <div style="text-align: center;">
 <figure>
 <img src="images/some_of_you.png" height=400>
-<figcaption aria-hidden="true">Open invitation.</figcaption>
+<figcaption aria-hidden="true"></figcaption>
 </figure>
 </div>
 <br>
@@ -41,6 +41,7 @@ Or maybe I gave you this document specifically so you can use it on me. Please d
 ## Step 1: Gain my trust.
 
 It's actually really easy to gain people's trust. Otherwise Ted Bundy would not have been nearly as successful. In light of that, there are two sorts of trust that you need to proceed further. I need to know that you aren't malicious, and that you're interesting to be around. After that, I find that I warm up to people pretty quickly.
+
 
 ### Consent
 
@@ -87,7 +88,24 @@ Effective communication is sort of the act of mind reading. Not only is it bad i
 
 Guys (and especially girls with autism, and also myself) are incredibly dense sometimes. I do not pick up on it. I'm 1 for 7 on detecting flirting. Pay attention to whether I've picked up on it. If not, it may be useful to ask directly.
 
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/wait_she_was_flirting.png" height=600>
+<figcaption aria-hidden="true">As the flirter, you need to avoid this situation.</figcaption>
+</figure>
+</div>
+<br>
+
 I've actually built up a comprehensive theory of communication, but it is too complicated and too pointless to describe here. It's not very practically useful. So instead, if you want to get better at setting the mood, pay close attention to your body language and word choice. Does it convey what you want it to convey? How could it be better? More confident? More interesting? More comforting?
+<div style="text-align: center;">
+<figure>
+<img src="images/Emotional_Support_Twink.gif" height=600>
+<figcaption aria-hidden="true">I'm always trying to get better at my job.</figcaption>
+</figure>
+</div>
+<br>
+
 
 ### When do I pivot?
 
@@ -103,13 +121,36 @@ Usually, I start with "Hey, I think you're cute..." and follow up with:
 * Can I bite you? I'll be gentle :3
 * etc.
 
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/Can_I_Bite_You.jpg" height=500>
+<figcaption aria-hidden="true">Please? 🥺</figcaption>
+</figure>
+</div>
+<br>
+
 These are actual questions. You're asking a question that you genuinely want to know the answer to. Be ready for the answer to be no, and to potentially have a conversation about why. Or not, whatever's most comfortable. Whichever way it goes, you still probably get a friend out of the deal.
 
-They say that "the worst they can say is no." That's obviously not true. I can do a lot worse to you. But I probably won't. If I reject you, you're either not my type, or you're incredibly socially inept. I'm assuming we're going to be talking for a while before you decide to pivot though. So you should have a pretty well calibrated expectation of how I'll respond.
+They say that "the worst they can say is no." That's obviously not true. I can do a lot worse to you. But I probably won't. Same is true of most people.
 
 When you make your move, it's important that you're confident. Remember, bottoms want to feel wanted. It's not as effective if it seems like you just kinda sorta casually want me. It needs to be convincing. The vibe that you might want to set is something along the lines of "When I see someone cute, I tell them like it is." That way it's convincing, but doesn't come across as creepy obsession.
 
-Confidence is... a skill. It's not easy. But if you get the mood right, I'll absolutely melt. I'll be putty in your hands. I love gentle assertive tops.
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/kabedon.jpg" height=500>
+<figcaption aria-hidden="true">You can kabedon people. I recommend it :3</figcaption>
+</figure>
+</div>
+<br>
+
+Confidence is... a skill. It's not easy. It's hard to explain. I think that confidence comes naturally when you have the right worldview.
+
+If you feel that you live in a world where you have a low chance of success, that may be likely. And if you feel that you live in a world with a high chance of success, that too may be likely. Just don't use this fact as an excuse not to let social ques influence your thoughts, actions, feelings, etc. That's the wrong message. The right message is that from the outset you should believe that things are attainable, and update that assumption as you go. Don't just admit defeat from the beginning.
+
+It's also true that if you don't think you can have something, you probably won't realize that you want it. Just like how people who aren't confident never consider shooting their shot, I wonder how many other things in my life I don't realize I want yet. What would I do if I have 10x as much agency? I think there's a lot of confidence to gain from pondering this question.
+
 
 ### After the pivot
 
@@ -118,5 +159,14 @@ Once you have my enthusiastic consent, be sure to take advantage of it. Touch me
 Or rather, that's what I would say. Unfortunately there's no play allowed at munches. Can't go further than gentle biting. Even that is really pushing it. Unfortunate. But you get the idea. Since we can't play at a munch, you should ask for my phone number and/or discord. Then we can go further than just gentle biting. I'll happily oblige.
 
 When we meet again, we should probably talk about consent and explain our kinks to each other. Discord is a great place for these conversations, because it's often hard to explain them in person. Even people who aren't shy about their kinks often need a long time to formulate what they're saying, and edit it so the wording is right.
+
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/break_the_bedframe.png" height=600>
+<figcaption aria-hidden="true"></figcaption>
+</figure>
+</div>
+<br>
 
 Anyway, enjoy your new bottom 🥰
