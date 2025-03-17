@@ -50,11 +50,13 @@ you're doing. Everything is just communication. So, what do you want to communic
 
 This is a sort of totalizing and unfalsifiable worldview. But I think it can still be a useful one. I think it 
 draws attention to things that you would otherwise ignore, such as the tone of your voice and specific word 
-choice, or the rope equivalent.
+choice. Or, you know, the rope equivalent. All of these things are incredibly important, contextual, and
+difficult to teach.
 
-Find the right thing to say. It doesn't matter if you don't know how to tie knots. Technique is largely 
-irrelevant, and will not affect their enjoyment of the scene. It's about what you communicate and how they 
-parse it.
+Find the right thing to say. Not just with your words. With your body, with your rope, and with your tone. 
+What do they need to hear? Or, you know, feel? Same thing, in Barkas's opinion and mine. It 
+doesn't matter if you don't know how to tie knots. Technique is largely irrelevant. It will not affect your 
+bottom's enjoyment of the scene. What matters is what you communicate and how they parse it.
 
 # Revelation 3: Preconditions are important
 
@@ -64,11 +66,6 @@ Success or failure can depend mostly upon preconditions/mood.
 
 There are some things you can do to help. Understand how their day is going, remove sources of stress, etc.
 
-Relax
-
-I've had relationships
-
-But don't
 
 * To an extent, you have to sort of just accept that some percentage of your scenes are going to fail because of circumstances outside of your control.
 * Especially with the neurodivergent, success or failure of a scene can depend mostly upon preconditions/mood.
@@ -77,7 +74,12 @@ But don't
 
 # Revelation 4: Directing focus is powerful.
 
-* The previous revelations are 5+ years old. This is a very recent revelation for me, which only became accessible after I started learning about erotic hypnosis.
-* 
+* This is informed by a conversation I had with an erotic hypnosis * I will fill in here more later, but basically hypnosis and meditation work via the same pathway, which can also be used during a scene to help get your bottom in the headspace you want them in.
+* The last revelation is still broadly applicable, but this is another tool in the toolbox which I don't yet have the words to fully explain.
+
+# Revelation 5: Meet lots of different kinds of people.
+* Revelations 1-3 are 5+ years old. Revelation 4 is less than a week old.
+* This knowledge only became accessible after I started learning about erotic hypnosis.
+* There are probably other revelations that are understood by communities I haven't learned about yet, but that I have no context for yet.
 
 
