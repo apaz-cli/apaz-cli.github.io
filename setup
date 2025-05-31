@@ -64,7 +64,7 @@ install_package \
   nano tree less file locate jq ranger \
   kitty-terminfo \
   git wget curl gcc g++ clang \
-  htop nvtop btop \
+  htop nvtop btop psmisc \
   numactl libnuma-dev \
   linux-tools-$(uname -r) linux-tools-generic # for perf
 
