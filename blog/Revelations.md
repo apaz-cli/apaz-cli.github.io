@@ -101,3 +101,8 @@ person first and foremost.
 * Revelations 1-3 are 5+ years old. Revelation 4 is less than a week old.
 * This knowledge only became accessible after I started learning about erotic hypnosis.
 * There are probably other revelations that are understood by communities I haven't learned about yet, but that I have no context for yet.
+
+# Revelation 7: Begging
+* It comes from the heart
+* Anything polite works.
+* I've gotten a lot of milegage out of repeating please, thank you, master, mistress,
