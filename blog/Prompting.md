@@ -25,5 +25,5 @@ The same applies to prompting LLMs. Send leading prompts, get led responses. Avo
 
 I think most people prompting LLMs have not internalized this lesson. That's concerning. Have we built a global system of personal echo chambers? What downstream effects will this have on society? Yet to be seen.
 
-But internalize this lesson, prompt LLMs and humans with neutral questions, and you'll get better results. And hopefully you won't be a victim of the echo chamber. Maybe. We're probably screwed. At least it's cozy in here.
+But internalize this lesson, prompt LLMs and humans with neutral questions, and you'll get better results. And hopefully you won't be a victim of the echo chamber. Maybe. At least it's cozy in here.
 
