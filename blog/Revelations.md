@@ -1,5 +1,5 @@
 
-# Philosophy
+# Kink Revelations
 
 <br>
 

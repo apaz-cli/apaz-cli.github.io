@@ -20,6 +20,33 @@ run = lambda s: subprocess.run(split(s), check=True)
 replace = "\s+.sourceCode {\s+background-color: transparent;\s+overflow: visible;\s+}"
 repwith = "\n    .sourceCode {\n      font-size: 20px;\n    }"
 
+# Categories
+prog_posts = [
+  "Hyperparameter_Heuristics",
+  "Cursed_Code_Collection",
+  "How_to_Write_a_Compiler_Without_Going_Insane",
+  "Safety_and_Correctness",
+  "LLM_Code_Optimization",
+  "The_Contributor_Competition",
+  "The_Craziest_Bug_I_Have_Ever_Witnessed",
+  "Descending_Into_The_Stack_And_Madness",
+]
+nsfw_posts = [
+  "Seduction",
+  "Revelations",
+  "rat",
+  "bml",
+]
+
+def get_title_from_html(f):
+    try:
+        with open(f, "r") as tmp:
+            txt = tmp.read()
+            title_match = re.search("<title>(.*?)</title>", txt)
+            h1_match = re.search("<h1.*?>(.*?)</h1>", txt)
+            return (h1_match or title_match).group(1) if (h1_match or title_match) else splitext(f)[0]
+    except:
+        return splitext(f)[0]
 
 def generate_article(i, f):
 
@@ -71,6 +98,32 @@ def generate_article(i, f):
 
     return i, f
 
+def gen_index():
+    md_basenames = {splitext(f)[0] for f in glob("*.md") if not f.startswith("_")}
+    html_files = [f for f in glob("*.html") if not f.startswith("_") and f != "index.html" and not f.endswith("-unstyled.html")]
+    html_only = [f for f in html_files if splitext(f)[0] not in md_basenames]
+
+    all_posts = [(splitext(f)[0] + ".html", get_title_from_html(f)) for f in html_files]
+
+    categorize = lambda p: ("programming" if splitext(p[0])[0] in prog_posts else "nsfw" if splitext(p[0])[0] in nsfw_posts else "sfw")
+
+    cats = {"programming": [], "sfw": [], "nsfw": [], }
+    for post in all_posts:
+        cats[categorize(post)].append(post)
+
+    idx_html = "<!DOCTYPE html>\n<html>\n<head>\n    <title>Blog Index</title>\n</head>\n<body>\n    <h1>Blog Posts</h1>\n"
+
+    for cat, posts in cats.items():
+        if posts:
+            idx_html += f"    <h2>{cat.upper()}</h2>\n    <ul>\n"
+            for post_file, post_title in posts:
+                idx_html += f"        <li><a href=\"{post_file}\">{post_title}</a></li>\n"
+            idx_html += "    </ul>\n"
+
+    idx_html += "</body>\n</html>"
+
+    with open("index.html", "w") as f:
+        f.write(idx_html)
 
 md_files: list[tuple[int, str]] = list(enumerate([f for f in glob("*.md") if not f.startswith("_")], 1))
 if only:
@@ -87,3 +140,6 @@ with ThreadPoolExecutor() as executor:
             i, f = future.result()
             print(f"Generated article {i}: {f}")
             futures.pop(future)
+
+gen_index()
+print("Generated index.html")
