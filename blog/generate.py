@@ -34,19 +34,23 @@ prog_posts = [
 nsfw_posts = [
   "Seduction",
   "Revelations",
+]
+mirrored_posts = [
   "rat",
   "bml",
 ]
 
 def get_title_from_html(f):
-    try:
-        with open(f, "r") as tmp:
-            txt = tmp.read()
-            title_match = re.search("<title>(.*?)</title>", txt)
-            h1_match = re.search("<h1.*?>(.*?)</h1>", txt)
-            return (h1_match or title_match).group(1) if (h1_match or title_match) else splitext(f)[0]
-    except:
-        return splitext(f)[0]
+    with open(f, "r") as tmp:
+        txt = tmp.read()
+        title_match = re.search("<title>(.*?)</title>", txt)
+        h1_match = re.search(r"<h1[^>]*>(.*?)</h1>", txt, re.DOTALL)
+        if h1_match:
+            return re.sub(r'\s+', ' ', h1_match.group(1).strip())
+        elif title_match:
+            return re.sub(r'\s+', ' ', title_match.group(1).strip())
+        else:
+            return splitext(f)[0]
 
 def generate_article(i, f):
 
@@ -54,17 +58,21 @@ def generate_article(i, f):
         rep_str = "  <title>"
 
         # Use content to generate opengraph meta tags.
-        titlegroup = re.search("<h1.*>(.*?)</h1>", html)
-        subtitlegroup = re.search("<h4.*>(.*?)</h4>", html)
-        first_image = re.search('<img.*src="(.*?)".*>', html)
+        # Get the first h1 tag specifically
+        titlegroup = re.search(r"<h1[^>]*>(.*?)</h1>", html, re.DOTALL)
+        subtitlegroup = re.search(r"<h4[^>]*>(.*?)</h4>", html, re.DOTALL)
+        first_image = re.search(r'<img[^>]*src="([^"]*)"[^>]*>', html)
 
         meta_with = ""
         if titlegroup:
-            meta_with += f"  <meta name=\"og:title\" content=\"{titlegroup.group(1) if titlegroup else ''}\">\n"
+            title_content = re.sub(r'\s+', ' ', titlegroup.group(1).strip())  # Replace newlines/multiple spaces with single space
+            meta_with += f"  <meta name=\"og:title\" content=\"{title_content}\">\n"
             if subtitlegroup:
-                meta_with += f"  <meta name=\"og:description\" content=\"{subtitlegroup.group(1) if subtitlegroup else ''}\">\n"
+                subtitle_content = re.sub(r'\s+', ' ', subtitlegroup.group(1).strip())  # Clean up subtitle too
+                meta_with += f"  <meta name=\"og:description\" content=\"{subtitle_content}\">\n"
             if first_image:
-                meta_with += f"  <meta name=\"og:image\" content=\"{first_image.group(1) if first_image else ''}\">\n"
+                image_src = first_image.group(1)
+                meta_with += f"  <meta name=\"og:image\" content=\"{image_src}\">\n"
         meta_with += rep_str
         return html.replace(rep_str, meta_with)
 
@@ -105,13 +113,30 @@ def gen_index():
 
     all_posts = [(splitext(f)[0] + ".html", get_title_from_html(f)) for f in html_files]
 
-    categorize = lambda p: ("programming" if splitext(p[0])[0] in prog_posts else "nsfw" if splitext(p[0])[0] in nsfw_posts else "sfw")
+    categorize = lambda p: ("programming" if splitext(p[0])[0] in prog_posts else 
+                           "nsfw" if splitext(p[0])[0] in nsfw_posts else 
+                           "mirrored" if splitext(p[0])[0] in mirrored_posts else 
+                           "sfw")
 
-    cats = {"programming": [], "sfw": [], "nsfw": [], }
+    cats = {"programming": [], "sfw": [], "nsfw": [], "mirrored": []}
     for post in all_posts:
         cats[categorize(post)].append(post)
 
-    idx_html = "<!DOCTYPE html>\n<html>\n<head>\n    <title>Blog Index</title>\n</head>\n<body>\n    <h1>Blog Posts</h1>\n"
+    # Read CSS from pandoc.html
+    css_content = ""
+    with open(stylefile, "r") as css_file:
+        css_content = css_file.read()
+
+    idx_html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <title>Blog Index</title>
+{css_content}
+</head>
+<body>
+    <h1>Blog Posts</h1>
+    <img src="images/100439997_p0.jpg" style="display: block; margin: 0 auto;" height=400>
+"""
 
     for cat, posts in cats.items():
         if posts:
