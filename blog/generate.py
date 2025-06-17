@@ -38,6 +38,7 @@ nsfw_posts = [
 mirrored_posts = [
   "rat",
   "bml",
+  "khome",
 ]
 
 def get_title_from_html(f):
