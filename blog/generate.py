@@ -39,6 +39,7 @@ mirrored_posts = [
   "rat",
   "bml",
   "khome",
+  "shirt",
 ]
 
 def get_title_from_html(f):
