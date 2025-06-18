@@ -105,7 +105,7 @@ person first and foremost.
 # Revelation 7: Begging
 * It comes from the heart
 * Anything polite works.
-* I've gotten a lot of milegage out of repeating please, thank you, master, mistress,
+* I've gotten a lot of milegage out of repeating please, thank you, master, mistress, no, I'm sorry, etc.
 
 # Revelation 8: Topping while burned out.
 
