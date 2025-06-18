@@ -23,7 +23,7 @@ But your brain might not work the same way. If it doesn't, and you fear it may a
 your enjoyment, you should probably stop reading. Also, just because it's true for me 
 doesn't mean that it's true for you. Kink is relative.
 
-# Revelation 1: Understand your partner deeply.
+## Revelation 1: Understand your partner deeply.
 
 <nana to kaoru img>
 
@@ -42,7 +42,7 @@ ways that they're broken, and how to make them feel whole again. As for me, I li
 feel owned. And I find bonding with people to be the most fulfilling part of kink.
 
 
-# Revelation 2: Rope is Communication, and so is everything else.
+## Revelation 2: Rope is Communication, and so is everything else.
 
 Georg Barkas wrote a book called "Archaeology of Personalities: A Linguistic Approach 
 to the Art of Rope Bondage." It's pretty good, and very popular in certain circles. 
@@ -64,7 +64,7 @@ Barkas's opinion and mine. It doesn't matter if you don't know how to tie knots.
 Technique is largely irrelevant. It will not affect your bottom's enjoyment of the 
 scene. What matters is what you communicate and how they parse it.
 
-# Revelation 3: Preconditions are important
+## Revelation 3: Preconditions are important
 
 Scenes start long, long before they actually begin. Every aspect of your mental state, 
 and your partner's, affects how what happens in the scene is interpreted. Sometimes, 
@@ -88,26 +88,28 @@ magically fix the mood. All that happens is that the scene is negatively affecte
 it's best to fix the mood first, before scening. Be sure to support your partner as a 
 person first and foremost.
 
-# Revelation 4: Directing focus is powerful.
+## Revelation 4: Directing focus is powerful.
 
 * This is informed by a conversation I had with an erotic hypnosis
 * I will fill in here more later, but basically hypnosis and meditation work via the same pathway, which can also be used during a scene to help get your bottom in the headspace you want them in.
 * The last revelation is still broadly applicable, but this is another tool in the toolbox which I don't yet have the words to fully explain.
 
 
-# Revelation 5: Littles and escapism fantasies.
+## Revelation 5: Littles and escapism fantasies.
 
-# Revelation 6: Meet lots of different kinds of people.
+* I will fill more in later. But basically I had a littlespace experience after I broke from stress, and now I understand how it works, how to get there, and why people like it.
+
+## Revelation 6: Meet lots of different kinds of people.
 * Revelations 1-3 are 5+ years old. Revelation 4 is less than a week old.
 * This knowledge only became accessible after I started learning about erotic hypnosis.
 * There are probably other revelations that are understood by communities I haven't learned about yet, but that I have no context for yet.
 
-# Revelation 7: Begging
+## Revelation 7: Begging
 * It comes from the heart
 * Anything polite works.
 * I've gotten a lot of milegage out of repeating please, thank you, master, mistress, no, I'm sorry, etc.
 
-# Revelation 8: Topping while burned out.
+## Revelation 8: Topping while burned out.
 
 I use bottoming as a way to relax and deal with stress a lot of the time. Topping doesn't really have that effect on me. It's very fulfilling, but generally it makes me more burned out, not less. It's sort of weird to tell your submissive partner "Hey, I don't want to see you tonight, not in the mood, I would rather see this other person instead, because they have a quality you do not." That's pretty clearly not great for a submissive's self esteem, and I don't like cancelling plans. So I ended up pushing myself to top anyway, and I'd do intense scenes even when I wasn't in the headspace for it. Wasn't very fun actually. Or at least not nearly as fun as it could have been. I don't think I was as good a top for them as I could have been either.
 
