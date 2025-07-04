@@ -30,6 +30,7 @@ prog_posts = [
   "The_Contributor_Competition",
   "The_Craziest_Bug_I_Have_Ever_Witnessed",
   "Descending_Into_The_Stack_And_Madness",
+  "PerfWizard",
 ]
 nsfw_posts = [
   "Seduction",
