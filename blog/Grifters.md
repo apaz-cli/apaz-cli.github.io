@@ -37,9 +37,9 @@ cultural norms and policies. I don't know. Whatever the case, it seems like we n
 learn this lesson.
 
     It seems that, as they gain control of the cultural narrative, the previously 
-downtrodden don't want to reform the system so that nobody gets stepped on. They just 
-don't want to be stepped on anymore. If possible, they may even like to wear the boot 
-one day. Nothing changes structurally, and so the stepping continues.
+downtrodden don't genuinely want to reform the system so that nobody gets stepped 
+on. They just don't want to be stepped on themselves. If possible, they may even like 
+to wear the boot one day. Nothing changes structurally, and so the stepping continues.
 
 
 <br>
@@ -52,7 +52,7 @@ one day. Nothing changes structurally, and so the stepping continues.
 <br>
 
 
-    From time to time, I've been astonished at the foresight of the founding fathers. 
+    From time to time, I've been astonished by the foresight of the founding fathers. 
 Other times less astonished. A lot of them owned slaves, after all. The deepest 
 hypocrisy imaginable. But perhaps the Declaration of Independence says it best. Life, 
 liberty, and the pursuit of happiness. The duty of government is to ensure the right to 
@@ -76,16 +76,20 @@ laws before that. No such law has ever been on the right side of history.
 
     On the other side of the political spectrum, I think it's naive to dismiss the fact 
 that an entire culture has grown up around the idea of gun ownership. These people want 
-to maximize their happiness too, and like the queers of today, fear the destruction of 
-their subculture. The root of the fear is the same. But neither party understands the 
-culture and motivations of its counterparty. If you believe in cultural relativism, 
-that's a problem. For this reason and many others, I hate the culture war.
+to maximize their happiness too, and like the queers of today they fear the destruction 
+of their subculture.
+
+    The root of the fear in both cases is the same. But neither party understands the 
+culture and motivations of its counterparty. That's a problem. For this reason and 
+many others, I hate the culture war. I wish more people could see that we're more 
+alike than we realize.
+
 
 <br>
 <div style="text-align: center;">
 <figure>
 <img src="images/gender_vs_guns.jpg" height=400>
-<figcaption aria-hidden="true">Do you think that these two are making a legitimate effort to understand each other?</figcaption>
+<figcaption aria-hidden="true">I don't think that these two are making an effort to understand each other.</figcaption>
 </figure>
 </div>
 <br>
@@ -110,7 +114,7 @@ nothing of value has been produced. The whole thing smells suspiciously like a p
 dump, just with "accredited investors" and houses instead of NFT profile pictures on 
 Twitter and digital coins with dogs on them.
 
-    So, why bring the gravy train to a halt? Why not just keep riding it?
+    So why bring the gravy train to a halt? That would make the entrenched interests angry. You might not get reelected. Why not just keep riding it?
 
 <br>
 <div style="text-align: center;">
@@ -134,28 +138,13 @@ standard of living. A story we've all heard before.
 
     This probably used to be the case, and there are lots of examples throughout 
 history of it working. It's how just about every nation got wealthy. But looking 
-around, it's getting harder and harder to believe that greed is what we need more of. 
-We need to figure out how to change some incentive structures.
-
-    There turns out to be a difference between good and bad kinds of greed. When the United 
-Healthcare CEO was shot dead in the streets a few days ago, the people rejoiced. I'm 
-not happy about violence, and I think that mob justice is not a form of justice that is 
-good for society. But neither is taking advantage of vulnerable and dying old people. 
-Brian Thompson was a murderor too. A serial killer, in my opinion.
-
-<br>
-<div style="text-align: center;">
-<figure>
-<img src="images/UHC_AO3.png" height=400>
-<figcaption aria-hidden="true">My friends generally approve of the actions of the assassin, and keep sending me horny fanfiction.</figcaption>
-</figure>
-</div>
-<br>
+around, it's getting harder and harder to believe blind greed is what we need more 
+of. We need to figure out how to change some incentive structures.
 
     Greed is only good if you stand to benefit more from creating net value than 
 destroying it. It turns out that creating real lasting value is hard. It's much easier 
-to grift, or to skim off the top, or to squeeze a monopoly. It's a lot more efficient 
-too. And capitalism rewards efficiency.
+to grift, or to skim off the top, or to squeeze a monopoly. A lot more efficient too. 
+And capitalism rewards efficiency.
 
     What bothers me so much is not the moral issue of ordinary people getting screwed. 
 It's that the grifts have gotten so elaborate, and yet still nothing of value is 
@@ -172,10 +161,14 @@ elsewhere.
     How many advancements have we given up on for the privilege of shuffling money 
 around? How many cures? Does it really matter who exactly holds onto the pile of money 
 if nothing ever changes structurally? How many people have had to say goodbye to their 
-family members early because of innovation that didn't happen? Don't even get me 
-started on the perverse incentives in healthcare. I don't need to elaborate, you 
-already know what the problem is. More grifters. They're killing people, and we can't 
-seem to do a thing about it. Shooting them isn't a long term solution.
+family members early because of innovation that didn't happen?
+
+    Don't even get me started on the perverse incentives in healthcare. I don't 
+need to elaborate, you already know what the problem is. More grifters. They're 
+killing people, and we can't seem to do a thing about it. Serial killers. UHC is 
+still grifting just as hard as before their CEO was put down in the streets like a 
+dog. It's unfortunate that shooting serial killers of CEOs is not a long term 
+solution.
 
 <br>
 <div style="text-align: center;">
@@ -211,7 +204,6 @@ though, it works the opposite way. To change the world, I first need to obtain p
 <div style="text-align: center;">
 <figure>
 <img src="images/You_have_the_power_to_end_these_patterns.jpg" height=400>
-<figcaption aria-hidden="true">You can't fix society, but at least you can change yourself. Maybe that's enough.</figcaption>
 </figure>
 </div>
 <br>
