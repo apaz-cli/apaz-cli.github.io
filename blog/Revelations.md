@@ -13,7 +13,7 @@
 This is intended to be a living document of revelations I've had about kink, in roughly 
 the order that they came.
 
-One could argue that, like explaining a joke, or revealing the secret to a magic trick, 
+One could argue that, like explaining a joke or revealing the secret to a magic trick, 
 trying to explain kink ruins the enjoyment. I don't think I buy that argument. I want 
 to understand what's going on as deeply as I can, so that I can exploit it. I don't 
 think it affects my enjoyment, and in fact I feel that with deeper understanding my 
@@ -26,17 +26,16 @@ doesn't mean that it's true for you. Kink is relative.
 
 ## Revelation 1: Understand your partner deeply.
 
-<nana to kaoru img>
+A fundamental belief of mine is that everybody is broken on the inside. Everybody. 
+And so everybody desires different things. I think this is not only very relevant 
+to kink, but inextricable. I don't think taking the same approach to every person 
+you encounter could possibly work, because every person is broken in a different 
+way. I first have to understand what makes the other person tick.
 
-A fundamental belief is that everybody is broken on the inside. Everybody. And so 
-everybody desires different things. I think this is very relevant to kink. I don't 
-think taking the same approach to every person you encounter could possibly work. You 
-first have to understand what makes the other person tick.
-
-This isn't completely necessary. As long as you can find common ground on activities 
-you both enjoy. I find that I can warm up to people pretty quickly. Just a few hours to 
-trust someone enough for impact play, or a few minutes if I'm just casually "showing 
-them the ropes."
+This isn't completely necessary. As long as you can find common ground on 
+activities you both enjoy, you can play together. I find that I can warm up to 
+people pretty quickly. Just a few hours to trust someone enough for impact play, or 
+a few minutes if I'm just casually "showing them the ropes."
 
 To go deeper though, I find that I really need to get to know people, to discover the 
 ways that they're broken, and how to make them feel whole again. As for me, I like to 
@@ -59,11 +58,30 @@ as the tone of your voice and specific word choice. Or, you know, the rope equiv
 All of these things are incredibly important, contextual, and difficult to teach. I 
 think Barkas's view of the world makes it easier to work on these things.
 
-Find the right thing to say. Not just with your words. With your body, with your rope, 
-and with your tone. What do they need to hear? Or, you know, feel? Same thing, in 
-Barkas's opinion and mine. It doesn't matter if you don't know how to tie knots. 
-Technique is largely irrelevant. It will not affect your bottom's enjoyment of the 
-scene. What matters is what you communicate and how they parse it.
+Find the right thing to say. Not just with your words. With your body, with your 
+rope, and with your tone. What do they need to hear? Or, feel? Same thing, in 
+Barkas's opinion and mine.
+
+
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/rope_bullshit.png" height=500>
+<figcaption aria-hidden="true"></figcaption>
+</figure>
+</div>
+<br>
+
+In the image above, Kaoru is wrong. Inspiration is great, he's not wrong for being inspired, but "if only I were really good at rope I would be able to..." and then not actually being able to name anything is a classic beginner's trap.
+
+It doesn't actually matter if you don't know how to tie knots. Technique is largely 
+irrelevant. It will not affect your bottom's enjoyment of the encounter. Act on 
+your partner, not the rope. What matters is what you communicate, and how they parse 
+it. Being good at rope does not make you a good top. Connecting with your 
+submissive and making them feel the way they need you to make them feel makes you a 
+good top.
+
+Fancy rope can still be pretty cool though. I still recommend fancy rope. But make sure you have the right motivations. Do it because it's cool. Not because you think you need it to connect with people, or because you think that's what BDSM is about. Because you don't need it to connect with people, and it isnt about that.
 
 
 ## Revelation 3: Preconditions are important
@@ -93,7 +111,8 @@ person first and foremost.
 
 ## Revelation 4: Directing focus is powerful.
 
-* This is informed by a conversation I had with an erotic hypnosis
+
+* This is informed by a conversation I had with erotic hypnosis people
 * I will fill in here more later, but basically hypnosis and meditation work via the same pathway, which can also be used during a scene to help get your bottom in the headspace you want them in.
 * The last revelation is still broadly applicable, but this is another tool in the toolbox which I don't yet have the words to fully explain.
 
@@ -102,22 +121,41 @@ person first and foremost.
 
 * I will fill more in later. But basically I had a littlespace experience after I broke from stress, and now I understand how it works, how to get there, and why people like it.
 
+
 ## Revelation 6: Meet lots of different kinds of people.
+
+I figured out revelations 4 and 5 very quickly, one after another, after I started 
+talking to a new group of people. If I hadn't talked to these people, I would not 
+have learned these things. This knowledge would have remained inacessible.
+
+This makes me think that there are probably other revelations that are implicitly 
+understood by communities I haven't talked to yet. I should seek them out and talk 
+to them.
+
+learned about yet., but that I have no context for yet.
+
 * Revelations 1-3 are 5+ years old. Revelation 4 is less than a week old.
 * This knowledge only became accessible after I started learning about erotic hypnosis.
 * There are probably other revelations that are understood by communities I haven't learned about yet, but that I have no context for yet.
 
 
 ## Revelation 7: Begging
-* It comes from the heart
-* Anything polite works.
-* I've gotten a lot of milegage out of repeating please, thank you, master, mistress, no, I'm sorry, etc.
+
+For many years I didn't understand how to beg. It seemed... cringe? I've always had trouble with asking for things. In kink but also the rest of my life. Ever since childhood when I convinced myself that I didn't want anything from the candy aisle. Because then I would have to ask for things. And I hate asking for things.
+
+But eventually something clicked. I learned that it's not about asking for things. What that you're begging for doesn't matter. Neither does actually getting it. Often it's actually better if you don't get it. Begging is for expressing emotion. 
+
+As such, the actual words you use don't matter. I've gotten a lot of milegage out of repeating please, thank you, master, mistress, no, I'm sorry, etc. You can mix and match, even words that are contradictory. It doesn't matter, as long as the words come from the heart your emotions will come across.
 
 
 ## Revelation 8: Topping while burned out.
 
-I use bottoming as a way to relax and deal with stress a lot of the time. Topping doesn't really have that effect on me. It's very fulfilling, but generally it makes me more burned out, not less. It's sort of weird to tell your submissive partner "Hey, I don't want to see you tonight, not in the mood, I would rather see this other person instead, because they have a quality you do not." That's pretty clearly not great for a submissive's self esteem, and I don't like cancelling plans. So I ended up pushing myself to top anyway, and I'd do intense scenes even when I wasn't in the headspace for it. Wasn't very fun actually. Or at least not nearly as fun as it could have been. I don't think I was as good a top for them as I could have been either.
+I use bottoming as a way to relax and deal with stress a lot of the time. Topping doesn't really have that effect on me. It's very fulfilling, but generally it makes me more burned out, not less.
+
+This can be hard, because I don't like cancelling plans. It's sort of weird to tell your submissive partner "Hey, I don't want to see you tonight, not in the mood." Cancelling is not great for a submissive's self esteem. Speaking from experience, it hurts a lot. So I end up pushing myself to top anyway, and I used to do intense scenes even when I wasn't in the headspace for it. Wasn't very fun actually. Or at least not nearly as fun as it could have been. I don't think I was as good a top for them as I could have been either.
 
 I only recently sort of learned how to top while burned out. By pretty much relaxing together, while also topping. Turns out that you can just order someone to be your body pillow. Then watch a show and sleepily bite at their neck and whisper in their ear and listen to their mewling. That sort of thing. It's pretty fun.
 
-The best thing is to not be burned out. I'm not great at that. Or to have a scene planned, so you don't have to figure out what to do on the fly, which generally requires mental capacity. Not great at that either, I procrastinate and adhd spiral. Room for improvement there. But at least these things don't have to completely wreck the experience. There are ways to be dominant that are low effort but high emotional payoff. You probably shouldn't be beating someone to a pulp while burned out, but you can still bond with them, make them feel small and loved, and have a generally good time.
+The best approach is to not be burned out. I'm not great at that. Or to have a scene planned, so you don't have to figure out what to do on the fly, which generally requires mental capacity. Not great at that either, I procrastinate and adhd spiral. Room for improvement there.
+
+But the point is that being burned out doesn't have to completely wreck the experience. There are ways to be dominant that are low effort but high emotional payoff. You probably shouldn't be beating someone to a pulp while you're burned out, but you can still bond with them, make them feel small and loved, and have a generally good time.
