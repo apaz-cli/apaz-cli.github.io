@@ -63,7 +63,7 @@ install_package \
   python3-pip python3-venv \
   nano tree less file locate jq ranger \
   kitty-terminfo \
-  git wget curl gcc g++ clang \
+  git wget curl gcc g++ clang cmake libcurl4-openssl-dev \
   htop nvtop btop psmisc \
   numactl libnuma-dev \
   linux-tools-$(uname -r) linux-tools-generic # for perf

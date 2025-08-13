@@ -14,7 +14,7 @@ So it makes sense to learn the latest tools, and build new ones. I have some ide
 
 <br>
 
-## Agentic Features vs Tab Complete
+## Agentic Features
 
     I started off as I believe everyone else did. Go to an LLM provider's website, usually Claude 4 or Deepseek V3 or R1 nowadays, and copy/paste the relevant code in and out. If you need multiple rounds of revisions, keep copy/pasting. It's not ergonomic, but this works pretty well. Until your application gets too big.
 
