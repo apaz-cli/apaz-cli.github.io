@@ -122,21 +122,23 @@ person first and foremost.
 * I will fill more in later. But basically I had a littlespace experience after I broke from stress, and now I understand how it works, how to get there, and why people like it.
 
 
-## Revelation 6: Meet lots of different kinds of people.
+## Revelation 6: Subcultural knowledge.
 
-I figured out revelations 4 and 5 very quickly, one after another, after I started 
-talking to a new group of people. If I hadn't talked to these people, I would not 
-have learned these things. This knowledge would have remained inacessible.
+I was on the way to a dungeon when I saw strip mall signs advertising the services of a psychic. You see these all over Chicago. It's a relatively common 
+sight. Psychics, astrology, etc... it's not real. Most people know that "psychics" fool people by being observant, by appearing very confident, and 
+reading their subject's face and body language, asking leading questions, etc. I continued to think about this as I drove by. I have the tendency to try 
+to consider every side of an argument. I play devil's advocate too much, and cannot turn it off.
 
-This makes me think that there are probably other revelations that are implicitly 
-understood by communities I haven't talked to yet. I should seek them out and talk 
-to them.
+Psychics may not be able to divine the future. But doesn't it take a lot of skill to pretend to? Yeah, they use that skill to defraud people. But what do 
+they know about the human experience that I don't? How can I learn these skills? I haven't pursued this any further, but I would love to learn to do cold 
+reading at some point in the future. It seems broadly applicable and useful.
 
-learned about yet., but that I have no context for yet.
+It's not just psychics. There are lots of niche subcultures that have developed their own useful models of human experience and interaction. They 
+understand implicitly revelations I haven't dreamed of yet, and have the answers to questions I haven't even thought to ask. This was made obvious to me 
+when I talked to hypnosis folk who understood attention better than I did, and helped me understand how "Directing focus is powerful."
 
-* Revelations 1-3 are 5+ years old. Revelation 4 is less than a week old.
-* This knowledge only became accessible after I started learning about erotic hypnosis.
-* There are probably other revelations that are understood by communities I haven't learned about yet, but that I have no context for yet.
+So, seek out new people with skills and viewpoints that you think you may be able to learn from. There is so much to learn bubbling beneath the surface of 
+various subcultures.
 
 
 ## Revelation 7: Begging
