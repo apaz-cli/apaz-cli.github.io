@@ -126,8 +126,8 @@ person first and foremost.
 
 I was on the way to a dungeon when I saw strip mall signs advertising the services of a psychic. You see these all over Chicago. It's a relatively common 
 sight. Psychics, astrology, etc... it's not real. Most people know that "psychics" fool people by being observant, by appearing very confident, and 
-reading their subject's face and body language, asking leading questions, etc. I continued to think about this as I drove by. I have the tendency to try 
-to consider every side of an argument. I play devil's advocate too much, and cannot turn it off.
+reading their subject's face and body language, asking leading questions, etc. I continued to think about this as I drove by. I have the tendency to 
+consider every side of an argument. I play devil's advocate too much, and cannot turn it off.
 
 Psychics may not be able to divine the future. But doesn't it take a lot of skill to pretend to? Yeah, they use that skill to defraud people. But what do 
 they know about the human experience that I don't? How can I learn these skills? I haven't pursued this any further, but I would love to learn to do cold 
