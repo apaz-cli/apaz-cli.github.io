@@ -133,6 +133,10 @@ def makeBlog():
     os.system(f"./generate.py {sys.argv[1] if len(sys.argv) > 1 else ''}")
 
 
+def makeReadingList():
+    os.chdir('../reading/')
+    os.system(f"./generate.py")
+
 
 if __name__ == "__main__":
     contents = parseContents()
@@ -140,4 +144,5 @@ if __name__ == "__main__":
     makeDoc(contents)
     print('Created main HTML page.')
     makeBlog()
+    makeReadingList()
     print('Done.')
