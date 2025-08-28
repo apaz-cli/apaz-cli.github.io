@@ -289,14 +289,14 @@ def generate_html(items: List[ReadingItem]):
 
 </head>
 <body>
-    <h1>Reading List</h1>
+    <h1>apaz's Reading List</h1>
 '''
 
     if read_items:
         html_content += '''
     <div class="section">
         <div class="section-header">
-            <h2>Read</h2>
+            <h2>Paper Notes</h2>
         </div>
         <div class="grid">
 '''
