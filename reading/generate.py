@@ -326,7 +326,7 @@ def generate_html(items: List[ReadingItem]):
         html_content += '''
     <div class="section">
         <div class="section-header">
-            <h2>Reading Backlog</h2>
+            <h2>Backlog</h2>
             <div class="filter-controls">
                 <label for="tag-filter">Filter by tag: </label>
                 <select id="tag-filter">
