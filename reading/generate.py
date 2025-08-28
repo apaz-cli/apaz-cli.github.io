@@ -187,12 +187,27 @@ def generate_html(items: List[ReadingItem]):
         .section {{
             margin-bottom: 40px;
         }}
-        .item {{
+        .grid {{
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
             margin-bottom: 20px;
+        }}
+        .item {{
             padding: 15px;
             border: 1px solid #444;
             border-radius: 5px;
             background-color: #333;
+        }}
+        @media (max-width: 1200px) {{
+            .grid {{
+                grid-template-columns: repeat(2, 1fr);
+            }}
+        }}
+        @media (max-width: 768px) {{
+            .grid {{
+                grid-template-columns: 1fr;
+            }}
         }}
         h3 {{
             font-family: "lemon";
@@ -248,50 +263,54 @@ def generate_html(items: List[ReadingItem]):
         html_content += '''
     <div class="section">
         <h2>To Read</h2>
+        <div class="grid">
 '''
         for item in unread_items:
-            html_content += '        <div class="item">\n'
-            html_content += '            <div class="urls">\n'
-            html_content += f'                <h3>{item.name}</h3>\n'
+            html_content += '            <div class="item">\n'
+            html_content += '                <div class="urls">\n'
+            html_content += f'                    <h3>{item.name}</h3>\n'
             for i, url in enumerate(item.urls):
-                html_content += f'                <a href="{url}" class="url" target="_blank">{url}</a>\n'
-            html_content += '            </div>\n'
+                html_content += f'                    <a href="{url}" class="url" target="_blank">{url}</a>\n'
+            html_content += '                </div>\n'
             if item.abstract:
-                html_content += '            <details>\n'
-                html_content += '                <summary>Abstract</summary>\n'
-                html_content += f'                <div class="abstract">{item.abstract}</div>\n'
-                html_content += '            </details>\n'
+                html_content += '                <details>\n'
+                html_content += '                    <summary>Abstract</summary>\n'
+                html_content += f'                    <div class="abstract">{item.abstract}</div>\n'
+                html_content += '                </details>\n'
             if item.tags:
-                html_content += '            <div class="tags">\n'
+                html_content += '                <div class="tags">\n'
                 for tag in item.tags:
-                    html_content += f'                <span class="tag">{tag}</span>\n'
-                html_content += '            </div>\n'
-            html_content += '        </div>\n'
+                    html_content += f'                    <span class="tag">{tag}</span>\n'
+                html_content += '                </div>\n'
+            html_content += '            </div>\n'
+        html_content += '        </div>\n'
         html_content += '    </div>\n'
 
     if read_items:
         html_content += '''
     <div class="section">
         <h2>Read</h2>
+        <div class="grid">
 '''
         for item in read_items:
-            html_content += '        <div class="item">\n'
-            html_content += '            <div class="urls">\n'
-            html_content += f'                <h3>{item.name}</h3>\n'
+            html_content += '            <div class="item">\n'
+            html_content += '                <div class="urls">\n'
+            html_content += f'                    <h3>{item.name}</h3>\n'
             for i, url in enumerate(item.urls):
-                html_content += f'                <a href="{url}" class="url" target="_blank">Link {i+1}</a>\n'
-            html_content += '            </div>\n'
+                html_content += f'                    <a href="{url}" class="url" target="_blank">Link {i+1}</a>\n'
+            html_content += '                </div>\n'
             if item.abstract:
-                html_content += '            <details>\n'
-                html_content += '                <summary>Show Abstract</summary>\n'
-                html_content += f'                <div class="abstract">{item.abstract}</div>\n'
-                html_content += '            </details>\n'
+                html_content += '                <details>\n'
+                html_content += '                    <summary>Show Abstract</summary>\n'
+                html_content += f'                    <div class="abstract">{item.abstract}</div>\n'
+                html_content += '                </details>\n'
             if item.tags:
-                html_content += '            <div class="tags">\n'
+                html_content += '                <div class="tags">\n'
                 for tag in item.tags:
-                    html_content += f'                <span class="tag">{tag}</span>\n'
-                html_content += '            </div>\n'
-            html_content += '        </div>\n'
+                    html_content += f'                    <span class="tag">{tag}</span>\n'
+                html_content += '                </div>\n'
+            html_content += '            </div>\n'
+        html_content += '        </div>\n'
         html_content += '    </div>\n'
 
     html_content += '''
