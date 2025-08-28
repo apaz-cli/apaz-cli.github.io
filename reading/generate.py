@@ -183,6 +183,7 @@ def generate_html(items: List[ReadingItem]):
         body {{
             margin: 6rem auto 1rem;
             padding: .25rem;
+            max-width: 90rem;
         }}
         .section {{
             margin-bottom: 40px;
