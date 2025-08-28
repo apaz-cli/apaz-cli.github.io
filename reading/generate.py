@@ -234,6 +234,7 @@ def generate_html(items: List[ReadingItem]):
         h3 {{
             font-family: "lemon";
             color: rgb(112, 221, 0);
+            margin-top: 0;
         }}
         details {{
             margin-top: 10px;
