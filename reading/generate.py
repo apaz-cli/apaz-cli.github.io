@@ -147,7 +147,7 @@ def generate_html(items: List[ReadingItem]):
     html_content = f'''<!DOCTYPE html>
 <html>
 <head>
-    <title>Reading List</title>
+    <title>apaz's Reading List</title>
 {css_content}
 
 <style>
