@@ -1,16 +1,119 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reading List</title>
-    <style>
+    <title>apaz's Reading List</title>
+<style type="text/css">
+/* https://github.com/markdowncss/retro/blob/master/css/retro.css */
+
+@font-face {
+    font-family: "lemon";
+    src: url('lemon.woff');
+}
+
+/*
+@media print {
+    *, *:before, *:after {
+        background: transparent !important;
+        color: #000 !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+    a, a:visited { text-decoration: underline; }
+    a[href]:after { content: " (" attr(href) ")"; }
+    abbr[title]:after { content: " (" attr(title) ")"; }
+    a[href^="#"]:after, a[href^="javascript:"]:after { content: ""; }
+    pre, blockquote { border: 1px solid #999; page-break-inside: avoid; }
+    thead { display: table-header-group; }
+    tr, img { page-break-inside: avoid; }
+    img { max-width: 100% !important; }
+    p, h2, h3 { orphans: 3; widows: 3; }
+    h2, h3 { page-break-after: avoid; }
+}
+*/
+a, a:visited { color: #01ff70; }
+a:hover, a:focus, a:active { color: #2ecc40; }
+.retro-no-decoration { text-decoration: none; }
+p, .retro-p {
+    font-size: 1rem;
+    margin-bottom: 1.3rem;
+    /*text-indent: 50px*/
+}
+h1, .retro-h1, h2, .retro-h2, h3, .retro-h3, h4, .retro-h4 {
+    font-family: "lemon";
+    margin: 1.414rem 0 .5rem;
+    font-weight: inherit;
+    line-height: 1.42;
+}
+h1, .retro-h1 {
+    color: rgb(112, 221, 0);
+    margin-top: 0;
+    font-size: 3.998rem;
+}
+h2, .retro-h2 {
+    color: rgb(112, 221, 0);
+    margin-top: 0;
+    font-size: 2.827rem;
+}
+h3, .retro-h3 {
+    font-size: 1.999rem;
+}
+h4, .retro-h4 {
+    font-size: 1.414rem;
+}
+h5, .retro-h5 {
+    font-size: 1.121rem;
+}
+h6, .retro-h6 {
+    font-size: .88rem;
+}
+small, .retro-small {
+    font-size: .707em;
+}
+
+img, canvas, iframe, video, svg, select, textarea { max-width: 100%; }
+
+html, body {
+    /* background-image: url(https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/pattern.png); */
+    background-color: #222;
+    min-height: 100%;
+    font-size: 20px;
+}
+body {
+    color: #fafafa;
+    /* font-family:  "lemon", "Courier New"; */
+    line-height: 1.65;
+    max-width: 48rem;
+    /* margin: 6rem auto 1rem; */
+    /* padding: .25rem; */
+}
+pre, code {
+    background-color: #333;
+    font-family: "lemon", "Menlo", "Monaco", "Courier New";
+    font-size: 12;
+}
+
+code span.dt { color: #e4a51e; } /* DataType */
+
+pre {
+    padding: .5rem;
+    line-height: 1.25;
+    overflow-x: scroll;
+}
+blockquote {
+    border-left: 3px solid #01ff70;
+    padding-left: 1rem;
+}
+</style>
+
+
+<style>
+        @font-face {
+            font-family: "lemon";
+            src: url('../resources/style/lemon.woff');
+        }
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
+            margin: 6rem auto 1rem;
+            padding: .25rem;
         }
         .section {
             margin-bottom: 40px;
@@ -18,28 +121,32 @@
         .item {
             margin-bottom: 20px;
             padding: 15px;
-            border: 1px solid #ddd;
+            border: 1px solid #444;
             border-radius: 5px;
+            background-color: #333;
+        }
+        h3 {
+            font-family: "lemon";
         }
         details {
             margin-top: 10px;
         }
         summary {
             cursor: pointer;
-            color: #0066cc;
+            color: #01ff70;
             font-size: 0.9em;
             padding: 5px 0;
         }
         summary:hover {
-            color: #0052a3;
+            color: #2ecc40;
         }
         .abstract {
             margin-top: 10px;
             padding: 10px;
-            background-color: #f9f9f9;
-            border-left: 3px solid #ccc;
+            background-color: #444;
+            border-left: 3px solid #01ff70;
             font-style: italic;
-            color: #555;
+            color: #ccc;
         }
         .urls {
             margin-bottom: 10px;
@@ -51,33 +158,18 @@
         }
         .tags {
             font-size: 0.9em;
-            color: #666;
+            color: #999;
         }
         .tag {
-            background-color: #f0f0f0;
+            background-color: #555;
+            color: #fafafa;
             padding: 2px 8px;
             border-radius: 3px;
             margin-right: 5px;
             display: inline-block;
         }
-        h1 {
-            color: #333;
-            border-bottom: 2px solid #333;
-            padding-bottom: 10px;
-        }
-        h2 {
-            color: #555;
-            border-bottom: 1px solid #555;
-            padding-bottom: 5px;
-        }
-        a {
-            color: #0066cc;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+</style>
+
 </head>
 <body>
     <h1>Reading List</h1>
@@ -87,7 +179,7 @@
         <div class="item">
             <div class="urls">
                 <h3>Softpick: No Attention Sink, No Massive Activations with Rectified Softmax</h3>
-                <a href="https://arxiv.org/abs/2504.20966" class="url">https://arxiv.org/abs/2504.20966</a>
+                <a href="https://arxiv.org/abs/2504.20966" class="url" target="_blank">https://arxiv.org/abs/2504.20966</a>
             </div>
             <details>
                 <summary>Abstract</summary>
@@ -97,7 +189,7 @@
         <div class="item">
             <div class="urls">
                 <h3>When Attention Sink Emerges in Language Models: An Empirical View</h3>
-                <a href="https://arxiv.org/abs/2410.10781" class="url">https://arxiv.org/abs/2410.10781</a>
+                <a href="https://arxiv.org/abs/2410.10781" class="url" target="_blank">https://arxiv.org/abs/2410.10781</a>
             </div>
             <details>
                 <summary>Abstract</summary>
@@ -107,7 +199,7 @@
         <div class="item">
             <div class="urls">
                 <h3>WebWatcher: Breaking New Frontier of Vision-Language Deep Research Agent</h3>
-                <a href="https://arxiv.org/abs/2508.05748" class="url">https://arxiv.org/abs/2508.05748</a>
+                <a href="https://arxiv.org/abs/2508.05748" class="url" target="_blank">https://arxiv.org/abs/2508.05748</a>
             </div>
             <details>
                 <summary>Abstract</summary>
@@ -117,7 +209,7 @@
         <div class="item">
             <div class="urls">
                 <h3>OpenAI Reflections</h3>
-                <a href="https://calv.info/openai-reflections" class="url">https://calv.info/openai-reflections</a>
+                <a href="https://calv.info/openai-reflections" class="url" target="_blank">https://calv.info/openai-reflections</a>
             </div>
         </div>
     </div>

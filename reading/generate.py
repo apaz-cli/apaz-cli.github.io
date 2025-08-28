@@ -46,7 +46,7 @@ def parse_list_txt() -> List[ReadingItem]:
         if lines[0].startswith("http"):
             first_url = lines.pop(0)
             urls.append(first_url)
-        
+
         # If we have a URL, try to get info from it, otherwise use first line as name
         if first_url is not None:
             name, abstract = get_info_from_url(first_url)
@@ -68,7 +68,7 @@ def parse_list_txt() -> List[ReadingItem]:
           tgs = [t.strip() for t in tgs if t]
           tags.extend(tgs)
         tags = sorted(list(set(tags)))
-        
+
         assert len(lines) == 0
         assert len(urls) >= 1
         assert all(u.startswith("http") for u in urls)
