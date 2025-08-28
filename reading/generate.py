@@ -138,86 +138,17 @@ def generate_html(items: List[ReadingItem]):
     read_items = [item for item in items if item.read]
     unread_items = [item for item in items if not item.read]
 
-    html_content = '''<!DOCTYPE html>
-<html lang="en">
+    # Read CSS from pandoc.html like blog/generate.py does
+    stylefile = "../resources/style/pandoc.html"
+    css_content = ""
+    with open(stylefile, "r") as css_file:
+        css_content = css_file.read()
+
+    html_content = f'''<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reading List</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .section {
-            margin-bottom: 40px;
-        }
-        .item {
-            margin-bottom: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        details {
-            margin-top: 10px;
-        }
-        summary {
-            cursor: pointer;
-            color: #0066cc;
-            font-size: 0.9em;
-            padding: 5px 0;
-        }
-        summary:hover {
-            color: #0052a3;
-        }
-        .abstract {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #f9f9f9;
-            border-left: 3px solid #ccc;
-            font-style: italic;
-            color: #555;
-        }
-        .urls {
-            margin-bottom: 10px;
-        }
-        .url {
-            display: inline-block;
-            margin-right: 15px;
-            margin-bottom: 5px;
-        }
-        .tags {
-            font-size: 0.9em;
-            color: #666;
-        }
-        .tag {
-            background-color: #f0f0f0;
-            padding: 2px 8px;
-            border-radius: 3px;
-            margin-right: 5px;
-            display: inline-block;
-        }
-        h1 {
-            color: #333;
-            border-bottom: 2px solid #333;
-            padding-bottom: 10px;
-        }
-        h2 {
-            color: #555;
-            border-bottom: 1px solid #555;
-            padding-bottom: 5px;
-        }
-        a {
-            color: #0066cc;
-            text-decoration: none;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+{css_content}
 </head>
 <body>
     <h1>Reading List</h1>
