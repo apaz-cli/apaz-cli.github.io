@@ -191,6 +191,21 @@ def generate_html(items: List[ReadingItem]):
             padding: .25rem;
             max-width: 90rem;
         }}
+        body::before {{
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('../resources/images/patchoulli.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            opacity: 0.3;
+            z-index: -1;
+        }}
         .filter-controls {{
             float: right;
             margin-bottom: 0;
