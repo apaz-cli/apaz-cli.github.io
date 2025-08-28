@@ -11,7 +11,7 @@
 
 Often you ask questions because you want to hear the other party's opinion. There are other reasons you may purposefully ask a leading question, but let's focus on the "soliciting opinions" case. Human or AI, you seek their perspective because it has value to you. You genuinely want to know.
 
-But when you phrase a question, you shape the answer you get. Every word matters. The context you provide, the tone you use, the assumptions you embed, etc. It all influences the response you get. 
+But when you phrase a question, you shape the answer you get. Every word matters. The context you provide, the tone you use, the assumptions you embed, etc. It all influences the response you get.
 
 If you want their unfiltered opinion, why then would you ask a leading question?
 

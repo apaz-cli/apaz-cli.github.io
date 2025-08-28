@@ -142,14 +142,14 @@ def makeReadingList():
 if __name__ == "__main__":
     contents = parseContents()
     print('Parsed content file.')
-    
+
     with concurrent.futures.ThreadPoolExecutor() as executor:
         doc_future = executor.submit(makeDoc, contents)
         blog_future = executor.submit(makeBlog)
         reading_future = executor.submit(makeReadingList)
-        
+
         # Wait for all tasks to complete
         concurrent.futures.wait([doc_future, blog_future, reading_future])
-    
+
     print('Created main HTML page.')
     print('Done.')

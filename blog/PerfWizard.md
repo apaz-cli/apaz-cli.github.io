@@ -20,14 +20,14 @@ So it makes sense to learn the latest tools, and build new ones. I have some ide
 
     I learned Cursor a while ago. It was alright. I didn't actually get much out of the tab complete feature, but the agentic features were actually really good. Tell it what to do, and it does it. If the LLM makes a mistake, ask it to fix it. Pretty good.
 
-Then I found 
+Then I found
 
 
     But I found that Cursor doesn't do some things that I was interested in. It's packaged terribly on Linux, and a bunch of functionality is broken or causes the IDE to go unresponsive then segfault. I've never heard about anybody else with this issue, but it was a huge issue for me. Cursor seems just... not stable. I'm using an old version before the version that introduced the crashes. And with the UI changes that they made I never got to feel as comfortable in Cursor as vanilla VSCode or VSCodium.
 
 Then I tried Windsurf. It seemed like Cursor but slower and kinda worse. And yet again, I didn't get a lot of use out of the tab complete features. The agentic features were the good ones. It's really nice to send it off to fix something, do something else, check the changes it made, run a test, and then tell it to do another thing, go do something else, rinse and repeat.
 
-Tab complete 
+Tab complete
 
 Enter [Aider](https://aider.chat/).
 

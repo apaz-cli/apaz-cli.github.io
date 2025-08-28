@@ -10,56 +10,56 @@
 </div>
 
 
-This is intended to be a living document of revelations I've had about kink, in roughly 
+This is intended to be a living document of revelations I've had about kink, in roughly
 the order that they came.
 
-One could argue that, like explaining a joke or revealing the secret to a magic trick, 
-trying to explain kink ruins the enjoyment. I don't think I buy that argument. I want 
-to understand what's going on as deeply as I can, so that I can exploit it. I don't 
-think it affects my enjoyment, and in fact I feel that with deeper understanding my 
+One could argue that, like explaining a joke or revealing the secret to a magic trick,
+trying to explain kink ruins the enjoyment. I don't think I buy that argument. I want
+to understand what's going on as deeply as I can, so that I can exploit it. I don't
+think it affects my enjoyment, and in fact I feel that with deeper understanding my
 enjoyment is increased.
 
-But your brain might not work the same way. If it doesn't, and you fear it may affect 
-your enjoyment, you should probably stop reading. Also, just because it's true for me 
+But your brain might not work the same way. If it doesn't, and you fear it may affect
+your enjoyment, you should probably stop reading. Also, just because it's true for me
 doesn't mean that it's true for you. Kink is relative.
 
 
 ## Revelation 1: Understand your partner deeply.
 
-A fundamental belief of mine is that everybody is broken on the inside. Everybody. 
-And so everybody desires different things. I think this is not only very relevant 
-to kink, but inextricable. I don't think taking the same approach to every person 
-you encounter could possibly work, because every person is broken in a different 
+A fundamental belief of mine is that everybody is broken on the inside. Everybody.
+And so everybody desires different things. I think this is not only very relevant
+to kink, but inextricable. I don't think taking the same approach to every person
+you encounter could possibly work, because every person is broken in a different
 way. I first have to understand what makes the other person tick.
 
-This isn't completely necessary. As long as you can find common ground on 
-activities you both enjoy, you can play together. I find that I can warm up to 
-people pretty quickly. Just a few hours to trust someone enough for impact play, or 
+This isn't completely necessary. As long as you can find common ground on
+activities you both enjoy, you can play together. I find that I can warm up to
+people pretty quickly. Just a few hours to trust someone enough for impact play, or
 a few minutes if I'm just casually "showing them the ropes."
 
-To go deeper though, I find that I really need to get to know people, to discover the 
-ways that they're broken, and how to make them feel whole again. As for me, I like to 
+To go deeper though, I find that I really need to get to know people, to discover the
+ways that they're broken, and how to make them feel whole again. As for me, I like to
 feel owned. And I find bonding with people to be the most fulfilling part of kink.
 
 
 ## Revelation 2: Rope is Communication, and so is everything else.
 
-Georg Barkas wrote a book called "Archaeology of Personalities: A Linguistic Approach 
-to the Art of Rope Bondage." It's pretty good, and very popular in certain circles. 
+Georg Barkas wrote a book called "Archaeology of Personalities: A Linguistic Approach
+to the Art of Rope Bondage." It's pretty good, and very popular in certain circles.
 This revelation is known by many already.
 
-The book introduces the idea that rope is just a form of nonverbal communication. And 
-so is whatever else you're doing. Everything is just communication. So, what do you 
+The book introduces the idea that rope is just a form of nonverbal communication. And
+so is whatever else you're doing. Everything is just communication. So, what do you
 want to communicate?
 
-This is a sort of totalizing and unfalsifiable worldview. But I think it can still be a 
-useful one. I think it draws attention to things that you would otherwise ignore, such 
-as the tone of your voice and specific word choice. Or, you know, the rope equivalent. 
-All of these things are incredibly important, contextual, and difficult to teach. I 
+This is a sort of totalizing and unfalsifiable worldview. But I think it can still be a
+useful one. I think it draws attention to things that you would otherwise ignore, such
+as the tone of your voice and specific word choice. Or, you know, the rope equivalent.
+All of these things are incredibly important, contextual, and difficult to teach. I
 think Barkas's view of the world makes it easier to work on these things.
 
-Find the right thing to say. Not just with your words. With your body, with your 
-rope, and with your tone. What do they need to hear? Or, feel? Same thing, in 
+Find the right thing to say. Not just with your words. With your body, with your
+rope, and with your tone. What do they need to hear? Or, feel? Same thing, in
 Barkas's opinion and mine.
 
 
@@ -74,11 +74,11 @@ Barkas's opinion and mine.
 
 In the image above, Kaoru is wrong. Inspiration is great, he's not wrong for being inspired, but "if only I were really good at rope I would be able to..." and then not actually being able to name anything is a classic beginner's trap.
 
-It doesn't actually matter if you don't know how to tie knots. Technique is largely 
-irrelevant. It will not affect your bottom's enjoyment of the encounter. Act on 
-your partner, not the rope. What matters is what you communicate, and how they parse 
-it. Being good at rope does not make you a good top. Connecting with your 
-submissive and making them feel the way they need you to make them feel makes you a 
+It doesn't actually matter if you don't know how to tie knots. Technique is largely
+irrelevant. It will not affect your bottom's enjoyment of the encounter. Act on
+your partner, not the rope. What matters is what you communicate, and how they parse
+it. Being good at rope does not make you a good top. Connecting with your
+submissive and making them feel the way they need you to make them feel makes you a
 good top.
 
 Fancy rope can still be pretty cool though. I still recommend fancy rope. But make sure you have the right motivations. Do it because it's cool. Not because you think you need it to connect with people, or because you think that's what BDSM is about. Because you don't need it to connect with people, and it isnt about that.
@@ -86,26 +86,26 @@ Fancy rope can still be pretty cool though. I still recommend fancy rope. But ma
 
 ## Revelation 3: Preconditions are important
 
-Scenes start long, long before they actually begin. Every aspect of your mental state, 
-and your partner's, affects how what happens in the scene is interpreted. Sometimes, 
-what you do in the scene doesn't really matter at all. They may still be preoccupied 
+Scenes start long, long before they actually begin. Every aspect of your mental state,
+and your partner's, affects how what happens in the scene is interpreted. Sometimes,
+what you do in the scene doesn't really matter at all. They may still be preoccupied
 with something else.
 
-I think that you have to sort of just accept that some percentage of potential 
-encounters are either non-starters or will end in tragedy because of circumstances 
-outside of your control. The frequency at which this happens depends on the person. But 
+I think that you have to sort of just accept that some percentage of potential
+encounters are either non-starters or will end in tragedy because of circumstances
+outside of your control. The frequency at which this happens depends on the person. But
 success or failure can depend more on preconditions/mood than anything you do.
 
-There are some things you can do to help. Understand how their day is going, remove 
-sources of stress, etc. It helps to know them well, so that you know what to look for 
+There are some things you can do to help. Understand how their day is going, remove
+sources of stress, etc. It helps to know them well, so that you know what to look for
 and how you can help.
 
-For me, the answer is often "Yeah, I had a bad day. I need to be held for a while. But 
+For me, the answer is often "Yeah, I had a bad day. I need to be held for a while. But
 maybe we can escalate from there in like an hour?"
 
-If the vibe doesn't start out right, it's best to wait. Starting a scene won't 
-magically fix the mood. All that happens is that the scene is negatively affected. So 
-it's best to fix the mood first, before scening. Be sure to support your partner as a 
+If the vibe doesn't start out right, it's best to wait. Starting a scene won't
+magically fix the mood. All that happens is that the scene is negatively affected. So
+it's best to fix the mood first, before scening. Be sure to support your partner as a
 person first and foremost.
 
 
@@ -124,20 +124,20 @@ person first and foremost.
 
 ## Revelation 6: Subcultural knowledge.
 
-I was on the way to a dungeon when I saw strip mall signs advertising the services of a psychic. You see these all over Chicago. It's a relatively common 
-sight. Psychics, astrology, etc... it's not real. Most people know that "psychics" fool people by being observant, by appearing very confident, and 
-reading their subject's face and body language, asking leading questions, etc. I continued to think about this as I drove by. I have the tendency to 
+I was on the way to a dungeon when I saw strip mall signs advertising the services of a psychic. You see these all over Chicago. It's a relatively common
+sight. Psychics, astrology, etc... it's not real. Most people know that "psychics" fool people by being observant, by appearing very confident, and
+reading their subject's face and body language, asking leading questions, etc. I continued to think about this as I drove by. I have the tendency to
 consider every side of an argument. I play devil's advocate too much, and cannot turn it off.
 
-Psychics may not be able to divine the future. But doesn't it take a lot of skill to pretend to? Yeah, they use that skill to defraud people. But what do 
-they know about the human experience that I don't? How can I learn these skills? I haven't pursued this any further, but I would love to learn to do cold 
+Psychics may not be able to divine the future. But doesn't it take a lot of skill to pretend to? Yeah, they use that skill to defraud people. But what do
+they know about the human experience that I don't? How can I learn these skills? I haven't pursued this any further, but I would love to learn to do cold
 reading at some point in the future. It seems broadly applicable and useful.
 
-It's not just psychics. There are lots of niche subcultures that have developed their own useful models of human experience and interaction. They 
-understand implicitly revelations I haven't dreamed of yet, and have the answers to questions I haven't even thought to ask. This was made obvious to me 
+It's not just psychics. There are lots of niche subcultures that have developed their own useful models of human experience and interaction. They
+understand implicitly revelations I haven't dreamed of yet, and have the answers to questions I haven't even thought to ask. This was made obvious to me
 when I talked to hypnosis folk who understood attention better than I did, and helped me understand how "Directing focus is powerful."
 
-So, seek out new people with skills and viewpoints that you think you may be able to learn from. There is so much to learn bubbling beneath the surface of 
+So, seek out new people with skills and viewpoints that you think you may be able to learn from. There is so much to learn bubbling beneath the surface of
 various subcultures.
 
 
@@ -145,7 +145,7 @@ various subcultures.
 
 For many years I didn't understand how to beg. It seemed... cringe? I've always had trouble with asking for things. In kink but also the rest of my life. Ever since childhood when I convinced myself that I didn't want anything from the candy aisle. Because then I would have to ask for things. And I hate asking for things.
 
-But eventually something clicked. I learned that it's not about asking for things. What that you're begging for doesn't matter. Neither does actually getting it. Often it's actually better if you don't get it. Begging is for expressing emotion. 
+But eventually something clicked. I learned that it's not about asking for things. What that you're begging for doesn't matter. Neither does actually getting it. Often it's actually better if you don't get it. Begging is for expressing emotion.
 
 As such, the actual words you use don't matter. I've gotten a lot of milegage out of repeating please, thank you, master, mistress, no, I'm sorry, etc. You can mix and match, even words that are contradictory. It doesn't matter, as long as the words come from the heart your emotions will come across.
 

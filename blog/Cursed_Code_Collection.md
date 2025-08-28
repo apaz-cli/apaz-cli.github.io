@@ -1,7 +1,7 @@
 
 # Cursed Code Collection
 
-I have a pile of interesting programs, and nowhere to put them. So I'm 
+I have a pile of interesting programs, and nowhere to put them. So I'm
 putting them here.
 
 <hr>
@@ -73,9 +73,9 @@ print("Good luck debugging me.")
 <hr>
 
 
-This one is from a hackernews post, but quickly became near and dear to 
-my heart. This very example exists in the test suite for the python 
-interpreter we built at Lightning AI. Python closures don't work in 
+This one is from a hackernews post, but quickly became near and dear to
+my heart. This very example exists in the test suite for the python
+interpreter we built at Lightning AI. Python closures don't work in
 quite the way you think they do. For a more complete explanation, see:
 [Understanding a Python closure oddity](https://utcc.utoronto.ca/~cks/space/blog/python/UnderstandingClosureOddity).
 
@@ -97,9 +97,9 @@ print(lazily) # [4, 4, 4, 4, 4]
 <hr>
 
 
-Use generics to figure out what version of `strerror_r` you have. This 
-is less cursed code, and more just the most sane way of doing things. 
-But the fact that `_Generic` is actually the best solution to any 
+Use generics to figure out what version of `strerror_r` you have. This
+is less cursed code, and more just the most sane way of doing things.
+But the fact that `_Generic` is actually the best solution to any
 problem is baffling, and cursed in its own right.
 
 ```c
@@ -122,7 +122,7 @@ Here's one from my friend [Morwenn](https://twitter.com/Morwenn_Ed). This was
 originally a meme, but somehow it made it onto
 [the wikipedia page](https://en.wikipedia.org/wiki/Digraphs_and_trigraphs_(programming))!
 
-```c 
+```c
 int trigraphsavailable()
 {
 	// are trigraphs available??/
@@ -163,10 +163,10 @@ int main(int argc, char *argv[]) {
 <hr>
 
 
-The `eval()` function is a classic. It takes code as a string and runs 
-it. The function exists in many dynamic programming languages, like 
-Javascript, Python, Perl, Ruby, and Lisp. Not in C though, because C is 
-a statically compiled language. But what if I told you it existed in C 
+The `eval()` function is a classic. It takes code as a string and runs
+it. The function exists in many dynamic programming languages, like
+Javascript, Python, Perl, Ruby, and Lisp. Not in C though, because C is
+a statically compiled language. But what if I told you it existed in C
 as well?
 
 ```c
@@ -196,9 +196,9 @@ int main() {
 <hr>
 
 
-My favorite hello world program. The compiler replaces the while loop 
-with a call to `memset()`, and it calls our memset rather than the one 
-from the stdlib, because that one hasn't been included. To disable this 
+My favorite hello world program. The compiler replaces the while loop
+with a call to `memset()`, and it calls our memset rather than the one
+from the stdlib, because that one hasn't been included. To disable this
 behavior, you can use the compiler flag `-fno-builtin`.
 
 ```c
@@ -216,8 +216,8 @@ int main(int argc, char** argv) {
 <hr>
 
 
-Melt your compiler. GCC does the right thing and tries to read 
-`/dev/urandom` forever. For some reason Clang does not, doesn't even 
+Melt your compiler. GCC does the right thing and tries to read
+`/dev/urandom` forever. For some reason Clang does not, doesn't even
 error, and compiles a functional hello world program. Absolutely wild.
 
 ```c

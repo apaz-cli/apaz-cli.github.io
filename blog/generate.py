@@ -116,9 +116,9 @@ def gen_index():
 
     all_posts = [(splitext(f)[0] + ".html", get_title_from_html(f)) for f in html_files]
 
-    categorize = lambda p: ("programming" if splitext(p[0])[0] in prog_posts else 
-                           "nsfw" if splitext(p[0])[0] in nsfw_posts else 
-                           "mirrored" if splitext(p[0])[0] in mirrored_posts else 
+    categorize = lambda p: ("programming" if splitext(p[0])[0] in prog_posts else
+                           "nsfw" if splitext(p[0])[0] in nsfw_posts else
+                           "mirrored" if splitext(p[0])[0] in mirrored_posts else
                            "sfw")
 
     cats = {"programming": [], "sfw": [], "nsfw": [], "mirrored": []}
