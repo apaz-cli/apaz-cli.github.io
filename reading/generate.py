@@ -697,6 +697,11 @@ def generate_html(items: List[ReadingItem]):
                     // Use the full-size image for the modal
                     const fullsizeUrl = this.getAttribute('data-fullsize');
                     if (fullsizeUrl) {
+                        // Hide the modal first to clear previous image
+                        modal.classList.remove('show');
+                        // Clear the previous image immediately
+                        modalImg.src = '';
+                        // Set new image and show modal
                         modalImg.src = fullsizeUrl;
                         modal.classList.add('show');
                     }
