@@ -176,6 +176,14 @@ def generate_html(items: List[ReadingItem]):
 {css_content}
 
 <style>
+        @font-face {{
+            font-family: "lemon";
+            src: url('../resources/style/lemon.woff');
+        }}
+        body {{
+            margin: 6rem auto 1rem;
+            padding: .25rem;
+        }}
         .section {{
             margin-bottom: 40px;
         }}
