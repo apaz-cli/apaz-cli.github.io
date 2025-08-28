@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .section {
+            margin-bottom: 40px;
+        }
+        .item {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        details {
+            margin-top: 10px;
+        }
+        summary {
+            cursor: pointer;
+            color: #0066cc;
+            font-size: 0.9em;
+            padding: 5px 0;
+        }
+        summary:hover {
+            color: #0052a3;
+        }
+        .abstract {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-left: 3px solid #ccc;
+            font-style: italic;
+            color: #555;
+        }
+        .urls {
+            margin-bottom: 10px;
+        }
+        .url {
+            display: inline-block;
+            margin-right: 15px;
+            margin-bottom: 5px;
+        }
+        .tags {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .tag {
+            background-color: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 3px;
+            margin-right: 5px;
+            display: inline-block;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #333;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #555;
+            border-bottom: 1px solid #555;
+            padding-bottom: 5px;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Reading List</h1>
+
+    <div class="section">
+        <h2>To Read</h2>
+        <div class="item">
+            <div class="urls">
+                <h3>Softpick: No Attention Sink, No Massive Activations with Rectified Softmax</h3>
+                <a href="https://arxiv.org/abs/2504.20966" class="url">https://arxiv.org/abs/2504.20966</a>
+            </div>
+            <details>
+                <summary>Abstract</summary>
+                <div class="abstract">We introduce softpick, a rectified, not sum-to-one, drop-in replacement for softmax in transformer attention mechanisms that eliminates attention sink and massive activations. Our experiments with 340M and 1.8B parameter models demonstrate that softpick achieves 0\% sink rate consistently. The softpick transformers produce hidden states with significantly lower kurtosis and creates sparse attention maps. Quantized models using softpick outperform softmax on standard benchmarks, with a particularly pronounced advantage at lower bit precisions. Our analysis and discussion shows how softpick has the potential to open new possibilities for quantization, low-precision training, sparsity optimization, pruning, and interpretability. Our code is available at <a href="https://github.com/zaydzuhri/softpick-attention" rel="external noopener nofollow" class="link-external link-https">this https URL</a></div>
+            </details>
+        </div>
+        <div class="item">
+            <div class="urls">
+                <h3>When Attention Sink Emerges in Language Models: An Empirical View</h3>
+                <a href="https://arxiv.org/abs/2410.10781" class="url">https://arxiv.org/abs/2410.10781</a>
+            </div>
+            <details>
+                <summary>Abstract</summary>
+                <div class="abstract">Language Models (LMs) assign significant attention to the first token, even if it is not semantically important, which is known as attention sink. This phenomenon has been widely adopted in applications such as streaming/long context generation, KV cache optimization, inference acceleration, model quantization, and others. Despite its widespread use, a deep understanding of attention sink in LMs is still lacking. In this work, we first demonstrate that attention sinks exist universally in LMs with various inputs, even in small models. Furthermore, attention sink is observed to emerge during the LM pre-training, motivating us to investigate how optimization, data distribution, loss function, and model architecture in LM pre-training influence its emergence. We highlight that attention sink emerges after effective optimization on sufficient training data. The sink position is highly correlated with the loss function and data distribution. Most importantly, we find that attention sink acts more like key biases, storing extra attention scores, which could be non-informative and not contribute to the value computation. We also observe that this phenomenon (at least partially) stems from tokens&#39; inner dependence on attention scores as a result of softmax normalization. After relaxing such dependence by replacing softmax attention with other attention operations, such as sigmoid attention without normalization, attention sinks do not emerge in LMs up to 1B parameters. The code is available at <a href="https://github.com/sail-sg/Attention-Sink" rel="external noopener nofollow" class="link-external link-https">this https URL</a>.</div>
+            </details>
+        </div>
+        <div class="item">
+            <div class="urls">
+                <h3>WebWatcher: Breaking New Frontier of Vision-Language Deep Research Agent</h3>
+                <a href="https://arxiv.org/abs/2508.05748" class="url">https://arxiv.org/abs/2508.05748</a>
+            </div>
+            <details>
+                <summary>Abstract</summary>
+                <div class="abstract">Web agents such as Deep Research have demonstrated superhuman cognitive abilities, capable of solving highly challenging information-seeking problems. However, most research remains primarily text-centric, overlooking visual information in the real world. This makes multimodal Deep Research highly challenging, as such agents require much stronger reasoning abilities in perception, logic, knowledge, and the use of more sophisticated tools compared to text-based agents. To address this limitation, we introduce WebWatcher, a multi-modal Agent for Deep Research equipped with enhanced visual-language reasoning capabilities. It leverages high-quality synthetic multimodal trajectories for efficient cold start training, utilizes various tools for deep reasoning, and further enhances generalization through reinforcement learning. To better evaluate the capabilities of multimodal agents, we propose BrowseComp-VL, a benchmark with BrowseComp-style that requires complex information retrieval involving both visual and textual information. Experimental results show that WebWatcher significantly outperforms proprietary baseline, RAG workflow and open-source agents in four challenging VQA benchmarks, which paves the way for solving complex multimodal information-seeking tasks.</div>
+            </details>
+        </div>
+        <div class="item">
+            <div class="urls">
+                <h3>OpenAI Reflections</h3>
+                <a href="https://calv.info/openai-reflections" class="url">https://calv.info/openai-reflections</a>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
