@@ -220,7 +220,7 @@ def generate_html(items: List[ReadingItem]):
             margin: 0;
         }}
         .filter-controls select {{
-            background-color: #333;
+            background-color: rgba(51, 51, 51, 0.8);
             color: #fafafa;
             border: 1px solid #444;
             padding: 8px 12px;
@@ -240,7 +240,7 @@ def generate_html(items: List[ReadingItem]):
             padding: 15px;
             border: 1px solid #444;
             border-radius: 5px;
-            background-color: #333;
+            background-color: rgba(51, 51, 51, 0.8);
         }}
         .item.hidden {{
             display: none;
@@ -275,7 +275,7 @@ def generate_html(items: List[ReadingItem]):
         .abstract {{
             margin-top: 10px;
             padding: 10px;
-            background-color: #444;
+            background-color: rgba(68, 68, 68, 0.8);
             border-left: 3px solid #01ff70;
             font-style: italic;
             color: #ccc;
