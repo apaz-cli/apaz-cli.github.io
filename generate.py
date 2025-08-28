@@ -3,6 +3,7 @@
 import re
 import os
 import sys
+import concurrent.futures
 """
 The variables that you are meant to change are those that are defined in the first block here before the function definitions.
 Note that this is just plaintext that gets inserted into the string below. It's not elegant, but it works.
@@ -141,8 +142,14 @@ def makeReadingList():
 if __name__ == "__main__":
     contents = parseContents()
     print('Parsed content file.')
-    makeDoc(contents)
+    
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        doc_future = executor.submit(makeDoc, contents)
+        blog_future = executor.submit(makeBlog)
+        reading_future = executor.submit(makeReadingList)
+        
+        # Wait for all tasks to complete
+        concurrent.futures.wait([doc_future, blog_future, reading_future])
+    
     print('Created main HTML page.')
-    makeBlog()
-    makeReadingList()
     print('Done.')
