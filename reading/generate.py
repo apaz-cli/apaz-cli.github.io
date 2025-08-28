@@ -190,10 +190,10 @@ def generate_html(items: List[ReadingItem]):
             margin: 6rem auto 1rem;
             padding: .25rem;
             max-width: 90rem;
-            background-color: transparent;
+            background-color: #222;
         }}
         html {{
-            background-color: transparent;
+            background-color: #222;
         }}
         body::before {{
             content: '';
