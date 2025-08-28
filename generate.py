@@ -29,7 +29,7 @@ def parseContents():
     contents = contents.split('\n\n')
     parsed = []
     for section in contents:
-        lines = [line for line in section.split('\n') 
+        lines = [line for line in section.split('\n')
                 if not line.strip().startswith('#')]
         if len(lines) > 1:  # Need at least title + one item
             parsed.append(lines)
