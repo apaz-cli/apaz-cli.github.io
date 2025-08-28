@@ -316,6 +316,39 @@ def generate_html(items: List[ReadingItem]):
         html_content += '    </div>\n'
 
     html_content += '''
+    <script>
+        // No further JavaScript is allowed beyond this point
+        document.addEventListener('DOMContentLoaded', function() {
+            const details = document.querySelectorAll('details');
+            
+            details.forEach(detail => {
+                detail.addEventListener('toggle', function() {
+                    if (this.open) {
+                        // Find the parent item and then the parent grid
+                        const item = this.closest('.item');
+                        const grid = item.closest('.grid');
+                        
+                        // Get all items in the same grid
+                        const allItems = Array.from(grid.querySelectorAll('.item'));
+                        const currentIndex = allItems.indexOf(item);
+                        
+                        // Calculate which row this item is in (assuming 3 columns)
+                        const columns = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
+                        const currentRow = Math.floor(currentIndex / columns);
+                        
+                        // Open all details in the same row
+                        for (let i = currentRow * columns; i < Math.min((currentRow + 1) * columns, allItems.length); i++) {
+                            const rowItem = allItems[i];
+                            const rowDetails = rowItem.querySelector('details');
+                            if (rowDetails && rowDetails !== this) {
+                                rowDetails.open = true;
+                            }
+                        }
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>'''
 
