@@ -256,6 +256,9 @@ def generate_html(items: List[ReadingItem]):
                 grid-template-columns: 1fr;
             }}
         }}
+        h2 {{
+            color: #fafafa;
+        }}
         h3 {{
             font-family: "lemon";
             color: rgb(112, 221, 0);
