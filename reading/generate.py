@@ -63,13 +63,11 @@ def parse_list_txt() -> List[ReadingItem]:
         # Parse Tags
         tags = []
         while (len(lines) > 0) and (lines[0].startswith("*")):
-          print(lines)
           l = lines.pop(0)
-          print(f"Popped {l}")
           tgs = l.split("*")
           tgs = [t.strip() for t in tgs if t]
-          print(f"Appending: {tgs}")
-          tags.append(tgs)
+          tags.extend(tgs)
+        tags = sorted(list(set(tags)))
         
         assert len(lines) == 0
         assert len(urls) >= 1
@@ -79,6 +77,10 @@ def parse_list_txt() -> List[ReadingItem]:
         print(f"Added \"{name}\" to reading list.")
 
     assert all(len(i.urls) >= 1 for i in items)
+
+    for r in items:
+        print(r.name, r.urls, r.tags, r.read, bool(r.abstract))
+
     return items
 
 def parse_md_files() -> List[ReadingItem]:
