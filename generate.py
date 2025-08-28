@@ -86,7 +86,7 @@ def makeDoc(data):
                 name = name.strip()
                 link = link.strip()
                 linelength += len(name)+3
-                if linelength > 50:
+                if linelength > 60:
                     page = page[:-3]+'</div>\n                <div class="categorycontent">'
                     page += '<a href="'+link+'">'+name+'</a> - '
                     linelength = len(name)

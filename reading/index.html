@@ -170,6 +170,7 @@ blockquote {
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            position: relative;
         }
         .item.hidden {
             display: none;
@@ -234,6 +235,60 @@ blockquote {
             margin-right: 5px;
             display: inline-block;
         }
+        .paper-image {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            max-width: 120px;
+            max-height: 180px;
+            border: 1px solid #666;
+            border-radius: 3px;
+            opacity: 1;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        .paper-image:hover {
+            transform: scale(1.05);
+            transition: all 0.2s ease;
+        }
+        .item details[open] ~ .paper-image {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .image-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+        }
+        .image-modal.show {
+            display: flex;
+        }
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 5px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        .close-modal:hover {
+            color: #01ff70;
+        }
 </style>
 
 </head>
@@ -278,6 +333,7 @@ blockquote {
                 <div class="tags">
                     <span class="tag">Attention Sinks</span>
                 </div>
+                <img src="paper_images/2504.20966_thumb.png" data-fullsize="paper_images/2504.20966.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Attention Sinks">
                 <div class="urls">
@@ -291,6 +347,7 @@ blockquote {
                 <div class="tags">
                     <span class="tag">Attention Sinks</span>
                 </div>
+                <img src="paper_images/2410.10781_thumb.png" data-fullsize="paper_images/2410.10781.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Deep Research RL">
                 <div class="urls">
@@ -305,6 +362,7 @@ blockquote {
                     <span class="tag">Deep Research</span>
                     <span class="tag">RL</span>
                 </div>
+                <img src="paper_images/2508.05748_thumb.png" data-fullsize="paper_images/2508.05748.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Pretrain Quantization">
                 <div class="urls">
@@ -319,6 +377,7 @@ blockquote {
                     <span class="tag">Pretrain</span>
                     <span class="tag">Quantization</span>
                 </div>
+                <img src="paper_images/2505.14669_thumb.png" data-fullsize="paper_images/2505.14669.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Data Eng RL">
                 <div class="urls">
@@ -333,6 +392,7 @@ blockquote {
                     <span class="tag">Data Eng</span>
                     <span class="tag">RL</span>
                 </div>
+                <img src="paper_images/2505.17063_thumb.png" data-fullsize="paper_images/2505.17063.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Pretrain Quantization">
                 <div class="urls">
@@ -347,6 +407,7 @@ blockquote {
                     <span class="tag">Pretrain</span>
                     <span class="tag">Quantization</span>
                 </div>
+                <img src="paper_images/2505.19115_thumb.png" data-fullsize="paper_images/2505.19115.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="HPO MoE Pretrain">
                 <div class="urls">
@@ -362,6 +423,7 @@ blockquote {
                     <span class="tag">MoE</span>
                     <span class="tag">Pretrain</span>
                 </div>
+                <img src="paper_images/2508.09752_thumb.png" data-fullsize="paper_images/2508.09752.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Data Eng">
                 <div class="urls">
@@ -375,6 +437,7 @@ blockquote {
                 <div class="tags">
                     <span class="tag">Data Eng</span>
                 </div>
+                <img src="paper_images/2406.07515_thumb.png" data-fullsize="paper_images/2406.07515.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Model Release Pretrain">
                 <div class="urls">
@@ -389,6 +452,7 @@ blockquote {
                     <span class="tag">Model Release</span>
                     <span class="tag">Pretrain</span>
                 </div>
+                <img src="paper_images/2508.10948_thumb.png" data-fullsize="paper_images/2508.10948.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Data Eng">
                 <div class="urls">
@@ -403,6 +467,7 @@ blockquote {
                 <div class="tags">
                     <span class="tag">Data Eng</span>
                 </div>
+                <img src="paper_images/2508.10975_thumb.png" data-fullsize="paper_images/2508.10975.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="GPU Perf Pretrain RL">
                 <div class="urls">
@@ -419,34 +484,7 @@ blockquote {
                     <span class="tag">Pretrain</span>
                     <span class="tag">RL</span>
                 </div>
-            </div>
-            <div class="item" data-tags="Data Eng RL">
-                <div class="urls">
-                    <h3>Synthetic Data RL: Task Definition Is All You Need</h3>
-                    <a href="https://arxiv.org/abs/2505.17063" class="url" target="_blank">https://arxiv.org/abs/2505.17063</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Reinforcement learning (RL) is a powerful way to adapt foundation models to specialized tasks, but its reliance on large-scale human-labeled data limits broad adoption. We introduce Synthetic Data RL, a simple and general framework that reinforcement fine-tunes models using only synthetic data generated from a task definition. Our method first generates question and answer pairs from the task definition and retrieved documents, then adapts the difficulty of the question based on model solvability, and selects questions using the average pass rate of the model across samples for RL training. On Qwen-2.5-7B, our method achieves a 29.2% absolute improvement over the base model on GSM8K (+2.9 pp vs. instruction-tuned, +6.6 pp vs. Self-Instruct), 8.7% on MATH, 13.1% on GPQA (+7.0 pp vs. SynthLLM), 8.9% on MedQA, 17.7% on CQA (law) and 13.7% on CFA (finance). It surpasses supervised fine-tuning under the same data budget and nearly matches RL with full human data across datasets (e.g., +17.2 pp on GSM8K). Adding 100 human demonstrations improves the performance of GSM8K only by 0.4 pp, showing a limited added value. By reducing human data annotation, Synthetic Data RL enables scalable and efficient RL-based model adaptation. Code and demos are available at <a href="https://github.com/gydpku/Data_Synthesis_RL/" rel="external noopener nofollow" class="link-external link-https">this https URL</a>.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Data Eng</span>
-                    <span class="tag">RL</span>
-                </div>
-            </div>
-            <div class="item" data-tags="Pretrain Quantization">
-                <div class="urls">
-                    <h3>Quartet: Native FP4 Training Can Be Optimal for Large Language Models</h3>
-                    <a href="https://arxiv.org/abs/2505.14669" class="url" target="_blank">https://arxiv.org/abs/2505.14669</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Training large language models (LLMs) models directly in low-precision offers a way to address computational costs by improving both throughput and energy efficiency. For those purposes, NVIDIA&#39;s recent Blackwell architecture facilitates very low-precision operations using FP4 variants. Yet, current algorithms for training LLMs in FP4 precision face significant accuracy degradation and often rely on mixed-precision fallbacks. In this paper, we investigate hardware-supported FP4 training and introduce a new approach for accurate, end-to-end FP4 training with all the major computations (i.e., linear layers) in low precision. Through extensive evaluations on Llama-type models, we reveal a new low-precision scaling law that quantifies performance trade-offs across bit-widths and training setups. Guided by this investigation, we design an &#34;optimal&#34; technique in terms of accuracy-vs-computation, called Quartet. We implement Quartet using optimized CUDA kernels tailored for Blackwell, demonstrating that fully FP4-based training is a competitive alternative to FP16 half-precision and to FP8 training. Our code is available at <a href="https://github.com/IST-DASLab/Quartet" rel="external noopener nofollow" class="link-external link-https">this https URL</a>.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Pretrain</span>
-                    <span class="tag">Quantization</span>
-                </div>
+                <img src="paper_images/2502.10517_thumb.png" data-fullsize="paper_images/2502.10517.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Pretrain Quantization">
                 <div class="urls">
@@ -461,6 +499,7 @@ blockquote {
                     <span class="tag">Pretrain</span>
                     <span class="tag">Quantization</span>
                 </div>
+                <img src="paper_images/2505.19115v1_thumb.png" data-fullsize="paper_images/2505.19115v1.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Distributed Pretrain Quantization">
                 <div class="urls">
@@ -476,6 +515,7 @@ blockquote {
                     <span class="tag">Pretrain</span>
                     <span class="tag">Quantization</span>
                 </div>
+                <img src="paper_images/1610.02132_thumb.png" data-fullsize="paper_images/1610.02132.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Optimizers">
                 <div class="urls">
@@ -489,6 +529,7 @@ blockquote {
                 <div class="tags">
                     <span class="tag">Optimizers</span>
                 </div>
+                <img src="paper_images/2412.05270_thumb.png" data-fullsize="paper_images/2412.05270.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Model Merging">
                 <div class="urls">
@@ -502,6 +543,7 @@ blockquote {
                 <div class="tags">
                     <span class="tag">Model Merging</span>
                 </div>
+                <img src="paper_images/2403.13187_thumb.png" data-fullsize="paper_images/2403.13187.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Model Merging">
                 <div class="urls">
@@ -515,6 +557,7 @@ blockquote {
                 <div class="tags">
                     <span class="tag">Model Merging</span>
                 </div>
+                <img src="paper_images/2410.02396_thumb.png" data-fullsize="paper_images/2410.02396.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Model Merging">
                 <div class="urls">
@@ -528,6 +571,7 @@ blockquote {
                 <div class="tags">
                     <span class="tag">Model Merging</span>
                 </div>
+                <img src="paper_images/2502.10436_thumb.png" data-fullsize="paper_images/2502.10436.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Model Merging">
                 <div class="urls">
@@ -541,6 +585,7 @@ blockquote {
                 <div class="tags">
                     <span class="tag">Model Merging</span>
                 </div>
+                <img src="paper_images/2505.12082_thumb.png" data-fullsize="paper_images/2505.12082.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Data Eng">
                 <div class="urls">
@@ -554,6 +599,7 @@ blockquote {
                 <div class="tags">
                     <span class="tag">Data Eng</span>
                 </div>
+                <img src="paper_images/2507.09404_thumb.png" data-fullsize="paper_images/2507.09404.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="MoE RL">
                 <div class="urls">
@@ -568,6 +614,7 @@ blockquote {
                     <span class="tag">MoE</span>
                     <span class="tag">RL</span>
                 </div>
+                <img src="paper_images/2507.18071_thumb.png" data-fullsize="paper_images/2507.18071.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="RL">
                 <div class="urls">
@@ -581,6 +628,7 @@ blockquote {
                 <div class="tags">
                     <span class="tag">RL</span>
                 </div>
+                <img src="paper_images/2507.00310_thumb.png" data-fullsize="paper_images/2507.00310.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="RL Application">
                 <div class="urls">
@@ -594,6 +642,7 @@ blockquote {
                 <div class="tags">
                     <span class="tag">RL Application</span>
                 </div>
+                <img src="paper_images/2502.00212_thumb.png" data-fullsize="paper_images/2502.00212.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="RL">
                 <div class="urls">
@@ -607,6 +656,7 @@ blockquote {
                 <div class="tags">
                     <span class="tag">RL</span>
                 </div>
+                <img src="paper_images/2508.19229_thumb.png" data-fullsize="paper_images/2508.19229.png" class="paper-image" alt="Paper preview">
             </div>
         </div>
     </div>
@@ -641,7 +691,7 @@ blockquote {
                 });
             });
 
-            // Row toggle functionality for details
+            // Row toggle functionality for details and image hiding
             details.forEach(detail => {
                 detail.addEventListener('toggle', function() {
                     // Find the parent item and then the parent grid
@@ -665,6 +715,45 @@ blockquote {
                         }
                     }
                 });
+            });
+
+            // Image modal functionality
+            const paperImages = document.querySelectorAll('.paper-image');
+            const modal = document.createElement('div');
+            modal.className = 'image-modal';
+            modal.innerHTML = '<span class="close-modal">&times;</span><img class="modal-content" alt="Paper preview enlarged">';
+            document.body.appendChild(modal);
+            
+            const modalImg = modal.querySelector('.modal-content');
+            const closeBtn = modal.querySelector('.close-modal');
+            
+            paperImages.forEach(img => {
+                img.addEventListener('click', function() {
+                    // Use the full-size image for the modal
+                    const fullsizeUrl = this.getAttribute('data-fullsize');
+                    if (fullsizeUrl) {
+                        modalImg.src = fullsizeUrl;
+                        modal.classList.add('show');
+                    }
+                });
+            });
+            
+            // Close modal when clicking the X or outside the image
+            closeBtn.addEventListener('click', function() {
+                modal.classList.remove('show');
+            });
+            
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('show');
+                }
+            });
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    modal.classList.remove('show');
+                }
             });
         });
     </script>

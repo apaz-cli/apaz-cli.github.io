@@ -33,12 +33,6 @@ https://blog.datologyai.com/beyondweb/
 # https://arxiv.org/abs/2502.10517
 * RL * GPU * Perf * Pretrain
 
-# https://arxiv.org/abs/2505.17063
-* RL * Data Eng
-
-# https://arxiv.org/abs/2505.14669
-* Quantization * Pretrain
-
 # https://arxiv.org/abs/2505.19115v1
 * Quantization * Pretrain
 

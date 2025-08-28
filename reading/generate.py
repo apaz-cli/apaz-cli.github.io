@@ -6,12 +6,33 @@ import time
 import json
 import hashlib
 import requests
+import subprocess
 from glob import glob
 from dataclasses import dataclass
 from typing import List, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from functools import wraps
+import threading
 
-_last_request_time = 0  # Rate limiting for arXiv requests
+
+# Global rate limiter for arXiv requests
+_arxiv_rate_limiter_lock = threading.Lock()
+_arxiv_last_request_time = 0.0
+_arxiv_min_interval = 1.0 / 5.0  # 5 requests per second
+
+def arxiv_rate_limit(func):
+    """Decorator to rate limit arXiv requests across all functions."""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        global _arxiv_last_request_time
+        with _arxiv_rate_limiter_lock:
+            current_time = time.time()
+            time_since_last = current_time - _arxiv_last_request_time
+            if time_since_last < _arxiv_min_interval:
+                time.sleep(_arxiv_min_interval - time_since_last)
+            _arxiv_last_request_time = time.time()
+        return func(*args, **kwargs)
+    return wrapper
 
 
 @dataclass
@@ -21,6 +42,56 @@ class ReadingItem:
     tags: List[str]
     read: bool
     abstract: Optional[str] = None
+
+def process_txt_item(index_and_raw):
+    """Process a single raw item and return (index, ReadingItem)."""
+    index, r = index_and_raw
+    urls = []
+    lines = [l.strip() for l in r.split("\n")]
+    lines = [l for l in lines if l]
+
+    # If the line is an arxiv link, get the name and abstract.
+    first_url = None
+    if lines[0].startswith("http"):
+        first_url = lines.pop(0)
+        urls.append(first_url)
+
+    # If we have a URL, try to get info from it, otherwise use first line as name
+    if first_url is not None:
+        name, abstract = get_info_from_url(first_url)
+        if name is None:
+            raise ValueError(f"Could not get info for first URL: {first_url}")
+    else:
+        # TODO: Add the ability to specify abstracts for non-arxiv links.
+        name, abstract = lines.pop(0), None
+
+    # Get the rest of the URLs
+    while len(lines) > 0 and lines[0].startswith("http"):
+        urls.append(lines.pop(0))
+
+    # Parse Tags
+    tags = []
+    while (len(lines) > 0) and (lines[0].startswith("*")):
+      l = lines.pop(0)
+      tgs = l.split("*")
+      tgs = [t.strip() for t in tgs if t]
+      tags.extend(tgs)
+    tags = sorted(list(set(tags)))
+
+    assert len(lines) == 0
+    assert len(urls) >= 1
+    assert all(u.startswith("http") for u in urls)
+
+    item = ReadingItem(name=name, urls=urls, tags=tags, read=False, abstract=abstract)
+
+    # Generate image for arXiv papers
+    
+    if get_arxiv_id(urls[0]):
+        download_pdf_and_extract_image(urls[0])
+
+    print(f"Added \"{name}\" to reading list.")
+    
+    return (index, item)
 
 def parse_list_txt() -> List[ReadingItem]:
     """Parse list.txt file containing unread items."""
@@ -38,45 +109,28 @@ def parse_list_txt() -> List[ReadingItem]:
     if raws[0].strip() == "":
         raws.pop(0)
 
-    for r in raws:
-        urls = []
-        lines = [l.strip() for l in r.split("\n")]
-        lines = [l for l in lines if l]
-
-        # If the line is an arxiv link, get the name and abstract.
-        first_url = None
-        if lines[0].startswith("http"):
-            first_url = lines.pop(0)
-            urls.append(first_url)
-
-        # If we have a URL, try to get info from it, otherwise use first line as name
-        if first_url is not None:
-            name, abstract = get_info_from_url(first_url)
-            if name is None:
-                raise ValueError(f"Could not get info for first URL: {first_url}")
-        else:
-            # TODO: Add the ability to specify abstracts for non-arxiv links.
-            name, abstract = lines.pop(0), None
-
-        # Get the rest of the URLs
-        while len(lines) > 0 and lines[0].startswith("http"):
-            urls.append(lines.pop(0))
-
-        # Parse Tags
-        tags = []
-        while (len(lines) > 0) and (lines[0].startswith("*")):
-          l = lines.pop(0)
-          tgs = l.split("*")
-          tgs = [t.strip() for t in tgs if t]
-          tags.extend(tgs)
-        tags = sorted(list(set(tags)))
-
-        assert len(lines) == 0
-        assert len(urls) >= 1
-        assert all(u.startswith("http") for u in urls)
-
-        items.append(ReadingItem(name=name, urls=urls, tags=tags, read=False, abstract=abstract))
-        print(f"Added \"{name}\" to reading list.")
+    # Process items in parallel while maintaining order
+    with ThreadPoolExecutor() as executor:
+        # Submit all tasks with their original indices
+        indexed_raws = list(enumerate(raws))
+        futures = {executor.submit(process_txt_item, indexed_raw): indexed_raw[0] for indexed_raw in indexed_raws}
+        
+        # Collect results
+        results = []
+        for future in as_completed(futures):
+            results.append(future.result())
+        
+        # Sort by original index to maintain order
+        results.sort(key=lambda x: x[0])
+        items = [item for _, item in results]
+    
+    # Assert there were no duplicate URLs
+    seen_urls = set()
+    for item in items:
+        for url in item.urls:
+            if url in seen_urls:
+                raise ValueError(f"Duplicate URL found: {url}")
+            seen_urls.add(url)
 
     assert all(len(i.urls) >= 1 for i in items)
     return items
@@ -109,6 +163,82 @@ def get_cache_path(url: str) -> str:
     url_hash = hashlib.md5(url.encode()).hexdigest()
     return f"{cache_dir}/{url_hash}.json"
 
+def get_image_paths(arxiv_id: str) -> tuple[str, str]:
+    """Generate thumbnail and full-size image file paths for an arXiv ID."""
+    image_dir = "paper_images"
+    os.makedirs(image_dir, exist_ok=True)
+    thumbnail_path = f"{image_dir}/{arxiv_id}_thumb.png"
+    fullsize_path = f"{image_dir}/{arxiv_id}.png"
+    return thumbnail_path, fullsize_path
+
+def get_pdf_url(arxiv_id: str) -> str:
+    """Generate PDF URL for an arXiv ID."""
+    return f"https://arxiv.org/pdf/{arxiv_id}.pdf"
+
+def download_pdf_and_extract_image(url: str) -> Optional[tuple[str, str]]:
+    """Download arXiv PDF and convert first page to thumbnail and full-size PNG images using ghostscript.
+    Returns tuple of (thumbnail_path, fullsize_path), or None if failed."""
+    match = get_arxiv_id(url)
+    if not match:
+        return None
+    
+    arxiv_id = match.group(1)
+    thumbnail_path, fullsize_path = get_image_paths(arxiv_id)
+    
+    # Skip if both images already exist
+    if os.path.exists(thumbnail_path) and os.path.exists(fullsize_path):
+        return thumbnail_path, fullsize_path
+    
+    pdf_url = get_pdf_url(arxiv_id)
+    
+    @arxiv_rate_limit
+    def download_pdf():
+        return requests.get(pdf_url, timeout=30)
+    
+    try:
+        # Download PDF to temporary file
+        pdf_response = download_pdf()
+        pdf_response.raise_for_status()
+        
+        temp_pdf = f"/tmp/{arxiv_id}.pdf"
+        with open(temp_pdf, 'wb') as f:
+            f.write(pdf_response.content)
+        
+        # Generate thumbnail (160px width, proportional height)
+        thumbnail_cmd = [
+            'gs', '-dNOPAUSE', '-dBATCH', '-sDEVICE=png16m', 
+            '-r200',
+            '-dFirstPage=1', '-dLastPage=1',
+            '-dFIXEDMEDIA', '-dPDFFitPage',
+            '-g100x150',
+            f'-sOutputFile={thumbnail_path}', 
+            temp_pdf
+        ]
+        subprocess.run(thumbnail_cmd, check=True, capture_output=True)
+        
+        # Generate full-size image (higher resolution)
+        fullsize_cmd = [
+            'gs', '-dNOPAUSE', '-dBATCH', '-sDEVICE=png16m', 
+            '-r200',
+            '-dFirstPage=1', '-dLastPage=1',
+            f'-sOutputFile={fullsize_path}', 
+            temp_pdf
+        ]
+        subprocess.run(fullsize_cmd, check=True, capture_output=True)
+        
+        # Clean up temporary PDF
+        os.remove(temp_pdf)
+        print(f"Generated thumbnail and full-size images for {url}")
+        return thumbnail_path, fullsize_path
+            
+    except Exception as e:
+        print(f"Error processing PDF for {arxiv_id}: {e}")
+        # Clean up any temporary files
+        for temp_file in [f"/tmp/{arxiv_id}.pdf", thumbnail_path, fullsize_path]:
+            if os.path.exists(temp_file):
+                os.remove(temp_file)
+        return None
+
 def load_from_cache(url: str) -> tuple[Optional[str], Optional[str]]:
     """Load title and abstract from cache if available."""
     cache_path = get_cache_path(url)
@@ -134,8 +264,6 @@ def save_to_cache(url: str, title: Optional[str], abstract: Optional[str]):
 def get_info_from_url(url: str | None) -> tuple[Optional[str], Optional[str]]:
     """Scrape arXiv paper title and abstract from URL with rate limiting (5 requests/second).
     Returns (title, abstract)"""
-    global _last_request_time
-
     if url is None:
         return None, None
     match = get_arxiv_id(url)
@@ -150,16 +278,13 @@ def get_info_from_url(url: str | None) -> tuple[Optional[str], Optional[str]]:
     if cached_title is not None or cached_abstract is not None:
         return cached_title, cached_abstract
 
-    # Rate limiting: ensure at least 0.2 seconds between requests (5 req/sec)
-    current_time = time.time()
-    time_since_last = current_time - _last_request_time
-    if time_since_last < 0.2:
-        time.sleep(0.2 - time_since_last)
+    @arxiv_rate_limit
+    def fetch_arxiv_page():
+        return requests.get(abs_url, timeout=10)
 
     try:
-        response = requests.get(abs_url, timeout=10)
+        response = fetch_arxiv_page()
         response.raise_for_status()
-        _last_request_time = time.time()
 
         title = None
         abstract = None
@@ -282,6 +407,7 @@ def generate_html(items: List[ReadingItem]):
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            position: relative;
         }}
         .item.hidden {{
             display: none;
@@ -346,6 +472,60 @@ def generate_html(items: List[ReadingItem]):
             margin-right: 5px;
             display: inline-block;
         }}
+        .paper-image {{
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            max-width: 120px;
+            max-height: 180px;
+            border: 1px solid #666;
+            border-radius: 3px;
+            opacity: 1;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }}
+        .paper-image:hover {{
+            transform: scale(1.05);
+            transition: all 0.2s ease;
+        }}
+        .item details[open] ~ .paper-image {{
+            opacity: 0;
+            pointer-events: none;
+        }}
+        .image-modal {{
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            justify-content: center;
+            align-items: center;
+        }}
+        .image-modal.show {{
+            display: flex;
+        }}
+        .modal-content {{
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 5px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }}
+        .close-modal {{
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 1001;
+        }}
+        .close-modal:hover {{
+            color: #01ff70;
+        }}
 </style>
 
 </head>
@@ -379,6 +559,17 @@ def generate_html(items: List[ReadingItem]):
                 for tag in item.tags:
                     html_content += f'                    <span class="tag">{tag}</span>\n'
                 html_content += '                </div>\n'
+            
+            # Add paper thumbnail if available
+            for url in item.urls:
+                match = get_arxiv_id(url)
+                if match:
+                    arxiv_id = match.group(1)
+                    thumbnail_path, fullsize_path = get_image_paths(arxiv_id)
+                    if os.path.exists(thumbnail_path):
+                        html_content += f'                <img src="{thumbnail_path}" data-fullsize="{fullsize_path}" class="paper-image" alt="Paper preview">\n'
+                    break
+            
             html_content += '            </div>\n'
         html_content += '        </div>\n'
         html_content += '    </div>\n'
@@ -419,6 +610,17 @@ def generate_html(items: List[ReadingItem]):
                 for tag in item.tags:
                     html_content += f'                    <span class="tag">{tag}</span>\n'
                 html_content += '                </div>\n'
+            
+            # Add paper thumbnail if available
+            for url in item.urls:
+                match = get_arxiv_id(url)
+                if match:
+                    arxiv_id = match.group(1)
+                    thumbnail_path, fullsize_path = get_image_paths(arxiv_id)
+                    if os.path.exists(thumbnail_path):
+                        html_content += f'                <img src="{thumbnail_path}" data-fullsize="{fullsize_path}" class="paper-image" alt="Paper preview">\n'
+                    break
+            
             html_content += '            </div>\n'
         html_content += '        </div>\n'
         html_content += '    </div>\n'
@@ -454,7 +656,7 @@ def generate_html(items: List[ReadingItem]):
                 });
             });
 
-            // Row toggle functionality for details
+            // Row toggle functionality for details and image hiding
             details.forEach(detail => {
                 detail.addEventListener('toggle', function() {
                     // Find the parent item and then the parent grid
@@ -478,6 +680,45 @@ def generate_html(items: List[ReadingItem]):
                         }
                     }
                 });
+            });
+
+            // Image modal functionality
+            const paperImages = document.querySelectorAll('.paper-image');
+            const modal = document.createElement('div');
+            modal.className = 'image-modal';
+            modal.innerHTML = '<span class="close-modal">&times;</span><img class="modal-content" alt="Paper preview enlarged">';
+            document.body.appendChild(modal);
+            
+            const modalImg = modal.querySelector('.modal-content');
+            const closeBtn = modal.querySelector('.close-modal');
+            
+            paperImages.forEach(img => {
+                img.addEventListener('click', function() {
+                    // Use the full-size image for the modal
+                    const fullsizeUrl = this.getAttribute('data-fullsize');
+                    if (fullsizeUrl) {
+                        modalImg.src = fullsizeUrl;
+                        modal.classList.add('show');
+                    }
+                });
+            });
+            
+            // Close modal when clicking the X or outside the image
+            closeBtn.addEventListener('click', function() {
+                modal.classList.remove('show');
+            });
+            
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.classList.remove('show');
+                }
+            });
+            
+            // Close modal with Escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    modal.classList.remove('show');
+                }
             });
         });
     </script>
