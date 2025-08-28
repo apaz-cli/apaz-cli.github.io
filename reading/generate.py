@@ -148,7 +148,6 @@ def get_info_from_url(url: str | None) -> tuple[Optional[str], Optional[str]]:
     # Check cache first
     cached_title, cached_abstract = load_from_cache(abs_url)
     if cached_title is not None or cached_abstract is not None:
-        print(f"Using cached data for arXiv paper {arxiv_id}")
         return cached_title, cached_abstract
 
     # Rate limiting: ensure at least 0.2 seconds between requests (5 req/sec)

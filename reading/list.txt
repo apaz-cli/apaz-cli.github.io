@@ -9,23 +9,68 @@
 * RL * Deep Research
 
 # https://arxiv.org/abs/2505.14669
-* Quantization
+* Quantization * Pretrain
 
 # https://arxiv.org/abs/2505.17063
 * RL * Data Eng
 
 # https://arxiv.org/abs/2505.19115
-* Quantization
+* Quantization * Pretrain
 
 # https://arxiv.org/abs/2508.09752
-* hparams * MoE
+* HPO * MoE * Pretrain
 
 # https://arxiv.org/abs/2406.07515
 * Data Eng
 
 # https://arxiv.org/abs/2508.10948
-* Model
+* Model Release * Pretrain
 
 # https://arxiv.org/abs/2508.10975
 https://blog.datologyai.com/beyondweb/
 * Data Eng
+
+# https://arxiv.org/abs/2502.10517
+* RL * GPU * Perf * Pretrain
+
+# https://arxiv.org/abs/2505.17063
+* RL * Data Eng
+
+# https://arxiv.org/abs/2505.14669
+* Quantization * Pretrain
+
+# https://arxiv.org/abs/2505.19115v1
+* Quantization * Pretrain
+
+# https://arxiv.org/abs/1610.02132
+* Quantization * Pretrain * Distributed
+
+# https://arxiv.org/abs/2412.05270
+* Optimizers
+
+# https://arxiv.org/abs/2403.13187
+* Model Merging
+
+# https://arxiv.org/abs/2410.02396
+* Model Merging
+
+# https://arxiv.org/abs/2502.10436
+* Model Merging
+
+# https://arxiv.org/abs/2505.12082
+* Model Merging
+
+# https://arxiv.org/abs/2507.09404
+* Data Eng
+
+# https://arxiv.org/abs/2507.18071
+* RL * MoE
+
+# https://arxiv.org/abs/2507.00310
+* RL
+
+# https://arxiv.org/abs/2502.00212
+* RL Application
+
+# https://arxiv.org/abs/2508.19229
+* RL
