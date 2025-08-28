@@ -161,6 +161,9 @@ def generate_html(items: List[ReadingItem]):
             border-radius: 5px;
             background-color: #333;
         }}
+        h3 {{
+            font-family: "lemon";
+        }}
         details {{
             margin-top: 10px;
         }}
