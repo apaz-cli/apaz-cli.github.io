@@ -192,8 +192,17 @@ def generate_html(items: List[ReadingItem]):
             max-width: 90rem;
         }}
         .filter-controls {{
-            margin-bottom: 30px;
-            text-align: center;
+            float: right;
+            margin-bottom: 0;
+        }}
+        .section-header {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }}
+        .section-header h2 {{
+            margin: 0;
         }}
         .filter-controls select {{
             background-color: #333;
@@ -281,24 +290,14 @@ def generate_html(items: List[ReadingItem]):
 </head>
 <body>
     <h1>Reading List</h1>
-    
-    <div class="filter-controls">
-        <label for="tag-filter">Filter by tag: </label>
-        <select id="tag-filter">
-            <option value="">All</option>
-'''
-
-    for tag in all_tags:
-        html_content += f'            <option value="{tag}">{tag}</option>\n'
-
-    html_content += '''        </select>
-    </div>
 '''
 
     if read_items:
         html_content += '''
     <div class="section">
-        <h2>Read</h2>
+        <div class="section-header">
+            <h2>Read</h2>
+        </div>
         <div class="grid">
 '''
         for item in read_items:
@@ -326,7 +325,19 @@ def generate_html(items: List[ReadingItem]):
     if unread_items:
         html_content += '''
     <div class="section">
-        <h2>Reading Backlog</h2>
+        <div class="section-header">
+            <h2>Reading Backlog</h2>
+            <div class="filter-controls">
+                <label for="tag-filter">Filter by tag: </label>
+                <select id="tag-filter">
+                    <option value="">All</option>
+'''
+        for tag in all_tags:
+            html_content += f'                    <option value="{tag}">{tag}</option>\n'
+        
+        html_content += '''                </select>
+            </div>
+        </div>
         <div class="grid">
 '''
         for item in unread_items:
