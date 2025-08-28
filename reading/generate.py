@@ -192,9 +192,6 @@ def generate_html(items: List[ReadingItem]):
             max-width: 90rem;
             background-color: transparent;
         }}
-        html {{
-            background-color: transparent;
-        }}
         body::before {{
             content: '';
             position: fixed;
@@ -207,7 +204,7 @@ def generate_html(items: List[ReadingItem]):
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
-            opacity: 0.3;
+            opacity: 0.035;
             z-index: -1;
         }}
         .filter-controls {{
