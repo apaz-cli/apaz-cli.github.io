@@ -221,7 +221,7 @@ def generate_html(items: List[ReadingItem]):
             html_content += '            <div class="urls">\n'
             html_content += f'                <h3>{item.name}</h3>\n'
             for i, url in enumerate(item.urls):
-                html_content += f'                <a href="{url}" class="url">{url}</a>\n'
+                html_content += f'                <a href="{url}" class="url" target="_blank">{url}</a>\n'
             html_content += '            </div>\n'
             if item.abstract:
                 html_content += '            <details>\n'
@@ -246,7 +246,7 @@ def generate_html(items: List[ReadingItem]):
             html_content += '            <div class="urls">\n'
             html_content += f'                <h3>{item.name}</h3>\n'
             for i, url in enumerate(item.urls):
-                html_content += f'                <a href="{url}" class="url">Link {i+1}</a>\n'
+                html_content += f'                <a href="{url}" class="url" target="_blank">Link {i+1}</a>\n'
             html_content += '            </div>\n'
             if item.abstract:
                 html_content += '            <details>\n'
