@@ -3,6 +3,8 @@
 import os
 import re
 import time
+import json
+import hashlib
 import requests
 from glob import glob
 from dataclasses import dataclass
@@ -100,6 +102,33 @@ def get_arxiv_id(url: str) -> re.Match[str] | None:
     arxiv_pattern = r'arxiv\.org/(?:abs|pdf|html)/(.+?)(?:\?|$)'
     return re.search(arxiv_pattern, url)
 
+def get_cache_path(url: str) -> str:
+    """Generate cache file path for a URL."""
+    url_hash = hashlib.md5(url.encode()).hexdigest()
+    return f"/tmp/arxiv_cache_{url_hash}.json"
+
+def load_from_cache(url: str) -> tuple[Optional[str], Optional[str]]:
+    """Load title and abstract from cache if available."""
+    cache_path = get_cache_path(url)
+    try:
+        if os.path.exists(cache_path):
+            with open(cache_path, 'r') as f:
+                data = json.load(f)
+                return data.get('title'), data.get('abstract')
+    except Exception as e:
+        print(f"Error reading cache for {url}: {e}")
+    return None, None
+
+def save_to_cache(url: str, title: Optional[str], abstract: Optional[str]):
+    """Save title and abstract to cache."""
+    cache_path = get_cache_path(url)
+    try:
+        data = {'title': title, 'abstract': abstract}
+        with open(cache_path, 'w') as f:
+            json.dump(data, f)
+    except Exception as e:
+        print(f"Error writing cache for {url}: {e}")
+
 def get_info_from_url(url: str | None) -> tuple[Optional[str], Optional[str]]:
     """Scrape arXiv paper title and abstract from URL with rate limiting (5 requests/second).
     Returns (title, abstract)"""
@@ -113,6 +142,12 @@ def get_info_from_url(url: str | None) -> tuple[Optional[str], Optional[str]]:
 
     arxiv_id = match.group(1)
     abs_url = f"https://arxiv.org/abs/{arxiv_id}"
+
+    # Check cache first
+    cached_title, cached_abstract = load_from_cache(abs_url)
+    if cached_title is not None or cached_abstract is not None:
+        print(f"Using cached data for arXiv paper {arxiv_id}")
+        return cached_title, cached_abstract
 
     # Rate limiting: ensure at least 0.2 seconds between requests (5 req/sec)
     current_time = time.time()
@@ -147,6 +182,9 @@ def get_info_from_url(url: str | None) -> tuple[Optional[str], Optional[str]]:
 
         title = title.replace("$\mu$", "μ")
         abstract = abstract.replace("$\mu$", "μ")
+
+        # Save to cache
+        save_to_cache(abs_url, title, abstract)
 
         return title, abstract
 
