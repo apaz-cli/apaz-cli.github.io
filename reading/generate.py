@@ -24,7 +24,7 @@ def parse_list_txt() -> List[ReadingItem]:
     if not content:
         raise ValueError("list.txt is empty.")
 
-    raws = [l.strip() for l in content.split("\n#")]
+    raws = [l.strip() for l in re.split(r'#\s', content)]
 
     for r in raws:
         lines = [l.strip() for l in r.split("\n")]
