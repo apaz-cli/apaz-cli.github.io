@@ -238,6 +238,9 @@ def generate_html(items: List[ReadingItem]):
             border: 1px solid #444;
             border-radius: 5px;
             background-color: rgba(51, 51, 51, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }}
         .item.hidden {{
             display: none;
@@ -291,6 +294,8 @@ def generate_html(items: List[ReadingItem]):
         .tags {{
             font-size: 0.9em;
             color: #999;
+            margin-top: auto;
+            padding-top: 10px;
         }}
         .tag {{
             background-color: #555;
