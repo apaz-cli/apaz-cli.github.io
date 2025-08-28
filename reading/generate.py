@@ -33,28 +33,49 @@ def parse_list_txt() -> List[ReadingItem]:
         raise ValueError("list.txt is empty.")
 
     raws = [l.strip() for l in re.split(r'#\s', content)]
+    if raws[0].strip() == "":
+        raws.pop(0)
 
     for r in raws:
+        urls = []
         lines = [l.strip() for l in r.split("\n")]
         lines = [l for l in lines if l]
 
-        arxiv_title, arxiv_abstract = get_arxiv_info_from_url(lines[0])
-        if arxiv_title:
-            name = arxiv_title
-            abstract = arxiv_abstract
+        # If the line is an arxiv link, get the name and abstract.
+        first_url = None
+        if lines[0].startswith("http"):
+            first_url = lines.pop(0)
+            urls.append(first_url)
+        
+        # If we can't get the info from the url, use the first line as the name.
+        if first_url is None:
+            name, abstract = get_info_from_url(first_url)
+            if name is None:
+                raise ValueError(f"Could not get info for first URL: {first_url}")
         else:
-            name = lines.pop(0)
-            abstract = None
+            # TODO: Add the ability to specify abstracts for non-arxiv links.
+            name, abstract = lines.pop(0), None
 
-        if abstract is None:
-            if not lines[0].startswith("http"):
-                abstract = lines.pop(0)
+        # Get the rest of the URLs
+        while lines[0].startswith("http"):
+            urls.append(lines.pop(0))
 
-        urls = lines
+        # Parse Tags
+        tags = []
+        while (len(lines) > 0) and (lines[0].startswith("*")):
+          print(lines)
+          l = lines.pop(0)
+          print(f"Popped {l}")
+          tgs = l.split("*")
+          tgs = [t.strip() for t in tgs if t]
+          print(f"Appending: {tgs}")
+          tags.append(tgs)
+        
+        assert len(lines) == 0
         assert len(urls) >= 1
         assert all(u.startswith("http") for u in urls)
 
-        items.append(ReadingItem(name=name, urls=lines, tags=[], read=False, abstract=abstract))
+        items.append(ReadingItem(name=name, urls=urls, tags=tags, read=False, abstract=abstract))
         print(f"Added \"{name}\" to reading list.")
 
     assert all(len(i.urls) >= 1 for i in items)
@@ -81,11 +102,13 @@ def get_arxiv_id(url: str) -> re.Match[str] | None:
     arxiv_pattern = r'arxiv\.org/(?:abs|pdf|html)/(.+?)(?:\?|$)'
     return re.search(arxiv_pattern, url)
 
-def get_arxiv_info_from_url(url: str) -> tuple[Optional[str], Optional[str]]:
+def get_info_from_url(url: str | None) -> tuple[Optional[str], Optional[str]]:
     """Scrape arXiv paper title and abstract from URL with rate limiting (5 requests/second).
     Returns (title, abstract)"""
     global _last_request_time
 
+    if url is None:
+        return None, None
     match = get_arxiv_id(url)
     if not match:
         return None, None
