@@ -116,6 +116,27 @@ blockquote {
             padding: .25rem;
             max-width: 90rem;
         }
+        .filter-controls {
+            float: right;
+            margin-bottom: 0;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .section-header h2 {
+            margin: 0;
+        }
+        .filter-controls select {
+            background-color: #333;
+            color: #fafafa;
+            border: 1px solid #444;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
         .section {
             margin-bottom: 40px;
         }
@@ -131,6 +152,9 @@ blockquote {
             border-radius: 5px;
             background-color: #333;
         }
+        .item.hidden {
+            display: none;
+        }
         @media (max-width: 1200px) {
             .grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -144,6 +168,7 @@ blockquote {
         h3 {
             font-family: "lemon";
             color: rgb(112, 221, 0);
+            margin-top: 0;
         }
         details {
             margin-top: 10px;
@@ -192,9 +217,21 @@ blockquote {
     <h1>Reading List</h1>
 
     <div class="section">
-        <h2>To Read</h2>
+        <div class="section-header">
+            <h2>Reading Backlog</h2>
+            <div class="filter-controls">
+                <label for="tag-filter">Filter by tag: </label>
+                <select id="tag-filter">
+                    <option value="">All</option>
+                    <option value="Attention Sinks">Attention Sinks</option>
+                    <option value="Career">Career</option>
+                    <option value="Deep Research">Deep Research</option>
+                    <option value="RL">RL</option>
+                </select>
+            </div>
+        </div>
         <div class="grid">
-            <div class="item">
+            <div class="item" data-tags="Attention Sinks">
                 <div class="urls">
                     <h3>Softpick: No Attention Sink, No Massive Activations with Rectified Softmax</h3>
                     <a href="https://arxiv.org/abs/2504.20966" class="url" target="_blank">https://arxiv.org/abs/2504.20966</a>
@@ -203,8 +240,11 @@ blockquote {
                     <summary>Abstract</summary>
                     <div class="abstract">We introduce softpick, a rectified, not sum-to-one, drop-in replacement for softmax in transformer attention mechanisms that eliminates attention sink and massive activations. Our experiments with 340M and 1.8B parameter models demonstrate that softpick achieves 0\% sink rate consistently. The softpick transformers produce hidden states with significantly lower kurtosis and creates sparse attention maps. Quantized models using softpick outperform softmax on standard benchmarks, with a particularly pronounced advantage at lower bit precisions. Our analysis and discussion shows how softpick has the potential to open new possibilities for quantization, low-precision training, sparsity optimization, pruning, and interpretability. Our code is available at <a href="https://github.com/zaydzuhri/softpick-attention" rel="external noopener nofollow" class="link-external link-https">this https URL</a></div>
                 </details>
+                <div class="tags">
+                    <span class="tag">Attention Sinks</span>
+                </div>
             </div>
-            <div class="item">
+            <div class="item" data-tags="Attention Sinks">
                 <div class="urls">
                     <h3>When Attention Sink Emerges in Language Models: An Empirical View</h3>
                     <a href="https://arxiv.org/abs/2410.10781" class="url" target="_blank">https://arxiv.org/abs/2410.10781</a>
@@ -213,8 +253,11 @@ blockquote {
                     <summary>Abstract</summary>
                     <div class="abstract">Language Models (LMs) assign significant attention to the first token, even if it is not semantically important, which is known as attention sink. This phenomenon has been widely adopted in applications such as streaming/long context generation, KV cache optimization, inference acceleration, model quantization, and others. Despite its widespread use, a deep understanding of attention sink in LMs is still lacking. In this work, we first demonstrate that attention sinks exist universally in LMs with various inputs, even in small models. Furthermore, attention sink is observed to emerge during the LM pre-training, motivating us to investigate how optimization, data distribution, loss function, and model architecture in LM pre-training influence its emergence. We highlight that attention sink emerges after effective optimization on sufficient training data. The sink position is highly correlated with the loss function and data distribution. Most importantly, we find that attention sink acts more like key biases, storing extra attention scores, which could be non-informative and not contribute to the value computation. We also observe that this phenomenon (at least partially) stems from tokens&#39; inner dependence on attention scores as a result of softmax normalization. After relaxing such dependence by replacing softmax attention with other attention operations, such as sigmoid attention without normalization, attention sinks do not emerge in LMs up to 1B parameters. The code is available at <a href="https://github.com/sail-sg/Attention-Sink" rel="external noopener nofollow" class="link-external link-https">this https URL</a>.</div>
                 </details>
+                <div class="tags">
+                    <span class="tag">Attention Sinks</span>
+                </div>
             </div>
-            <div class="item">
+            <div class="item" data-tags="Deep Research RL">
                 <div class="urls">
                     <h3>WebWatcher: Breaking New Frontier of Vision-Language Deep Research Agent</h3>
                     <a href="https://arxiv.org/abs/2508.05748" class="url" target="_blank">https://arxiv.org/abs/2508.05748</a>
@@ -223,11 +266,18 @@ blockquote {
                     <summary>Abstract</summary>
                     <div class="abstract">Web agents such as Deep Research have demonstrated superhuman cognitive abilities, capable of solving highly challenging information-seeking problems. However, most research remains primarily text-centric, overlooking visual information in the real world. This makes multimodal Deep Research highly challenging, as such agents require much stronger reasoning abilities in perception, logic, knowledge, and the use of more sophisticated tools compared to text-based agents. To address this limitation, we introduce WebWatcher, a multi-modal Agent for Deep Research equipped with enhanced visual-language reasoning capabilities. It leverages high-quality synthetic multimodal trajectories for efficient cold start training, utilizes various tools for deep reasoning, and further enhances generalization through reinforcement learning. To better evaluate the capabilities of multimodal agents, we propose BrowseComp-VL, a benchmark with BrowseComp-style that requires complex information retrieval involving both visual and textual information. Experimental results show that WebWatcher significantly outperforms proprietary baseline, RAG workflow and open-source agents in four challenging VQA benchmarks, which paves the way for solving complex multimodal information-seeking tasks.</div>
                 </details>
+                <div class="tags">
+                    <span class="tag">Deep Research</span>
+                    <span class="tag">RL</span>
+                </div>
             </div>
-            <div class="item">
+            <div class="item" data-tags="Career">
                 <div class="urls">
                     <h3>OpenAI Reflections</h3>
                     <a href="https://calv.info/openai-reflections" class="url" target="_blank">https://calv.info/openai-reflections</a>
+                </div>
+                <div class="tags">
+                    <span class="tag">Career</span>
                 </div>
             </div>
         </div>
@@ -237,21 +287,47 @@ blockquote {
         // No further JavaScript is allowed beyond this point
         document.addEventListener('DOMContentLoaded', function() {
             const details = document.querySelectorAll('details');
-            
+            const tagFilter = document.getElementById('tag-filter');
+
+            // Reset filter selection on page load
+            tagFilter.value = '';
+
+            // Tag filtering functionality
+            tagFilter.addEventListener('change', function() {
+                const selectedTag = this.value;
+                const items = document.querySelectorAll('.item');
+
+                items.forEach(item => {
+                    if (selectedTag === '') {
+                        // Show all items
+                        item.classList.remove('hidden');
+                    } else {
+                        // Check if item has the selected tag
+                        const itemTags = item.getAttribute('data-tags');
+                        if (itemTags && itemTags.includes(selectedTag)) {
+                            item.classList.remove('hidden');
+                        } else {
+                            item.classList.add('hidden');
+                        }
+                    }
+                });
+            });
+
+            // Row toggle functionality for details
             details.forEach(detail => {
                 detail.addEventListener('toggle', function() {
                     // Find the parent item and then the parent grid
                     const item = this.closest('.item');
                     const grid = item.closest('.grid');
-                    
-                    // Get all items in the same grid
-                    const allItems = Array.from(grid.querySelectorAll('.item'));
+
+                    // Get all visible items in the same grid
+                    const allItems = Array.from(grid.querySelectorAll('.item:not(.hidden)'));
                     const currentIndex = allItems.indexOf(item);
-                    
+
                     // Calculate which row this item is in (assuming 3 columns)
                     const columns = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
                     const currentRow = Math.floor(currentIndex / columns);
-                    
+
                     // Toggle all details in the same row to match this one
                     for (let i = currentRow * columns; i < Math.min((currentRow + 1) * columns, allItems.length); i++) {
                         const rowItem = allItems[i];

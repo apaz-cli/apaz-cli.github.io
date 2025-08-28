@@ -1,11 +1,14 @@
 
 # https://arxiv.org/abs/2504.20966
-
+* Attention Sinks
 
 # https://arxiv.org/abs/2410.10781
+* Attention Sinks
 
 #
 https://arxiv.org/abs/2508.05748
+* RL * Deep Research
 
 # OpenAI Reflections
 https://calv.info/openai-reflections
+* Career

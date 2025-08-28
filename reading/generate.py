@@ -334,7 +334,7 @@ def generate_html(items: List[ReadingItem]):
 '''
         for tag in all_tags:
             html_content += f'                    <option value="{tag}">{tag}</option>\n'
-        
+
         html_content += '''                </select>
             </div>
         </div>
@@ -368,15 +368,15 @@ def generate_html(items: List[ReadingItem]):
         document.addEventListener('DOMContentLoaded', function() {
             const details = document.querySelectorAll('details');
             const tagFilter = document.getElementById('tag-filter');
-            
+
             // Reset filter selection on page load
             tagFilter.value = '';
-            
+
             // Tag filtering functionality
             tagFilter.addEventListener('change', function() {
                 const selectedTag = this.value;
                 const items = document.querySelectorAll('.item');
-                
+
                 items.forEach(item => {
                     if (selectedTag === '') {
                         // Show all items
@@ -392,22 +392,22 @@ def generate_html(items: List[ReadingItem]):
                     }
                 });
             });
-            
+
             // Row toggle functionality for details
             details.forEach(detail => {
                 detail.addEventListener('toggle', function() {
                     // Find the parent item and then the parent grid
                     const item = this.closest('.item');
                     const grid = item.closest('.grid');
-                    
+
                     // Get all visible items in the same grid
                     const allItems = Array.from(grid.querySelectorAll('.item:not(.hidden)'));
                     const currentIndex = allItems.indexOf(item);
-                    
+
                     // Calculate which row this item is in (assuming 3 columns)
                     const columns = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
                     const currentRow = Math.floor(currentIndex / columns);
-                    
+
                     // Toggle all details in the same row to match this one
                     for (let i = currentRow * columns; i < Math.min((currentRow + 1) * columns, allItems.length); i++) {
                         const rowItem = allItems[i];
