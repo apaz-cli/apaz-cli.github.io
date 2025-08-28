@@ -104,8 +104,10 @@ def get_arxiv_id(url: str) -> re.Match[str] | None:
 
 def get_cache_path(url: str) -> str:
     """Generate cache file path for a URL."""
+    cache_dir = "/tmp/arxiv_cache"
+    os.makedirs(cache_dir, exist_ok=True)
     url_hash = hashlib.md5(url.encode()).hexdigest()
-    return f"/tmp/arxiv_cache_{url_hash}.json"
+    return f"{cache_dir}/{url_hash}.json"
 
 def load_from_cache(url: str) -> tuple[Optional[str], Optional[str]]:
     """Load title and abstract from cache if available."""
