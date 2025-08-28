@@ -691,11 +691,13 @@ def generate_html(items: List[ReadingItem]):
             
             const modalImg = modal.querySelector('.modal-content');
             const closeBtn = modal.querySelector('.close-modal');
+            let currentImageIndex = -1;
             
-            paperImages.forEach(img => {
-                img.addEventListener('click', function() {
-                    // Use the full-size image for the modal
-                    const fullsizeUrl = this.getAttribute('data-fullsize');
+            function showImage(index) {
+                if (index >= 0 && index < paperImages.length) {
+                    currentImageIndex = index;
+                    const img = paperImages[index];
+                    const fullsizeUrl = img.getAttribute('data-fullsize');
                     if (fullsizeUrl) {
                         // Hide the modal first to clear previous image
                         modal.classList.remove('show');
@@ -705,24 +707,45 @@ def generate_html(items: List[ReadingItem]):
                         modalImg.src = fullsizeUrl;
                         modal.classList.add('show');
                     }
+                }
+            }
+            
+            paperImages.forEach((img, index) => {
+                img.addEventListener('click', function() {
+                    showImage(index);
                 });
             });
             
             // Close modal when clicking the X or outside the image
             closeBtn.addEventListener('click', function() {
                 modal.classList.remove('show');
+                currentImageIndex = -1;
             });
             
             modal.addEventListener('click', function(e) {
                 if (e.target === modal) {
                     modal.classList.remove('show');
+                    currentImageIndex = -1;
                 }
             });
             
-            // Close modal with Escape key
+            // Close modal with Escape key and navigate with arrow keys
             document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    modal.classList.remove('show');
+                if (modal.classList.contains('show')) {
+                    if (e.key === 'Escape') {
+                        modal.classList.remove('show');
+                        currentImageIndex = -1;
+                    } else if (e.key === 'ArrowLeft') {
+                        e.preventDefault();
+                        if (currentImageIndex > 0) {
+                            showImage(currentImageIndex - 1);
+                        }
+                    } else if (e.key === 'ArrowRight') {
+                        e.preventDefault();
+                        if (currentImageIndex < paperImages.length - 1) {
+                            showImage(currentImageIndex + 1);
+                        }
+                    }
                 }
             });
         });
