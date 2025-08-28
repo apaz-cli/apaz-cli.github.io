@@ -369,6 +369,9 @@ def generate_html(items: List[ReadingItem]):
             const details = document.querySelectorAll('details');
             const tagFilter = document.getElementById('tag-filter');
             
+            // Reset filter selection on page load
+            tagFilter.value = '';
+            
             // Tag filtering functionality
             tagFilter.addEventListener('change', function() {
                 const selectedTag = this.value;
