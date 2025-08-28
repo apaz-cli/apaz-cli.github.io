@@ -163,7 +163,7 @@ def generate_html(items: List[ReadingItem]):
     read_items = [item for item in items if item.read]
     unread_items = [item for item in items if not item.read]
 
-    # Read CSS from pandoc.html like blog/generate.py does
+    # Inject CSS styles
     stylefile = "../resources/style/pandoc.html"
     css_content = ""
     with open(stylefile, "r") as css_file:
