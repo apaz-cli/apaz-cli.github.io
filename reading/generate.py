@@ -203,7 +203,7 @@ def generate_html(items: List[ReadingItem]):
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
-            opacity: 0.035;
+            opacity: 0.1;
             z-index: -1;
         }}
         .filter-controls {{

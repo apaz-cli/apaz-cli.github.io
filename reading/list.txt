@@ -8,10 +8,6 @@
 # https://arxiv.org/abs/2508.05748
 * RL * Deep Research
 
-# OpenAI Reflections
-https://calv.info/openai-reflections
-* Career
-
 # https://arxiv.org/abs/2505.14669
 * Quantization
 
