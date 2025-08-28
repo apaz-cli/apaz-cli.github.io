@@ -47,8 +47,8 @@ def parse_list_txt() -> List[ReadingItem]:
             first_url = lines.pop(0)
             urls.append(first_url)
         
-        # If we can't get the info from the url, use the first line as the name.
-        if first_url is None:
+        # If we have a URL, try to get info from it, otherwise use first line as name
+        if first_url is not None:
             name, abstract = get_info_from_url(first_url)
             if name is None:
                 raise ValueError(f"Could not get info for first URL: {first_url}")
@@ -57,7 +57,7 @@ def parse_list_txt() -> List[ReadingItem]:
             name, abstract = lines.pop(0), None
 
         # Get the rest of the URLs
-        while lines[0].startswith("http"):
+        while len(lines) > 0 and lines[0].startswith("http"):
             urls.append(lines.pop(0))
 
         # Parse Tags
