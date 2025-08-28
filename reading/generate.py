@@ -149,6 +149,60 @@ def generate_html(items: List[ReadingItem]):
 <head>
     <title>Reading List</title>
 {css_content}
+
+<style>
+        .section {{
+            margin-bottom: 40px;
+        }}
+        .item {{
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #333;
+        }}
+        details {{
+            margin-top: 10px;
+        }}
+        summary {{
+            cursor: pointer;
+            color: #01ff70;
+            font-size: 0.9em;
+            padding: 5px 0;
+        }}
+        summary:hover {{
+            color: #2ecc40;
+        }}
+        .abstract {{
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #444;
+            border-left: 3px solid #01ff70;
+            font-style: italic;
+            color: #ccc;
+        }}
+        .urls {{
+            margin-bottom: 10px;
+        }}
+        .url {{
+            display: inline-block;
+            margin-right: 15px;
+            margin-bottom: 5px;
+        }}
+        .tags {{
+            font-size: 0.9em;
+            color: #999;
+        }}
+        .tag {{
+            background-color: #555;
+            color: #fafafa;
+            padding: 2px 8px;
+            border-radius: 3px;
+            margin-right: 5px;
+            display: inline-block;
+        }}
+</style>
+
 </head>
 <body>
     <h1>Reading List</h1>
