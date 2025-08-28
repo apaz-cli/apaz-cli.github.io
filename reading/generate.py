@@ -294,34 +294,6 @@ def generate_html(items: List[ReadingItem]):
     </div>
 '''
 
-    if unread_items:
-        html_content += '''
-    <div class="section">
-        <h2>To Read</h2>
-        <div class="grid">
-'''
-        for item in unread_items:
-            tags_attr = ' '.join(item.tags) if item.tags else ''
-            html_content += f'            <div class="item" data-tags="{tags_attr}">\n'
-            html_content += '                <div class="urls">\n'
-            html_content += f'                    <h3>{item.name}</h3>\n'
-            for i, url in enumerate(item.urls):
-                html_content += f'                    <a href="{url}" class="url" target="_blank">{url}</a>\n'
-            html_content += '                </div>\n'
-            if item.abstract:
-                html_content += '                <details>\n'
-                html_content += '                    <summary>Abstract</summary>\n'
-                html_content += f'                    <div class="abstract">{item.abstract}</div>\n'
-                html_content += '                </details>\n'
-            if item.tags:
-                html_content += '                <div class="tags">\n'
-                for tag in item.tags:
-                    html_content += f'                    <span class="tag">{tag}</span>\n'
-                html_content += '                </div>\n'
-            html_content += '            </div>\n'
-        html_content += '        </div>\n'
-        html_content += '    </div>\n'
-
     if read_items:
         html_content += '''
     <div class="section">
@@ -339,6 +311,34 @@ def generate_html(items: List[ReadingItem]):
             if item.abstract:
                 html_content += '                <details>\n'
                 html_content += '                    <summary>Show Abstract</summary>\n'
+                html_content += f'                    <div class="abstract">{item.abstract}</div>\n'
+                html_content += '                </details>\n'
+            if item.tags:
+                html_content += '                <div class="tags">\n'
+                for tag in item.tags:
+                    html_content += f'                    <span class="tag">{tag}</span>\n'
+                html_content += '                </div>\n'
+            html_content += '            </div>\n'
+        html_content += '        </div>\n'
+        html_content += '    </div>\n'
+
+    if unread_items:
+        html_content += '''
+    <div class="section">
+        <h2>Reading Backlog</h2>
+        <div class="grid">
+'''
+        for item in unread_items:
+            tags_attr = ' '.join(item.tags) if item.tags else ''
+            html_content += f'            <div class="item" data-tags="{tags_attr}">\n'
+            html_content += '                <div class="urls">\n'
+            html_content += f'                    <h3>{item.name}</h3>\n'
+            for i, url in enumerate(item.urls):
+                html_content += f'                    <a href="{url}" class="url" target="_blank">{url}</a>\n'
+            html_content += '                </div>\n'
+            if item.abstract:
+                html_content += '                <details>\n'
+                html_content += '                    <summary>Abstract</summary>\n'
                 html_content += f'                    <div class="abstract">{item.abstract}</div>\n'
                 html_content += '                </details>\n'
             if item.tags:
