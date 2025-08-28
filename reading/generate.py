@@ -257,7 +257,7 @@ def generate_html(items: List[ReadingItem]):
             }}
         }}
         h2 {{
-            color: #c8ffcc;
+            color: #00bb00;
         }}
         h3 {{
             font-family: "lemon";
