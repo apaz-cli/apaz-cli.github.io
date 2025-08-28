@@ -145,6 +145,9 @@ def get_info_from_url(url: str | None) -> tuple[Optional[str], Optional[str]]:
             abstract = abstract_match.group(1).strip()
             abstract = re.sub(r'\s+', ' ', abstract)
 
+        title = title.replace("$\mu$", "μ")
+        abstract = abstract.replace("$\mu$", "μ")
+
         return title, abstract
 
     except Exception as e:
