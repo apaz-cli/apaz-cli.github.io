@@ -169,6 +169,12 @@ def generate_html(items: List[ReadingItem]):
     with open(stylefile, "r") as css_file:
         css_content = css_file.read()
 
+    # Collect all unique tags
+    all_tags = set()
+    for item in items:
+        all_tags.update(item.tags)
+    all_tags = sorted(list(all_tags))
+
     html_content = f'''<!DOCTYPE html>
 <html>
 <head>
@@ -185,6 +191,18 @@ def generate_html(items: List[ReadingItem]):
             padding: .25rem;
             max-width: 90rem;
         }}
+        .filter-controls {{
+            margin-bottom: 30px;
+            text-align: center;
+        }}
+        .filter-controls select {{
+            background-color: #333;
+            color: #fafafa;
+            border: 1px solid #444;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 1rem;
+        }}
         .section {{
             margin-bottom: 40px;
         }}
@@ -199,6 +217,9 @@ def generate_html(items: List[ReadingItem]):
             border: 1px solid #444;
             border-radius: 5px;
             background-color: #333;
+        }}
+        .item.hidden {{
+            display: none;
         }}
         @media (max-width: 1200px) {{
             .grid {{
@@ -259,6 +280,18 @@ def generate_html(items: List[ReadingItem]):
 </head>
 <body>
     <h1>Reading List</h1>
+    
+    <div class="filter-controls">
+        <label for="tag-filter">Filter by tag: </label>
+        <select id="tag-filter">
+            <option value="">All</option>
+'''
+
+    for tag in all_tags:
+        html_content += f'            <option value="{tag}">{tag}</option>\n'
+
+    html_content += '''        </select>
+    </div>
 '''
 
     if unread_items:
@@ -268,7 +301,8 @@ def generate_html(items: List[ReadingItem]):
         <div class="grid">
 '''
         for item in unread_items:
-            html_content += '            <div class="item">\n'
+            tags_attr = ' '.join(item.tags) if item.tags else ''
+            html_content += f'            <div class="item" data-tags="{tags_attr}">\n'
             html_content += '                <div class="urls">\n'
             html_content += f'                    <h3>{item.name}</h3>\n'
             for i, url in enumerate(item.urls):
@@ -295,7 +329,8 @@ def generate_html(items: List[ReadingItem]):
         <div class="grid">
 '''
         for item in read_items:
-            html_content += '            <div class="item">\n'
+            tags_attr = ' '.join(item.tags) if item.tags else ''
+            html_content += f'            <div class="item" data-tags="{tags_attr}">\n'
             html_content += '                <div class="urls">\n'
             html_content += f'                    <h3>{item.name}</h3>\n'
             for i, url in enumerate(item.urls):
@@ -320,15 +355,38 @@ def generate_html(items: List[ReadingItem]):
         // No further JavaScript is allowed beyond this point
         document.addEventListener('DOMContentLoaded', function() {
             const details = document.querySelectorAll('details');
+            const tagFilter = document.getElementById('tag-filter');
             
+            // Tag filtering functionality
+            tagFilter.addEventListener('change', function() {
+                const selectedTag = this.value;
+                const items = document.querySelectorAll('.item');
+                
+                items.forEach(item => {
+                    if (selectedTag === '') {
+                        // Show all items
+                        item.classList.remove('hidden');
+                    } else {
+                        // Check if item has the selected tag
+                        const itemTags = item.getAttribute('data-tags');
+                        if (itemTags && itemTags.includes(selectedTag)) {
+                            item.classList.remove('hidden');
+                        } else {
+                            item.classList.add('hidden');
+                        }
+                    }
+                });
+            });
+            
+            // Row toggle functionality for details
             details.forEach(detail => {
                 detail.addEventListener('toggle', function() {
                     // Find the parent item and then the parent grid
                     const item = this.closest('.item');
                     const grid = item.closest('.grid');
                     
-                    // Get all items in the same grid
-                    const allItems = Array.from(grid.querySelectorAll('.item'));
+                    // Get all visible items in the same grid
+                    const allItems = Array.from(grid.querySelectorAll('.item:not(.hidden)'));
                     const currentIndex = allItems.indexOf(item);
                     
                     // Calculate which row this item is in (assuming 3 columns)
