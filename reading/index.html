@@ -244,8 +244,13 @@ blockquote {
                     <option value="">All</option>
                     <option value="Attention Sinks">Attention Sinks</option>
                     <option value="Career">Career</option>
+                    <option value="Data Eng">Data Eng</option>
                     <option value="Deep Research">Deep Research</option>
+                    <option value="MoE">MoE</option>
+                    <option value="Model">Model</option>
+                    <option value="Quantization">Quantization</option>
                     <option value="RL">RL</option>
+                    <option value="hparams">hparams</option>
                 </select>
             </div>
         </div>
@@ -297,6 +302,100 @@ blockquote {
                 </div>
                 <div class="tags">
                     <span class="tag">Career</span>
+                </div>
+            </div>
+            <div class="item" data-tags="Quantization">
+                <div class="urls">
+                    <h3>Quartet: Native FP4 Training Can Be Optimal for Large Language Models</h3>
+                    <a href="https://arxiv.org/abs/2505.14669" class="url" target="_blank">https://arxiv.org/abs/2505.14669</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Training large language models (LLMs) models directly in low-precision offers a way to address computational costs by improving both throughput and energy efficiency. For those purposes, NVIDIA&#39;s recent Blackwell architecture facilitates very low-precision operations using FP4 variants. Yet, current algorithms for training LLMs in FP4 precision face significant accuracy degradation and often rely on mixed-precision fallbacks. In this paper, we investigate hardware-supported FP4 training and introduce a new approach for accurate, end-to-end FP4 training with all the major computations (i.e., linear layers) in low precision. Through extensive evaluations on Llama-type models, we reveal a new low-precision scaling law that quantifies performance trade-offs across bit-widths and training setups. Guided by this investigation, we design an &#34;optimal&#34; technique in terms of accuracy-vs-computation, called Quartet. We implement Quartet using optimized CUDA kernels tailored for Blackwell, demonstrating that fully FP4-based training is a competitive alternative to FP16 half-precision and to FP8 training. Our code is available at <a href="https://github.com/IST-DASLab/Quartet" rel="external noopener nofollow" class="link-external link-https">this https URL</a>.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Quantization</span>
+                </div>
+            </div>
+            <div class="item" data-tags="Data Eng RL">
+                <div class="urls">
+                    <h3>Synthetic Data RL: Task Definition Is All You Need</h3>
+                    <a href="https://arxiv.org/abs/2505.17063" class="url" target="_blank">https://arxiv.org/abs/2505.17063</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Reinforcement learning (RL) is a powerful way to adapt foundation models to specialized tasks, but its reliance on large-scale human-labeled data limits broad adoption. We introduce Synthetic Data RL, a simple and general framework that reinforcement fine-tunes models using only synthetic data generated from a task definition. Our method first generates question and answer pairs from the task definition and retrieved documents, then adapts the difficulty of the question based on model solvability, and selects questions using the average pass rate of the model across samples for RL training. On Qwen-2.5-7B, our method achieves a 29.2% absolute improvement over the base model on GSM8K (+2.9 pp vs. instruction-tuned, +6.6 pp vs. Self-Instruct), 8.7% on MATH, 13.1% on GPQA (+7.0 pp vs. SynthLLM), 8.9% on MedQA, 17.7% on CQA (law) and 13.7% on CFA (finance). It surpasses supervised fine-tuning under the same data budget and nearly matches RL with full human data across datasets (e.g., +17.2 pp on GSM8K). Adding 100 human demonstrations improves the performance of GSM8K only by 0.4 pp, showing a limited added value. By reducing human data annotation, Synthetic Data RL enables scalable and efficient RL-based model adaptation. Code and demos are available at <a href="https://github.com/gydpku/Data_Synthesis_RL/" rel="external noopener nofollow" class="link-external link-https">this https URL</a>.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Data Eng</span>
+                    <span class="tag">RL</span>
+                </div>
+            </div>
+            <div class="item" data-tags="Quantization">
+                <div class="urls">
+                    <h3>FP4 All the Way: Fully Quantized Training of LLMs</h3>
+                    <a href="https://arxiv.org/abs/2505.19115" class="url" target="_blank">https://arxiv.org/abs/2505.19115</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">We demonstrate, for the first time, fully quantized training (FQT) of large language models (LLMs) using predominantly 4-bit floating-point (FP4) precision for weights, activations, and gradients on datasets up to 200 billion tokens. We extensively investigate key design choices for FP4, including block sizes, scaling formats, and rounding methods. Our analysis shows that the NVFP4 format, where each block of 16 FP4 values (E2M1) shares a scale represented in E4M3, provides optimal results. We use stochastic rounding for backward and update passes and round-to-nearest for the forward pass to enhance stability. Additionally, we identify a theoretical and empirical threshold for effective quantized training: when the gradient norm falls below approximately $\sqrt{3}$ times the quantization noise, quantized training becomes less effective. Leveraging these insights, we successfully train a 7-billion-parameter model on 256 Intel Gaudi2 accelerators. The resulting FP4-trained model achieves downstream task performance comparable to a standard BF16 baseline, confirming that FP4 training is a practical and highly efficient approach for large-scale LLM training. A reference implementation is supplied in <a href="https://github.com/Anonymous1252022/fp4-all-the-way" rel="external noopener nofollow" class="link-external link-https">this https URL</a> .</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Quantization</span>
+                </div>
+            </div>
+            <div class="item" data-tags="MoE hparams">
+                <div class="urls">
+                    <h3>$\mu$-Parametrization for Mixture of Experts</h3>
+                    <a href="https://arxiv.org/abs/2508.09752" class="url" target="_blank">https://arxiv.org/abs/2508.09752</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Recent years have seen a growing interest and adoption of LLMs, with $\mu$Transfer becoming a key technique for tuning hyperparameters in large-scale training. Meanwhile, Mixture-of-Experts (MoE) has emerged as a leading architecture in extremely large models. However, the intersection of these two advancements has remained unexplored. In this work, we derive a $\mu$-Parameterization ($\mu$P) for MoE, providing theoretical guarantees for feature learning across model widths in both the router and experts. We empirically validate our parameterization and further investigate how scaling the number of experts and granularity affects the optimal learning rate.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">MoE</span>
+                    <span class="tag">hparams</span>
+                </div>
+            </div>
+            <div class="item" data-tags="Data Eng">
+                <div class="urls">
+                    <h3>Beyond Model Collapse: Scaling Up with Synthesized Data Requires Verification</h3>
+                    <a href="https://arxiv.org/abs/2406.07515" class="url" target="_blank">https://arxiv.org/abs/2406.07515</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Large Language Models (LLM) are increasingly trained on data generated by other LLM, either because generated text and images become part of the pre-training corpus, or because synthetized data is used as a replacement for expensive human-annotation. This raises concerns about \emph{model collapse}, a drop in model performance when their training sets include generated data. Considering that it is easier for both humans and machines to tell between good and bad examples than to generate high-quality samples, we investigate the use of verification on synthesized data to prevent model collapse. We provide a theoretical characterization using Gaussian mixtures, linear classifiers, and linear verifiers to derive conditions with measurable proxies to assess whether the verifier can effectively select synthesized data that leads to optimal performance. We experiment with two practical tasks -- computing matrix eigenvalues with transformers and news summarization with LLMs -- which both exhibit model collapse when trained on generated data, and show that verifiers, even imperfect ones, can indeed be harnessed to prevent model collapse and that our proposed proxy measure strongly correlates with performance.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Data Eng</span>
+                </div>
+            </div>
+            <div class="item" data-tags="Model">
+                <div class="urls">
+                    <h3>Apriel-Nemotron-15B-Thinker</h3>
+                    <a href="https://arxiv.org/abs/2508.10948" class="url" target="_blank">https://arxiv.org/abs/2508.10948</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">While large language models (LLMs) have achieved remarkable reasoning capabilities across domains like code, math and other enterprise tasks, their significant memory and computational costs often preclude their use in practical enterprise settings. To this end, we introduce Apriel-Nemotron-15B-Thinker, a 15-billion parameter model in the ServiceNow Apriel SLM series that achieves performance against medium sized state-of-the-art models such as o1-mini, QWQ32B, and EXAONE-Deep-32B while maintaining only half the memory footprint of those alternatives. Apriel-Nemotron-15B-Thinker model is trained in a four stage training pipeline including 1) Base Model upscaling, 2) Continual Pre-training 3) Supervised Fine-tuning (SFT) and 4) Reinforcement Learning using GRPO. Comprehensive evaluations across a diverse suite of benchmarks consistently demonstrate that our Apriel-Nemotron-15B-Thinker model matches or exceeds the performance of its 32-billion parameter counterparts, despite being less than half their size.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Model</span>
+                </div>
+            </div>
+            <div class="item" data-tags="Data Eng">
+                <div class="urls">
+                    <h3>BeyondWeb: Lessons from Scaling Synthetic Data for Trillion-scale Pretraining</h3>
+                    <a href="https://arxiv.org/abs/2508.10975" class="url" target="_blank">https://arxiv.org/abs/2508.10975</a>
+                    <a href="https://blog.datologyai.com/beyondweb/" class="url" target="_blank">https://blog.datologyai.com/beyondweb/</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Recent advances in large language model (LLM) pretraining have shown that simply scaling data quantity eventually leads to diminishing returns, hitting a data wall. In response, the use of synthetic data for pretraining has emerged as a promising paradigm for pushing the frontier of performance. Despite this, the factors affecting synthetic data quality remain poorly understood. In this work, we introduce BeyondWeb, a synthetic data generation framework that produces high-quality synthetic data for pretraining. BeyondWeb significantly extends the capabilities of traditional web-scale datasets, outperforming state-of-the-art synthetic pretraining datasets such as Cosmopedia and Nemotron-CC&#39;s high-quality synthetic subset (Nemotron-Synth) by up to 5.1 percentage points (pp) and 2.6pp, respectively, when averaged across a suite of 14 benchmark evaluations. It delivers up to 7.7x faster training than open web data and 2.7x faster than Nemotron-Synth. Remarkably, a 3B model trained for 180B tokens on BeyondWeb outperforms an 8B model trained for the same token budget on Cosmopedia. We also present several insights from BeyondWeb on synthetic data for pretraining: what drives its benefits, which data to rephrase and how, and the impact of model size and family on data quality. Overall, our work shows that there&#39;s no silver bullet for generating high-quality synthetic pretraining data. The best outcomes require jointly optimizing many factors, a challenging task that requires rigorous science and practical expertise. Naive approaches can yield modest improvements, potentially at great cost, while well-executed methods can yield transformative improvements, as exemplified by BeyondWeb.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Data Eng</span>
                 </div>
             </div>
         </div>

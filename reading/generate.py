@@ -77,10 +77,6 @@ def parse_list_txt() -> List[ReadingItem]:
         print(f"Added \"{name}\" to reading list.")
 
     assert all(len(i.urls) >= 1 for i in items)
-
-    for r in items:
-        print(r.name, r.urls, r.tags, r.read, bool(r.abstract))
-
     return items
 
 def parse_md_files() -> List[ReadingItem]:
