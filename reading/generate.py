@@ -42,6 +42,7 @@ class ReadingItem:
     tags: List[str]
     read: bool
     abstract: Optional[str] = None
+    published_date: Optional[str] = None
 
 def process_txt_item(index_and_raw):
     """Process a single raw item and return (index, ReadingItem)."""
@@ -60,7 +61,7 @@ def process_txt_item(index_and_raw):
     if first_url is not None:
         name, abstract = get_info_from_url(first_url)
         if name is None:
-            raise ValueError(f"Could not get info for first URL: {first_url}")
+            raise ValueError(f"Could not get title from URL: {first_url}. Add a title line before the URL.")
     else:
         # TODO: Add the ability to specify abstracts for non-arxiv links.
         name, abstract = lines.pop(0), None
@@ -531,6 +532,7 @@ def generate_html(items: List[ReadingItem]):
 </head>
 <body>
     <h1>apaz's Reading List</h1>
+    <p>These are a bunch of papers that have interested me.</p>
 '''
 
     if read_items:
