@@ -108,3 +108,17 @@ https://github.com/rasbt/LLMs-from-scratch/blob/main/ch05/11_qwen3/standalone-qw
 
 # https://arxiv.org/abs/2207.14255
 * Pretrain * Inference
+
+# SFT is bad RL
+https://justintchiu.com/blog/sftrl/
+
+# Meutuan-Longcat LongCat-Flash-Chat
+https://github.com/meituan-longcat/LongCat-Flash-Chat/blob/main/tech_report.pdf
+* Pretrain * Model Release
+
+# Hunyuan-MT Technical Report
+https://github.com/Tencent-Hunyuan/Hunyuan-MT/blob/main/Hunyuan_MT_Technical_Report.pdf
+* Pretrain * Model Release
+
+# https://arxiv.org/abs/2504.20437
+* Pretrain * Distributed

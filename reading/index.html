@@ -294,7 +294,8 @@ blockquote {
 </head>
 <body>
     <h1>apaz's Reading List</h1>
-    <p>These are a bunch of papers that have interested me.</p>
+    <p>These are a bunch papers, sites, repos, etc that have caught my attention, which I want to do more with.</p>
+    <p>The list is incomplete, but I think every paper here is worth a read. As I read more closely and implement more stuff I'll be leaving notes on my impressions.</p>
 
     <div class="section">
         <div class="section-header">
@@ -324,33 +325,95 @@ blockquote {
             </div>
         </div>
         <div class="grid">
-            <div class="item" data-tags="Attention">
+            <div class="item" data-tags="RL">
                 <div class="urls">
-                    <h3>Softpick: No Attention Sink, No Massive Activations with Rectified Softmax</h3>
-                    <a href="https://arxiv.org/abs/2504.20966" class="url" target="_blank">https://arxiv.org/abs/2504.20966</a>
+                    <h3>StepWiser: Stepwise Generative Judges for Wiser Reasoning</h3>
+                    <a href="https://arxiv.org/abs/2508.19229" class="url" target="_blank">https://arxiv.org/abs/2508.19229</a>
                 </div>
                 <details>
                     <summary>Abstract</summary>
-                    <div class="abstract">We introduce softpick, a rectified, not sum-to-one, drop-in replacement for softmax in transformer attention mechanisms that eliminates attention sink and massive activations. Our experiments with 340M and 1.8B parameter models demonstrate that softpick achieves 0\% sink rate consistently. The softpick transformers produce hidden states with significantly lower kurtosis and creates sparse attention maps. Quantized models using softpick outperform softmax on standard benchmarks, with a particularly pronounced advantage at lower bit precisions. Our analysis and discussion shows how softpick has the potential to open new possibilities for quantization, low-precision training, sparsity optimization, pruning, and interpretability. Our code is available at <a href="https://github.com/zaydzuhri/softpick-attention" rel="external noopener nofollow" class="link-external link-https">this https URL</a></div>
+                    <div class="abstract">As models increasingly leverage multi-step reasoning strategies to solve complex problems, supervising the logical validity of these intermediate steps has become a critical research challenge. Process reward models address this by providing step-by-step feedback, but current approaches have two major drawbacks: they typically function as classifiers without providing explanations, and their reliance on supervised fine-tuning with static datasets limits generalization. Inspired by recent advances, we reframe stepwise reward modeling from a classification task to a reasoning task itself. We thus propose a generative judge that reasons about the policy model&#39;s reasoning steps (i.e., meta-reasons), outputting thinking tokens before delivering a final verdict. Our model, StepWiser, is trained by reinforcement learning using relative outcomes of rollouts. We show it provides (i) better judgment accuracy on intermediate steps than existing methods; (ii) can be used to improve the policy model at training time; and (iii) improves inference-time search.</div>
                 </details>
                 <div class="tags">
-                    <span class="tag">Attention</span>
+                    <span class="tag">RL</span>
                 </div>
-                <img src="paper_images/2504.20966_thumb.png" data-fullsize="paper_images/2504.20966.png" class="paper-image" alt="Paper preview">
+                <img src="paper_images/2508.19229_thumb.png" data-fullsize="paper_images/2508.19229.png" class="paper-image" alt="Paper preview">
             </div>
-            <div class="item" data-tags="Attention">
+            <div class="item" data-tags="Data Eng">
                 <div class="urls">
-                    <h3>When Attention Sink Emerges in Language Models: An Empirical View</h3>
-                    <a href="https://arxiv.org/abs/2410.10781" class="url" target="_blank">https://arxiv.org/abs/2410.10781</a>
+                    <h3>BeyondWeb: Lessons from Scaling Synthetic Data for Trillion-scale Pretraining</h3>
+                    <a href="https://arxiv.org/abs/2508.10975" class="url" target="_blank">https://arxiv.org/abs/2508.10975</a>
+                    <a href="https://blog.datologyai.com/beyondweb/" class="url" target="_blank">https://blog.datologyai.com/beyondweb/</a>
                 </div>
                 <details>
                     <summary>Abstract</summary>
-                    <div class="abstract">Language Models (LMs) assign significant attention to the first token, even if it is not semantically important, which is known as attention sink. This phenomenon has been widely adopted in applications such as streaming/long context generation, KV cache optimization, inference acceleration, model quantization, and others. Despite its widespread use, a deep understanding of attention sink in LMs is still lacking. In this work, we first demonstrate that attention sinks exist universally in LMs with various inputs, even in small models. Furthermore, attention sink is observed to emerge during the LM pre-training, motivating us to investigate how optimization, data distribution, loss function, and model architecture in LM pre-training influence its emergence. We highlight that attention sink emerges after effective optimization on sufficient training data. The sink position is highly correlated with the loss function and data distribution. Most importantly, we find that attention sink acts more like key biases, storing extra attention scores, which could be non-informative and not contribute to the value computation. We also observe that this phenomenon (at least partially) stems from tokens&#39; inner dependence on attention scores as a result of softmax normalization. After relaxing such dependence by replacing softmax attention with other attention operations, such as sigmoid attention without normalization, attention sinks do not emerge in LMs up to 1B parameters. The code is available at <a href="https://github.com/sail-sg/Attention-Sink" rel="external noopener nofollow" class="link-external link-https">this https URL</a>.</div>
+                    <div class="abstract">Recent advances in large language model (LLM) pretraining have shown that simply scaling data quantity eventually leads to diminishing returns, hitting a data wall. In response, the use of synthetic data for pretraining has emerged as a promising paradigm for pushing the frontier of performance. Despite this, the factors affecting synthetic data quality remain poorly understood. In this work, we introduce BeyondWeb, a synthetic data generation framework that produces high-quality synthetic data for pretraining. BeyondWeb significantly extends the capabilities of traditional web-scale datasets, outperforming state-of-the-art synthetic pretraining datasets such as Cosmopedia and Nemotron-CC&#39;s high-quality synthetic subset (Nemotron-Synth) by up to 5.1 percentage points (pp) and 2.6pp, respectively, when averaged across a suite of 14 benchmark evaluations. It delivers up to 7.7x faster training than open web data and 2.7x faster than Nemotron-Synth. Remarkably, a 3B model trained for 180B tokens on BeyondWeb outperforms an 8B model trained for the same token budget on Cosmopedia. We also present several insights from BeyondWeb on synthetic data for pretraining: what drives its benefits, which data to rephrase and how, and the impact of model size and family on data quality. Overall, our work shows that there&#39;s no silver bullet for generating high-quality synthetic pretraining data. The best outcomes require jointly optimizing many factors, a challenging task that requires rigorous science and practical expertise. Naive approaches can yield modest improvements, potentially at great cost, while well-executed methods can yield transformative improvements, as exemplified by BeyondWeb.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Data Eng</span>
+                </div>
+                <img src="paper_images/2508.10975_thumb.png" data-fullsize="paper_images/2508.10975.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Attention Inference">
+                <div class="urls">
+                    <h3>XQuant: Breaking the Memory Wall for LLM Inference with KV Cache Rematerialization</h3>
+                    <a href="https://arxiv.org/abs/2508.10395" class="url" target="_blank">https://arxiv.org/abs/2508.10395</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Although LLM inference has emerged as a critical workload for many downstream applications, efficiently inferring LLMs is challenging due to the substantial memory footprint and bandwidth requirements. In parallel, compute capabilities have steadily outpaced both memory capacity and bandwidth over the last few decades, a trend that remains evident in modern GPU hardware and exacerbates the challenge of LLM inference. As such, new algorithms are emerging that trade increased computation for reduced memory operations. To that end, we present XQuant, which takes advantage of this trend, enabling an order-of-magnitude reduction in memory consumption through low-bit quantization with substantial accuracy benefits relative to state-of-the-art KV cache quantization methods. We accomplish this by quantizing and caching the layer input activations X, instead of using standard KV caching, and then rematerializing the Keys and Values on-the-fly during inference. This results in an immediate 2$\times$ memory savings compared to KV caching. By applying XQuant, we achieve up to $\sim 7.7\times$ memory savings with $&lt;0.1$ perplexity degradation compared to the FP16 baseline. Furthermore, our approach leverages the fact that X values are similar across layers. Building on this observation, we introduce XQuant-CL, which exploits the cross-layer similarity in the X embeddings for extreme compression. Across different models, XQuant-CL attains up to 10$\times$ memory savings relative to the FP16 baseline with only 0.01 perplexity degradation, and 12.5$\times$ memory savings with only $0.1$ perplexity degradation. XQuant exploits the rapidly increasing compute capabilities of hardware platforms to eliminate the memory bottleneck, while surpassing state-of-the-art KV cache quantization methods and achieving near-FP16 accuracy across a wide range of models.</div>
                 </details>
                 <div class="tags">
                     <span class="tag">Attention</span>
+                    <span class="tag">Inference</span>
                 </div>
-                <img src="paper_images/2410.10781_thumb.png" data-fullsize="paper_images/2410.10781.png" class="paper-image" alt="Paper preview">
+                <img src="paper_images/2508.10395_thumb.png" data-fullsize="paper_images/2508.10395.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="HPO MoE Pretrain">
+                <div class="urls">
+                    <h3>μ-Parametrization for Mixture of Experts</h3>
+                    <a href="https://arxiv.org/abs/2508.09752" class="url" target="_blank">https://arxiv.org/abs/2508.09752</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Recent years have seen a growing interest and adoption of LLMs, with μTransfer becoming a key technique for tuning hyperparameters in large-scale training. Meanwhile, Mixture-of-Experts (MoE) has emerged as a leading architecture in extremely large models. However, the intersection of these two advancements has remained unexplored. In this work, we derive a μ-Parameterization (μP) for MoE, providing theoretical guarantees for feature learning across model widths in both the router and experts. We empirically validate our parameterization and further investigate how scaling the number of experts and granularity affects the optimal learning rate.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">HPO</span>
+                    <span class="tag">MoE</span>
+                    <span class="tag">Pretrain</span>
+                </div>
+                <img src="paper_images/2508.09752_thumb.png" data-fullsize="paper_images/2508.09752.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Model Release Pretrain">
+                <div class="urls">
+                    <h3>Apriel-Nemotron-15B-Thinker</h3>
+                    <a href="https://arxiv.org/abs/2508.10948" class="url" target="_blank">https://arxiv.org/abs/2508.10948</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">While large language models (LLMs) have achieved remarkable reasoning capabilities across domains like code, math and other enterprise tasks, their significant memory and computational costs often preclude their use in practical enterprise settings. To this end, we introduce Apriel-Nemotron-15B-Thinker, a 15-billion parameter model in the ServiceNow Apriel SLM series that achieves performance against medium sized state-of-the-art models such as o1-mini, QWQ32B, and EXAONE-Deep-32B while maintaining only half the memory footprint of those alternatives. Apriel-Nemotron-15B-Thinker model is trained in a four stage training pipeline including 1) Base Model upscaling, 2) Continual Pre-training 3) Supervised Fine-tuning (SFT) and 4) Reinforcement Learning using GRPO. Comprehensive evaluations across a diverse suite of benchmarks consistently demonstrate that our Apriel-Nemotron-15B-Thinker model matches or exceeds the performance of its 32-billion parameter counterparts, despite being less than half their size.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Model Release</span>
+                    <span class="tag">Pretrain</span>
+                </div>
+                <img src="paper_images/2508.10948_thumb.png" data-fullsize="paper_images/2508.10948.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Model Release Pretrain">
+                <div class="urls">
+                    <h3>GLM-4.5: Agentic, Reasoning, and Coding (ARC) Foundation Models</h3>
+                    <a href="https://arxiv.org/abs/2508.06471" class="url" target="_blank">https://arxiv.org/abs/2508.06471</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">We present GLM-4.5, an open-source Mixture-of-Experts (MoE) large language model with 355B total parameters and 32B activated parameters, featuring a hybrid reasoning method that supports both thinking and direct response modes. Through multi-stage training on 23T tokens and comprehensive post-training with expert model iteration and reinforcement learning, GLM-4.5 achieves strong performance across agentic, reasoning, and coding (ARC) tasks, scoring 70.1% on TAU-Bench, 91.0% on AIME 24, and 64.2% on SWE-bench Verified. With much fewer parameters than several competitors, GLM-4.5 ranks 3rd overall among all evaluated models and 2nd on agentic benchmarks. We release both GLM-4.5 (355B parameters) and a compact version, GLM-4.5-Air (106B parameters), to advance research in reasoning and agentic AI systems. Code, models, and more information are available at <a href="https://github.com/zai-org/GLM-4.5" rel="external noopener nofollow" class="link-external link-https">this https URL</a>.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Model Release</span>
+                    <span class="tag">Pretrain</span>
+                </div>
+                <img src="paper_images/2508.06471_thumb.png" data-fullsize="paper_images/2508.06471.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Deep Research RL">
                 <div class="urls">
@@ -366,6 +429,120 @@ blockquote {
                     <span class="tag">RL</span>
                 </div>
                 <img src="paper_images/2508.05748_thumb.png" data-fullsize="paper_images/2508.05748.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="MoE RL">
+                <div class="urls">
+                    <h3>Group Sequence Policy Optimization</h3>
+                    <a href="https://arxiv.org/abs/2507.18071" class="url" target="_blank">https://arxiv.org/abs/2507.18071</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">This paper introduces Group Sequence Policy Optimization (GSPO), our stable, efficient, and performant reinforcement learning algorithm for training large language models. Unlike previous algorithms that adopt token-level importance ratios, GSPO defines the importance ratio based on sequence likelihood and performs sequence-level clipping, rewarding, and optimization. We demonstrate that GSPO achieves superior training efficiency and performance compared to the GRPO algorithm, notably stabilizes Mixture-of-Experts (MoE) RL training, and has the potential for simplifying the design of RL infrastructure. These merits of GSPO have contributed to the remarkable improvements in the latest Qwen3 models.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">MoE</span>
+                    <span class="tag">RL</span>
+                </div>
+                <img src="paper_images/2507.18071_thumb.png" data-fullsize="paper_images/2507.18071.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Data Eng">
+                <div class="urls">
+                    <h3>Scaling Laws for Optimal Data Mixtures</h3>
+                    <a href="https://arxiv.org/abs/2507.09404" class="url" target="_blank">https://arxiv.org/abs/2507.09404</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Large foundation models are typically trained on data from multiple domains, with the data mixture--the proportion of each domain used--playing a critical role in model performance. The standard approach to selecting this mixture relies on trial and error, which becomes impractical for large-scale pretraining. We propose a systematic method to determine the optimal data mixture for any target domain using scaling laws. Our approach accurately predicts the loss of a model of size $N$ trained with $D$ tokens and a specific domain weight vector $h$. We validate the universality of these scaling laws by demonstrating their predictive power in three distinct and large-scale settings: large language model (LLM), native multimodal model (NMM), and large vision models (LVM) pretraining. We further show that these scaling laws can extrapolate to new data mixtures and across scales: their parameters can be accurately estimated using a few small-scale training runs, and used to estimate the performance at larger scales and unseen domain weights. The scaling laws allow to derive the optimal domain weights for any target domain under a given training budget ($N$,$D$), providing a principled alternative to costly trial-and-error methods.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Data Eng</span>
+                </div>
+                <img src="paper_images/2507.09404_thumb.png" data-fullsize="paper_images/2507.09404.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Deep Research RL">
+                <div class="urls">
+                    <h3>WebSailor: Navigating Super-human Reasoning for Web Agent</h3>
+                    <a href="https://arxiv.org/abs/2507.02592" class="url" target="_blank">https://arxiv.org/abs/2507.02592</a>
+                    <a href="https://github.com/Alibaba-NLP/WebAgent" class="url" target="_blank">https://github.com/Alibaba-NLP/WebAgent</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Transcending human cognitive limitations represents a critical frontier in LLM training. Proprietary agentic systems like DeepResearch have demonstrated superhuman capabilities on extremely complex information-seeking benchmarks such as BrowseComp, a feat previously unattainable. We posit that their success hinges on a sophisticated reasoning pattern absent in open-source models: the ability to systematically reduce extreme uncertainty when navigating vast information landscapes. Based on this insight, we introduce WebSailor, a complete post-training methodology designed to instill this crucial capability. Our approach involves generating novel, high-uncertainty tasks through structured sampling and information obfuscation, RFT cold start, and an efficient agentic RL training algorithm, Duplicating Sampling Policy Optimization (DUPO). With this integrated pipeline, WebSailor significantly outperforms all opensource agents in complex information-seeking tasks, matching proprietary agents&#39; performance and closing the capability gap.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Deep Research</span>
+                    <span class="tag">RL</span>
+                </div>
+                <img src="paper_images/2507.02592_thumb.png" data-fullsize="paper_images/2507.02592.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="RL">
+                <div class="urls">
+                    <h3>Open-ended Scientific Discovery via Bayesian Surprise</h3>
+                    <a href="https://arxiv.org/abs/2507.00310" class="url" target="_blank">https://arxiv.org/abs/2507.00310</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">The promise of autonomous scientific discovery (ASD) hinges not only on answering questions, but also on knowing which questions to ask. Most recent works in ASD explore the use of large language models (LLMs) in goal-driven settings, relying on human-specified research questions to guide hypothesis generation. However, scientific discovery may be accelerated further by allowing the AI system to drive exploration by its own criteria. The few existing approaches in open-ended ASD select hypotheses based on diversity heuristics or subjective proxies for human interestingness, but the former struggles to meaningfully navigate the typically vast hypothesis space, and the latter suffers from imprecise definitions. This paper presents AutoDS -- a method for open-ended ASD that instead drives scientific exploration using Bayesian surprise. Here, we quantify the epistemic shift from the LLM&#39;s prior beliefs about a hypothesis to its posterior beliefs after gathering experimental results. To efficiently explore the space of nested hypotheses, our method employs a Monte Carlo tree search (MCTS) strategy with progressive widening using surprisal as the reward function. We evaluate AutoDS in the setting of data-driven discovery across 21 real-world datasets spanning domains such as biology, economics, finance, and behavioral science. Our results demonstrate that under a fixed budget, AutoDS substantially outperforms competitors by producing 5--29\% more discoveries deemed surprising by the LLM. Our human evaluation further finds that two-thirds of AutoDS discoveries are surprising to the domain experts, suggesting this is an important step forward towards building open-ended ASD systems.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">RL</span>
+                </div>
+                <img src="paper_images/2507.00310_thumb.png" data-fullsize="paper_images/2507.00310.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="">
+                <div class="urls">
+                    <h3>Cross-Entropy Games for Language Models: From Implicit Knowledge to General Capability Measures</h3>
+                    <a href="https://arxiv.org/abs/2506.06832" class="url" target="_blank">https://arxiv.org/abs/2506.06832</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Large Language Models (LLMs) define probability measures on text. By considering the implicit knowledge question of what it means for an LLM to know such a measure and what it entails algorithmically, we are naturally led to formulate a series of tasks that go beyond generative sampling, involving forms of summarization, counterfactual thinking, anomaly detection, originality search, reverse prompting, debating, creative solving, etc. These tasks can be formulated as games based on LLM measures, which we call Cross-Entropy (Xent) Games. Xent Games can be single-player or multi-player. They involve cross-entropy scores and cross-entropy constraints, and can be expressed as simple computational graphs and programs. We show the Xent Game space is large enough to contain a wealth of interesting examples, while being constructible from basic game-theoretic consistency axioms. We then discuss how the Xent Game space can be used to measure the abilities of LLMs. This leads to the construction of Xent Game measures: finite families of Xent Games that can be used as capability benchmarks, built from a given scope, by extracting a covering measure. To address the unbounded scope problem associated with the challenge of measuring general abilities, we propose to explore the space of Xent Games in a coherent fashion, using ideas inspired by evolutionary dynamics.</div>
+                </details>
+                <img src="paper_images/2506.06832_thumb.png" data-fullsize="paper_images/2506.06832.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Pretrain Quantization">
+                <div class="urls">
+                    <h3>FP4 All the Way: Fully Quantized Training of LLMs</h3>
+                    <a href="https://arxiv.org/abs/2505.19115" class="url" target="_blank">https://arxiv.org/abs/2505.19115</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">We demonstrate, for the first time, fully quantized training (FQT) of large language models (LLMs) using predominantly 4-bit floating-point (FP4) precision for weights, activations, and gradients on datasets up to 200 billion tokens. We extensively investigate key design choices for FP4, including block sizes, scaling formats, and rounding methods. Our analysis shows that the NVFP4 format, where each block of 16 FP4 values (E2M1) shares a scale represented in E4M3, provides optimal results. We use stochastic rounding for backward and update passes and round-to-nearest for the forward pass to enhance stability. Additionally, we identify a theoretical and empirical threshold for effective quantized training: when the gradient norm falls below approximately $\sqrt{3}$ times the quantization noise, quantized training becomes less effective. Leveraging these insights, we successfully train a 7-billion-parameter model on 256 Intel Gaudi2 accelerators. The resulting FP4-trained model achieves downstream task performance comparable to a standard BF16 baseline, confirming that FP4 training is a practical and highly efficient approach for large-scale LLM training. A reference implementation is supplied in <a href="https://github.com/Anonymous1252022/fp4-all-the-way" rel="external noopener nofollow" class="link-external link-https">this https URL</a> .</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Pretrain</span>
+                    <span class="tag">Quantization</span>
+                </div>
+                <img src="paper_images/2505.19115_thumb.png" data-fullsize="paper_images/2505.19115.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Pretrain Quantization">
+                <div class="urls">
+                    <h3>FP4 All the Way: Fully Quantized Training of LLMs</h3>
+                    <a href="https://arxiv.org/abs/2505.19115v1" class="url" target="_blank">https://arxiv.org/abs/2505.19115v1</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">We demonstrate, for the first time, fully quantized training (FQT) of large language models (LLMs) using predominantly 4-bit floating-point (FP4) precision for weights, activations, and gradients on datasets up to 200 billion tokens. We extensively investigate key design choices for FP4, including block sizes, scaling formats, and rounding methods. Our analysis shows that the NVFP4 format, where each block of 16 FP4 values (E2M1) shares a scale represented in E4M3, provides optimal results. We use stochastic rounding for backward and update passes and round-to-nearest for the forward pass to enhance stability. Additionally, we identify a theoretical and empirical threshold for effective quantized training: when the gradient norm falls below approximately $\sqrt{3}$ times the quantization noise, quantized training becomes less effective. Leveraging these insights, we successfully train a 7-billion-parameter model on 256 Intel Gaudi2 accelerators. The resulting FP4-trained model achieves downstream task performance comparable to a standard BF16 baseline, confirming that FP4 training is a practical and highly efficient approach for large-scale LLM training. A reference implementation is supplied in <a href="https://github.com/Anonymous1252022/fp4-all-the-way" rel="external noopener nofollow" class="link-external link-https">this https URL</a> .</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Pretrain</span>
+                    <span class="tag">Quantization</span>
+                </div>
+                <img src="paper_images/2505.19115v1_thumb.png" data-fullsize="paper_images/2505.19115v1.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Optimizers">
+                <div class="urls">
+                    <h3>The Polar Express: Optimal Matrix Sign Methods and Their Application to the Muon Algorithm</h3>
+                    <a href="https://arxiv.org/abs/2505.16932" class="url" target="_blank">https://arxiv.org/abs/2505.16932</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Computing the polar decomposition and the related matrix sign function, has been a well-studied problem in numerical analysis for decades. More recently, it has emerged as an important subroutine in deep learning, particularly within the Muon optimization framework. However, the requirements in this setting differ significantly from those of traditional numerical analysis. In deep learning, methods must be highly efficient and GPU-compatible, but high accuracy is often unnecessary. As a result, classical algorithms like Newton-Schulz (which suffers from slow initial convergence) and methods based on rational functions (which rely on QR decompositions or matrix inverses) are poorly suited to this context. In this work, we introduce Polar Express, a GPU-friendly algorithm for computing the polar decomposition. Like classical polynomial methods such as Newton-Schulz, our approach uses only matrix-matrix multiplications, making it GPU-compatible. Motivated by earlier work of Chen &amp; Chow and Nakatsukasa &amp; Freund, Polar Express adapts the polynomial update rule at each iteration by solving a minimax optimization problem, and we prove that it enjoys a strong worst-case optimality guarantee. This property ensures both rapid early convergence and fast asymptotic convergence. We also address finite-precision issues, making it stable in bfloat16 in practice. We apply Polar Express within the Muon optimization framework and show consistent improvements in validation loss on large-scale models such as GPT-2, outperforming recent alternatives across a range of learning rates.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Optimizers</span>
+                </div>
+                <img src="paper_images/2505.16932_thumb.png" data-fullsize="paper_images/2505.16932.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Pretrain Quantization">
                 <div class="urls">
@@ -397,80 +574,94 @@ blockquote {
                 </div>
                 <img src="paper_images/2505.17063_thumb.png" data-fullsize="paper_images/2505.17063.png" class="paper-image" alt="Paper preview">
             </div>
-            <div class="item" data-tags="Pretrain Quantization">
+            <div class="item" data-tags="Model Merging">
                 <div class="urls">
-                    <h3>FP4 All the Way: Fully Quantized Training of LLMs</h3>
-                    <a href="https://arxiv.org/abs/2505.19115" class="url" target="_blank">https://arxiv.org/abs/2505.19115</a>
+                    <h3>Model Merging in Pre-training of Large Language Models</h3>
+                    <a href="https://arxiv.org/abs/2505.12082" class="url" target="_blank">https://arxiv.org/abs/2505.12082</a>
                 </div>
                 <details>
                     <summary>Abstract</summary>
-                    <div class="abstract">We demonstrate, for the first time, fully quantized training (FQT) of large language models (LLMs) using predominantly 4-bit floating-point (FP4) precision for weights, activations, and gradients on datasets up to 200 billion tokens. We extensively investigate key design choices for FP4, including block sizes, scaling formats, and rounding methods. Our analysis shows that the NVFP4 format, where each block of 16 FP4 values (E2M1) shares a scale represented in E4M3, provides optimal results. We use stochastic rounding for backward and update passes and round-to-nearest for the forward pass to enhance stability. Additionally, we identify a theoretical and empirical threshold for effective quantized training: when the gradient norm falls below approximately $\sqrt{3}$ times the quantization noise, quantized training becomes less effective. Leveraging these insights, we successfully train a 7-billion-parameter model on 256 Intel Gaudi2 accelerators. The resulting FP4-trained model achieves downstream task performance comparable to a standard BF16 baseline, confirming that FP4 training is a practical and highly efficient approach for large-scale LLM training. A reference implementation is supplied in <a href="https://github.com/Anonymous1252022/fp4-all-the-way" rel="external noopener nofollow" class="link-external link-https">this https URL</a> .</div>
+                    <div class="abstract">Model merging has emerged as a promising technique for enhancing large language models, though its application in large-scale pre-training remains relatively unexplored. In this paper, we present a comprehensive investigation of model merging techniques during the pre-training process. Through extensive experiments with both dense and Mixture-of-Experts (MoE) architectures ranging from millions to over 100 billion parameters, we demonstrate that merging checkpoints trained with constant learning rates not only achieves significant performance improvements but also enables accurate prediction of annealing behavior. These improvements lead to both more efficient model development and significantly lower training costs. Our detailed ablation studies on merging strategies and hyperparameters provide new insights into the underlying mechanisms while uncovering novel applications. Through comprehensive experimental analysis, we offer the open-source community practical pre-training guidelines for effective model merging.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Model Merging</span>
+                </div>
+                <img src="paper_images/2505.12082_thumb.png" data-fullsize="paper_images/2505.12082.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Attention">
+                <div class="urls">
+                    <h3>Softpick: No Attention Sink, No Massive Activations with Rectified Softmax</h3>
+                    <a href="https://arxiv.org/abs/2504.20966" class="url" target="_blank">https://arxiv.org/abs/2504.20966</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">We introduce softpick, a rectified, not sum-to-one, drop-in replacement for softmax in transformer attention mechanisms that eliminates attention sink and massive activations. Our experiments with 340M and 1.8B parameter models demonstrate that softpick achieves 0\% sink rate consistently. The softpick transformers produce hidden states with significantly lower kurtosis and creates sparse attention maps. Quantized models using softpick outperform softmax on standard benchmarks, with a particularly pronounced advantage at lower bit precisions. Our analysis and discussion shows how softpick has the potential to open new possibilities for quantization, low-precision training, sparsity optimization, pruning, and interpretability. Our code is available at <a href="https://github.com/zaydzuhri/softpick-attention" rel="external noopener nofollow" class="link-external link-https">this https URL</a></div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Attention</span>
+                </div>
+                <img src="paper_images/2504.20966_thumb.png" data-fullsize="paper_images/2504.20966.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Distributed Pretrain">
+                <div class="urls">
+                    <h3>GaLore 2: Large-Scale LLM Pre-Training by Gradient Low-Rank Projection</h3>
+                    <a href="https://arxiv.org/abs/2504.20437" class="url" target="_blank">https://arxiv.org/abs/2504.20437</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Large language models (LLMs) have revolutionized natural language understanding and generation but face significant memory bottlenecks during training. GaLore, Gradient Low-Rank Projection, addresses this issue by leveraging the inherent low-rank structure of weight gradients, enabling substantial memory savings without sacrificing performance. Recent works further extend GaLore from various aspects, including low-bit quantization and higher-order tensor structures. However, there are several remaining challenges for GaLore, such as the computational overhead of SVD for subspace updates and the integration with state-of-the-art training parallelization strategies (e.g., FSDP). In this paper, we present GaLore 2, an efficient and scalable GaLore framework that addresses these challenges and incorporates recent advancements. In addition, we demonstrate the scalability of GaLore 2 by pre-training Llama 7B from scratch using up to 500 billion training tokens, highlighting its potential impact on real LLM pre-training scenarios.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Distributed</span>
+                    <span class="tag">Pretrain</span>
+                </div>
+                <img src="paper_images/2504.20437_thumb.png" data-fullsize="paper_images/2504.20437.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Distributed Optimizers Pretrain">
+                <div class="urls">
+                    <h3>Dion: Distributed Orthonormalized Updates</h3>
+                    <a href="https://arxiv.org/abs/2504.05295" class="url" target="_blank">https://arxiv.org/abs/2504.05295</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Recent work has shown that orthonormal matrix updates speed up neural network optimization, improve training stability, and offer better hyperparameter transfer across model sizes. Applying these updates efficiently when model weights and optimizer states are sharded across a large-scale distributed LLM training system remains a major challenge. We introduce Dion (DIstributed OrthoNormalization), a scalable and communication-efficient orthonormalizing optimizer. Dion leverages low-rank approximation and decoupled momentum buffers, eliminating the need for full gradient synchronization while producing numerically equivalent results. It is compatible with simultaneous DDP, FSDP, and TP parallelism, and it computes an orthonormalized update without unsharding a full parameter matrix on any single device. We evaluate Dion on language models from 120M to 3B parameters and find that its benefits improve with increasing model size and batch size.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Distributed</span>
+                    <span class="tag">Optimizers</span>
+                    <span class="tag">Pretrain</span>
+                </div>
+                <img src="paper_images/2504.05295_thumb.png" data-fullsize="paper_images/2504.05295.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="HPO Pretrain">
+                <div class="urls">
+                    <h3>Predictable Scale: Part I, Step Law -- Optimal Hyperparameter Scaling Law in Large Language Model Pretraining</h3>
+                    <a href="https://arxiv.org/abs/2503.04715" class="url" target="_blank">https://arxiv.org/abs/2503.04715</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">The impressive capabilities of Large Language Models (LLMs) across diverse tasks are now well established, yet their effective deployment necessitates careful hyperparameter optimization. Although existing methods have explored the influence of hyperparameters on model performance, a principled and generalizable framework across model architectures and data recipes remains absent. In this study, we conduct an unprecedented empirical investigation training over 3,700 LLMs from scratch across 100 trillion tokens, consuming nearly one million NVIDIA H800 GPU hours to establish a universal Scaling Law for hyperparameter optimization in LLM Pre-training, called Step Law. We empirically observe that, under fixed model size ($N$) and dataset size ($D$), the hyperparameter landscape exhibits convexity with a broad optimum, substantially reducing the complexity of hyperparameter search. Building on this insight, we formally define and empirically validate the Step Law: The optimal learning rate follows a power-law relationship with $N$ and $D$, while the optimal batch size is primarily influenced by $D$ and remains largely invariant to $N$.Notably, our estimated optima deviate from the global best performance found via exhaustive search by merely 0.094\% on the test set. To our best known, Step Law is the first that unifies different model shapes and structures, such as Mixture-of-Experts models and dense transformers, as well as establishes optimal hyperparameter scaling laws across diverse data recipes. We contribute a universal, plug-and-play optimal hyperparameter tool for the community, which is expected to advance efficient LLM training at scale. All experimental code, data and checkpoints are publicly available at <a href="https://github.com/step-law/steplaw" rel="external noopener nofollow" class="link-external link-https">this https URL</a></div>
+                </details>
+                <div class="tags">
+                    <span class="tag">HPO</span>
+                    <span class="tag">Pretrain</span>
+                </div>
+                <img src="paper_images/2503.04715_thumb.png" data-fullsize="paper_images/2503.04715.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Pretrain Quantization">
+                <div class="urls">
+                    <h3>Training LLMs with MXFP4</h3>
+                    <a href="https://arxiv.org/abs/2502.20586" class="url" target="_blank">https://arxiv.org/abs/2502.20586</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Low precision (LP) datatypes such as MXFP4 can accelerate matrix multiplications (GEMMs) and reduce training costs. However, directly using MXFP4 instead of BF16 during training significantly degrades model quality. In this work, we present the first near-lossless training recipe that uses MXFP4 GEMMs, which are $2\times$ faster than FP8 on supported hardware. Our key insight is to compute unbiased gradient estimates with stochastic rounding (SR), resulting in more accurate model updates. However, directly applying SR to MXFP4 can result in high variance from block-level outliers, harming convergence. To overcome this, we use the random Hadamard tranform to theoretically bound the variance of SR. We train GPT models up to 6.7B parameters and find that our method induces minimal degradation over mixed-precision BF16 training. Our recipe computes $&gt;1/2$ the training FLOPs in MXFP4, enabling an estimated speedup of $&gt;1.3\times$ over FP8 and $&gt;1.7\times$ over BF16 during backpropagation.</div>
                 </details>
                 <div class="tags">
                     <span class="tag">Pretrain</span>
                     <span class="tag">Quantization</span>
                 </div>
-                <img src="paper_images/2505.19115_thumb.png" data-fullsize="paper_images/2505.19115.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="HPO MoE Pretrain">
-                <div class="urls">
-                    <h3>μ-Parametrization for Mixture of Experts</h3>
-                    <a href="https://arxiv.org/abs/2508.09752" class="url" target="_blank">https://arxiv.org/abs/2508.09752</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Recent years have seen a growing interest and adoption of LLMs, with μTransfer becoming a key technique for tuning hyperparameters in large-scale training. Meanwhile, Mixture-of-Experts (MoE) has emerged as a leading architecture in extremely large models. However, the intersection of these two advancements has remained unexplored. In this work, we derive a μ-Parameterization (μP) for MoE, providing theoretical guarantees for feature learning across model widths in both the router and experts. We empirically validate our parameterization and further investigate how scaling the number of experts and granularity affects the optimal learning rate.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">HPO</span>
-                    <span class="tag">MoE</span>
-                    <span class="tag">Pretrain</span>
-                </div>
-                <img src="paper_images/2508.09752_thumb.png" data-fullsize="paper_images/2508.09752.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="Data Eng">
-                <div class="urls">
-                    <h3>Beyond Model Collapse: Scaling Up with Synthesized Data Requires Verification</h3>
-                    <a href="https://arxiv.org/abs/2406.07515" class="url" target="_blank">https://arxiv.org/abs/2406.07515</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Large Language Models (LLM) are increasingly trained on data generated by other LLM, either because generated text and images become part of the pre-training corpus, or because synthetized data is used as a replacement for expensive human-annotation. This raises concerns about \emph{model collapse}, a drop in model performance when their training sets include generated data. Considering that it is easier for both humans and machines to tell between good and bad examples than to generate high-quality samples, we investigate the use of verification on synthesized data to prevent model collapse. We provide a theoretical characterization using Gaussian mixtures, linear classifiers, and linear verifiers to derive conditions with measurable proxies to assess whether the verifier can effectively select synthesized data that leads to optimal performance. We experiment with two practical tasks -- computing matrix eigenvalues with transformers and news summarization with LLMs -- which both exhibit model collapse when trained on generated data, and show that verifiers, even imperfect ones, can indeed be harnessed to prevent model collapse and that our proposed proxy measure strongly correlates with performance.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Data Eng</span>
-                </div>
-                <img src="paper_images/2406.07515_thumb.png" data-fullsize="paper_images/2406.07515.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="Model Release Pretrain">
-                <div class="urls">
-                    <h3>Apriel-Nemotron-15B-Thinker</h3>
-                    <a href="https://arxiv.org/abs/2508.10948" class="url" target="_blank">https://arxiv.org/abs/2508.10948</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">While large language models (LLMs) have achieved remarkable reasoning capabilities across domains like code, math and other enterprise tasks, their significant memory and computational costs often preclude their use in practical enterprise settings. To this end, we introduce Apriel-Nemotron-15B-Thinker, a 15-billion parameter model in the ServiceNow Apriel SLM series that achieves performance against medium sized state-of-the-art models such as o1-mini, QWQ32B, and EXAONE-Deep-32B while maintaining only half the memory footprint of those alternatives. Apriel-Nemotron-15B-Thinker model is trained in a four stage training pipeline including 1) Base Model upscaling, 2) Continual Pre-training 3) Supervised Fine-tuning (SFT) and 4) Reinforcement Learning using GRPO. Comprehensive evaluations across a diverse suite of benchmarks consistently demonstrate that our Apriel-Nemotron-15B-Thinker model matches or exceeds the performance of its 32-billion parameter counterparts, despite being less than half their size.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Model Release</span>
-                    <span class="tag">Pretrain</span>
-                </div>
-                <img src="paper_images/2508.10948_thumb.png" data-fullsize="paper_images/2508.10948.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="Data Eng">
-                <div class="urls">
-                    <h3>BeyondWeb: Lessons from Scaling Synthetic Data for Trillion-scale Pretraining</h3>
-                    <a href="https://arxiv.org/abs/2508.10975" class="url" target="_blank">https://arxiv.org/abs/2508.10975</a>
-                    <a href="https://blog.datologyai.com/beyondweb/" class="url" target="_blank">https://blog.datologyai.com/beyondweb/</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Recent advances in large language model (LLM) pretraining have shown that simply scaling data quantity eventually leads to diminishing returns, hitting a data wall. In response, the use of synthetic data for pretraining has emerged as a promising paradigm for pushing the frontier of performance. Despite this, the factors affecting synthetic data quality remain poorly understood. In this work, we introduce BeyondWeb, a synthetic data generation framework that produces high-quality synthetic data for pretraining. BeyondWeb significantly extends the capabilities of traditional web-scale datasets, outperforming state-of-the-art synthetic pretraining datasets such as Cosmopedia and Nemotron-CC&#39;s high-quality synthetic subset (Nemotron-Synth) by up to 5.1 percentage points (pp) and 2.6pp, respectively, when averaged across a suite of 14 benchmark evaluations. It delivers up to 7.7x faster training than open web data and 2.7x faster than Nemotron-Synth. Remarkably, a 3B model trained for 180B tokens on BeyondWeb outperforms an 8B model trained for the same token budget on Cosmopedia. We also present several insights from BeyondWeb on synthetic data for pretraining: what drives its benefits, which data to rephrase and how, and the impact of model size and family on data quality. Overall, our work shows that there&#39;s no silver bullet for generating high-quality synthetic pretraining data. The best outcomes require jointly optimizing many factors, a challenging task that requires rigorous science and practical expertise. Naive approaches can yield modest improvements, potentially at great cost, while well-executed methods can yield transformative improvements, as exemplified by BeyondWeb.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Data Eng</span>
-                </div>
-                <img src="paper_images/2508.10975_thumb.png" data-fullsize="paper_images/2508.10975.png" class="paper-image" alt="Paper preview">
+                <img src="paper_images/2502.20586_thumb.png" data-fullsize="paper_images/2502.20586.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="GPU Perf Pretrain RL">
                 <div class="urls">
@@ -489,20 +680,162 @@ blockquote {
                 </div>
                 <img src="paper_images/2502.10517_thumb.png" data-fullsize="paper_images/2502.10517.png" class="paper-image" alt="Paper preview">
             </div>
-            <div class="item" data-tags="Pretrain Quantization">
+            <div class="item" data-tags="Model Merging">
                 <div class="urls">
-                    <h3>FP4 All the Way: Fully Quantized Training of LLMs</h3>
-                    <a href="https://arxiv.org/abs/2505.19115v1" class="url" target="_blank">https://arxiv.org/abs/2505.19115v1</a>
+                    <h3>MERGE$^3$: Efficient Evolutionary Merging on Consumer-grade GPUs</h3>
+                    <a href="https://arxiv.org/abs/2502.10436" class="url" target="_blank">https://arxiv.org/abs/2502.10436</a>
                 </div>
                 <details>
                     <summary>Abstract</summary>
-                    <div class="abstract">We demonstrate, for the first time, fully quantized training (FQT) of large language models (LLMs) using predominantly 4-bit floating-point (FP4) precision for weights, activations, and gradients on datasets up to 200 billion tokens. We extensively investigate key design choices for FP4, including block sizes, scaling formats, and rounding methods. Our analysis shows that the NVFP4 format, where each block of 16 FP4 values (E2M1) shares a scale represented in E4M3, provides optimal results. We use stochastic rounding for backward and update passes and round-to-nearest for the forward pass to enhance stability. Additionally, we identify a theoretical and empirical threshold for effective quantized training: when the gradient norm falls below approximately $\sqrt{3}$ times the quantization noise, quantized training becomes less effective. Leveraging these insights, we successfully train a 7-billion-parameter model on 256 Intel Gaudi2 accelerators. The resulting FP4-trained model achieves downstream task performance comparable to a standard BF16 baseline, confirming that FP4 training is a practical and highly efficient approach for large-scale LLM training. A reference implementation is supplied in <a href="https://github.com/Anonymous1252022/fp4-all-the-way" rel="external noopener nofollow" class="link-external link-https">this https URL</a> .</div>
+                    <div class="abstract">Evolutionary model merging enables the creation of high-performing multi-task models but remains computationally prohibitive for consumer hardware. We introduce MERGE$^3$, an efficient framework that makes evolutionary merging feasible on a single GPU by reducing fitness computation costs 50$\times$ while preserving performance. MERGE$^3$ achieves this by Extracting a reduced dataset for evaluation, Estimating model abilities using Item Response Theory (IRT), and Evolving optimal merges via IRT-based performance estimators. Our method enables state-of-the-art multilingual and cross-lingual merging, transferring knowledge across languages with significantly lower computational overhead. We provide theoretical guarantees and an open-source library, democratizing high-quality model merging.</div>
                 </details>
                 <div class="tags">
+                    <span class="tag">Model Merging</span>
+                </div>
+                <img src="paper_images/2502.10436_thumb.png" data-fullsize="paper_images/2502.10436.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="RL Application">
+                <div class="urls">
+                    <h3>STP: Self-play LLM Theorem Provers with Iterative Conjecturing and Proving</h3>
+                    <a href="https://arxiv.org/abs/2502.00212" class="url" target="_blank">https://arxiv.org/abs/2502.00212</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">A fundamental challenge in formal theorem proving by LLMs is the lack of high-quality training data. Although reinforcement learning or expert iteration partially mitigates this issue by alternating between LLM generating proofs and finetuning them on correctly generated ones, performance quickly plateaus due to the scarcity of correct proofs (sparse rewards). To keep improving the models with limited data, we draw inspiration from mathematicians, who continuously develop new results, partly by proposing novel conjectures or exercises (which are often variants of known results) and attempting to solve them. We design the Self-play Theorem Prover (STP) that simultaneously takes on two roles, conjecturer and prover, each providing training signals to the other. The conjecturer is trained iteratively on previously generated conjectures that are barely provable by the current prover, which incentivizes it to generate increasingly challenging conjectures over time. The prover attempts to prove the conjectures with standard expert iteration. We evaluate STP with both Lean and Isabelle formal versifiers. With 51.3 billion tokens generated during the training in Lean, STP proves 28.5% of the statements in the LeanWorkbook dataset, doubling the previous best result of 13.2% achieved through expert iteration. The final model achieves state-of-the-art performance among whole-proof generation methods on miniF2F-test (65.0%, pass@3200), Proofnet-test (23.9%, pass@3200) and PutnamBench (8/644, pass@3200). We release our code, model, and dataset in this URL: <a href="https://github.com/kfdong/STP" rel="external noopener nofollow" class="link-external link-https">this https URL</a>.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">RL Application</span>
+                </div>
+                <img src="paper_images/2502.00212_thumb.png" data-fullsize="paper_images/2502.00212.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Optimizers">
+                <div class="urls">
+                    <h3>APOLLO: SGD-like Memory, AdamW-level Performance</h3>
+                    <a href="https://arxiv.org/abs/2412.05270" class="url" target="_blank">https://arxiv.org/abs/2412.05270</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Large language models (LLMs) are notoriously memory-intensive during training, particularly with the popular AdamW optimizer. This memory burden necessitates using more or higher-end GPUs or reducing batch sizes, limiting training scalability and throughput. To address this, various memory-efficient optimizers have been proposed to reduce optimizer memory usage. However, they face critical challenges: (i) reliance on costly SVD operations; (ii) significant performance trade-offs compared to AdamW; and (iii) still substantial optimizer memory overhead to maintain competitive performance. <br>In this work, we identify that AdamW&#39;s learning rate adaptation rule can be effectively coarsened as a structured learning rate update. Based on this insight, we propose Approximated Gradient Scaling for Memory-Efficient LLM Optimization (APOLLO), which approximates learning rate scaling using an auxiliary low-rank optimizer state based on pure random projection. This structured learning rate update rule makes APOLLO highly tolerant to further memory reductions while delivering comparable pre-training performance. Even its rank-1 variant, APOLLO-Mini, achieves superior pre-training performance compared to AdamW with SGD-level memory costs. <br>Extensive experiments demonstrate that the APOLLO series performs on-par with or better than AdamW, while achieving greater memory savings by nearly eliminating the optimization states of AdamW. These savings provide significant system-level benefits: (1) Enhanced Throughput: 3x throughput on an 8xA100-80GB setup compared to AdamW by supporting 4x larger batch sizes. (2) Improved Model Scalability: Pre-training LLaMA-13B with naive DDP on A100-80GB GPUs without system-level optimizations. (3) Low-End GPU Friendly Pre-training: Pre-training LLaMA-7B on a single GPU using less than 12 GB of memory with weight quantization.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Optimizers</span>
+                </div>
+                <img src="paper_images/2412.05270_thumb.png" data-fullsize="paper_images/2412.05270.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Attention">
+                <div class="urls">
+                    <h3>When Attention Sink Emerges in Language Models: An Empirical View</h3>
+                    <a href="https://arxiv.org/abs/2410.10781" class="url" target="_blank">https://arxiv.org/abs/2410.10781</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Language Models (LMs) assign significant attention to the first token, even if it is not semantically important, which is known as attention sink. This phenomenon has been widely adopted in applications such as streaming/long context generation, KV cache optimization, inference acceleration, model quantization, and others. Despite its widespread use, a deep understanding of attention sink in LMs is still lacking. In this work, we first demonstrate that attention sinks exist universally in LMs with various inputs, even in small models. Furthermore, attention sink is observed to emerge during the LM pre-training, motivating us to investigate how optimization, data distribution, loss function, and model architecture in LM pre-training influence its emergence. We highlight that attention sink emerges after effective optimization on sufficient training data. The sink position is highly correlated with the loss function and data distribution. Most importantly, we find that attention sink acts more like key biases, storing extra attention scores, which could be non-informative and not contribute to the value computation. We also observe that this phenomenon (at least partially) stems from tokens&#39; inner dependence on attention scores as a result of softmax normalization. After relaxing such dependence by replacing softmax attention with other attention operations, such as sigmoid attention without normalization, attention sinks do not emerge in LMs up to 1B parameters. The code is available at <a href="https://github.com/sail-sg/Attention-Sink" rel="external noopener nofollow" class="link-external link-https">this https URL</a>.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Attention</span>
+                </div>
+                <img src="paper_images/2410.10781_thumb.png" data-fullsize="paper_images/2410.10781.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Model Merging">
+                <div class="urls">
+                    <h3>Parameter Competition Balancing for Model Merging</h3>
+                    <a href="https://arxiv.org/abs/2410.02396" class="url" target="_blank">https://arxiv.org/abs/2410.02396</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">While fine-tuning pretrained models has become common practice, these models often underperform outside their specific domains. Recently developed model merging techniques enable the direct integration of multiple models, each fine-tuned for distinct tasks, into a single model. This strategy promotes multitasking capabilities without requiring retraining on the original datasets. However, existing methods fall short in addressing potential conflicts and complex correlations between tasks, especially in parameter-level adjustments, posing a challenge in effectively balancing parameter competition across various tasks. This paper introduces an innovative technique named PCB-Merging (Parameter Competition Balancing), a lightweight and training-free technique that adjusts the coefficients of each parameter for effective model merging. PCB-Merging employs intra-balancing to gauge parameter significance within individual tasks and inter-balancing to assess parameter similarities across different tasks. Parameters with low importance scores are dropped, and the remaining ones are rescaled to form the final merged model. We assessed our approach in diverse merging scenarios, including cross-task, cross-domain, and cross-training configurations, as well as out-of-domain generalization. The experimental results reveal that our approach achieves substantial performance enhancements across multiple modalities, domains, model sizes, number of tasks, fine-tuning forms, and large language models, outperforming existing model merging methods. The code is publicly available at: \url{<a href="https://github.com/duguodong7/pcb-merging" rel="external noopener nofollow" class="link-external link-https">this https URL</a>}.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Model Merging</span>
+                </div>
+                <img src="paper_images/2410.02396_thumb.png" data-fullsize="paper_images/2410.02396.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Finetuning MoE">
+                <div class="urls">
+                    <h3>Let the Expert Stick to His Last: Expert-Specialized Fine-Tuning for Sparse Architectural Large Language Models</h3>
+                    <a href="https://arxiv.org/abs/2407.01906" class="url" target="_blank">https://arxiv.org/abs/2407.01906</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Parameter-efficient fine-tuning (PEFT) is crucial for customizing Large Language Models (LLMs) with constrained resources. Although there have been various PEFT methods for dense-architecture LLMs, PEFT for sparse-architecture LLMs is still underexplored. In this work, we study the PEFT method for LLMs with the Mixture-of-Experts (MoE) architecture and the contents of this work are mainly threefold: (1) We investigate the dispersion degree of the activated experts in customized tasks, and found that the routing distribution for a specific task tends to be highly concentrated, while the distribution of activated experts varies significantly across different tasks. (2) We propose Expert-Specialized Fine-Tuning, or ESFT, which tunes the experts most relevant to downstream tasks while freezing the other experts and modules; experimental results demonstrate that our method not only improves the tuning efficiency, but also matches or even surpasses the performance of full-parameter fine-tuning. (3) We further analyze the impact of the MoE architecture on expert-specialized fine-tuning. We find that MoE models with finer-grained experts are more advantageous in selecting the combination of experts that are most relevant to downstream tasks, thereby enhancing both the training efficiency and effectiveness. Our code is available at <a href="https://github.com/deepseek-ai/ESFT" rel="external noopener nofollow" class="link-external link-https">this https URL</a>.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Finetuning</span>
+                    <span class="tag">MoE</span>
+                </div>
+                <img src="paper_images/2407.01906_thumb.png" data-fullsize="paper_images/2407.01906.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Data Eng">
+                <div class="urls">
+                    <h3>Beyond Model Collapse: Scaling Up with Synthesized Data Requires Verification</h3>
+                    <a href="https://arxiv.org/abs/2406.07515" class="url" target="_blank">https://arxiv.org/abs/2406.07515</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Large Language Models (LLM) are increasingly trained on data generated by other LLM, either because generated text and images become part of the pre-training corpus, or because synthetized data is used as a replacement for expensive human-annotation. This raises concerns about \emph{model collapse}, a drop in model performance when their training sets include generated data. Considering that it is easier for both humans and machines to tell between good and bad examples than to generate high-quality samples, we investigate the use of verification on synthesized data to prevent model collapse. We provide a theoretical characterization using Gaussian mixtures, linear classifiers, and linear verifiers to derive conditions with measurable proxies to assess whether the verifier can effectively select synthesized data that leads to optimal performance. We experiment with two practical tasks -- computing matrix eigenvalues with transformers and news summarization with LLMs -- which both exhibit model collapse when trained on generated data, and show that verifiers, even imperfect ones, can indeed be harnessed to prevent model collapse and that our proposed proxy measure strongly correlates with performance.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Data Eng</span>
+                </div>
+                <img src="paper_images/2406.07515_thumb.png" data-fullsize="paper_images/2406.07515.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="HPO Pretrain">
+                <div class="urls">
+                    <h3>An Empirical Study of μP Learning Rate Transfer</h3>
+                    <a href="https://arxiv.org/abs/2404.05728" class="url" target="_blank">https://arxiv.org/abs/2404.05728</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Deep learning models have become a cornerstone of modern AI research, yet their initializations and learning rates may at times be set in an opaque or ad-hoc fashion due to the high cost of hyperparameter sweeps. The μ-Parameterization (μP) offers a possible solution to this challenge, yielding scaling rules for model initialization and learning rates while reportedly enabling zero-shot hyperparameter transfer from small to large models. Despite its evident promise, the μP method is not yet widely adopted, perhaps due to higher implementation complexity, many variations, or complex theoretical background. This work considers μP empirically, focusing on the popular transformer architecture, and aims to answer a simple question: does μ-Transfer yield near-optimal learning rates in practice? Studying over a dozen ablations with up to 1.2B parameters and 33B tokens and a large-scale experiment with up to 10B parameters and 190B tokens, we observe a positive answer for most settings, and discuss improvements otherwise.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">HPO</span>
                     <span class="tag">Pretrain</span>
+                </div>
+                <img src="paper_images/2404.05728_thumb.png" data-fullsize="paper_images/2404.05728.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Model Merging">
+                <div class="urls">
+                    <h3>Evolutionary Optimization of Model Merging Recipes</h3>
+                    <a href="https://arxiv.org/abs/2403.13187" class="url" target="_blank">https://arxiv.org/abs/2403.13187</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Large language models (LLMs) have become increasingly capable, but their development often requires substantial computational resources. While model merging has emerged as a cost-effective promising approach for creating new models by combining existing ones, it currently relies on human intuition and domain knowledge, limiting its potential. Here, we propose an evolutionary approach that overcomes this limitation by automatically discovering effective combinations of diverse open-source models, harnessing their collective intelligence without requiring extensive additional training data or compute. Our approach operates in both parameter space and data flow space, allowing for optimization beyond just the weights of the individual models. This approach even facilitates cross-domain merging, generating models like a Japanese LLM with Math reasoning capabilities. Surprisingly, our Japanese Math LLM achieved state-of-the-art performance on a variety of established Japanese LLM benchmarks, even surpassing models with significantly more parameters, despite not being explicitly trained for such tasks. Furthermore, a culturally-aware Japanese VLM generated through our approach demonstrates its effectiveness in describing Japanese culture-specific content, outperforming previous Japanese VLMs. This work not only contributes new state-of-the-art models back to the open-source community, but also introduces a new paradigm for automated model composition, paving the way for exploring alternative, efficient approaches to foundation model development.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Model Merging</span>
+                </div>
+                <img src="paper_images/2403.13187_thumb.png" data-fullsize="paper_images/2403.13187.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Quantization">
+                <div class="urls">
+                    <h3>Optimize Weight Rounding via Signed Gradient Descent for the Quantization of LLMs</h3>
+                    <a href="https://arxiv.org/abs/2309.05516" class="url" target="_blank">https://arxiv.org/abs/2309.05516</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Large Language Models (LLMs) have demonstrated exceptional proficiency in language-related tasks, but their deployment poses significant challenges due to substantial memory and storage requirements. Weight-only quantization has emerged as a promising solution, significantly reducing memory and storage needs without sacrificing too much performance. In this study, we introduce SignRound, a method that leverages signed gradient descent (SignSGD) to optimize rounding values and weight clipping in just 200 steps. SignRound integrates the advantages of Quantization-Aware Training (QAT) and Post-Training Quantization (PTQ), delivering exceptional results across 2 to 4 bits while minimizing tuning costs and avoiding additional inference overhead. For example, SignRound achieved absolute average accuracy improvements ranging from 6.91% to 33.22% at 2bits, as measured by the average zero-shot accuracy across 11 tasks. It also demonstrates strong generalization in recent models, achieving near-lossless 4-bit quantization in most scenarios. The source code is publicly available at <a href="https://github.com/intel/auto-round" rel="external noopener nofollow" class="link-external link-https">this https URL</a>.</div>
+                </details>
+                <div class="tags">
                     <span class="tag">Quantization</span>
                 </div>
-                <img src="paper_images/2505.19115v1_thumb.png" data-fullsize="paper_images/2505.19115v1.png" class="paper-image" alt="Paper preview">
+                <img src="paper_images/2309.05516_thumb.png" data-fullsize="paper_images/2309.05516.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Inference Pretrain">
+                <div class="urls">
+                    <h3>Efficient Training of Language Models to Fill in the Middle</h3>
+                    <a href="https://arxiv.org/abs/2207.14255" class="url" target="_blank">https://arxiv.org/abs/2207.14255</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">We show that autoregressive language models can learn to infill text after we apply a straightforward transformation to the dataset, which simply moves a span of text from the middle of a document to its end. While this data augmentation has garnered much interest in recent years, we provide extensive evidence that training models with a large fraction of data transformed in this way does not harm the original left-to-right generative capability, as measured by perplexity and sampling evaluations across a wide range of scales. Given the usefulness, simplicity, and efficiency of training models to fill-in-the-middle (FIM), we suggest that future autoregressive language models be trained with FIM by default. To this end, we run a series of ablations on key hyperparameters, such as the data transformation frequency, the structure of the transformation, and the method of selecting the infill span. We use these ablations to prescribe strong default settings and best practices to train FIM models. We have released our best infilling model trained with best practices in our API, and release our infilling benchmarks to aid future research.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Inference</span>
+                    <span class="tag">Pretrain</span>
+                </div>
+                <img src="paper_images/2207.14255_thumb.png" data-fullsize="paper_images/2207.14255.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Distributed Pretrain Quantization">
                 <div class="urls">
@@ -520,308 +853,6 @@ blockquote {
                 </div>
                 <img src="paper_images/1610.02132_thumb.png" data-fullsize="paper_images/1610.02132.png" class="paper-image" alt="Paper preview">
             </div>
-            <div class="item" data-tags="Optimizers">
-                <div class="urls">
-                    <h3>APOLLO: SGD-like Memory, AdamW-level Performance</h3>
-                    <a href="https://arxiv.org/abs/2412.05270" class="url" target="_blank">https://arxiv.org/abs/2412.05270</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Large language models (LLMs) are notoriously memory-intensive during training, particularly with the popular AdamW optimizer. This memory burden necessitates using more or higher-end GPUs or reducing batch sizes, limiting training scalability and throughput. To address this, various memory-efficient optimizers have been proposed to reduce optimizer memory usage. However, they face critical challenges: (i) reliance on costly SVD operations; (ii) significant performance trade-offs compared to AdamW; and (iii) still substantial optimizer memory overhead to maintain competitive performance. <br>In this work, we identify that AdamW&#39;s learning rate adaptation rule can be effectively coarsened as a structured learning rate update. Based on this insight, we propose Approximated Gradient Scaling for Memory-Efficient LLM Optimization (APOLLO), which approximates learning rate scaling using an auxiliary low-rank optimizer state based on pure random projection. This structured learning rate update rule makes APOLLO highly tolerant to further memory reductions while delivering comparable pre-training performance. Even its rank-1 variant, APOLLO-Mini, achieves superior pre-training performance compared to AdamW with SGD-level memory costs. <br>Extensive experiments demonstrate that the APOLLO series performs on-par with or better than AdamW, while achieving greater memory savings by nearly eliminating the optimization states of AdamW. These savings provide significant system-level benefits: (1) Enhanced Throughput: 3x throughput on an 8xA100-80GB setup compared to AdamW by supporting 4x larger batch sizes. (2) Improved Model Scalability: Pre-training LLaMA-13B with naive DDP on A100-80GB GPUs without system-level optimizations. (3) Low-End GPU Friendly Pre-training: Pre-training LLaMA-7B on a single GPU using less than 12 GB of memory with weight quantization.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Optimizers</span>
-                </div>
-                <img src="paper_images/2412.05270_thumb.png" data-fullsize="paper_images/2412.05270.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="Model Merging">
-                <div class="urls">
-                    <h3>Evolutionary Optimization of Model Merging Recipes</h3>
-                    <a href="https://arxiv.org/abs/2403.13187" class="url" target="_blank">https://arxiv.org/abs/2403.13187</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Large language models (LLMs) have become increasingly capable, but their development often requires substantial computational resources. While model merging has emerged as a cost-effective promising approach for creating new models by combining existing ones, it currently relies on human intuition and domain knowledge, limiting its potential. Here, we propose an evolutionary approach that overcomes this limitation by automatically discovering effective combinations of diverse open-source models, harnessing their collective intelligence without requiring extensive additional training data or compute. Our approach operates in both parameter space and data flow space, allowing for optimization beyond just the weights of the individual models. This approach even facilitates cross-domain merging, generating models like a Japanese LLM with Math reasoning capabilities. Surprisingly, our Japanese Math LLM achieved state-of-the-art performance on a variety of established Japanese LLM benchmarks, even surpassing models with significantly more parameters, despite not being explicitly trained for such tasks. Furthermore, a culturally-aware Japanese VLM generated through our approach demonstrates its effectiveness in describing Japanese culture-specific content, outperforming previous Japanese VLMs. This work not only contributes new state-of-the-art models back to the open-source community, but also introduces a new paradigm for automated model composition, paving the way for exploring alternative, efficient approaches to foundation model development.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Model Merging</span>
-                </div>
-                <img src="paper_images/2403.13187_thumb.png" data-fullsize="paper_images/2403.13187.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="Model Merging">
-                <div class="urls">
-                    <h3>Parameter Competition Balancing for Model Merging</h3>
-                    <a href="https://arxiv.org/abs/2410.02396" class="url" target="_blank">https://arxiv.org/abs/2410.02396</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">While fine-tuning pretrained models has become common practice, these models often underperform outside their specific domains. Recently developed model merging techniques enable the direct integration of multiple models, each fine-tuned for distinct tasks, into a single model. This strategy promotes multitasking capabilities without requiring retraining on the original datasets. However, existing methods fall short in addressing potential conflicts and complex correlations between tasks, especially in parameter-level adjustments, posing a challenge in effectively balancing parameter competition across various tasks. This paper introduces an innovative technique named PCB-Merging (Parameter Competition Balancing), a lightweight and training-free technique that adjusts the coefficients of each parameter for effective model merging. PCB-Merging employs intra-balancing to gauge parameter significance within individual tasks and inter-balancing to assess parameter similarities across different tasks. Parameters with low importance scores are dropped, and the remaining ones are rescaled to form the final merged model. We assessed our approach in diverse merging scenarios, including cross-task, cross-domain, and cross-training configurations, as well as out-of-domain generalization. The experimental results reveal that our approach achieves substantial performance enhancements across multiple modalities, domains, model sizes, number of tasks, fine-tuning forms, and large language models, outperforming existing model merging methods. The code is publicly available at: \url{<a href="https://github.com/duguodong7/pcb-merging" rel="external noopener nofollow" class="link-external link-https">this https URL</a>}.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Model Merging</span>
-                </div>
-                <img src="paper_images/2410.02396_thumb.png" data-fullsize="paper_images/2410.02396.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="Model Merging">
-                <div class="urls">
-                    <h3>MERGE$^3$: Efficient Evolutionary Merging on Consumer-grade GPUs</h3>
-                    <a href="https://arxiv.org/abs/2502.10436" class="url" target="_blank">https://arxiv.org/abs/2502.10436</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Evolutionary model merging enables the creation of high-performing multi-task models but remains computationally prohibitive for consumer hardware. We introduce MERGE$^3$, an efficient framework that makes evolutionary merging feasible on a single GPU by reducing fitness computation costs 50$\times$ while preserving performance. MERGE$^3$ achieves this by Extracting a reduced dataset for evaluation, Estimating model abilities using Item Response Theory (IRT), and Evolving optimal merges via IRT-based performance estimators. Our method enables state-of-the-art multilingual and cross-lingual merging, transferring knowledge across languages with significantly lower computational overhead. We provide theoretical guarantees and an open-source library, democratizing high-quality model merging.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Model Merging</span>
-                </div>
-                <img src="paper_images/2502.10436_thumb.png" data-fullsize="paper_images/2502.10436.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="Model Merging">
-                <div class="urls">
-                    <h3>Model Merging in Pre-training of Large Language Models</h3>
-                    <a href="https://arxiv.org/abs/2505.12082" class="url" target="_blank">https://arxiv.org/abs/2505.12082</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Model merging has emerged as a promising technique for enhancing large language models, though its application in large-scale pre-training remains relatively unexplored. In this paper, we present a comprehensive investigation of model merging techniques during the pre-training process. Through extensive experiments with both dense and Mixture-of-Experts (MoE) architectures ranging from millions to over 100 billion parameters, we demonstrate that merging checkpoints trained with constant learning rates not only achieves significant performance improvements but also enables accurate prediction of annealing behavior. These improvements lead to both more efficient model development and significantly lower training costs. Our detailed ablation studies on merging strategies and hyperparameters provide new insights into the underlying mechanisms while uncovering novel applications. Through comprehensive experimental analysis, we offer the open-source community practical pre-training guidelines for effective model merging.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Model Merging</span>
-                </div>
-                <img src="paper_images/2505.12082_thumb.png" data-fullsize="paper_images/2505.12082.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="Data Eng">
-                <div class="urls">
-                    <h3>Scaling Laws for Optimal Data Mixtures</h3>
-                    <a href="https://arxiv.org/abs/2507.09404" class="url" target="_blank">https://arxiv.org/abs/2507.09404</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Large foundation models are typically trained on data from multiple domains, with the data mixture--the proportion of each domain used--playing a critical role in model performance. The standard approach to selecting this mixture relies on trial and error, which becomes impractical for large-scale pretraining. We propose a systematic method to determine the optimal data mixture for any target domain using scaling laws. Our approach accurately predicts the loss of a model of size $N$ trained with $D$ tokens and a specific domain weight vector $h$. We validate the universality of these scaling laws by demonstrating their predictive power in three distinct and large-scale settings: large language model (LLM), native multimodal model (NMM), and large vision models (LVM) pretraining. We further show that these scaling laws can extrapolate to new data mixtures and across scales: their parameters can be accurately estimated using a few small-scale training runs, and used to estimate the performance at larger scales and unseen domain weights. The scaling laws allow to derive the optimal domain weights for any target domain under a given training budget ($N$,$D$), providing a principled alternative to costly trial-and-error methods.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Data Eng</span>
-                </div>
-                <img src="paper_images/2507.09404_thumb.png" data-fullsize="paper_images/2507.09404.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="MoE RL">
-                <div class="urls">
-                    <h3>Group Sequence Policy Optimization</h3>
-                    <a href="https://arxiv.org/abs/2507.18071" class="url" target="_blank">https://arxiv.org/abs/2507.18071</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">This paper introduces Group Sequence Policy Optimization (GSPO), our stable, efficient, and performant reinforcement learning algorithm for training large language models. Unlike previous algorithms that adopt token-level importance ratios, GSPO defines the importance ratio based on sequence likelihood and performs sequence-level clipping, rewarding, and optimization. We demonstrate that GSPO achieves superior training efficiency and performance compared to the GRPO algorithm, notably stabilizes Mixture-of-Experts (MoE) RL training, and has the potential for simplifying the design of RL infrastructure. These merits of GSPO have contributed to the remarkable improvements in the latest Qwen3 models.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">MoE</span>
-                    <span class="tag">RL</span>
-                </div>
-                <img src="paper_images/2507.18071_thumb.png" data-fullsize="paper_images/2507.18071.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="RL">
-                <div class="urls">
-                    <h3>Open-ended Scientific Discovery via Bayesian Surprise</h3>
-                    <a href="https://arxiv.org/abs/2507.00310" class="url" target="_blank">https://arxiv.org/abs/2507.00310</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">The promise of autonomous scientific discovery (ASD) hinges not only on answering questions, but also on knowing which questions to ask. Most recent works in ASD explore the use of large language models (LLMs) in goal-driven settings, relying on human-specified research questions to guide hypothesis generation. However, scientific discovery may be accelerated further by allowing the AI system to drive exploration by its own criteria. The few existing approaches in open-ended ASD select hypotheses based on diversity heuristics or subjective proxies for human interestingness, but the former struggles to meaningfully navigate the typically vast hypothesis space, and the latter suffers from imprecise definitions. This paper presents AutoDS -- a method for open-ended ASD that instead drives scientific exploration using Bayesian surprise. Here, we quantify the epistemic shift from the LLM&#39;s prior beliefs about a hypothesis to its posterior beliefs after gathering experimental results. To efficiently explore the space of nested hypotheses, our method employs a Monte Carlo tree search (MCTS) strategy with progressive widening using surprisal as the reward function. We evaluate AutoDS in the setting of data-driven discovery across 21 real-world datasets spanning domains such as biology, economics, finance, and behavioral science. Our results demonstrate that under a fixed budget, AutoDS substantially outperforms competitors by producing 5--29\% more discoveries deemed surprising by the LLM. Our human evaluation further finds that two-thirds of AutoDS discoveries are surprising to the domain experts, suggesting this is an important step forward towards building open-ended ASD systems.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">RL</span>
-                </div>
-                <img src="paper_images/2507.00310_thumb.png" data-fullsize="paper_images/2507.00310.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="RL Application">
-                <div class="urls">
-                    <h3>STP: Self-play LLM Theorem Provers with Iterative Conjecturing and Proving</h3>
-                    <a href="https://arxiv.org/abs/2502.00212" class="url" target="_blank">https://arxiv.org/abs/2502.00212</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">A fundamental challenge in formal theorem proving by LLMs is the lack of high-quality training data. Although reinforcement learning or expert iteration partially mitigates this issue by alternating between LLM generating proofs and finetuning them on correctly generated ones, performance quickly plateaus due to the scarcity of correct proofs (sparse rewards). To keep improving the models with limited data, we draw inspiration from mathematicians, who continuously develop new results, partly by proposing novel conjectures or exercises (which are often variants of known results) and attempting to solve them. We design the Self-play Theorem Prover (STP) that simultaneously takes on two roles, conjecturer and prover, each providing training signals to the other. The conjecturer is trained iteratively on previously generated conjectures that are barely provable by the current prover, which incentivizes it to generate increasingly challenging conjectures over time. The prover attempts to prove the conjectures with standard expert iteration. We evaluate STP with both Lean and Isabelle formal versifiers. With 51.3 billion tokens generated during the training in Lean, STP proves 28.5% of the statements in the LeanWorkbook dataset, doubling the previous best result of 13.2% achieved through expert iteration. The final model achieves state-of-the-art performance among whole-proof generation methods on miniF2F-test (65.0%, pass@3200), Proofnet-test (23.9%, pass@3200) and PutnamBench (8/644, pass@3200). We release our code, model, and dataset in this URL: <a href="https://github.com/kfdong/STP" rel="external noopener nofollow" class="link-external link-https">this https URL</a>.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">RL Application</span>
-                </div>
-                <img src="paper_images/2502.00212_thumb.png" data-fullsize="paper_images/2502.00212.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="RL">
-                <div class="urls">
-                    <h3>StepWiser: Stepwise Generative Judges for Wiser Reasoning</h3>
-                    <a href="https://arxiv.org/abs/2508.19229" class="url" target="_blank">https://arxiv.org/abs/2508.19229</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">As models increasingly leverage multi-step reasoning strategies to solve complex problems, supervising the logical validity of these intermediate steps has become a critical research challenge. Process reward models address this by providing step-by-step feedback, but current approaches have two major drawbacks: they typically function as classifiers without providing explanations, and their reliance on supervised fine-tuning with static datasets limits generalization. Inspired by recent advances, we reframe stepwise reward modeling from a classification task to a reasoning task itself. We thus propose a generative judge that reasons about the policy model&#39;s reasoning steps (i.e., meta-reasons), outputting thinking tokens before delivering a final verdict. Our model, StepWiser, is trained by reinforcement learning using relative outcomes of rollouts. We show it provides (i) better judgment accuracy on intermediate steps than existing methods; (ii) can be used to improve the policy model at training time; and (iii) improves inference-time search.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">RL</span>
-                </div>
-                <img src="paper_images/2508.19229_thumb.png" data-fullsize="paper_images/2508.19229.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="Optimizers">
-                <div class="urls">
-                    <h3>The Polar Express: Optimal Matrix Sign Methods and Their Application to the Muon Algorithm</h3>
-                    <a href="https://arxiv.org/abs/2505.16932" class="url" target="_blank">https://arxiv.org/abs/2505.16932</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Computing the polar decomposition and the related matrix sign function, has been a well-studied problem in numerical analysis for decades. More recently, it has emerged as an important subroutine in deep learning, particularly within the Muon optimization framework. However, the requirements in this setting differ significantly from those of traditional numerical analysis. In deep learning, methods must be highly efficient and GPU-compatible, but high accuracy is often unnecessary. As a result, classical algorithms like Newton-Schulz (which suffers from slow initial convergence) and methods based on rational functions (which rely on QR decompositions or matrix inverses) are poorly suited to this context. In this work, we introduce Polar Express, a GPU-friendly algorithm for computing the polar decomposition. Like classical polynomial methods such as Newton-Schulz, our approach uses only matrix-matrix multiplications, making it GPU-compatible. Motivated by earlier work of Chen &amp; Chow and Nakatsukasa &amp; Freund, Polar Express adapts the polynomial update rule at each iteration by solving a minimax optimization problem, and we prove that it enjoys a strong worst-case optimality guarantee. This property ensures both rapid early convergence and fast asymptotic convergence. We also address finite-precision issues, making it stable in bfloat16 in practice. We apply Polar Express within the Muon optimization framework and show consistent improvements in validation loss on large-scale models such as GPT-2, outperforming recent alternatives across a range of learning rates.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Optimizers</span>
-                </div>
-                <img src="paper_images/2505.16932_thumb.png" data-fullsize="paper_images/2505.16932.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="HPO Pretrain">
-                <div class="urls">
-                    <h3>An Empirical Study of μP Learning Rate Transfer</h3>
-                    <a href="https://arxiv.org/abs/2404.05728" class="url" target="_blank">https://arxiv.org/abs/2404.05728</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Deep learning models have become a cornerstone of modern AI research, yet their initializations and learning rates may at times be set in an opaque or ad-hoc fashion due to the high cost of hyperparameter sweeps. The μ-Parameterization (μP) offers a possible solution to this challenge, yielding scaling rules for model initialization and learning rates while reportedly enabling zero-shot hyperparameter transfer from small to large models. Despite its evident promise, the μP method is not yet widely adopted, perhaps due to higher implementation complexity, many variations, or complex theoretical background. This work considers μP empirically, focusing on the popular transformer architecture, and aims to answer a simple question: does μ-Transfer yield near-optimal learning rates in practice? Studying over a dozen ablations with up to 1.2B parameters and 33B tokens and a large-scale experiment with up to 10B parameters and 190B tokens, we observe a positive answer for most settings, and discuss improvements otherwise.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">HPO</span>
-                    <span class="tag">Pretrain</span>
-                </div>
-                <img src="paper_images/2404.05728_thumb.png" data-fullsize="paper_images/2404.05728.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="">
-                <div class="urls">
-                    <h3>Cross-Entropy Games for Language Models: From Implicit Knowledge to General Capability Measures</h3>
-                    <a href="https://arxiv.org/abs/2506.06832" class="url" target="_blank">https://arxiv.org/abs/2506.06832</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Large Language Models (LLMs) define probability measures on text. By considering the implicit knowledge question of what it means for an LLM to know such a measure and what it entails algorithmically, we are naturally led to formulate a series of tasks that go beyond generative sampling, involving forms of summarization, counterfactual thinking, anomaly detection, originality search, reverse prompting, debating, creative solving, etc. These tasks can be formulated as games based on LLM measures, which we call Cross-Entropy (Xent) Games. Xent Games can be single-player or multi-player. They involve cross-entropy scores and cross-entropy constraints, and can be expressed as simple computational graphs and programs. We show the Xent Game space is large enough to contain a wealth of interesting examples, while being constructible from basic game-theoretic consistency axioms. We then discuss how the Xent Game space can be used to measure the abilities of LLMs. This leads to the construction of Xent Game measures: finite families of Xent Games that can be used as capability benchmarks, built from a given scope, by extracting a covering measure. To address the unbounded scope problem associated with the challenge of measuring general abilities, we propose to explore the space of Xent Games in a coherent fashion, using ideas inspired by evolutionary dynamics.</div>
-                </details>
-                <img src="paper_images/2506.06832_thumb.png" data-fullsize="paper_images/2506.06832.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="Attention Inference">
-                <div class="urls">
-                    <h3>XQuant: Breaking the Memory Wall for LLM Inference with KV Cache Rematerialization</h3>
-                    <a href="https://arxiv.org/abs/2508.10395" class="url" target="_blank">https://arxiv.org/abs/2508.10395</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Although LLM inference has emerged as a critical workload for many downstream applications, efficiently inferring LLMs is challenging due to the substantial memory footprint and bandwidth requirements. In parallel, compute capabilities have steadily outpaced both memory capacity and bandwidth over the last few decades, a trend that remains evident in modern GPU hardware and exacerbates the challenge of LLM inference. As such, new algorithms are emerging that trade increased computation for reduced memory operations. To that end, we present XQuant, which takes advantage of this trend, enabling an order-of-magnitude reduction in memory consumption through low-bit quantization with substantial accuracy benefits relative to state-of-the-art KV cache quantization methods. We accomplish this by quantizing and caching the layer input activations X, instead of using standard KV caching, and then rematerializing the Keys and Values on-the-fly during inference. This results in an immediate 2$\times$ memory savings compared to KV caching. By applying XQuant, we achieve up to $\sim 7.7\times$ memory savings with $&lt;0.1$ perplexity degradation compared to the FP16 baseline. Furthermore, our approach leverages the fact that X values are similar across layers. Building on this observation, we introduce XQuant-CL, which exploits the cross-layer similarity in the X embeddings for extreme compression. Across different models, XQuant-CL attains up to 10$\times$ memory savings relative to the FP16 baseline with only 0.01 perplexity degradation, and 12.5$\times$ memory savings with only $0.1$ perplexity degradation. XQuant exploits the rapidly increasing compute capabilities of hardware platforms to eliminate the memory bottleneck, while surpassing state-of-the-art KV cache quantization methods and achieving near-FP16 accuracy across a wide range of models.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Attention</span>
-                    <span class="tag">Inference</span>
-                </div>
-                <img src="paper_images/2508.10395_thumb.png" data-fullsize="paper_images/2508.10395.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="Pretrain Quantization">
-                <div class="urls">
-                    <h3>Training LLMs with MXFP4</h3>
-                    <a href="https://arxiv.org/abs/2502.20586" class="url" target="_blank">https://arxiv.org/abs/2502.20586</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Low precision (LP) datatypes such as MXFP4 can accelerate matrix multiplications (GEMMs) and reduce training costs. However, directly using MXFP4 instead of BF16 during training significantly degrades model quality. In this work, we present the first near-lossless training recipe that uses MXFP4 GEMMs, which are $2\times$ faster than FP8 on supported hardware. Our key insight is to compute unbiased gradient estimates with stochastic rounding (SR), resulting in more accurate model updates. However, directly applying SR to MXFP4 can result in high variance from block-level outliers, harming convergence. To overcome this, we use the random Hadamard tranform to theoretically bound the variance of SR. We train GPT models up to 6.7B parameters and find that our method induces minimal degradation over mixed-precision BF16 training. Our recipe computes $&gt;1/2$ the training FLOPs in MXFP4, enabling an estimated speedup of $&gt;1.3\times$ over FP8 and $&gt;1.7\times$ over BF16 during backpropagation.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Pretrain</span>
-                    <span class="tag">Quantization</span>
-                </div>
-                <img src="paper_images/2502.20586_thumb.png" data-fullsize="paper_images/2502.20586.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="HPO Pretrain">
-                <div class="urls">
-                    <h3>Predictable Scale: Part I, Step Law -- Optimal Hyperparameter Scaling Law in Large Language Model Pretraining</h3>
-                    <a href="https://arxiv.org/abs/2503.04715" class="url" target="_blank">https://arxiv.org/abs/2503.04715</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">The impressive capabilities of Large Language Models (LLMs) across diverse tasks are now well established, yet their effective deployment necessitates careful hyperparameter optimization. Although existing methods have explored the influence of hyperparameters on model performance, a principled and generalizable framework across model architectures and data recipes remains absent. In this study, we conduct an unprecedented empirical investigation training over 3,700 LLMs from scratch across 100 trillion tokens, consuming nearly one million NVIDIA H800 GPU hours to establish a universal Scaling Law for hyperparameter optimization in LLM Pre-training, called Step Law. We empirically observe that, under fixed model size ($N$) and dataset size ($D$), the hyperparameter landscape exhibits convexity with a broad optimum, substantially reducing the complexity of hyperparameter search. Building on this insight, we formally define and empirically validate the Step Law: The optimal learning rate follows a power-law relationship with $N$ and $D$, while the optimal batch size is primarily influenced by $D$ and remains largely invariant to $N$.Notably, our estimated optima deviate from the global best performance found via exhaustive search by merely 0.094\% on the test set. To our best known, Step Law is the first that unifies different model shapes and structures, such as Mixture-of-Experts models and dense transformers, as well as establishes optimal hyperparameter scaling laws across diverse data recipes. We contribute a universal, plug-and-play optimal hyperparameter tool for the community, which is expected to advance efficient LLM training at scale. All experimental code, data and checkpoints are publicly available at <a href="https://github.com/step-law/steplaw" rel="external noopener nofollow" class="link-external link-https">this https URL</a></div>
-                </details>
-                <div class="tags">
-                    <span class="tag">HPO</span>
-                    <span class="tag">Pretrain</span>
-                </div>
-                <img src="paper_images/2503.04715_thumb.png" data-fullsize="paper_images/2503.04715.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="Quantization">
-                <div class="urls">
-                    <h3>Optimize Weight Rounding via Signed Gradient Descent for the Quantization of LLMs</h3>
-                    <a href="https://arxiv.org/abs/2309.05516" class="url" target="_blank">https://arxiv.org/abs/2309.05516</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Large Language Models (LLMs) have demonstrated exceptional proficiency in language-related tasks, but their deployment poses significant challenges due to substantial memory and storage requirements. Weight-only quantization has emerged as a promising solution, significantly reducing memory and storage needs without sacrificing too much performance. In this study, we introduce SignRound, a method that leverages signed gradient descent (SignSGD) to optimize rounding values and weight clipping in just 200 steps. SignRound integrates the advantages of Quantization-Aware Training (QAT) and Post-Training Quantization (PTQ), delivering exceptional results across 2 to 4 bits while minimizing tuning costs and avoiding additional inference overhead. For example, SignRound achieved absolute average accuracy improvements ranging from 6.91% to 33.22% at 2bits, as measured by the average zero-shot accuracy across 11 tasks. It also demonstrates strong generalization in recent models, achieving near-lossless 4-bit quantization in most scenarios. The source code is publicly available at <a href="https://github.com/intel/auto-round" rel="external noopener nofollow" class="link-external link-https">this https URL</a>.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Quantization</span>
-                </div>
-                <img src="paper_images/2309.05516_thumb.png" data-fullsize="paper_images/2309.05516.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="Deep Research RL">
-                <div class="urls">
-                    <h3>WebSailor: Navigating Super-human Reasoning for Web Agent</h3>
-                    <a href="https://arxiv.org/abs/2507.02592" class="url" target="_blank">https://arxiv.org/abs/2507.02592</a>
-                    <a href="https://github.com/Alibaba-NLP/WebAgent" class="url" target="_blank">https://github.com/Alibaba-NLP/WebAgent</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Transcending human cognitive limitations represents a critical frontier in LLM training. Proprietary agentic systems like DeepResearch have demonstrated superhuman capabilities on extremely complex information-seeking benchmarks such as BrowseComp, a feat previously unattainable. We posit that their success hinges on a sophisticated reasoning pattern absent in open-source models: the ability to systematically reduce extreme uncertainty when navigating vast information landscapes. Based on this insight, we introduce WebSailor, a complete post-training methodology designed to instill this crucial capability. Our approach involves generating novel, high-uncertainty tasks through structured sampling and information obfuscation, RFT cold start, and an efficient agentic RL training algorithm, Duplicating Sampling Policy Optimization (DUPO). With this integrated pipeline, WebSailor significantly outperforms all opensource agents in complex information-seeking tasks, matching proprietary agents&#39; performance and closing the capability gap.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Deep Research</span>
-                    <span class="tag">RL</span>
-                </div>
-                <img src="paper_images/2507.02592_thumb.png" data-fullsize="paper_images/2507.02592.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="Model Release Pretrain">
-                <div class="urls">
-                    <h3>GLM-4.5: Agentic, Reasoning, and Coding (ARC) Foundation Models</h3>
-                    <a href="https://arxiv.org/abs/2508.06471" class="url" target="_blank">https://arxiv.org/abs/2508.06471</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">We present GLM-4.5, an open-source Mixture-of-Experts (MoE) large language model with 355B total parameters and 32B activated parameters, featuring a hybrid reasoning method that supports both thinking and direct response modes. Through multi-stage training on 23T tokens and comprehensive post-training with expert model iteration and reinforcement learning, GLM-4.5 achieves strong performance across agentic, reasoning, and coding (ARC) tasks, scoring 70.1% on TAU-Bench, 91.0% on AIME 24, and 64.2% on SWE-bench Verified. With much fewer parameters than several competitors, GLM-4.5 ranks 3rd overall among all evaluated models and 2nd on agentic benchmarks. We release both GLM-4.5 (355B parameters) and a compact version, GLM-4.5-Air (106B parameters), to advance research in reasoning and agentic AI systems. Code, models, and more information are available at <a href="https://github.com/zai-org/GLM-4.5" rel="external noopener nofollow" class="link-external link-https">this https URL</a>.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Model Release</span>
-                    <span class="tag">Pretrain</span>
-                </div>
-                <img src="paper_images/2508.06471_thumb.png" data-fullsize="paper_images/2508.06471.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="Distributed Optimizers Pretrain">
-                <div class="urls">
-                    <h3>Dion: Distributed Orthonormalized Updates</h3>
-                    <a href="https://arxiv.org/abs/2504.05295" class="url" target="_blank">https://arxiv.org/abs/2504.05295</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Recent work has shown that orthonormal matrix updates speed up neural network optimization, improve training stability, and offer better hyperparameter transfer across model sizes. Applying these updates efficiently when model weights and optimizer states are sharded across a large-scale distributed LLM training system remains a major challenge. We introduce Dion (DIstributed OrthoNormalization), a scalable and communication-efficient orthonormalizing optimizer. Dion leverages low-rank approximation and decoupled momentum buffers, eliminating the need for full gradient synchronization while producing numerically equivalent results. It is compatible with simultaneous DDP, FSDP, and TP parallelism, and it computes an orthonormalized update without unsharding a full parameter matrix on any single device. We evaluate Dion on language models from 120M to 3B parameters and find that its benefits improve with increasing model size and batch size.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Distributed</span>
-                    <span class="tag">Optimizers</span>
-                    <span class="tag">Pretrain</span>
-                </div>
-                <img src="paper_images/2504.05295_thumb.png" data-fullsize="paper_images/2504.05295.png" class="paper-image" alt="Paper preview">
-            </div>
-            <div class="item" data-tags="Finetuning MoE">
-                <div class="urls">
-                    <h3>Let the Expert Stick to His Last: Expert-Specialized Fine-Tuning for Sparse Architectural Large Language Models</h3>
-                    <a href="https://arxiv.org/abs/2407.01906" class="url" target="_blank">https://arxiv.org/abs/2407.01906</a>
-                </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">Parameter-efficient fine-tuning (PEFT) is crucial for customizing Large Language Models (LLMs) with constrained resources. Although there have been various PEFT methods for dense-architecture LLMs, PEFT for sparse-architecture LLMs is still underexplored. In this work, we study the PEFT method for LLMs with the Mixture-of-Experts (MoE) architecture and the contents of this work are mainly threefold: (1) We investigate the dispersion degree of the activated experts in customized tasks, and found that the routing distribution for a specific task tends to be highly concentrated, while the distribution of activated experts varies significantly across different tasks. (2) We propose Expert-Specialized Fine-Tuning, or ESFT, which tunes the experts most relevant to downstream tasks while freezing the other experts and modules; experimental results demonstrate that our method not only improves the tuning efficiency, but also matches or even surpasses the performance of full-parameter fine-tuning. (3) We further analyze the impact of the MoE architecture on expert-specialized fine-tuning. We find that MoE models with finer-grained experts are more advantageous in selecting the combination of experts that are most relevant to downstream tasks, thereby enhancing both the training efficiency and effectiveness. Our code is available at <a href="https://github.com/deepseek-ai/ESFT" rel="external noopener nofollow" class="link-external link-https">this https URL</a>.</div>
-                </details>
-                <div class="tags">
-                    <span class="tag">Finetuning</span>
-                    <span class="tag">MoE</span>
-                </div>
-                <img src="paper_images/2407.01906_thumb.png" data-fullsize="paper_images/2407.01906.png" class="paper-image" alt="Paper preview">
-            </div>
             <div class="item" data-tags="Attention Inference MoE">
                 <div class="urls">
                     <h3>Seb's Qwen3 MoE implementation</h3>
@@ -833,20 +864,31 @@ blockquote {
                     <span class="tag">MoE</span>
                 </div>
             </div>
-            <div class="item" data-tags="Inference Pretrain">
+            <div class="item" data-tags="">
                 <div class="urls">
-                    <h3>Efficient Training of Language Models to Fill in the Middle</h3>
-                    <a href="https://arxiv.org/abs/2207.14255" class="url" target="_blank">https://arxiv.org/abs/2207.14255</a>
+                    <h3>SFT is bad RL</h3>
+                    <a href="https://justintchiu.com/blog/sftrl/" class="url" target="_blank">https://justintchiu.com/blog/sftrl/</a>
                 </div>
-                <details>
-                    <summary>Abstract</summary>
-                    <div class="abstract">We show that autoregressive language models can learn to infill text after we apply a straightforward transformation to the dataset, which simply moves a span of text from the middle of a document to its end. While this data augmentation has garnered much interest in recent years, we provide extensive evidence that training models with a large fraction of data transformed in this way does not harm the original left-to-right generative capability, as measured by perplexity and sampling evaluations across a wide range of scales. Given the usefulness, simplicity, and efficiency of training models to fill-in-the-middle (FIM), we suggest that future autoregressive language models be trained with FIM by default. To this end, we run a series of ablations on key hyperparameters, such as the data transformation frequency, the structure of the transformation, and the method of selecting the infill span. We use these ablations to prescribe strong default settings and best practices to train FIM models. We have released our best infilling model trained with best practices in our API, and release our infilling benchmarks to aid future research.</div>
-                </details>
+            </div>
+            <div class="item" data-tags="Model Release Pretrain">
+                <div class="urls">
+                    <h3>Meutuan-Longcat LongCat-Flash-Chat</h3>
+                    <a href="https://github.com/meituan-longcat/LongCat-Flash-Chat/blob/main/tech_report.pdf" class="url" target="_blank">https://github.com/meituan-longcat/LongCat-Flash-Chat/blob/main/tech_report.pdf</a>
+                </div>
                 <div class="tags">
-                    <span class="tag">Inference</span>
+                    <span class="tag">Model Release</span>
                     <span class="tag">Pretrain</span>
                 </div>
-                <img src="paper_images/2207.14255_thumb.png" data-fullsize="paper_images/2207.14255.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Model Release Pretrain">
+                <div class="urls">
+                    <h3>Hunyuan-MT Technical Report</h3>
+                    <a href="https://github.com/Tencent-Hunyuan/Hunyuan-MT/blob/main/Hunyuan_MT_Technical_Report.pdf" class="url" target="_blank">https://github.com/Tencent-Hunyuan/Hunyuan-MT/blob/main/Hunyuan_MT_Technical_Report.pdf</a>
+                </div>
+                <div class="tags">
+                    <span class="tag">Model Release</span>
+                    <span class="tag">Pretrain</span>
+                </div>
             </div>
         </div>
     </div>

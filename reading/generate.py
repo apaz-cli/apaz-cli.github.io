@@ -13,6 +13,7 @@ from typing import List, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import wraps
 import threading
+from datetime import datetime
 
 
 # Global rate limiter for arXiv requests
@@ -33,6 +34,16 @@ def arxiv_rate_limit(func):
             _arxiv_last_request_time = time.time()
         return func(*args, **kwargs)
     return wrapper
+
+
+def parse_published_date(date_str: Optional[str]) -> Optional[datetime]:
+    """Parse published date string (format: '31 Aug 2025') to datetime object."""
+    if date_str is None:
+        return None
+    try:
+        return datetime.strptime(date_str, '%d %b %Y')
+    except ValueError:
+        return None
 
 
 @dataclass
@@ -59,12 +70,12 @@ def process_txt_item(index_and_raw):
 
     # If we have a URL, try to get info from it, otherwise use first line as name
     if first_url is not None:
-        name, abstract = get_info_from_url(first_url)
+        name, abstract, published_date = get_info_from_url(first_url)
         if name is None:
             raise ValueError(f"Could not get title from URL: {first_url}. Add a title line before the URL.")
     else:
         # TODO: Add the ability to specify abstracts for non-arxiv links.
-        name, abstract = lines.pop(0), None
+        name, abstract, published_date = lines.pop(0), None, None
 
     # Get the rest of the URLs
     while len(lines) > 0 and lines[0].startswith("http"):
@@ -83,7 +94,7 @@ def process_txt_item(index_and_raw):
     assert len(urls) >= 1
     assert all(u.startswith("http") for u in urls)
 
-    item = ReadingItem(name=name, urls=urls, tags=tags, read=False, abstract=abstract)
+    item = ReadingItem(name=name, urls=urls, tags=tags, read=False, abstract=abstract, published_date=published_date)
 
     # Generate image for arXiv papers
     
@@ -240,44 +251,44 @@ def download_pdf_and_extract_image(url: str) -> Optional[tuple[str, str]]:
                 os.remove(temp_file)
         return None
 
-def load_from_cache(url: str) -> tuple[Optional[str], Optional[str]]:
-    """Load title and abstract from cache if available."""
+def load_from_cache(url: str) -> tuple[Optional[str], Optional[str], Optional[str]]:
+    """Load title, abstract, and published_date from cache if available."""
     cache_path = get_cache_path(url)
     try:
         if os.path.exists(cache_path):
             with open(cache_path, 'r') as f:
                 data = json.load(f)
-                return data.get('title'), data.get('abstract')
+                return data.get('title'), data.get('abstract'), data.get('published_date')
     except Exception as e:
         print(f"Error reading cache for {url}: {e}")
-    return None, None
+    return None, None, None
 
-def save_to_cache(url: str, title: Optional[str], abstract: Optional[str]):
-    """Save title and abstract to cache."""
+def save_to_cache(url: str, title: Optional[str], abstract: Optional[str], published_date: Optional[str]):
+    """Save title, abstract, and published_date to cache."""
     cache_path = get_cache_path(url)
     try:
-        data = {'title': title, 'abstract': abstract}
+        data = {'title': title, 'abstract': abstract, 'published_date': published_date}
         with open(cache_path, 'w') as f:
             json.dump(data, f)
     except Exception as e:
         print(f"Error writing cache for {url}: {e}")
 
-def get_info_from_url(url: str | None) -> tuple[Optional[str], Optional[str]]:
-    """Scrape arXiv paper title and abstract from URL with rate limiting (5 requests/second).
-    Returns (title, abstract)"""
+def get_info_from_url(url: str | None) -> tuple[Optional[str], Optional[str], Optional[str]]:
+    """Scrape arXiv paper title, abstract, and published date from URL with rate limiting (5 requests/second).
+    Returns (title, abstract, published_date)"""
     if url is None:
-        return None, None
+        return None, None, None
     match = get_arxiv_id(url)
     if not match:
-        return None, None
+        return None, None, None
 
     arxiv_id = match.group(1)
     abs_url = f"https://arxiv.org/abs/{arxiv_id}"
 
     # Check cache first
-    cached_title, cached_abstract = load_from_cache(abs_url)
+    cached_title, cached_abstract, cached_published_date = load_from_cache(abs_url)
     if cached_title is not None or cached_abstract is not None:
-        return cached_title, cached_abstract
+        return cached_title, cached_abstract, cached_published_date
 
     @arxiv_rate_limit
     def fetch_arxiv_page():
@@ -289,6 +300,7 @@ def get_info_from_url(url: str | None) -> tuple[Optional[str], Optional[str]]:
 
         title = None
         abstract = None
+        published_date = None
 
         # Extract title from the page
         title_match = re.search(r'<meta name="citation_title" content="([^"]+)"', response.text)
@@ -307,16 +319,22 @@ def get_info_from_url(url: str | None) -> tuple[Optional[str], Optional[str]]:
             abstract = abstract_match.group(1).strip()
             abstract = re.sub(r'\s+', ' ', abstract)
 
+        # Extract published date
+        # Look for submission date in format "Submitted on 31 Aug 2025"
+        date_match = re.search(r'Submitted on (\d{1,2} \w{3} \d{4})', response.text)
+        if date_match:
+            published_date = date_match.group(1)
+
         if title is not None and abstract is not None:
             title = title.replace("$\\mu$", "μ")
             abstract = abstract.replace("$\\mu$", "μ")
-            save_to_cache(abs_url, title, abstract)
+            save_to_cache(abs_url, title, abstract, published_date)
 
-        return title, abstract
+        return title, abstract, published_date
 
     except Exception as e:
         print(f"Error fetching arXiv paper {arxiv_id}: {e}")
-        return None, None
+        return None, None, None
 
 
 def generate_html(items: List[ReadingItem]):
@@ -325,6 +343,15 @@ def generate_html(items: List[ReadingItem]):
     # Separate read and unread items
     read_items = [item for item in items if item.read]
     unread_items = [item for item in items if not item.read]
+    
+    # Sort items by published date (most recent first)
+    # Items without published dates go to the end
+    def sort_by_date(item):
+        date_obj = parse_published_date(item.published_date)
+        return date_obj if date_obj else datetime.min
+    
+    read_items.sort(key=sort_by_date, reverse=True)
+    unread_items.sort(key=sort_by_date, reverse=True)
 
     # Inject CSS styles
     stylefile = "../resources/style/pandoc.html"
@@ -532,7 +559,8 @@ def generate_html(items: List[ReadingItem]):
 </head>
 <body>
     <h1>apaz's Reading List</h1>
-    <p>These are a bunch of papers that have interested me.</p>
+    <p>These are a bunch papers, sites, repos, etc that have caught my attention, which I want to do more with.</p>
+    <p>The list is incomplete, but I think every paper here is worth a read. As I read more closely and implement more stuff I'll be leaving notes on my impressions.</p>
 '''
 
     if read_items:
