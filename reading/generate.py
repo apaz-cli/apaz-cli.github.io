@@ -248,7 +248,7 @@ def create_safe_pdf_filename(paper_name: str, identifier: str) -> str:
         safe_name = safe_name[:100].strip()
     return f"{safe_name} [{identifier}].pdf"
 
-def download_pdf_and_extract_image(url: str, keep_pdf: bool = False, paper_name: str = None) -> tuple[str, str] | None:
+def download_pdf_and_extract_image(url: str, keep_pdf: bool = False, paper_name: str | None = None) -> tuple[str, str] | None:
     """Download PDF from URL and convert first page to thumbnail and full-size PNG images.
     Works with both arXiv URLs and direct PDF URLs.
     
@@ -895,19 +895,14 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Parse unread items from list.txt
-    unread_items = parse_list_txt(keep_pdfs=args.keep_pdfs)
-
-    # Parse read items from .md files
-    read_items = parse_md_files()
-
-    # Combine all items
-    all_items = unread_items + read_items
+    items = parse_list_txt(keep_pdfs=args.keep_pdfs)
 
     # Generate HTML page
-    generate_html(all_items)
+    generate_html(items)
 
     if args.keep_pdfs:
-        print(f"Generated reading list with PDF caching enabled.")
         print(f"PDFs saved to /tmp/arxiv_cache/")
     
-    print(f"{len(read_items)} read, and {len(unread_items)} unread.")
+    read = [item for item in items if item.read]
+    unread = [item for item in items if not item.read]
+    print(f"Generated page with {len(read)} read, and {len(unread)} unread.")
