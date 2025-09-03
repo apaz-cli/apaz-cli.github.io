@@ -647,8 +647,8 @@ def generate_html(items: list[ReadingItem]):
 <body>
     <h1>apaz's Reading List</h1>
     <p>These are a bunch papers, sites, repos, etc that have caught my attention, which I want to do more with.</p>
-    <p>This list is incomplete, but I think every resource here is worth a read or a skim. It's a truly insane amount of reading, probably don't read too closely, but I think it's worth understanding at least what's in them.</p>
-    <p>As I read more closely and implement more stuff I'll be leaving notes on my impressions. If anything I say is incorrect or you have something to add, please yell at me on <a href="https://x.com/apaz_cli">twitter</a> or <a href="https://discord.com/invite/gpumode">discord</a>.</p>
+    <p>It's a very incomplete list, but I think every resource here is worth a read or more likely a skim. It's a lot of reading, but I think knowing a lot of papers and techniques at a surface level is super helpful. Helpful enough that I want to make my list and notes public. Then if the time comes when you do want to dig deeper, you can do so.</p>
+    <p>As I read more closely and implement more stuff I'll be leaving notes on my impressions. The ones I've done this for are highlighted in green on the side. If anything I say is incorrect or you have something to add, please yell at me on <a href="https://x.com/apaz_cli">twitter</a> or <a href="https://discord.com/invite/gpumode">discord</a>.</p>
 '''
 
     html_content += '''
