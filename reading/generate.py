@@ -97,7 +97,7 @@ def process_txt_item(index_and_raw, keep_pdfs=False):
     summary = "\n".join(lines).strip()
     read = summary != ""
 
-    
+
 
     #assert len(lines) == 0
     assert len(urls) >= 1
@@ -106,7 +106,8 @@ def process_txt_item(index_and_raw, keep_pdfs=False):
     item = ReadingItem(name=name, urls=urls, tags=tags, read=read, summary=summary, abstract=abstract, published_date=published_date)
 
     # Generate image for papers (arXiv or direct PDF links)
-    if get_arxiv_id(urls[0]) or urls[0].endswith('.pdf'):
+    identifier, id_type = get_paper_identifier(urls[0])
+    if id_type != 'none':
         download_pdf_and_extract_image(urls[0], keep_pdf=keep_pdfs, paper_name=name)
 
     print(f"Added \"{name}\" to reading list.")
@@ -176,6 +177,19 @@ def get_arxiv_id(url: str) -> re.Match[str] | None:
     arxiv_pattern = r'arxiv\.org/(?:abs|pdf|html)/(.+?)(?:\?|$)'
     return re.search(arxiv_pattern, url)
 
+def get_paper_identifier(url: str) -> tuple[str | None, str]:
+    """Get identifier for a paper URL.
+
+    Returns:
+        tuple[identifier, type] where type is 'arxiv', 'hash', or 'none'
+    """
+    arxiv_match = get_arxiv_id(url)
+    if arxiv_match:
+        return arxiv_match.group(1), 'arxiv'
+    elif url.endswith('.pdf'):
+        return hashlib.md5(url.encode()).hexdigest()[:12], 'hash'
+    return None, 'none'
+
 def get_cache_path(url: str) -> str:
     """Generate cache file path for a URL."""
     cache_dir = "/tmp/arxiv_cache"
@@ -222,10 +236,10 @@ def pdf_to_images(pdf_path: str, identifier: str, thumbnail_path: str, fullsize_
             pdf_path
         ]
         subprocess.run(fullsize_cmd, check=True, capture_output=True)
-        
+
         print(f"Generated thumbnail and full-size images for {identifier}")
         return True
-        
+
     except Exception as e:
         print(f"Error converting PDF to images for {identifier}: {e}")
         # Clean up any partial files
@@ -253,27 +267,26 @@ def create_safe_pdf_filename(paper_name: str, identifier: str) -> str:
 def download_pdf_and_extract_image(url: str, keep_pdf: bool = False, paper_name: str | None = None) -> tuple[str, str] | None:
     """Download PDF from URL and convert first page to thumbnail and full-size PNG images.
     Works with both arXiv URLs and direct PDF URLs.
-    
+
     Args:
         url: The URL to download the PDF from
         keep_pdf: If True, save the PDF in the cache directory for later reading
         paper_name: Name of the paper for readable filename
-        
+
     Returns tuple of (thumbnail_path, fullsize_path), or None if failed."""
-    
-    # Check if it's an arXiv URL
-    arxiv_match = get_arxiv_id(url)
-    if arxiv_match:
-        identifier = arxiv_match.group(1)
+
+    # Get paper identifier and determine processing approach
+    identifier, id_type = get_paper_identifier(url)
+    if id_type == 'none':
+        return None
+
+    assert isinstance(identifier, str)
+    if id_type == 'arxiv':
         pdf_url = get_pdf_url(identifier)
         rate_limited_download = arxiv_rate_limit(lambda: requests.get(pdf_url, timeout=30))
-    elif url.endswith('.pdf'):
-        # Direct PDF URL
-        identifier = hashlib.md5(url.encode()).hexdigest()[:12]  # Use URL hash as identifier
+    else:  # hash type (direct PDF)
         pdf_url = get_raw_pdf_url(url)  # Convert GitHub URLs to raw format
         rate_limited_download = lambda: requests.get(pdf_url, timeout=30)  # No rate limiting for non-arXiv
-    else:
-        return None
 
     thumbnail_path, fullsize_path = get_image_paths(identifier)
 
@@ -292,19 +305,19 @@ def download_pdf_and_extract_image(url: str, keep_pdf: bool = False, paper_name:
 
         # Convert PDF to images
         success = pdf_to_images(temp_pdf, identifier, thumbnail_path, fullsize_path)
-        
+
         # Save PDF to cache if requested and conversion was successful
         if keep_pdf and success and paper_name:
             cache_dir = "/tmp/arxiv_cache"
             os.makedirs(cache_dir, exist_ok=True)
-            
+
             # Create readable filename
             safe_filename = create_safe_pdf_filename(paper_name, identifier)
             cached_pdf_path = f"{cache_dir}/{safe_filename}"
-            
+
             # Also check for old-style filename to avoid duplicates
             old_style_path = f"{cache_dir}/{identifier}.pdf"
-            
+
             # Only copy if neither filename exists
             if not os.path.exists(cached_pdf_path) and not os.path.exists(old_style_path):
                 shutil.copy2(temp_pdf, cached_pdf_path)
@@ -313,10 +326,10 @@ def download_pdf_and_extract_image(url: str, keep_pdf: bool = False, paper_name:
                 # Rename old-style file to new format
                 shutil.move(old_style_path, cached_pdf_path)
                 print(f"Renamed PDF in cache: {cached_pdf_path}")
-        
+
         # Clean up temporary PDF
         os.remove(temp_pdf)
-        
+
         if success:
             return thumbnail_path, fullsize_path
         else:
@@ -706,14 +719,9 @@ def generate_html(items: list[ReadingItem]):
 
         # Add paper thumbnail if available
         for url in item.urls:
-            identifier = None
-            arxiv_match = get_arxiv_id(url)
-            if arxiv_match:
-                identifier = arxiv_match.group(1)
-            elif url.endswith('.pdf'):
-                identifier = hashlib.md5(url.encode()).hexdigest()[:12]
-            
-            if identifier:
+            identifier, id_type = get_paper_identifier(url)
+
+            if id_type != 'none' and identifier:
                 thumbnail_path, fullsize_path = get_image_paths(identifier)
                 if os.path.exists(thumbnail_path):
                     html_content += f'                <img src="{thumbnail_path}" data-fullsize="{fullsize_path}" class="paper-image" alt="Paper preview">\n'
@@ -890,7 +898,7 @@ def generate_html(items: list[ReadingItem]):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Generate reading list HTML with paper thumbnails')
-    parser.add_argument('--keep-pdfs', action='store_true', 
+    parser.add_argument('--keep-pdfs', action='store_true',
                         help='Save downloaded PDFs to cache directory for offline reading')
     args = parser.parse_args()
 
@@ -902,7 +910,7 @@ if __name__ == "__main__":
 
     if args.keep_pdfs:
         print(f"PDFs saved to /tmp/arxiv_cache/")
-    
+
     read = [item for item in items if item.read]
     unread = [item for item in items if not item.read]
     print(f"Generated page with {len(read)} read, and {len(unread)} unread.")
