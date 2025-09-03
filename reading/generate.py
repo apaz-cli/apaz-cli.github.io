@@ -380,18 +380,15 @@ def get_info_from_url(url: str | None) -> tuple[str | None, str | None, str | No
 def generate_html(items: list[ReadingItem]):
     """Generate static HTML page from reading items."""
 
-    # Separate read and unread items
-    read_items = [item for item in items if item.read]
-    unread_items = [item for item in items if not item.read]
-
-    # Sort items by published date (most recent first)
-    # Items without published dates go to the end
-    def sort_by_date(item):
+    # Sort items: read items first, then by published date (most recent first)
+    # Items without published dates go to the end within their category
+    def sort_key(item):
         date_obj = parse_published_date(item.published_date)
-        return date_obj if date_obj else datetime.min
+        date_value = date_obj if date_obj else datetime.min
+        # Return tuple: (read status as negative for reverse order, date)
+        return (-date_value.timestamp() if date_obj else 0)
 
-    read_items.sort(key=sort_by_date, reverse=True)
-    unread_items.sort(key=sort_by_date, reverse=True)
+    items.sort(key=sort_key)
 
     # Inject CSS styles
     stylefile = "../resources/style/pandoc.html"
@@ -485,6 +482,10 @@ def generate_html(items: list[ReadingItem]):
         .item.hidden {{
             display: none;
         }}
+        .item.read {{
+            border-left: 4px solid #01ff70;
+            background-color: rgba(51, 51, 51, 0.9);
+        }}
         @media (max-width: 1200px) {{
             .grid {{
                 grid-template-columns: repeat(2, 1fr);
@@ -522,6 +523,14 @@ def generate_html(items: list[ReadingItem]):
             border-left: 3px solid #01ff70;
             font-style: italic;
             color: #ccc;
+        }}
+        .summary {{
+            margin-top: 10px;
+            padding: 10px;
+            background-color: rgba(68, 68, 68, 0.8);
+            border-left: 3px solid #01ff70;
+            color: #ccc;
+            white-space: pre-wrap;
         }}
         .urls {{
             margin-bottom: 10px;
@@ -605,61 +614,14 @@ def generate_html(items: list[ReadingItem]):
 <body>
     <h1>apaz's Reading List</h1>
     <p>These are a bunch papers, sites, repos, etc that have caught my attention, which I want to do more with.</p>
-    <p>This list is incomplete, but I think every resource here is worth a read or a skim. Or at least worth knowing it exists, as a reference.</p>
+    <p>This list is incomplete, but I think every resource here is worth a read or a skim. It's a truly insane amount of reading, probably don't read too closely, but I think it's worth understanding at least what's in them.</p>
     <p>As I read more closely and implement more stuff I'll be leaving notes on my impressions. If anything I say is incorrect or you have something to add, please yell at me on <a href="https://x.com/apaz_cli">twitter</a> or <a href="https://discord.com/invite/gpumode">discord</a>.</p>
 '''
 
-    if read_items:
-        html_content += '''
+    html_content += '''
     <div class="section">
         <div class="section-header">
-            <h2>Paper Notes</h2>
-        </div>
-        <div class="grid">
-'''
-        for item in read_items:
-            tags_attr = ' '.join(item.tags) if item.tags else ''
-            html_content += f'            <div class="item" data-tags="{tags_attr}">\n'
-            html_content += '                <div class="urls">\n'
-            html_content += f'                    <h3>{item.name}</h3>\n'
-            for i, url in enumerate(item.urls):
-                html_content += f'                    <a href="{url}" class="url" target="_blank">Link {i+1}</a>\n'
-            html_content += '                </div>\n'
-            if item.abstract:
-                html_content += '                <details>\n'
-                html_content += '                    <summary>Show Abstract</summary>\n'
-                html_content += f'                    <div class="abstract">{item.abstract}</div>\n'
-                html_content += '                </details>\n'
-            if item.tags:
-                html_content += '                <div class="tags">\n'
-                for tag in item.tags:
-                    html_content += f'                    <span class="tag">{tag}</span>\n'
-                html_content += '                </div>\n'
-
-            # Add paper thumbnail if available
-            for url in item.urls:
-                identifier = None
-                arxiv_match = get_arxiv_id(url)
-                if arxiv_match:
-                    identifier = arxiv_match.group(1)
-                elif url.endswith('.pdf'):
-                    identifier = hashlib.md5(url.encode()).hexdigest()[:12]
-                
-                if identifier:
-                    thumbnail_path, fullsize_path = get_image_paths(identifier)
-                    if os.path.exists(thumbnail_path):
-                        html_content += f'                <img src="{thumbnail_path}" data-fullsize="{fullsize_path}" class="paper-image" alt="Paper preview">\n'
-                    break
-
-            html_content += '            </div>\n'
-        html_content += '        </div>\n'
-        html_content += '    </div>\n'
-
-    if unread_items:
-        html_content += '''
-    <div class="section">
-        <div class="section-header">
-            <h2>Backlog</h2>
+            <h2>Reading List</h2>
             <div class="filter-controls">
                 <label for="search-bar">Search: </label>
                 <input type="text" id="search-bar" placeholder="Search papers..." />
@@ -667,51 +629,60 @@ def generate_html(items: list[ReadingItem]):
                 <select id="tag-filter">
                     <option value="">All</option>
 '''
-        for tag in all_tags:
-            html_content += f'                    <option value="{tag}">{tag}</option>\n'
+    for tag in all_tags:
+        html_content += f'                    <option value="{tag}">{tag}</option>\n'
 
-        html_content += '''                </select>
+    html_content += '''                </select>
             </div>
         </div>
         <div class="grid">
 '''
-        for item in unread_items:
-            tags_attr = ' '.join(item.tags) if item.tags else ''
-            html_content += f'            <div class="item" data-tags="{tags_attr}">\n'
-            html_content += '                <div class="urls">\n'
-            html_content += f'                    <h3>{item.name}</h3>\n'
-            for i, url in enumerate(item.urls):
+    for item in items:
+        tags_attr = ' '.join(item.tags) if item.tags else ''
+        read_class = ' read' if item.read else ''
+        html_content += f'            <div class="item{read_class}" data-tags="{tags_attr}">\n'
+        html_content += '                <div class="urls">\n'
+        html_content += f'                    <h3>{item.name}</h3>\n'
+        for i, url in enumerate(item.urls):
+            if item.read:
+                html_content += f'                    <a href="{url}" class="url" target="_blank">Link {i+1}</a>\n'
+            else:
                 html_content += f'                    <a href="{url}" class="url" target="_blank">{url}</a>\n'
+        html_content += '                </div>\n'
+        if item.abstract:
+            html_content += '                <details class="abstract-details">\n'
+            html_content += '                    <summary>Abstract</summary>\n'
+            html_content += f'                    <div class="abstract">{item.abstract}</div>\n'
+            html_content += '                </details>\n'
+        if item.summary and item.read:
+            html_content += '                <details class="notes">\n'
+            html_content += '                    <summary>Notes</summary>\n'
+            html_content += f'                    <div class="summary">{item.summary}</div>\n'
+            html_content += '                </details>\n'
+        if item.tags:
+            html_content += '                <div class="tags">\n'
+            for tag in item.tags:
+                html_content += f'                    <span class="tag">{tag}</span>\n'
             html_content += '                </div>\n'
-            if item.abstract:
-                html_content += '                <details>\n'
-                html_content += '                    <summary>Abstract</summary>\n'
-                html_content += f'                    <div class="abstract">{item.abstract}</div>\n'
-                html_content += '                </details>\n'
-            if item.tags:
-                html_content += '                <div class="tags">\n'
-                for tag in item.tags:
-                    html_content += f'                    <span class="tag">{tag}</span>\n'
-                html_content += '                </div>\n'
 
-            # Add paper thumbnail if available
-            for url in item.urls:
-                identifier = None
-                arxiv_match = get_arxiv_id(url)
-                if arxiv_match:
-                    identifier = arxiv_match.group(1)
-                elif url.endswith('.pdf'):
-                    identifier = hashlib.md5(url.encode()).hexdigest()[:12]
-                
-                if identifier:
-                    thumbnail_path, fullsize_path = get_image_paths(identifier)
-                    if os.path.exists(thumbnail_path):
-                        html_content += f'                <img src="{thumbnail_path}" data-fullsize="{fullsize_path}" class="paper-image" alt="Paper preview">\n'
-                    break
+        # Add paper thumbnail if available
+        for url in item.urls:
+            identifier = None
+            arxiv_match = get_arxiv_id(url)
+            if arxiv_match:
+                identifier = arxiv_match.group(1)
+            elif url.endswith('.pdf'):
+                identifier = hashlib.md5(url.encode()).hexdigest()[:12]
+            
+            if identifier:
+                thumbnail_path, fullsize_path = get_image_paths(identifier)
+                if os.path.exists(thumbnail_path):
+                    html_content += f'                <img src="{thumbnail_path}" data-fullsize="{fullsize_path}" class="paper-image" alt="Paper preview">\n'
+                break
 
-            html_content += '            </div>\n'
-        html_content += '        </div>\n'
-        html_content += '    </div>\n'
+        html_content += '            </div>\n'
+    html_content += '        </div>\n'
+    html_content += '    </div>\n'
 
     html_content += '''
     <script>
@@ -776,6 +747,11 @@ def generate_html(items: list[ReadingItem]):
             // Row toggle functionality for details and image hiding
             details.forEach(detail => {
                 detail.addEventListener('toggle', function() {
+                    // Only sync abstract details across rows, not notes
+                    if (!this.classList.contains('abstract-details')) {
+                        return;
+                    }
+
                     // Find the parent item and then the parent grid
                     const item = this.closest('.item');
                     const grid = item.closest('.grid');
@@ -788,12 +764,12 @@ def generate_html(items: list[ReadingItem]):
                     const columns = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
                     const currentRow = Math.floor(currentIndex / columns);
 
-                    // Toggle all details in the same row to match this one
+                    // Toggle all abstract details in the same row to match this one
                     for (let i = currentRow * columns; i < Math.min((currentRow + 1) * columns, allItems.length); i++) {
                         const rowItem = allItems[i];
-                        const rowDetails = rowItem.querySelector('details');
-                        if (rowDetails && rowDetails !== this) {
-                            rowDetails.open = this.open;
+                        const rowAbstractDetails = rowItem.querySelector('details.abstract-details');
+                        if (rowAbstractDetails && rowAbstractDetails !== this) {
+                            rowAbstractDetails.open = this.open;
                         }
                     }
                 });
