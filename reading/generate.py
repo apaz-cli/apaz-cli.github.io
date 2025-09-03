@@ -7,6 +7,7 @@ import json
 import hashlib
 import requests
 import subprocess
+import argparse
 from glob import glob
 from dataclasses import dataclass
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -55,7 +56,7 @@ class ReadingItem:
     abstract: str | None = None
     published_date: str | None = None
 
-def process_txt_item(index_and_raw):
+def process_txt_item(index_and_raw, keep_pdfs=False):
     """Process a single raw item and return (index, ReadingItem)."""
     index, r = index_and_raw
     urls = []
@@ -104,13 +105,13 @@ def process_txt_item(index_and_raw):
 
     # Generate image for papers (arXiv or direct PDF links)
     if get_arxiv_id(urls[0]) or urls[0].endswith('.pdf'):
-        download_pdf_and_extract_image(urls[0])
+        download_pdf_and_extract_image(urls[0], keep_pdf=keep_pdfs, paper_name=name)
 
     print(f"Added \"{name}\" to reading list.")
 
     return (index, item)
 
-def parse_list_txt() -> list[ReadingItem]:
+def parse_list_txt(keep_pdfs: bool = False) -> list[ReadingItem]:
     """Parse list.txt file containing unread items."""
     items = []
     if not os.path.exists('list.txt'):
@@ -130,7 +131,7 @@ def parse_list_txt() -> list[ReadingItem]:
     with ThreadPoolExecutor() as executor:
         # Submit all tasks with their original indices
         indexed_raws = list(enumerate(raws))
-        futures = {executor.submit(process_txt_item, indexed_raw): indexed_raw[0] for indexed_raw in indexed_raws}
+        futures = {executor.submit(process_txt_item, indexed_raw, keep_pdfs): indexed_raw[0] for indexed_raw in indexed_raws}
 
         # Collect results
         results = []
@@ -238,9 +239,24 @@ def get_raw_pdf_url(url: str) -> str:
         return url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/')
     return url
 
-def download_pdf_and_extract_image(url: str) -> tuple[str, str] | None:
+def create_safe_pdf_filename(paper_name: str, identifier: str) -> str:
+    """Create a safe filename for PDF caching using paper name and identifier."""
+    # Clean the paper name to avoid filesystem issues
+    safe_name = re.sub(r'[<>:"/\\|?*]', '', paper_name)  # Remove filesystem-unsafe chars
+    safe_name = re.sub(r'\s+', ' ', safe_name.strip())  # Normalize whitespace
+    if len(safe_name) > 100:
+        safe_name = safe_name[:100].strip()
+    return f"{safe_name} [{identifier}].pdf"
+
+def download_pdf_and_extract_image(url: str, keep_pdf: bool = False, paper_name: str = None) -> tuple[str, str] | None:
     """Download PDF from URL and convert first page to thumbnail and full-size PNG images.
     Works with both arXiv URLs and direct PDF URLs.
+    
+    Args:
+        url: The URL to download the PDF from
+        keep_pdf: If True, save the PDF in the cache directory for later reading
+        paper_name: Name of the paper for readable filename
+        
     Returns tuple of (thumbnail_path, fullsize_path), or None if failed."""
     
     # Check if it's an arXiv URL
@@ -274,6 +290,29 @@ def download_pdf_and_extract_image(url: str) -> tuple[str, str] | None:
 
         # Convert PDF to images
         success = pdf_to_images(temp_pdf, identifier, thumbnail_path, fullsize_path)
+        
+        # Save PDF to cache if requested and conversion was successful
+        if keep_pdf and success and paper_name:
+            cache_dir = "/tmp/arxiv_cache"
+            os.makedirs(cache_dir, exist_ok=True)
+            
+            # Create readable filename
+            safe_filename = create_safe_pdf_filename(paper_name, identifier)
+            cached_pdf_path = f"{cache_dir}/{safe_filename}"
+            
+            # Also check for old-style filename to avoid duplicates
+            old_style_path = f"{cache_dir}/{identifier}.pdf"
+            
+            # Only copy if neither filename exists
+            if not os.path.exists(cached_pdf_path) and not os.path.exists(old_style_path):
+                import shutil
+                shutil.copy2(temp_pdf, cached_pdf_path)
+                print(f"Saved PDF to cache: {cached_pdf_path}")
+            elif os.path.exists(old_style_path) and not os.path.exists(cached_pdf_path):
+                # Rename old-style file to new format
+                import shutil
+                shutil.move(old_style_path, cached_pdf_path)
+                print(f"Renamed PDF in cache: {cached_pdf_path}")
         
         # Clean up temporary PDF
         os.remove(temp_pdf)
@@ -850,8 +889,13 @@ def generate_html(items: list[ReadingItem]):
         f.write(html_content)
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Generate reading list HTML with paper thumbnails')
+    parser.add_argument('--keep-pdfs', action='store_true', 
+                        help='Save downloaded PDFs to cache directory for offline reading')
+    args = parser.parse_args()
+
     # Parse unread items from list.txt
-    unread_items = parse_list_txt()
+    unread_items = parse_list_txt(keep_pdfs=args.keep_pdfs)
 
     # Parse read items from .md files
     read_items = parse_md_files()
@@ -862,4 +906,8 @@ if __name__ == "__main__":
     # Generate HTML page
     generate_html(all_items)
 
-    print(f"Generated reading list.\n{len(read_items)} read, and {len(unread_items)} unread.")
+    if args.keep_pdfs:
+        print(f"Generated reading list with PDF caching enabled.")
+        print(f"PDFs saved to /tmp/arxiv_cache/")
+    
+    print(f"{len(read_items)} read, and {len(unread_items)} unread.")
