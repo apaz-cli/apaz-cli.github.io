@@ -358,7 +358,7 @@ blockquote {
                 </details>
                 <details class="notes">
                     <summary>Notes</summary>
-                    <div class="summary">There is a theoretical limit to the expressiveness of vector embeddings. This paper debunks the idea that it's a skill issue, and that if we just had better embedding models the problems with RAG would be solved. Sooner or later, you must increase the size of your embeddings to get more expressiveness. This may come at a cost to speed, storage, infra complexity, etc. But it's a cost that we now know you MUST pay if you want to, say, embed the internet. On smaller knowledge bases it probably doesn't matter as much.</div>
+                    <div class="summary">There is a theoretical limit to the expressiveness of vector embeddings. This paper debunks the idea that it's a skill issue, and that if we just had better embedding models the problems with RAG would be solved. Sooner or later, you must increase the size of your embeddings to get more expressiveness. This may come at a cost to speed, storage, infra complexity, etc. But it's a cost that we now know you MUST pay if you want to, say, embed the internet. The bigger your corpus gets, the bigger your embeddings need to get. Database size scales superlineraly with corpus size. They introduce a scaling law to describe this behavior.</div>
                 </details>
                 <div class="tags">
                     <span class="tag">RAG</span>
