@@ -33,9 +33,6 @@ https://blog.datologyai.com/beyondweb/
 # https://arxiv.org/abs/2502.10517
 * RL * GPU * Perf * Pretrain
 
-# https://arxiv.org/abs/2505.19115v1
-* Quantization * Pretrain
-
 # https://arxiv.org/abs/1610.02132
 * Quantization * Pretrain * Distributed
 
@@ -130,7 +127,7 @@ https://www.youtube.com/watch?v=Ow1FLKFcSPs
 * Distributed
 This is the definitive reference for async tensor parallelism in pytorch. And, honestly, in CUDA. For more insights I recommend the <a href="https://www.youtube.com/watch?v=Ow1FLKFcSPs">Eleuther perf reading list video</a> which covers the (pretty bad) <a href="https://dl.acm.org/doi/pdf/10.1145/3567955.3567959">google paper</a> which introduced the technique.
 
-# https://arxiv.org/abs/2506.20512v1
+# https://arxiv.org/abs/2506.20512
 * RL * Dataset
 For a long time at Prime Intellect we were confused as to why we were getting good results doing RL on top of Qwen and terrible results with Llama3. It turns out that your base model does matter. Specifically, you need to finetune or rewarm your model on synthetic reasoning traces in the domain you're RLing on before applying your preferred brand of policy optimization. Usually we get this data by generating a bunch of synthetic rollouts from Deepseek R1 or another strong teacher model.
 

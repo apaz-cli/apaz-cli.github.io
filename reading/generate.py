@@ -97,9 +97,6 @@ def process_txt_item(index_and_raw, keep_pdfs=False):
     summary = "\n".join(lines).strip()
     read = summary != ""
 
-
-
-    #assert len(lines) == 0
     assert len(urls) >= 1
     assert all(u.startswith("http") for u in urls)
 
@@ -114,7 +111,7 @@ def process_txt_item(index_and_raw, keep_pdfs=False):
 
     return (index, item)
 
-def parse_list_txt(keep_pdfs: bool = False) -> list[ReadingItem]:
+def parse_list(keep_pdfs: bool = False) -> list[ReadingItem]:
     """Parse list.txt file containing unread items."""
     items = []
     if not os.path.exists('list.txt'):
@@ -154,22 +151,6 @@ def parse_list_txt(keep_pdfs: bool = False) -> list[ReadingItem]:
             seen_urls.add(url)
 
     assert all(len(i.urls) >= 1 for i in items)
-    return items
-
-def parse_md_files() -> list[ReadingItem]:
-    """Parse all .md files containing read items."""
-    items = []
-    md_files = glob('*.md')
-
-    for md_file in md_files:
-        with open(md_file, 'r') as f:
-            content = f.read().strip()
-
-        if not content:
-            continue
-
-        # TODO: Implement
-
     return items
 
 def get_arxiv_id(url: str) -> re.Match[str] | None:
@@ -903,7 +884,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Parse unread items from list.txt
-    items = parse_list_txt(keep_pdfs=args.keep_pdfs)
+    items = parse_list(keep_pdfs=args.keep_pdfs)
 
     # Generate HTML page
     generate_html(items)
