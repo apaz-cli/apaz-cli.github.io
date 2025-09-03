@@ -1047,10 +1047,13 @@ blockquote {
             // Row toggle functionality for details and image hiding
             details.forEach(detail => {
                 detail.addEventListener('toggle', function() {
-                    // Only sync abstract details across rows, not notes
-                    if (!this.classList.contains('abstract-details')) {
+                    // Sync both abstract and notes details across rows
+                    if (!this.classList.contains('abstract-details') && !this.classList.contains('notes')) {
                         return;
                     }
+
+                    // Determine which type of details we're working with
+                    const detailType = this.classList.contains('abstract-details') ? 'abstract-details' : 'notes';
 
                     // Find the parent item and then the parent grid
                     const item = this.closest('.item');
@@ -1064,12 +1067,12 @@ blockquote {
                     const columns = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
                     const currentRow = Math.floor(currentIndex / columns);
 
-                    // Toggle all abstract details in the same row to match this one
+                    // Toggle all details of the same type in the same row to match this one
                     for (let i = currentRow * columns; i < Math.min((currentRow + 1) * columns, allItems.length); i++) {
                         const rowItem = allItems[i];
-                        const rowAbstractDetails = rowItem.querySelector('details.abstract-details');
-                        if (rowAbstractDetails && rowAbstractDetails !== this) {
-                            rowAbstractDetails.open = this.open;
+                        const rowDetails = rowItem.querySelector(`details.${detailType}`);
+                        if (rowDetails && rowDetails !== this) {
+                            rowDetails.open = this.open;
                         }
                     }
                 });
