@@ -145,13 +145,17 @@ blockquote {
         .section-header h2 {
             margin: 0;
         }
-        .filter-controls select {
+        .filter-controls select, .filter-controls input {
             background-color: rgba(51, 51, 51, 0.8);
             color: #fafafa;
             border: 1px solid #444;
             padding: 8px 12px;
             border-radius: 5px;
             font-size: 1rem;
+            margin-right: 15px;
+        }
+        .filter-controls input::placeholder {
+            color: #999;
         }
         .section {
             margin-bottom: 40px;
@@ -295,13 +299,15 @@ blockquote {
 <body>
     <h1>apaz's Reading List</h1>
     <p>These are a bunch papers, sites, repos, etc that have caught my attention, which I want to do more with.</p>
-    <p>The list is incomplete, but I think every paper here is worth a read or a skim.</p>
+    <p>This list is incomplete, but I think every resource here is worth a read or a skim. Or at least worth knowing it exists, as a reference.</p>
     <p>As I read more closely and implement more stuff I'll be leaving notes on my impressions. If anything I say is incorrect, please yell at me on <a href="https://x.com/apaz_cli">twitter</a> or <a href="https://discord.com/invite/gpumode">discord</a>.</p>
 
     <div class="section">
         <div class="section-header">
             <h2>Backlog</h2>
             <div class="filter-controls">
+                <label for="search-bar">Search: </label>
+                <input type="text" id="search-bar" placeholder="Search papers..." />
                 <label for="tag-filter">Filter by tag: </label>
                 <select id="tag-filter">
                     <option value="">All</option>
@@ -909,30 +915,59 @@ blockquote {
         document.addEventListener('DOMContentLoaded', function() {
             const details = document.querySelectorAll('details');
             const tagFilter = document.getElementById('tag-filter');
+            const searchBar = document.getElementById('search-bar');
 
             // Reset filter selection on page load
-            tagFilter.value = '';
+            if (tagFilter) tagFilter.value = '';
+            if (searchBar) searchBar.value = '';
 
-            // Tag filtering functionality
-            tagFilter.addEventListener('change', function() {
-                const selectedTag = this.value;
+            // Simple substring matching function
+            function searchMatch(needle, haystack) {
+                if (needle === '') return true;
+                return haystack.toLowerCase().includes(needle.toLowerCase());
+            }
+
+            // Get searchable text from an item
+            function getSearchableText(item) {
+                const title = item.querySelector('h3').textContent;
+                const tags = item.getAttribute('data-tags') || '';
+                const abstract = item.querySelector('.abstract');
+                const abstractText = abstract ? abstract.textContent : '';
+                return (title + ' ' + tags + ' ' + abstractText).toLowerCase();
+            }
+
+            // Combined filtering function
+            function filterItems() {
+                const searchTerm = searchBar.value.trim();
+                const selectedTag = tagFilter.value;
                 const items = document.querySelectorAll('.item');
 
                 items.forEach(item => {
-                    if (selectedTag === '') {
-                        // Show all items
+                    let showItem = true;
+                    
+                    // Tag filtering
+                    if (selectedTag !== '') {
+                        const itemTags = item.getAttribute('data-tags');
+                        showItem = showItem && itemTags && itemTags.includes(selectedTag);
+                    }
+                    
+                    // Search filtering
+                    if (searchTerm !== '' && showItem) {
+                        const searchableText = getSearchableText(item);
+                        showItem = showItem && searchMatch(searchTerm, searchableText);
+                    }
+                    
+                    if (showItem) {
                         item.classList.remove('hidden');
                     } else {
-                        // Check if item has the selected tag
-                        const itemTags = item.getAttribute('data-tags');
-                        if (itemTags && itemTags.includes(selectedTag)) {
-                            item.classList.remove('hidden');
-                        } else {
-                            item.classList.add('hidden');
-                        }
+                        item.classList.add('hidden');
                     }
                 });
-            });
+            }
+
+            // Event listeners for filtering
+            if (tagFilter) tagFilter.addEventListener('change', filterItems);
+            if (searchBar) searchBar.addEventListener('input', filterItems);
 
             // Row toggle functionality for details and image hiding
             details.forEach(detail => {
