@@ -127,3 +127,7 @@ https://github.com/Tencent-Hunyuan/Hunyuan-MT/blob/main/Hunyuan_MT_Technical_Rep
 # Pytorch Async Tensor Parallelism Blog Post
 https://discuss.pytorch.org/t/distributed-w-torchtitan-introducing-async-tensor-parallelism-in-pytorch/209487
 * Distributed
+
+
+# https://arxiv.org/abs/2506.20512v1
+* RL
