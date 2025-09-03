@@ -114,6 +114,7 @@ https://justintchiu.com/blog/sftrl/
 
 # Meutuan-Longcat LongCat-Flash-Chat
 https://github.com/meituan-longcat/LongCat-Flash-Chat/blob/main/tech_report.pdf
+https://zhuanlan.zhihu.com/p/1945574906868785336
 * Pretrain * Model Release
 
 # Hunyuan-MT Technical Report
@@ -122,3 +123,7 @@ https://github.com/Tencent-Hunyuan/Hunyuan-MT/blob/main/Hunyuan_MT_Technical_Rep
 
 # https://arxiv.org/abs/2504.20437
 * Pretrain * Distributed
+
+# Pytorch Async Tensor Parallelism Blog Post
+https://discuss.pytorch.org/t/distributed-w-torchtitan-introducing-async-tensor-parallelism-in-pytorch/209487
+* Distributed

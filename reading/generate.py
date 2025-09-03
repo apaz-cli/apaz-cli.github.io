@@ -97,12 +97,12 @@ def process_txt_item(index_and_raw):
     item = ReadingItem(name=name, urls=urls, tags=tags, read=False, abstract=abstract, published_date=published_date)
 
     # Generate image for arXiv papers
-    
+
     if get_arxiv_id(urls[0]):
         download_pdf_and_extract_image(urls[0])
 
     print(f"Added \"{name}\" to reading list.")
-    
+
     return (index, item)
 
 def parse_list_txt() -> List[ReadingItem]:
@@ -126,16 +126,16 @@ def parse_list_txt() -> List[ReadingItem]:
         # Submit all tasks with their original indices
         indexed_raws = list(enumerate(raws))
         futures = {executor.submit(process_txt_item, indexed_raw): indexed_raw[0] for indexed_raw in indexed_raws}
-        
+
         # Collect results
         results = []
         for future in as_completed(futures):
             results.append(future.result())
-        
+
         # Sort by original index to maintain order
         results.sort(key=lambda x: x[0])
         items = [item for _, item in results]
-    
+
     # Assert there were no duplicate URLs
     seen_urls = set()
     for item in items:
@@ -193,56 +193,56 @@ def download_pdf_and_extract_image(url: str) -> Optional[tuple[str, str]]:
     match = get_arxiv_id(url)
     if not match:
         return None
-    
+
     arxiv_id = match.group(1)
     thumbnail_path, fullsize_path = get_image_paths(arxiv_id)
-    
+
     # Skip if both images already exist
     if os.path.exists(thumbnail_path) and os.path.exists(fullsize_path):
         return thumbnail_path, fullsize_path
-    
+
     pdf_url = get_pdf_url(arxiv_id)
-    
+
     @arxiv_rate_limit
     def download_pdf():
         return requests.get(pdf_url, timeout=30)
-    
+
     try:
         # Download PDF to temporary file
         pdf_response = download_pdf()
         pdf_response.raise_for_status()
-        
+
         temp_pdf = f"/tmp/{arxiv_id}.pdf"
         with open(temp_pdf, 'wb') as f:
             f.write(pdf_response.content)
-        
+
         # Generate thumbnail (160px width, proportional height)
         thumbnail_cmd = [
-            'gs', '-dNOPAUSE', '-dBATCH', '-sDEVICE=png16m', 
+            'gs', '-dNOPAUSE', '-dBATCH', '-sDEVICE=png16m',
             '-r200',
             '-dFirstPage=1', '-dLastPage=1',
             '-dFIXEDMEDIA', '-dPDFFitPage',
             '-g100x150',
-            f'-sOutputFile={thumbnail_path}', 
+            f'-sOutputFile={thumbnail_path}',
             temp_pdf
         ]
         subprocess.run(thumbnail_cmd, check=True, capture_output=True)
-        
+
         # Generate full-size image (higher resolution)
         fullsize_cmd = [
-            'gs', '-dNOPAUSE', '-dBATCH', '-sDEVICE=png16m', 
+            'gs', '-dNOPAUSE', '-dBATCH', '-sDEVICE=png16m',
             '-r200',
             '-dFirstPage=1', '-dLastPage=1',
-            f'-sOutputFile={fullsize_path}', 
+            f'-sOutputFile={fullsize_path}',
             temp_pdf
         ]
         subprocess.run(fullsize_cmd, check=True, capture_output=True)
-        
+
         # Clean up temporary PDF
         os.remove(temp_pdf)
         print(f"Generated thumbnail and full-size images for {url}")
         return thumbnail_path, fullsize_path
-            
+
     except Exception as e:
         print(f"Error processing PDF for {arxiv_id}: {e}")
         # Clean up any temporary files
@@ -343,13 +343,13 @@ def generate_html(items: List[ReadingItem]):
     # Separate read and unread items
     read_items = [item for item in items if item.read]
     unread_items = [item for item in items if not item.read]
-    
+
     # Sort items by published date (most recent first)
     # Items without published dates go to the end
     def sort_by_date(item):
         date_obj = parse_published_date(item.published_date)
         return date_obj if date_obj else datetime.min
-    
+
     read_items.sort(key=sort_by_date, reverse=True)
     unread_items.sort(key=sort_by_date, reverse=True)
 
@@ -560,7 +560,8 @@ def generate_html(items: List[ReadingItem]):
 <body>
     <h1>apaz's Reading List</h1>
     <p>These are a bunch papers, sites, repos, etc that have caught my attention, which I want to do more with.</p>
-    <p>The list is incomplete, but I think every paper here is worth a read. As I read more closely and implement more stuff I'll be leaving notes on my impressions.</p>
+    <p>The list is incomplete, but I think every paper here is worth a read or a skim.</p>
+    <p>As I read more closely and implement more stuff I'll be leaving notes on my impressions. If anything I say is incorrect, please yell at me on <a href="https://x.com/apaz_cli">twitter</a> or <a href="https://discord.com/invite/gpumode">discord</a>.</p>
 '''
 
     if read_items:
@@ -589,7 +590,7 @@ def generate_html(items: List[ReadingItem]):
                 for tag in item.tags:
                     html_content += f'                    <span class="tag">{tag}</span>\n'
                 html_content += '                </div>\n'
-            
+
             # Add paper thumbnail if available
             for url in item.urls:
                 match = get_arxiv_id(url)
@@ -599,7 +600,7 @@ def generate_html(items: List[ReadingItem]):
                     if os.path.exists(thumbnail_path):
                         html_content += f'                <img src="{thumbnail_path}" data-fullsize="{fullsize_path}" class="paper-image" alt="Paper preview">\n'
                     break
-            
+
             html_content += '            </div>\n'
         html_content += '        </div>\n'
         html_content += '    </div>\n'
@@ -640,7 +641,7 @@ def generate_html(items: List[ReadingItem]):
                 for tag in item.tags:
                     html_content += f'                    <span class="tag">{tag}</span>\n'
                 html_content += '                </div>\n'
-            
+
             # Add paper thumbnail if available
             for url in item.urls:
                 match = get_arxiv_id(url)
@@ -650,7 +651,7 @@ def generate_html(items: List[ReadingItem]):
                     if os.path.exists(thumbnail_path):
                         html_content += f'                <img src="{thumbnail_path}" data-fullsize="{fullsize_path}" class="paper-image" alt="Paper preview">\n'
                     break
-            
+
             html_content += '            </div>\n'
         html_content += '        </div>\n'
         html_content += '    </div>\n'
@@ -718,11 +719,11 @@ def generate_html(items: List[ReadingItem]):
             modal.className = 'image-modal';
             modal.innerHTML = '<span class="close-modal">&times;</span><img class="modal-content" alt="Paper preview enlarged">';
             document.body.appendChild(modal);
-            
+
             const modalImg = modal.querySelector('.modal-content');
             const closeBtn = modal.querySelector('.close-modal');
             let currentImageIndex = -1;
-            
+
             function showImage(index) {
                 if (index >= 0 && index < paperImages.length) {
                     currentImageIndex = index;
@@ -739,26 +740,26 @@ def generate_html(items: List[ReadingItem]):
                     }
                 }
             }
-            
+
             paperImages.forEach((img, index) => {
                 img.addEventListener('click', function() {
                     showImage(index);
                 });
             });
-            
+
             // Close modal when clicking the X or outside the image
             closeBtn.addEventListener('click', function() {
                 modal.classList.remove('show');
                 currentImageIndex = -1;
             });
-            
+
             modal.addEventListener('click', function(e) {
                 if (e.target === modal) {
                     modal.classList.remove('show');
                     currentImageIndex = -1;
                 }
             });
-            
+
             // Close modal with Escape key and navigate with arrow keys
             document.addEventListener('keydown', function(e) {
                 if (modal.classList.contains('show')) {

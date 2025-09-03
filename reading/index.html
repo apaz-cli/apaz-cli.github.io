@@ -295,7 +295,8 @@ blockquote {
 <body>
     <h1>apaz's Reading List</h1>
     <p>These are a bunch papers, sites, repos, etc that have caught my attention, which I want to do more with.</p>
-    <p>The list is incomplete, but I think every paper here is worth a read. As I read more closely and implement more stuff I'll be leaving notes on my impressions.</p>
+    <p>The list is incomplete, but I think every paper here is worth a read or a skim.</p>
+    <p>As I read more closely and implement more stuff I'll be leaving notes on my impressions. If anything I say is incorrect, please yell at me on <a href="https://x.com/apaz_cli">twitter</a> or <a href="https://discord.com/invite/gpumode">discord</a>.</p>
 
     <div class="section">
         <div class="section-header">
@@ -874,6 +875,7 @@ blockquote {
                 <div class="urls">
                     <h3>Meutuan-Longcat LongCat-Flash-Chat</h3>
                     <a href="https://github.com/meituan-longcat/LongCat-Flash-Chat/blob/main/tech_report.pdf" class="url" target="_blank">https://github.com/meituan-longcat/LongCat-Flash-Chat/blob/main/tech_report.pdf</a>
+                    <a href="https://zhuanlan.zhihu.com/p/1945574906868785336" class="url" target="_blank">https://zhuanlan.zhihu.com/p/1945574906868785336</a>
                 </div>
                 <div class="tags">
                     <span class="tag">Model Release</span>
@@ -888,6 +890,15 @@ blockquote {
                 <div class="tags">
                     <span class="tag">Model Release</span>
                     <span class="tag">Pretrain</span>
+                </div>
+            </div>
+            <div class="item" data-tags="Distributed">
+                <div class="urls">
+                    <h3>Pytorch Async Tensor Parallelism Blog Post</h3>
+                    <a href="https://discuss.pytorch.org/t/distributed-w-torchtitan-introducing-async-tensor-parallelism-in-pytorch/209487" class="url" target="_blank">https://discuss.pytorch.org/t/distributed-w-torchtitan-introducing-async-tensor-parallelism-in-pytorch/209487</a>
+                </div>
+                <div class="tags">
+                    <span class="tag">Distributed</span>
                 </div>
             </div>
         </div>
@@ -955,11 +966,11 @@ blockquote {
             modal.className = 'image-modal';
             modal.innerHTML = '<span class="close-modal">&times;</span><img class="modal-content" alt="Paper preview enlarged">';
             document.body.appendChild(modal);
-            
+
             const modalImg = modal.querySelector('.modal-content');
             const closeBtn = modal.querySelector('.close-modal');
             let currentImageIndex = -1;
-            
+
             function showImage(index) {
                 if (index >= 0 && index < paperImages.length) {
                     currentImageIndex = index;
@@ -976,26 +987,26 @@ blockquote {
                     }
                 }
             }
-            
+
             paperImages.forEach((img, index) => {
                 img.addEventListener('click', function() {
                     showImage(index);
                 });
             });
-            
+
             // Close modal when clicking the X or outside the image
             closeBtn.addEventListener('click', function() {
                 modal.classList.remove('show');
                 currentImageIndex = -1;
             });
-            
+
             modal.addEventListener('click', function(e) {
                 if (e.target === modal) {
                     modal.classList.remove('show');
                     currentImageIndex = -1;
                 }
             });
-            
+
             // Close modal with Escape key and navigate with arrow keys
             document.addEventListener('keydown', function(e) {
                 if (modal.classList.contains('show')) {
