@@ -369,6 +369,7 @@ def generate_html(items: List[ReadingItem]):
 <html>
 <head>
     <title>apaz's Reading List</title>
+    <link rel="icon" type="image/png" href="../resources/images/favicon.png">
 {css_content}
 
 <style>
