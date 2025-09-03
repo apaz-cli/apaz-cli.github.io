@@ -566,7 +566,7 @@ def generate_html(items: List[ReadingItem]):
     <h1>apaz's Reading List</h1>
     <p>These are a bunch papers, sites, repos, etc that have caught my attention, which I want to do more with.</p>
     <p>This list is incomplete, but I think every resource here is worth a read or a skim. Or at least worth knowing it exists, as a reference.</p>
-    <p>As I read more closely and implement more stuff I'll be leaving notes on my impressions. If anything I say is incorrect, please yell at me on <a href="https://x.com/apaz_cli">twitter</a> or <a href="https://discord.com/invite/gpumode">discord</a>.</p>
+    <p>As I read more closely and implement more stuff I'll be leaving notes on my impressions. If anything I say is incorrect or you have something to add, please yell at me on <a href="https://x.com/apaz_cli">twitter</a> or <a href="https://discord.com/invite/gpumode">discord</a>.</p>
 '''
 
     if read_items:
@@ -698,19 +698,19 @@ def generate_html(items: List[ReadingItem]):
 
                 items.forEach(item => {
                     let showItem = true;
-                    
+
                     // Tag filtering
                     if (selectedTag !== '') {
                         const itemTags = item.getAttribute('data-tags');
                         showItem = showItem && itemTags && itemTags.includes(selectedTag);
                     }
-                    
+
                     // Search filtering
                     if (searchTerm !== '' && showItem) {
                         const searchableText = getSearchableText(item);
                         showItem = showItem && searchMatch(searchTerm, searchableText);
                     }
-                    
+
                     if (showItem) {
                         item.classList.remove('hidden');
                     } else {
@@ -836,4 +836,4 @@ if __name__ == "__main__":
     # Generate HTML page
     generate_html(all_items)
 
-    print(f"Generated reading list with {len(unread_items)} unread and {len(read_items)} read items.")
+    print(f"Generated reading list.\n{len(read_items)} read, and {len(unread_items)} unread.")

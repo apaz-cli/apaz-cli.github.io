@@ -301,7 +301,7 @@ blockquote {
     <h1>apaz's Reading List</h1>
     <p>These are a bunch papers, sites, repos, etc that have caught my attention, which I want to do more with.</p>
     <p>This list is incomplete, but I think every resource here is worth a read or a skim. Or at least worth knowing it exists, as a reference.</p>
-    <p>As I read more closely and implement more stuff I'll be leaving notes on my impressions. If anything I say is incorrect, please yell at me on <a href="https://x.com/apaz_cli">twitter</a> or <a href="https://discord.com/invite/gpumode">discord</a>.</p>
+    <p>As I read more closely and implement more stuff I'll be leaving notes on my impressions. If anything I say is incorrect or you have something to add, please yell at me on <a href="https://x.com/apaz_cli">twitter</a> or <a href="https://discord.com/invite/gpumode">discord</a>.</p>
 
     <div class="section">
         <div class="section-header">
@@ -347,6 +347,20 @@ blockquote {
                     <span class="tag">RL</span>
                 </div>
                 <img src="paper_images/2508.19229_thumb.png" data-fullsize="paper_images/2508.19229.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="RL">
+                <div class="urls">
+                    <h3>TreePO: Bridging the Gap of Policy Optimization and Efficacy and Inference Efficiency with Heuristic Tree-based Modeling</h3>
+                    <a href="https://arxiv.org/abs/2508.17445" class="url" target="_blank">https://arxiv.org/abs/2508.17445</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Recent advancements in aligning large language models via reinforcement learning have achieved remarkable gains in solving complex reasoning problems, but at the cost of expensive on-policy rollouts and limited exploration of diverse reasoning paths. In this work, we introduce TreePO, involving a self-guided rollout algorithm that views sequence generation as a tree-structured searching process. Composed of dynamic tree sampling policy and fixed-length segment decoding, TreePO leverages local uncertainty to warrant additional branches. By amortizing computation across common prefixes and pruning low-value paths early, TreePO essentially reduces the per-update compute burden while preserving or enhancing exploration diversity. Key contributions include: (1) a segment-wise sampling algorithm that alleviates the KV cache burden through contiguous segments and spawns new branches along with an early-stop mechanism; (2) a tree-based segment-level advantage estimation that considers both global and local proximal policy optimization. and (3) analysis on the effectiveness of probability and quality-driven dynamic divergence and fallback strategy. We empirically validate the performance gain of TreePO on a set reasoning benchmarks and the efficiency saving of GPU hours from 22\% up to 43\% of the sampling design for the trained models, meanwhile showing up to 40\% reduction at trajectory-level and 35\% at token-level sampling compute for the existing models. While offering a free lunch of inference efficiency, TreePO reveals a practical path toward scaling RL-based post-training with fewer samples and less compute. Home page locates at <a href="https://m-a-p.ai/TreePO" rel="external noopener nofollow" class="link-external link-https">this https URL</a>.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">RL</span>
+                </div>
+                <img src="paper_images/2508.17445_thumb.png" data-fullsize="paper_images/2508.17445.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Data Eng">
                 <div class="urls">
@@ -922,6 +936,12 @@ blockquote {
                 </div>
                 <div class="tags">
                     <span class="tag">Distributed</span>
+                </div>
+            </div>
+            <div class="item" data-tags="">
+                <div class="urls">
+                    <h3>PyTorch SymmetricMemory: Harnessing NVLink Programmability with Ease</h3>
+                    <a href="https://dev-discuss.pytorch.org/t/pytorch-symmetricmemory-harnessing-nvlink-programmability-with-ease/2798" class="url" target="_blank">https://dev-discuss.pytorch.org/t/pytorch-symmetricmemory-harnessing-nvlink-programmability-with-ease/2798</a>
                 </div>
             </div>
         </div>
