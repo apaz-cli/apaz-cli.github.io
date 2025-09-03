@@ -9,7 +9,6 @@ import requests
 import subprocess
 from glob import glob
 from dataclasses import dataclass
-from typing import List, Optional
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import wraps
 import threading
@@ -36,7 +35,7 @@ def arxiv_rate_limit(func):
     return wrapper
 
 
-def parse_published_date(date_str: Optional[str]) -> Optional[datetime]:
+def parse_published_date(date_str: str | None) -> datetime | None:
     """Parse published date string (format: '31 Aug 2025') to datetime object."""
     if date_str is None:
         return None
@@ -49,11 +48,12 @@ def parse_published_date(date_str: Optional[str]) -> Optional[datetime]:
 @dataclass
 class ReadingItem:
     name: str
-    urls: List[str]
-    tags: List[str]
+    urls: list[str]
+    tags: list[str]
     read: bool
-    abstract: Optional[str] = None
-    published_date: Optional[str] = None
+    summary: str | None = None
+    abstract: str | None = None
+    published_date: str | None = None
 
 def process_txt_item(index_and_raw):
     """Process a single raw item and return (index, ReadingItem)."""
@@ -90,22 +90,27 @@ def process_txt_item(index_and_raw):
       tags.extend(tgs)
     tags = sorted(list(set(tags)))
 
-    assert len(lines) == 0
+    # The rest is the summary.
+    summary = "\n".join(lines).strip()
+    read = summary != ""
+
+    
+
+    #assert len(lines) == 0
     assert len(urls) >= 1
     assert all(u.startswith("http") for u in urls)
 
-    item = ReadingItem(name=name, urls=urls, tags=tags, read=False, abstract=abstract, published_date=published_date)
+    item = ReadingItem(name=name, urls=urls, tags=tags, read=read, summary=summary, abstract=abstract, published_date=published_date)
 
-    # Generate image for arXiv papers
-
-    if get_arxiv_id(urls[0]):
+    # Generate image for papers (arXiv or direct PDF links)
+    if get_arxiv_id(urls[0]) or urls[0].endswith('.pdf'):
         download_pdf_and_extract_image(urls[0])
 
     print(f"Added \"{name}\" to reading list.")
 
     return (index, item)
 
-def parse_list_txt() -> List[ReadingItem]:
+def parse_list_txt() -> list[ReadingItem]:
     """Parse list.txt file containing unread items."""
     items = []
     if not os.path.exists('list.txt'):
@@ -147,7 +152,7 @@ def parse_list_txt() -> List[ReadingItem]:
     assert all(len(i.urls) >= 1 for i in items)
     return items
 
-def parse_md_files() -> List[ReadingItem]:
+def parse_md_files() -> list[ReadingItem]:
     """Parse all .md files containing read items."""
     items = []
     md_files = glob('*.md')
@@ -175,47 +180,24 @@ def get_cache_path(url: str) -> str:
     url_hash = hashlib.md5(url.encode()).hexdigest()
     return f"{cache_dir}/{url_hash}.json"
 
-def get_image_paths(arxiv_id: str) -> tuple[str, str]:
-    """Generate thumbnail and full-size image file paths for an arXiv ID."""
+def get_image_paths(identifier: str) -> tuple[str, str]:
+    """Generate thumbnail and full-size image file paths for a paper identifier."""
     image_dir = "paper_images"
     os.makedirs(image_dir, exist_ok=True)
-    thumbnail_path = f"{image_dir}/{arxiv_id}_thumb.png"
-    fullsize_path = f"{image_dir}/{arxiv_id}.png"
+    # Replace problematic characters in identifier for filename
+    safe_id = re.sub(r'[^\w\-_\.]', '_', identifier)
+    thumbnail_path = f"{image_dir}/{safe_id}_thumb.png"
+    fullsize_path = f"{image_dir}/{safe_id}.png"
     return thumbnail_path, fullsize_path
 
 def get_pdf_url(arxiv_id: str) -> str:
     """Generate PDF URL for an arXiv ID."""
     return f"https://arxiv.org/pdf/{arxiv_id}.pdf"
 
-def download_pdf_and_extract_image(url: str) -> Optional[tuple[str, str]]:
-    """Download arXiv PDF and convert first page to thumbnail and full-size PNG images using ghostscript.
-    Returns tuple of (thumbnail_path, fullsize_path), or None if failed."""
-    match = get_arxiv_id(url)
-    if not match:
-        return None
-
-    arxiv_id = match.group(1)
-    thumbnail_path, fullsize_path = get_image_paths(arxiv_id)
-
-    # Skip if both images already exist
-    if os.path.exists(thumbnail_path) and os.path.exists(fullsize_path):
-        return thumbnail_path, fullsize_path
-
-    pdf_url = get_pdf_url(arxiv_id)
-
-    @arxiv_rate_limit
-    def download_pdf():
-        return requests.get(pdf_url, timeout=30)
-
+def pdf_to_images(pdf_path: str, identifier: str, thumbnail_path: str, fullsize_path: str) -> bool:
+    """Convert PDF first page to thumbnail and full-size PNG images using ghostscript.
+    Returns True if successful, False otherwise."""
     try:
-        # Download PDF to temporary file
-        pdf_response = download_pdf()
-        pdf_response.raise_for_status()
-
-        temp_pdf = f"/tmp/{arxiv_id}.pdf"
-        with open(temp_pdf, 'wb') as f:
-            f.write(pdf_response.content)
-
         # Generate thumbnail (160px width, proportional height)
         thumbnail_cmd = [
             'gs', '-dNOPAUSE', '-dBATCH', '-sDEVICE=png16m',
@@ -224,7 +206,7 @@ def download_pdf_and_extract_image(url: str) -> Optional[tuple[str, str]]:
             '-dFIXEDMEDIA', '-dPDFFitPage',
             '-g100x150',
             f'-sOutputFile={thumbnail_path}',
-            temp_pdf
+            pdf_path
         ]
         subprocess.run(thumbnail_cmd, check=True, capture_output=True)
 
@@ -234,24 +216,82 @@ def download_pdf_and_extract_image(url: str) -> Optional[tuple[str, str]]:
             '-r200',
             '-dFirstPage=1', '-dLastPage=1',
             f'-sOutputFile={fullsize_path}',
-            temp_pdf
+            pdf_path
         ]
         subprocess.run(fullsize_cmd, check=True, capture_output=True)
+        
+        print(f"Generated thumbnail and full-size images for {identifier}")
+        return True
+        
+    except Exception as e:
+        print(f"Error converting PDF to images for {identifier}: {e}")
+        # Clean up any partial files
+        for img_file in [thumbnail_path, fullsize_path]:
+            if os.path.exists(img_file):
+                os.remove(img_file)
+        return False
 
-        # Clean up temporary PDF
-        os.remove(temp_pdf)
-        print(f"Generated thumbnail and full-size images for {url}")
+
+def get_raw_pdf_url(url: str) -> str:
+    """Convert GitHub blob URLs to raw URLs for direct PDF access."""
+    if 'github.com' in url and '/blob/' in url:
+        return url.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/')
+    return url
+
+def download_pdf_and_extract_image(url: str) -> tuple[str, str] | None:
+    """Download PDF from URL and convert first page to thumbnail and full-size PNG images.
+    Works with both arXiv URLs and direct PDF URLs.
+    Returns tuple of (thumbnail_path, fullsize_path), or None if failed."""
+    
+    # Check if it's an arXiv URL
+    arxiv_match = get_arxiv_id(url)
+    if arxiv_match:
+        identifier = arxiv_match.group(1)
+        pdf_url = get_pdf_url(identifier)
+        rate_limited_download = arxiv_rate_limit(lambda: requests.get(pdf_url, timeout=30))
+    elif url.endswith('.pdf'):
+        # Direct PDF URL
+        identifier = hashlib.md5(url.encode()).hexdigest()[:12]  # Use URL hash as identifier
+        pdf_url = get_raw_pdf_url(url)  # Convert GitHub URLs to raw format
+        rate_limited_download = lambda: requests.get(pdf_url, timeout=30)  # No rate limiting for non-arXiv
+    else:
+        return None
+
+    thumbnail_path, fullsize_path = get_image_paths(identifier)
+
+    # Skip if both images already exist
+    if os.path.exists(thumbnail_path) and os.path.exists(fullsize_path):
         return thumbnail_path, fullsize_path
 
+    try:
+        # Download PDF to temporary file
+        pdf_response = rate_limited_download()
+        pdf_response.raise_for_status()
+
+        temp_pdf = f"/tmp/{identifier}.pdf"
+        with open(temp_pdf, 'wb') as f:
+            f.write(pdf_response.content)
+
+        # Convert PDF to images
+        success = pdf_to_images(temp_pdf, identifier, thumbnail_path, fullsize_path)
+        
+        # Clean up temporary PDF
+        os.remove(temp_pdf)
+        
+        if success:
+            return thumbnail_path, fullsize_path
+        else:
+            return None
+
     except Exception as e:
-        print(f"Error processing PDF for {arxiv_id}: {e}")
+        print(f"Error processing PDF for {identifier}: {e}")
         # Clean up any temporary files
-        for temp_file in [f"/tmp/{arxiv_id}.pdf", thumbnail_path, fullsize_path]:
+        for temp_file in [f"/tmp/{identifier}.pdf", thumbnail_path, fullsize_path]:
             if os.path.exists(temp_file):
                 os.remove(temp_file)
         return None
 
-def load_from_cache(url: str) -> tuple[Optional[str], Optional[str], Optional[str]]:
+def load_from_cache(url: str) -> tuple[str | None, str | None, str | None]:
     """Load title, abstract, and published_date from cache if available."""
     cache_path = get_cache_path(url)
     try:
@@ -263,7 +303,7 @@ def load_from_cache(url: str) -> tuple[Optional[str], Optional[str], Optional[st
         print(f"Error reading cache for {url}: {e}")
     return None, None, None
 
-def save_to_cache(url: str, title: Optional[str], abstract: Optional[str], published_date: Optional[str]):
+def save_to_cache(url: str, title: str | None, abstract: str | None, published_date: str | None):
     """Save title, abstract, and published_date to cache."""
     cache_path = get_cache_path(url)
     try:
@@ -273,7 +313,7 @@ def save_to_cache(url: str, title: Optional[str], abstract: Optional[str], publi
     except Exception as e:
         print(f"Error writing cache for {url}: {e}")
 
-def get_info_from_url(url: str | None) -> tuple[Optional[str], Optional[str], Optional[str]]:
+def get_info_from_url(url: str | None) -> tuple[str | None, str | None, str | None]:
     """Scrape arXiv paper title, abstract, and published date from URL with rate limiting (5 requests/second).
     Returns (title, abstract, published_date)"""
     if url is None:
@@ -337,7 +377,7 @@ def get_info_from_url(url: str | None) -> tuple[Optional[str], Optional[str], Op
         return None, None, None
 
 
-def generate_html(items: List[ReadingItem]):
+def generate_html(items: list[ReadingItem]):
     """Generate static HTML page from reading items."""
 
     # Separate read and unread items
@@ -598,10 +638,15 @@ def generate_html(items: List[ReadingItem]):
 
             # Add paper thumbnail if available
             for url in item.urls:
-                match = get_arxiv_id(url)
-                if match:
-                    arxiv_id = match.group(1)
-                    thumbnail_path, fullsize_path = get_image_paths(arxiv_id)
+                identifier = None
+                arxiv_match = get_arxiv_id(url)
+                if arxiv_match:
+                    identifier = arxiv_match.group(1)
+                elif url.endswith('.pdf'):
+                    identifier = hashlib.md5(url.encode()).hexdigest()[:12]
+                
+                if identifier:
+                    thumbnail_path, fullsize_path = get_image_paths(identifier)
                     if os.path.exists(thumbnail_path):
                         html_content += f'                <img src="{thumbnail_path}" data-fullsize="{fullsize_path}" class="paper-image" alt="Paper preview">\n'
                     break
@@ -651,10 +696,15 @@ def generate_html(items: List[ReadingItem]):
 
             # Add paper thumbnail if available
             for url in item.urls:
-                match = get_arxiv_id(url)
-                if match:
-                    arxiv_id = match.group(1)
-                    thumbnail_path, fullsize_path = get_image_paths(arxiv_id)
+                identifier = None
+                arxiv_match = get_arxiv_id(url)
+                if arxiv_match:
+                    identifier = arxiv_match.group(1)
+                elif url.endswith('.pdf'):
+                    identifier = hashlib.md5(url.encode()).hexdigest()[:12]
+                
+                if identifier:
+                    thumbnail_path, fullsize_path = get_image_paths(identifier)
                     if os.path.exists(thumbnail_path):
                         html_content += f'                <img src="{thumbnail_path}" data-fullsize="{fullsize_path}" class="paper-image" alt="Paper preview">\n'
                     break

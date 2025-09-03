@@ -305,6 +305,23 @@ blockquote {
 
     <div class="section">
         <div class="section-header">
+            <h2>Paper Notes</h2>
+        </div>
+        <div class="grid">
+            <div class="item" data-tags="Distributed">
+                <div class="urls">
+                    <h3>Pytorch Async Tensor Parallelism Post</h3>
+                    <a href="https://discuss.pytorch.org/t/distributed-w-torchtitan-introducing-async-tensor-parallelism-in-pytorch/209487" class="url" target="_blank">Link 1</a>
+                </div>
+                <div class="tags">
+                    <span class="tag">Distributed</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-header">
             <h2>Backlog</h2>
             <div class="filter-controls">
                 <label for="search-bar">Search: </label>
@@ -328,12 +345,27 @@ blockquote {
                     <option value="Perf">Perf</option>
                     <option value="Pretrain">Pretrain</option>
                     <option value="Quantization">Quantization</option>
+                    <option value="RAG">RAG</option>
                     <option value="RL">RL</option>
                     <option value="RL Application">RL Application</option>
                 </select>
             </div>
         </div>
         <div class="grid">
+            <div class="item" data-tags="RAG">
+                <div class="urls">
+                    <h3>On the Theoretical Limitations of Embedding-Based Retrieval</h3>
+                    <a href="https://www.arxiv.org/pdf/2508.21038" class="url" target="_blank">https://www.arxiv.org/pdf/2508.21038</a>
+                </div>
+                <details>
+                    <summary>Abstract</summary>
+                    <div class="abstract">Vector embeddings have been tasked with an ever-increasing set of retrieval tasks over the years, with a nascent rise in using them for reasoning, instruction-following, coding, and more. These new benchmarks push embeddings to work for any query and any notion of relevance that could be given. While prior works have pointed out theoretical limitations of vector embeddings, there is a common assumption that these difficulties are exclusively due to unrealistic queries, and those that are not can be overcome with better training data and larger models. In this work, we demonstrate that we may encounter these theoretical limitations in realistic settings with extremely simple queries. We connect known results in learning theory, showing that the number of top-k subsets of documents capable of being returned as the result of some query is limited by the dimension of the embedding. We empirically show that this holds true even if we restrict to k=2, and directly optimize on the test set with free parameterized embeddings. We then create a realistic dataset called LIMIT that stress tests models based on these theoretical results, and observe that even state-of-the-art models fail on this dataset despite the simple nature of the task. Our work shows the limits of embedding models under the existing single vector paradigm and calls for future research to develop methods that can resolve this fundamental limitation.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">RAG</span>
+                </div>
+                <img src="paper_images/2508.21038_thumb.png" data-fullsize="paper_images/2508.21038.png" class="paper-image" alt="Paper preview">
+            </div>
             <div class="item" data-tags="RL">
                 <div class="urls">
                     <h3>StepWiser: Stepwise Generative Judges for Wiser Reasoning</h3>
@@ -918,6 +950,7 @@ blockquote {
                     <span class="tag">Model Release</span>
                     <span class="tag">Pretrain</span>
                 </div>
+                <img src="paper_images/217240fc6719_thumb.png" data-fullsize="paper_images/217240fc6719.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Model Release Pretrain">
                 <div class="urls">
@@ -928,15 +961,7 @@ blockquote {
                     <span class="tag">Model Release</span>
                     <span class="tag">Pretrain</span>
                 </div>
-            </div>
-            <div class="item" data-tags="Distributed">
-                <div class="urls">
-                    <h3>Pytorch Async Tensor Parallelism Post</h3>
-                    <a href="https://discuss.pytorch.org/t/distributed-w-torchtitan-introducing-async-tensor-parallelism-in-pytorch/209487" class="url" target="_blank">https://discuss.pytorch.org/t/distributed-w-torchtitan-introducing-async-tensor-parallelism-in-pytorch/209487</a>
-                </div>
-                <div class="tags">
-                    <span class="tag">Distributed</span>
-                </div>
+                <img src="paper_images/1c4a6edb5d05_thumb.png" data-fullsize="paper_images/1c4a6edb5d05.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="">
                 <div class="urls">
@@ -981,19 +1006,19 @@ blockquote {
 
                 items.forEach(item => {
                     let showItem = true;
-                    
+
                     // Tag filtering
                     if (selectedTag !== '') {
                         const itemTags = item.getAttribute('data-tags');
                         showItem = showItem && itemTags && itemTags.includes(selectedTag);
                     }
-                    
+
                     // Search filtering
                     if (searchTerm !== '' && showItem) {
                         const searchableText = getSearchableText(item);
                         showItem = showItem && searchMatch(searchTerm, searchableText);
                     }
-                    
+
                     if (showItem) {
                         item.classList.remove('hidden');
                     } else {

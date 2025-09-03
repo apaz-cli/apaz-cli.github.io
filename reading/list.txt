@@ -127,6 +127,7 @@ https://github.com/Tencent-Hunyuan/Hunyuan-MT/blob/main/Hunyuan_MT_Technical_Rep
 # Pytorch Async Tensor Parallelism Post
 https://discuss.pytorch.org/t/distributed-w-torchtitan-introducing-async-tensor-parallelism-in-pytorch/209487
 * Distributed
+This is the definitive reference for async tensor parallelism in pytorch.
 
 # https://arxiv.org/abs/2506.20512v1
 * RL * Dataset
@@ -134,6 +135,8 @@ https://discuss.pytorch.org/t/distributed-w-torchtitan-introducing-async-tensor-
 # https://arxiv.org/abs/2508.17445
 * RL
 
-
 # PyTorch SymmetricMemory: Harnessing NVLink Programmability with Ease
 https://dev-discuss.pytorch.org/t/pytorch-symmetricmemory-harnessing-nvlink-programmability-with-ease/2798
+
+# https://www.arxiv.org/pdf/2508.21038
+* RAG
