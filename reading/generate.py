@@ -1,19 +1,21 @@
 #!/usr/bin/python3
 
+import argparse
+import hashlib
+import json
 import os
 import re
-import time
-import json
-import hashlib
-import requests
+import shutil
 import subprocess
-import argparse
-from glob import glob
-from dataclasses import dataclass
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from functools import wraps
 import threading
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from dataclasses import dataclass
 from datetime import datetime
+from functools import wraps
+from glob import glob
+
+import requests
 
 
 # Global rate limiter for arXiv requests
@@ -305,12 +307,10 @@ def download_pdf_and_extract_image(url: str, keep_pdf: bool = False, paper_name:
             
             # Only copy if neither filename exists
             if not os.path.exists(cached_pdf_path) and not os.path.exists(old_style_path):
-                import shutil
                 shutil.copy2(temp_pdf, cached_pdf_path)
                 print(f"Saved PDF to cache: {cached_pdf_path}")
             elif os.path.exists(old_style_path) and not os.path.exists(cached_pdf_path):
                 # Rename old-style file to new format
-                import shutil
                 shutil.move(old_style_path, cached_pdf_path)
                 print(f"Renamed PDF in cache: {cached_pdf_path}")
         
