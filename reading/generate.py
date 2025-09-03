@@ -676,11 +676,8 @@ def generate_html(items: list[ReadingItem]):
         html_content += f'            <div class="item{read_class}" data-tags="{tags_attr}">\n'
         html_content += '                <div class="urls">\n'
         html_content += f'                    <h3>{item.name}</h3>\n'
-        for i, url in enumerate(item.urls):
-            if item.read:
-                html_content += f'                    <a href="{url}" class="url" target="_blank">Link {i+1}</a>\n'
-            else:
-                html_content += f'                    <a href="{url}" class="url" target="_blank">{url}</a>\n'
+        for url in item.urls:
+            html_content += f'                    <a href="{url}" class="url" target="_blank">{url}</a>\n'
         html_content += '                </div>\n'
         if item.abstract:
             html_content += '                <details class="abstract-details">\n'
