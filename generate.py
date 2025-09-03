@@ -32,7 +32,7 @@ def parseContents():
     for section in contents:
         lines = [line for line in section.split('\n')
                 if not line.strip().startswith('#')]
-        if len(lines) > 1:  # Need at least title + one item
+        if len(lines) >= 1:  # Need at least title + one item
             parsed.append(lines)
     return parsed
 
@@ -77,8 +77,7 @@ def makeDoc(data):
         # Write out the content, combining short lines.
         for i, category in enumerate(data):
             page += ('\n' if i else '') + \
-                    '                <div class="categorytitle">' + \
-                    category[0] + '</div>\n'
+                    '                <div class="categorytitle">' + category[0] + '</div>\n'
             page += '                <div class="categorycontent">'
             linelength = 0
             for entry in category[1:]:
@@ -86,7 +85,7 @@ def makeDoc(data):
                 name = name.strip()
                 link = link.strip()
                 linelength += len(name)+3
-                if linelength > 60:
+                if linelength > 63:
                     page = page[:-3]+'</div>\n                <div class="categorycontent">'
                     page += '<a href="'+link+'">'+name+'</a> - '
                     linelength = len(name)
