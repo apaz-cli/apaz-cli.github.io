@@ -665,14 +665,20 @@ blockquote {
                 </div>
                 <img src="paper_images/2504.20966_thumb.png" data-fullsize="paper_images/2504.20966.png" class="paper-image" alt="Paper preview">
             </div>
-            <div class="item" data-tags="Distributed Pretrain">
+            <div class="item read" data-tags="Distributed Pretrain">
                 <div class="urls">
                     <h3>GaLore 2: Large-Scale LLM Pre-Training by Gradient Low-Rank Projection</h3>
                     <a href="https://arxiv.org/abs/2504.20437" class="url" target="_blank">https://arxiv.org/abs/2504.20437</a>
+                    <a href="https://github.com/pytorch/torchtitan" class="url" target="_blank">https://github.com/pytorch/torchtitan</a>
                 </div>
                 <details class="abstract-details">
                     <summary>Abstract</summary>
                     <div class="abstract">Large language models (LLMs) have revolutionized natural language understanding and generation but face significant memory bottlenecks during training. GaLore, Gradient Low-Rank Projection, addresses this issue by leveraging the inherent low-rank structure of weight gradients, enabling substantial memory savings without sacrificing performance. Recent works further extend GaLore from various aspects, including low-bit quantization and higher-order tensor structures. However, there are several remaining challenges for GaLore, such as the computational overhead of SVD for subspace updates and the integration with state-of-the-art training parallelization strategies (e.g., FSDP). In this paper, we present GaLore 2, an efficient and scalable GaLore framework that addresses these challenges and incorporates recent advancements. In addition, we demonstrate the scalability of GaLore 2 by pre-training Llama 7B from scratch using up to 500 billion training tokens, highlighting its potential impact on real LLM pre-training scenarios.</div>
+                </details>
+                <details class="notes">
+                    <summary>Notes</summary>
+                    <div class="summary">Torchtitan is the go-to reference codebase, and the reference for all of torch.distributed. I am convinced that the best way to do LLM research of almost any sort is to start by forking torchtitan.
+That is, unless you need to use a model that is not already supported. It's not as flexible as huggingface, but it's way more powerful in that you get 5d parallelism for free and can saturate your cluster with minimal effort.</div>
                 </details>
                 <div class="tags">
                     <span class="tag">Distributed</span>
@@ -799,6 +805,21 @@ blockquote {
                 </div>
                 <img src="paper_images/2410.10781_thumb.png" data-fullsize="paper_images/2410.10781.png" class="paper-image" alt="Paper preview">
             </div>
+            <div class="item" data-tags="Distributed Pretrain">
+                <div class="urls">
+                    <h3>TorchTitan: One-stop PyTorch native solution for production ready LLM pre-training</h3>
+                    <a href="https://arxiv.org/abs/2410.06511" class="url" target="_blank">https://arxiv.org/abs/2410.06511</a>
+                </div>
+                <details class="abstract-details">
+                    <summary>Abstract</summary>
+                    <div class="abstract">The development of large language models (LLMs) has been instrumental in advancing state-of-the-art natural language processing applications. Training LLMs with billions of parameters and trillions of tokens require sophisticated distributed systems that enable composing and comparing several state-of-the-art techniques in order to efficiently scale across thousands of accelerators. However, existing solutions are complex, scattered across multiple libraries/repositories, lack interoperability, and are cumbersome to maintain. Thus, curating and empirically comparing training recipes require non-trivial engineering effort. <br>This paper introduces TorchTitan, an open-source, PyTorch-native distributed training system that unifies state-of-the-art techniques, streamlining integration and reducing overhead. TorchTitan enables 3D parallelism in a modular manner with elastic scaling, providing comprehensive logging, checkpointing, and debugging tools for production-ready training. It also incorporates hardware-software co-designed solutions, leveraging features like Float8 training and SymmetricMemory. As a flexible test bed, TorchTitan facilitates custom recipe curation and comparison, allowing us to develop optimized training recipes for Llama 3.1 and provide guidance on selecting techniques for maximum efficiency based on our experiences. <br>We thoroughly assess TorchTitan on the Llama 3.1 family of LLMs, spanning 8 billion to 405 billion parameters, and showcase its exceptional performance, modular composability, and elastic scalability. By stacking training optimizations, we demonstrate accelerations of 65.08% with 1D parallelism at the 128-GPU scale (Llama 3.1 8B), an additional 12.59% with 2D parallelism at the 256-GPU scale (Llama 3.1 70B), and an additional 30% with 3D parallelism at the 512-GPU scale (Llama 3.1 405B) on NVIDIA H100 GPUs over optimized baselines.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Distributed</span>
+                    <span class="tag">Pretrain</span>
+                </div>
+                <img src="paper_images/2410.06511_thumb.png" data-fullsize="paper_images/2410.06511.png" class="paper-image" alt="Paper preview">
+            </div>
             <div class="item" data-tags="Model Merging">
                 <div class="urls">
                     <h3>Parameter Competition Balancing for Model Merging</h3>
@@ -884,6 +905,20 @@ blockquote {
                     <span class="tag">Quantization</span>
                 </div>
                 <img src="paper_images/2309.05516_thumb.png" data-fullsize="paper_images/2309.05516.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Finetuning">
+                <div class="urls">
+                    <h3>YaRN: Efficient Context Window Extension of Large Language Models</h3>
+                    <a href="https://arxiv.org/abs/2309.00071" class="url" target="_blank">https://arxiv.org/abs/2309.00071</a>
+                </div>
+                <details class="abstract-details">
+                    <summary>Abstract</summary>
+                    <div class="abstract">Rotary Position Embeddings (RoPE) have been shown to effectively encode positional information in transformer-based language models. However, these models fail to generalize past the sequence length they were trained on. We present YaRN (Yet another RoPE extensioN method), a compute-efficient method to extend the context window of such models, requiring 10x less tokens and 2.5x less training steps than previous methods. Using YaRN, we show that LLaMA models can effectively utilize and extrapolate to context lengths much longer than their original pre-training would allow, while also surpassing previous the state-of-the-art at context window extension. In addition, we demonstrate that YaRN exhibits the capability to extrapolate beyond the limited context of a fine-tuning dataset. The models fine-tuned using YaRN has been made available and reproduced online up to 128k context length at <a href="https://github.com/jquesnelle/yarn" rel="external noopener nofollow" class="link-external link-https">this https URL</a></div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Finetuning</span>
+                </div>
+                <img src="paper_images/2309.00071_thumb.png" data-fullsize="paper_images/2309.00071.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Inference Pretrain">
                 <div class="urls">
@@ -971,7 +1006,7 @@ blockquote {
                 </div>
                 <details class="notes">
                     <summary>Notes</summary>
-                    <div class="summary">This is the definitive reference for async tensor parallelism in pytorch. And, honestly, in CUDA. For more insights I recommend the <a href="https://www.youtube.com/watch?v=Ow1FLKFcSPs">Eleuther perf reading list video</a> which covers the (pretty bad) <a href="https://dl.acm.org/doi/pdf/10.1145/3567955.3567959">google paper</a> which introduced the technique.</div>
+                    <div class="summary">This is the definitive reference for async tensor parallelism in pytorch. And, honestly, in CUDA. For more insights I recommend the <a href="https://www.youtube.com/watch?v=Ow1FLKFcSPs">Eleuther perf reading list video</a> which covers the (pretty bad) <a href="https://dl.acm.org/doi/pdf/10.1145/3567955.3567959">google paper</a> which introduced the technique. I would also recommend the <a href="https://www.youtube.com/watch?v=NHRTCQBZokg">DGEMM talk</a> given at GPU MODE. You could probably see how async TP applies to it.</div>
                 </details>
                 <div class="tags">
                     <span class="tag">Distributed</span>
@@ -988,6 +1023,15 @@ blockquote {
                 </details>
                 <div class="tags">
                     <span class="tag">Inference</span>
+                </div>
+            </div>
+            <div class="item" data-tags="Finetuning">
+                <div class="urls">
+                    <h3>Things I’m Learning While Training SuperHOT</h3>
+                    <a href="https://kaiokendev.github.io/til" class="url" target="_blank">https://kaiokendev.github.io/til</a>
+                </div>
+                <div class="tags">
+                    <span class="tag">Finetuning</span>
                 </div>
             </div>
         </div>

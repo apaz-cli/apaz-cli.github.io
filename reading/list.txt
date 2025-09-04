@@ -121,12 +121,15 @@ https://github.com/Tencent-Hunyuan/Hunyuan-MT/blob/main/Hunyuan_MT_Technical_Rep
 * Pretrain * Model Release
 
 # https://arxiv.org/abs/2504.20437
+https://github.com/pytorch/torchtitan
 * Pretrain * Distributed
+Torchtitan is the go-to reference codebase, and the reference for all of torch.distributed. I am convinced that the best way to do LLM research of almost any sort is to start by forking torchtitan.
+That is, unless you need to use a model that is not already supported. It's not as flexible as huggingface, but it's way more powerful in that you get 5d parallelism for free and can saturate your cluster with minimal effort.
 
 # Async Tensor Parallelism
 https://discuss.pytorch.org/t/distributed-w-torchtitan-introducing-async-tensor-parallelism-in-pytorch/209487
 * Distributed
-This is the definitive reference for async tensor parallelism in pytorch. And, honestly, in CUDA. For more insights I recommend the <a href="https://www.youtube.com/watch?v=Ow1FLKFcSPs">Eleuther perf reading list video</a> which covers the (pretty bad) <a href="https://dl.acm.org/doi/pdf/10.1145/3567955.3567959">google paper</a> which introduced the technique.
+This is the definitive reference for async tensor parallelism in pytorch. And, honestly, in CUDA. For more insights I recommend the <a href="https://www.youtube.com/watch?v=Ow1FLKFcSPs">Eleuther perf reading list video</a> which covers the (pretty bad) <a href="https://dl.acm.org/doi/pdf/10.1145/3567955.3567959">google paper</a> which introduced the technique. I would also recommend the <a href="https://www.youtube.com/watch?v=NHRTCQBZokg">DGEMM talk</a> given at GPU MODE. You could probably see how async TP applies to it.
 
 # https://arxiv.org/abs/2506.20512
 * RL * Dataset * Finetuning
@@ -144,3 +147,13 @@ There is a theoretical limit to the expressiveness of vector embeddings. This pa
 https://www.aleksagordic.com/blog/vllm
 * Inference
 This is the best introduction to vLLM that I have ever seen. It is very exhaustive and covers everything you should ever realistically need to know to hack/modify/contribute to vLLM.
+
+# Things I’m Learning While Training SuperHOT
+https://kaiokendev.github.io/til
+* Finetuning
+
+# https://arxiv.org/abs/2309.00071
+* Finetuning
+
+# https://arxiv.org/abs/2410.06511
+* Pretrain * Distributed
