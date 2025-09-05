@@ -150,10 +150,22 @@ This is the best introduction to vLLM that I have ever seen. It is very exhausti
 
 # Things I’m Learning While Training SuperHOT
 https://kaiokendev.github.io/til
-* Finetuning
+* Finetuning * Data Eng
 
 # https://arxiv.org/abs/2309.00071
 * Finetuning
 
 # https://arxiv.org/abs/2410.06511
 * Pretrain * Distributed
+
+# https://www.arxiv.org/abs/2507.19457
+* Prompt Eng
+
+# https://www.arxiv.org/abs/2509.02046
+* Pretrain * Optimizers
+
+# https://arxiv.org/abs/2411.04330
+* Pretrain * Quantization
+
+# https://arxiv.org/abs/2509.02534
+* Data Eng * RL

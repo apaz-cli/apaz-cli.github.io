@@ -339,6 +339,7 @@ blockquote {
                     <option value="Optimizers">Optimizers</option>
                     <option value="Perf">Perf</option>
                     <option value="Pretrain">Pretrain</option>
+                    <option value="Prompt Eng">Prompt Eng</option>
                     <option value="Quantization">Quantization</option>
                     <option value="RAG">RAG</option>
                     <option value="RL">RL</option>
@@ -347,6 +348,36 @@ blockquote {
             </div>
         </div>
         <div class="grid">
+            <div class="item" data-tags="Optimizers Pretrain">
+                <div class="urls">
+                    <h3>Fantastic Pretraining Optimizers and Where to Find Them</h3>
+                    <a href="https://www.arxiv.org/abs/2509.02046" class="url" target="_blank">https://www.arxiv.org/abs/2509.02046</a>
+                </div>
+                <details class="abstract-details">
+                    <summary>Abstract</summary>
+                    <div class="abstract">AdamW has long been the dominant optimizer in language model pretraining, despite numerous claims that alternative optimizers offer 1.4 to 2x speedup. We posit that two methodological shortcomings have obscured fair comparisons and hindered practical adoption: (i) unequal hyperparameter tuning and (ii) limited or misleading evaluation setups. To address these two issues, we conduct a systematic study of ten deep learning optimizers across four model scales (0.1B-1.2B parameters) and data-to-model ratios (1-8x the Chinchilla optimum). We find that fair and informative comparisons require rigorous hyperparameter tuning and evaluations across a range of model scales and data-to-model ratios, performed at the end of training. First, optimal hyperparameters for one optimizer may be suboptimal for another, making blind hyperparameter transfer unfair. Second, the actual speedup of many proposed optimizers over well-tuned baselines is lower than claimed and decreases with model size to only 1.1x for 1.2B parameter models. Thirdly, comparing intermediate checkpoints before reaching the target training budgets can be misleading, as rankings between two optimizers can flip during training due to learning rate decay. Through our thorough investigation, we find that all the fastest optimizers such as Muon and Soap, use matrices as preconditioners -- multiplying gradients with matrices rather than entry-wise scalars. However, the speedup of matrix-based optimizers is inversely proportional to model scale, decreasing from 1.4x over AdamW for 0.1B parameter models to merely 1.1x for 1.2B parameter models.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Optimizers</span>
+                    <span class="tag">Pretrain</span>
+                </div>
+                <img src="paper_images/2509.02046_thumb.png" data-fullsize="paper_images/2509.02046.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Data Eng RL">
+                <div class="urls">
+                    <h3>Jointly Reinforcing Diversity and Quality in Language Model Generations</h3>
+                    <a href="https://arxiv.org/abs/2509.02534" class="url" target="_blank">https://arxiv.org/abs/2509.02534</a>
+                </div>
+                <details class="abstract-details">
+                    <summary>Abstract</summary>
+                    <div class="abstract">Post-training of Large Language Models (LMs) often prioritizes accuracy and helpfulness at the expense of diversity. This creates a tension: while post-training improves response quality, it also sharpens output distributions and reduces the range of ideas, limiting the usefulness of LMs in creative and exploratory tasks such as brainstorming, storytelling, or problem solving. We address this challenge with Diversity-Aware Reinforcement Learning (DARLING), a framework that jointly optimizes for response quality and semantic diversity. At its core, DARLING introduces a learned partition function to measure diversity beyond surface-level lexical variations. This diversity signal is then combined with a quality reward during online reinforcement learning, encouraging models to generate outputs that are both high-quality and distinct. Experiments across multiple model families and sizes show that DARLING generalizes to two regimes: non-verifiable tasks (instruction following and creative writing) and verifiable tasks (competition math). On five benchmarks in the first setting, DARLING consistently outperforms quality-only RL baselines, producing outputs that are simultaneously of higher quality and novelty. In the second setting, DARLING achieves higher pass@1 (solution quality) and pass@k (solution variety). Most strikingly, explicitly optimizing for diversity catalyzes exploration in online RL, which manifests itself as higher-quality responses.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Data Eng</span>
+                    <span class="tag">RL</span>
+                </div>
+                <img src="paper_images/2509.02534_thumb.png" data-fullsize="paper_images/2509.02534.png" class="paper-image" alt="Paper preview">
+            </div>
             <div class="item read" data-tags="RAG">
                 <div class="urls">
                     <h3>On the Theoretical Limitations of Embedding-Based Retrieval</h3>
@@ -487,6 +518,20 @@ blockquote {
                     <span class="tag">RL</span>
                 </div>
                 <img src="paper_images/2508.05748_thumb.png" data-fullsize="paper_images/2508.05748.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Prompt Eng">
+                <div class="urls">
+                    <h3>GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning</h3>
+                    <a href="https://www.arxiv.org/abs/2507.19457" class="url" target="_blank">https://www.arxiv.org/abs/2507.19457</a>
+                </div>
+                <details class="abstract-details">
+                    <summary>Abstract</summary>
+                    <div class="abstract">Large language models (LLMs) are increasingly adapted to downstream tasks via reinforcement learning (RL) methods like Group Relative Policy Optimization (GRPO), which often require thousands of rollouts to learn new tasks. We argue that the interpretable nature of language can often provide a much richer learning medium for LLMs, compared with policy gradients derived from sparse, scalar rewards. To test this, we introduce GEPA (Genetic-Pareto), a prompt optimizer that thoroughly incorporates natural language reflection to learn high-level rules from trial and error. Given any AI system containing one or more LLM prompts, GEPA samples system-level trajectories (e.g., reasoning, tool calls, and tool outputs) and reflects on them in natural language to diagnose problems, propose and test prompt updates, and combine complementary lessons from the Pareto frontier of its own attempts. As a result of GEPA&#39;s design, it can often turn even just a few rollouts into a large quality gain. Across four tasks, GEPA outperforms GRPO by 10% on average and by up to 20%, while using up to 35x fewer rollouts. GEPA also outperforms the leading prompt optimizer, MIPROv2, by over 10% across two LLMs, and demonstrates promising results as an inference-time search strategy for code optimization.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Prompt Eng</span>
+                </div>
+                <img src="paper_images/2507.19457_thumb.png" data-fullsize="paper_images/2507.19457.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="MoE RL">
                 <div class="urls">
@@ -791,6 +836,21 @@ That is, unless you need to use a model that is not already supported. It's not 
                 </div>
                 <img src="paper_images/2412.05270_thumb.png" data-fullsize="paper_images/2412.05270.png" class="paper-image" alt="Paper preview">
             </div>
+            <div class="item" data-tags="Pretrain Quantization">
+                <div class="urls">
+                    <h3>Scaling Laws for Precision</h3>
+                    <a href="https://arxiv.org/abs/2411.04330" class="url" target="_blank">https://arxiv.org/abs/2411.04330</a>
+                </div>
+                <details class="abstract-details">
+                    <summary>Abstract</summary>
+                    <div class="abstract">Low precision training and inference affect both the quality and cost of language models, but current scaling laws do not account for this. In this work, we devise &#34;precision-aware&#34; scaling laws for both training and inference. We propose that training in lower precision reduces the model&#39;s &#34;effective parameter count,&#34; allowing us to predict the additional loss incurred from training in low precision and post-train quantization. For inference, we find that the degradation introduced by post-training quantization increases as models are trained on more data, eventually making additional pretraining data actively harmful. For training, our scaling laws allow us to predict the loss of a model with different parts in different precisions, and suggest that training larger models in lower precision may be compute optimal. We unify the scaling laws for post and pretraining quantization to arrive at a single functional form that predicts degradation from training and inference in varied precisions. We fit on over 465 pretraining runs and validate our predictions on model sizes up to 1.7B parameters trained on up to 26B tokens.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Pretrain</span>
+                    <span class="tag">Quantization</span>
+                </div>
+                <img src="paper_images/2411.04330_thumb.png" data-fullsize="paper_images/2411.04330.png" class="paper-image" alt="Paper preview">
+            </div>
             <div class="item" data-tags="Attention">
                 <div class="urls">
                     <h3>When Attention Sink Emerges in Language Models: An Empirical View</h3>
@@ -1025,12 +1085,13 @@ That is, unless you need to use a model that is not already supported. It's not 
                     <span class="tag">Inference</span>
                 </div>
             </div>
-            <div class="item" data-tags="Finetuning">
+            <div class="item" data-tags="Data Eng Finetuning">
                 <div class="urls">
                     <h3>Things I’m Learning While Training SuperHOT</h3>
                     <a href="https://kaiokendev.github.io/til" class="url" target="_blank">https://kaiokendev.github.io/til</a>
                 </div>
                 <div class="tags">
+                    <span class="tag">Data Eng</span>
                     <span class="tag">Finetuning</span>
                 </div>
             </div>
