@@ -178,3 +178,9 @@ https://kaiokendev.github.io/til
 
 # https://arxiv.org/abs/2402.07871
 * Pretrain * MoE
+
+# https://arxiv.org/abs/2508.19228
+* Pretrain
+
+# https://arxiv.org/abs/2509.01649
+* Pretrain * RL
