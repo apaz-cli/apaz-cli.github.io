@@ -169,3 +169,12 @@ https://kaiokendev.github.io/til
 
 # https://arxiv.org/abs/2509.02534
 * Data Eng * RL
+
+# https://arxiv.org/abs/2502.02631
+* Quantization * Pretrain
+
+# https://arxiv.org/abs/2504.02658
+* Quantization * MoE * Pretrain
+
+# https://arxiv.org/abs/2402.07871
+* Pretrain * MoE
