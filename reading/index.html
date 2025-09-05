@@ -363,7 +363,7 @@ blockquote {
                 </div>
                 <img src="paper_images/2509.02046_thumb.png" data-fullsize="paper_images/2509.02046.png" class="paper-image" alt="Paper preview">
             </div>
-            <div class="item" data-tags="Data Eng RL">
+            <div class="item read" data-tags="RL">
                 <div class="urls">
                     <h3>Jointly Reinforcing Diversity and Quality in Language Model Generations</h3>
                     <a href="https://arxiv.org/abs/2509.02534" class="url" target="_blank">https://arxiv.org/abs/2509.02534</a>
@@ -372,8 +372,12 @@ blockquote {
                     <summary>Abstract</summary>
                     <div class="abstract">Post-training of Large Language Models (LMs) often prioritizes accuracy and helpfulness at the expense of diversity. This creates a tension: while post-training improves response quality, it also sharpens output distributions and reduces the range of ideas, limiting the usefulness of LMs in creative and exploratory tasks such as brainstorming, storytelling, or problem solving. We address this challenge with Diversity-Aware Reinforcement Learning (DARLING), a framework that jointly optimizes for response quality and semantic diversity. At its core, DARLING introduces a learned partition function to measure diversity beyond surface-level lexical variations. This diversity signal is then combined with a quality reward during online reinforcement learning, encouraging models to generate outputs that are both high-quality and distinct. Experiments across multiple model families and sizes show that DARLING generalizes to two regimes: non-verifiable tasks (instruction following and creative writing) and verifiable tasks (competition math). On five benchmarks in the first setting, DARLING consistently outperforms quality-only RL baselines, producing outputs that are simultaneously of higher quality and novelty. In the second setting, DARLING achieves higher pass@1 (solution quality) and pass@k (solution variety). Most strikingly, explicitly optimizing for diversity catalyzes exploration in online RL, which manifests itself as higher-quality responses.</div>
                 </details>
+                <details class="notes">
+                    <summary>Notes</summary>
+                    <div class="summary">This is another paper that corroborates the evidence that "Exploration in RL is good." See the TreePO paper for another example. It's also a paper that corroborates that if you have the budget and the patience for it, RL is just a better tuning method than SFT. Doing tons of rollouts samples a much more diverse policy than whatever supervised examples you have, which leads to less degradation over the base model. They a lot more on maintaining diversity for pass@k, the collapse of which has in the past been a topic of note in RL discourse.
+I recommend looking at figure 1 in the paper, it pretty much describes their entire approach.</div>
+                </details>
                 <div class="tags">
-                    <span class="tag">Data Eng</span>
                     <span class="tag">RL</span>
                 </div>
                 <img src="paper_images/2509.02534_thumb.png" data-fullsize="paper_images/2509.02534.png" class="paper-image" alt="Paper preview">
@@ -807,7 +811,7 @@ That is, unless you need to use a model that is not already supported. It's not 
                 </div>
                 <img src="paper_images/2503.04715_thumb.png" data-fullsize="paper_images/2503.04715.png" class="paper-image" alt="Paper preview">
             </div>
-            <div class="item" data-tags="Pretrain Quantization">
+            <div class="item read" data-tags="Pretrain Quantization">
                 <div class="urls">
                     <h3>Training LLMs with MXFP4</h3>
                     <a href="https://arxiv.org/abs/2502.20586" class="url" target="_blank">https://arxiv.org/abs/2502.20586</a>
@@ -815,6 +819,11 @@ That is, unless you need to use a model that is not already supported. It's not 
                 <details class="abstract-details">
                     <summary>Abstract</summary>
                     <div class="abstract">Low precision (LP) datatypes such as MXFP4 can accelerate matrix multiplications (GEMMs) and reduce training costs. However, directly using MXFP4 instead of BF16 during training significantly degrades model quality. In this work, we present the first near-lossless training recipe that uses MXFP4 GEMMs, which are $2\times$ faster than FP8 on supported hardware. Our key insight is to compute unbiased gradient estimates with stochastic rounding (SR), resulting in more accurate model updates. However, directly applying SR to MXFP4 can result in high variance from block-level outliers, harming convergence. To overcome this, we use the random Hadamard tranform to theoretically bound the variance of SR. We train GPT models up to 6.7B parameters and find that our method induces minimal degradation over mixed-precision BF16 training. Our recipe computes $&gt;1/2$ the training FLOPs in MXFP4, enabling an estimated speedup of $&gt;1.3\times$ over FP8 and $&gt;1.7\times$ over BF16 during backpropagation.</div>
+                </details>
+                <details class="notes">
+                    <summary>Notes</summary>
+                    <div class="summary">They present the first real good method to train with MXFP4 in the backwards pass.
+They do stochastic rounding, which is becoming increasinly common in QAT, but they apply a Hadamard transform first to mitigate the effect of outliers.</div>
                 </details>
                 <div class="tags">
                     <span class="tag">Pretrain</span>
@@ -954,7 +963,7 @@ That is, unless you need to use a model that is not already supported. It's not 
                 </div>
                 <img src="paper_images/2410.02396_thumb.png" data-fullsize="paper_images/2410.02396.png" class="paper-image" alt="Paper preview">
             </div>
-            <div class="item" data-tags="Finetuning MoE">
+            <div class="item read" data-tags="Finetuning MoE">
                 <div class="urls">
                     <h3>Let the Expert Stick to His Last: Expert-Specialized Fine-Tuning for Sparse Architectural Large Language Models</h3>
                     <a href="https://arxiv.org/abs/2407.01906" class="url" target="_blank">https://arxiv.org/abs/2407.01906</a>
@@ -962,6 +971,12 @@ That is, unless you need to use a model that is not already supported. It's not 
                 <details class="abstract-details">
                     <summary>Abstract</summary>
                     <div class="abstract">Parameter-efficient fine-tuning (PEFT) is crucial for customizing Large Language Models (LLMs) with constrained resources. Although there have been various PEFT methods for dense-architecture LLMs, PEFT for sparse-architecture LLMs is still underexplored. In this work, we study the PEFT method for LLMs with the Mixture-of-Experts (MoE) architecture and the contents of this work are mainly threefold: (1) We investigate the dispersion degree of the activated experts in customized tasks, and found that the routing distribution for a specific task tends to be highly concentrated, while the distribution of activated experts varies significantly across different tasks. (2) We propose Expert-Specialized Fine-Tuning, or ESFT, which tunes the experts most relevant to downstream tasks while freezing the other experts and modules; experimental results demonstrate that our method not only improves the tuning efficiency, but also matches or even surpasses the performance of full-parameter fine-tuning. (3) We further analyze the impact of the MoE architecture on expert-specialized fine-tuning. We find that MoE models with finer-grained experts are more advantageous in selecting the combination of experts that are most relevant to downstream tasks, thereby enhancing both the training efficiency and effectiveness. Our code is available at <a href="https://github.com/deepseek-ai/ESFT" rel="external noopener nofollow" class="link-external link-https">this https URL</a>.</div>
+                </details>
+                <details class="notes">
+                    <summary>Notes</summary>
+                    <div class="summary">This paper posits that, since MoE experts specialize, when we finetune we should respect that and only update the few experts that are most used. We can do that because, for a specific task, it's very likely that only a few experts are going to be commonly used anyway. Or rather, only a few are going to be important.
+This doesn't actually seem like free lunch. You would think that, ideally, the model should be able to learn to repurpose an expert used for one thing for another thing. But there's an increasing amount of evidence that you're not going to be able to learn how to do that from PEFT. From a compression intelligence standpoint, the model is already baked, you're just modifying the surface level distribution to get it to do what you want. The routing is baked too, which is fine because it should already know what knowledge is where. So instead of messing with the learned routing too much, trust that the router already knows what's in each expert and freeze the unimportant ones.
+In practice if you use this method you should probably obsess over tracking which experts are actually used, how many you need to train, your % unfrozen expert hit rate, and for what tokens. At all points in your PEFT. Logging will be essential here to make sure the assumptions actually hold. Otherwise you will probably fry your model. But it's probably the best way to do PEFT on MoE models, or at least by far the most compute and data efficient way.</div>
                 </details>
                 <div class="tags">
                     <span class="tag">Finetuning</span>
@@ -1086,17 +1101,6 @@ That is, unless you need to use a model that is not already supported. It's not 
                 </div>
                 <img src="paper_images/1610.02132_thumb.png" data-fullsize="paper_images/1610.02132.png" class="paper-image" alt="Paper preview">
             </div>
-            <div class="item" data-tags="Attention Inference MoE">
-                <div class="urls">
-                    <h3>Seb's Qwen3 MoE implementation</h3>
-                    <a href="https://github.com/rasbt/LLMs-from-scratch/blob/main/ch05/11_qwen3/standalone-qwen3-moe-plus-kvcache.ipynb" class="url" target="_blank">https://github.com/rasbt/LLMs-from-scratch/blob/main/ch05/11_qwen3/standalone-qwen3-moe-plus-kvcache.ipynb</a>
-                </div>
-                <div class="tags">
-                    <span class="tag">Attention</span>
-                    <span class="tag">Inference</span>
-                    <span class="tag">MoE</span>
-                </div>
-            </div>
             <div class="item read" data-tags="Finetuning RL">
                 <div class="urls">
                     <h3>SFT is bad RL</h3>
@@ -1111,26 +1115,38 @@ That is, unless you need to use a model that is not already supported. It's not 
                     <span class="tag">RL</span>
                 </div>
             </div>
-            <div class="item" data-tags="Model Release Pretrain">
+            <div class="item read" data-tags="MoE Model Release Pretrain">
                 <div class="urls">
                     <h3>Meutuan-Longcat LongCat-Flash-Chat</h3>
                     <a href="https://github.com/meituan-longcat/LongCat-Flash-Chat/blob/main/tech_report.pdf" class="url" target="_blank">https://github.com/meituan-longcat/LongCat-Flash-Chat/blob/main/tech_report.pdf</a>
                     <a href="https://zhuanlan.zhihu.com/p/1945574906868785336" class="url" target="_blank">https://zhuanlan.zhihu.com/p/1945574906868785336</a>
                 </div>
+                <details class="notes">
+                    <summary>Notes</summary>
+                    <div class="summary">This technical report is really good, and their architecture is really interesting. They seem like a real competitor alongside Kimi and Moonshot. They do an interesting hparam transfer strategy, and use zero-computation experts from the MoE++ paper. Optimized with techniques from the Shortcut-connected expert parallelism paper. A great idea, I don't know why I haven't seen other people doing this. Maybe beacuse it doesn't make a lot of sense for batched training/serving? And because people don't want to balance yet another thing on top of expert routing? But I think it does make the model more useful, especially at BS=1.
+They also do an interesting hyperparameter transfer. This is an area where I realize my knowledge is lacking.</div>
+                </details>
                 <div class="tags">
+                    <span class="tag">MoE</span>
                     <span class="tag">Model Release</span>
                     <span class="tag">Pretrain</span>
                 </div>
                 <img src="paper_images/217240fc6719_thumb.png" data-fullsize="paper_images/217240fc6719.png" class="paper-image" alt="Paper preview">
             </div>
-            <div class="item" data-tags="Model Release Pretrain">
+            <div class="item read" data-tags="Model Release Pretrain RL">
                 <div class="urls">
                     <h3>Hunyuan-MT Technical Report</h3>
                     <a href="https://github.com/Tencent-Hunyuan/Hunyuan-MT/blob/main/Hunyuan_MT_Technical_Report.pdf" class="url" target="_blank">https://github.com/Tencent-Hunyuan/Hunyuan-MT/blob/main/Hunyuan_MT_Technical_Report.pdf</a>
                 </div>
+                <details class="notes">
+                    <summary>Notes</summary>
+                    <div class="summary">"Attention is All you Need" was a paper about machine translation. For some reason, it seems like nobody has cared about machine translation since. Until now. It seems that Tencent basically "solved" machine translation, beating almost every existing baseline, and nobody is talking about it. If you need to translate stuff, I recommend this model.
+They also describe how they did their RL tuning, which is a little bit interesting.</div>
+                </details>
                 <div class="tags">
                     <span class="tag">Model Release</span>
                     <span class="tag">Pretrain</span>
+                    <span class="tag">RL</span>
                 </div>
                 <img src="paper_images/1c4a6edb5d05_thumb.png" data-fullsize="paper_images/1c4a6edb5d05.png" class="paper-image" alt="Paper preview">
             </div>

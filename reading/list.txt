@@ -2,123 +2,166 @@
 # https://arxiv.org/abs/2504.20966
 * Attention
 
+
 # https://arxiv.org/abs/2410.10781
 * Attention
+
 
 # https://arxiv.org/abs/2508.05748
 * RL * Deep Research
 
+
 # https://arxiv.org/abs/2505.14669
 * Quantization * Pretrain
+
 
 # https://arxiv.org/abs/2505.17063
 * RL * Data Eng
 
+
 # https://arxiv.org/abs/2505.19115
 * Quantization * Pretrain
+
 
 # https://arxiv.org/abs/2508.09752
 * HPO * MoE * Pretrain
 
+
 # https://arxiv.org/abs/2406.07515
 * Data Eng
 
+
 # https://arxiv.org/abs/2508.10948
 * Model Release * Pretrain
+
 
 # https://arxiv.org/abs/2508.10975
 https://blog.datologyai.com/beyondweb/
 * Data Eng
 
+
 # https://arxiv.org/abs/2502.10517
 * RL * GPU * Perf * Pretrain
+
 
 # https://arxiv.org/abs/1610.02132
 * Quantization * Pretrain * Distributed
 
+
 # https://arxiv.org/abs/2412.05270
 * Optimizers
+
 
 # https://arxiv.org/abs/2403.13187
 * Model Merging
 
+
 # https://arxiv.org/abs/2410.02396
 * Model Merging
+
 
 # https://arxiv.org/abs/2502.10436
 * Model Merging
 
+
 # https://arxiv.org/abs/2505.12082
 * Model Merging
+
 
 # https://arxiv.org/abs/2507.09404
 * Data Eng
 
+
 # https://arxiv.org/abs/2507.18071
 * RL * MoE
+
 
 # https://arxiv.org/abs/2507.00310
 * RL
 
+
 # https://arxiv.org/abs/2502.00212
 * RL Application
+
 
 # https://arxiv.org/abs/2508.19229
 * RL
 
+
 # https://arxiv.org/abs/2505.16932
 * Optimizers
+
 
 # https://arxiv.org/abs/2404.05728
 * HPO * Pretrain
 
+
 # https://arxiv.org/abs/2506.06832
+
 
 # https://arxiv.org/abs/2508.10395
 * Attention * Inference
 
+
 # https://arxiv.org/abs/2502.20586
 * Pretrain * Quantization
+They present the first real good method to train with MXFP4 in the backwards pass.
+They do stochastic rounding, which is becoming increasinly common in QAT, but they apply a Hadamard transform first to mitigate the effect of outliers.
+
 
 # https://arxiv.org/abs/2503.04715
 * HPO * Pretrain
 
+
 # https://arxiv.org/abs/2309.05516
 * Quantization
+
 
 # https://arxiv.org/abs/2507.02592
 https://github.com/Alibaba-NLP/WebAgent
 * RL * Deep Research
 
+
 # https://arxiv.org/abs/2508.06471
 * Model Release * Pretrain
+
 
 # https://arxiv.org/abs/2504.05295
 * Pretrain * Optimizers * Distributed
 
+
 # https://arxiv.org/abs/2407.01906
 * MoE * Finetuning
+This paper posits that, since MoE experts specialize, when we finetune we should respect that and only update the few experts that are most used. We can do that because, for a specific task, it's very likely that only a few experts are going to be commonly used anyway. Or rather, only a few are going to be important.
+This doesn't actually seem like free lunch. You would think that, ideally, the model should be able to learn to repurpose an expert used for one thing for another thing. But there's an increasing amount of evidence that you're not going to be able to learn how to do that from PEFT. From a compression intelligence standpoint, the model is already baked, you're just modifying the surface level distribution to get it to do what you want. The routing is baked too, which is fine because it should already know what knowledge is where. So instead of messing with the learned routing too much, trust that the router already knows what's in each expert and freeze the unimportant ones.
+In practice if you use this method you should probably obsess over tracking which experts are actually used, how many you need to train, your % unfrozen expert hit rate, and for what tokens. At all points in your PEFT. Logging will be essential here to make sure the assumptions actually hold. Otherwise you will probably fry your model. But it's probably the best way to do PEFT on MoE models, or at least by far the most compute and data efficient way.
 
-# Seb's Qwen3 MoE implementation
-https://github.com/rasbt/LLMs-from-scratch/blob/main/ch05/11_qwen3/standalone-qwen3-moe-plus-kvcache.ipynb
-* MoE * Inference * Attention
 
 # https://arxiv.org/abs/2207.14255
 * Pretrain * Inference
+
 
 # SFT is bad RL
 https://justintchiu.com/blog/sftrl/
 * RL * Finetuning
 This one is really short, if you're interested in RL you should just read it.
 
+
 # Meutuan-Longcat LongCat-Flash-Chat
 https://github.com/meituan-longcat/LongCat-Flash-Chat/blob/main/tech_report.pdf
 https://zhuanlan.zhihu.com/p/1945574906868785336
-* Pretrain * Model Release
+* Pretrain * MoE * Model Release
+This technical report is really good, and their architecture is really interesting. They seem like a real competitor alongside Kimi and Moonshot. They do an interesting hparam transfer strategy, and use zero-computation experts from the MoE++ paper. Optimized with techniques from the Shortcut-connected expert parallelism paper. A great idea, I don't know why I haven't seen other people doing this. Maybe beacuse it doesn't make a lot of sense for batched training/serving? And because people don't want to balance yet another thing on top of expert routing? But I think it does make the model more useful, especially at BS=1.
+
+They also do an interesting hyperparameter transfer. This is an area where I realize my knowledge is lacking.
+
 
 # Hunyuan-MT Technical Report
 https://github.com/Tencent-Hunyuan/Hunyuan-MT/blob/main/Hunyuan_MT_Technical_Report.pdf
-* Pretrain * Model Release
+* Pretrain * Model Release * RL
+"Attention is All you Need" was a paper about machine translation. For some reason, it seems like nobody has cared about machine translation since. Until now. It seems that Tencent basically "solved" machine translation, beating almost every existing baseline, and nobody is talking about it. If you need to translate stuff, I recommend this model.
+They also describe how they did their RL tuning, which is a little bit interesting.
+
 
 # https://arxiv.org/abs/2504.20437
 https://github.com/pytorch/torchtitan
@@ -126,61 +169,81 @@ https://github.com/pytorch/torchtitan
 Torchtitan is the go-to reference codebase, and the reference for all of torch.distributed. I am convinced that the best way to do LLM research of almost any sort is to start by forking torchtitan.
 That is, unless you need to use a model that is not already supported. It's not as flexible as huggingface, but it's way more powerful in that you get 5d parallelism for free and can saturate your cluster with minimal effort.
 
+
 # Async Tensor Parallelism
 https://discuss.pytorch.org/t/distributed-w-torchtitan-introducing-async-tensor-parallelism-in-pytorch/209487
 * Distributed
 This is the definitive reference for async tensor parallelism in pytorch. And, honestly, in CUDA. For more insights I recommend the <a href="https://www.youtube.com/watch?v=Ow1FLKFcSPs">Eleuther perf reading list video</a> which covers the (pretty bad) <a href="https://dl.acm.org/doi/pdf/10.1145/3567955.3567959">google paper</a> which introduced the technique. I would also recommend the <a href="https://www.youtube.com/watch?v=NHRTCQBZokg">DGEMM talk</a> given at GPU MODE. You could probably see how async TP applies to it.
 
+
 # https://arxiv.org/abs/2506.20512
 * RL * Dataset * Finetuning
 For a long time at Prime Intellect we were confused as to why we were getting good results doing RL on top of Qwen and terrible results with Llama3. It turns out that your base model does matter. Specifically, you need to finetune or rewarm your model on synthetic reasoning traces in the domain you're RLing on before applying your preferred brand of policy optimization. Usually we get this data by generating a bunch of synthetic rollouts from Deepseek R1 or another strong teacher model.
+
 
 # https://arxiv.org/abs/2508.17445
 * RL
 From the moment the Deepseek R1 (GRPO) paper released I thought it was really weird that each token was given equal weight. Clearly not all tokens are created equal. Especially when you think about inference as sampling from a "trajectory" as we so often call it in RL. The branching points should matter a lot more. This paper resolves that, automatically detecting branching points and weighting them appropriately. This leads to really good performance improvements from better sample efficiency in your rollout.
 
+
 # https://www.arxiv.org/pdf/2508.21038
 * RAG
 There is a theoretical limit to the expressiveness of vector embeddings. This paper debunks the idea that it's a skill issue, and that if we just had better embedding models the problems with RAG would be solved. Sooner or later, you must increase the size of your embeddings to get more expressiveness. This may come at a cost to speed, storage, infra complexity, etc. But it's a cost that we now know you MUST pay if you want to, say, embed the internet. The bigger your corpus gets, the bigger your embeddings need to get. Database size scales superlineraly with corpus size. They introduce a scaling law to describe this behavior.
+
 
 # Inside vLLM: Anatomy of a High-Throughput LLM Inference System
 https://www.aleksagordic.com/blog/vllm
 * Inference
 This is the best introduction to vLLM that I have ever seen. It is very exhaustive and covers everything you should ever realistically need to know to hack/modify/contribute to vLLM.
 
+
 # Things I’m Learning While Training SuperHOT
 https://kaiokendev.github.io/til
 * Finetuning * Data Eng
 
+
 # https://arxiv.org/abs/2309.00071
 * Finetuning
+
 
 # https://arxiv.org/abs/2410.06511
 * Pretrain * Distributed
 
+
 # https://www.arxiv.org/abs/2507.19457
 * Prompt Eng
+
 
 # https://www.arxiv.org/abs/2509.02046
 * Pretrain * Optimizers
 
+
 # https://arxiv.org/abs/2411.04330
 * Pretrain * Quantization
 
+
 # https://arxiv.org/abs/2509.02534
-* Data Eng * RL
+* RL
+This is another paper that corroborates the evidence that "Exploration in RL is good." See the TreePO paper for another example. It's also a paper that corroborates that if you have the budget and the patience for it, RL is just a better tuning method than SFT. Doing tons of rollouts samples a much more diverse policy than whatever supervised examples you have, which leads to less degradation over the base model. They a lot more on maintaining diversity for pass@k, the collapse of which has in the past been a topic of note in RL discourse.
+
+I recommend looking at figure 1 in the paper, it pretty much describes their entire approach.
+
 
 # https://arxiv.org/abs/2502.02631
 * Quantization * Pretrain
 
+
 # https://arxiv.org/abs/2504.02658
 * Quantization * MoE * Pretrain
+
 
 # https://arxiv.org/abs/2402.07871
 * Pretrain * MoE
 
+
 # https://arxiv.org/abs/2508.19228
 * Pretrain
+
 
 # https://arxiv.org/abs/2509.01649
 * Pretrain * RL
