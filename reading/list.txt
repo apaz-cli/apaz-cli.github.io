@@ -106,7 +106,7 @@ https://blog.datologyai.com/beyondweb/
 # https://arxiv.org/abs/2502.20586
 * Pretrain * Quantization
 They present the first real good method to train with MXFP4 in the backwards pass.
-They do stochastic rounding, which is becoming increasinly common in QAT, but they apply a Hadamard transform first to mitigate the effect of outliers.
+They do stochastic rounding, which is becoming increasinly common in quantized pretraining specifically because it is unbiased, but they apply a Hadamard transform first to mitigate the effect of outliers. As a result the training is a lot more stable.
 
 
 # https://arxiv.org/abs/2503.04715
