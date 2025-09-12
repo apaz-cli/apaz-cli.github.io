@@ -184,3 +184,6 @@ https://kaiokendev.github.io/til
 
 # https://arxiv.org/abs/2509.01649
 * Pretrain * RL
+
+# https://arxiv.org/abs/2507.04786
+* Distributed
