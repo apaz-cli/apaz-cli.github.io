@@ -247,3 +247,9 @@ I recommend looking at figure 1 in the paper, it pretty much describes their ent
 
 # https://arxiv.org/abs/2509.01649
 * Pretrain * RL
+
+# https://arxiv.org/abs/2509.07558
+* RL
+
+# https://arxiv.org/abs/2507.04786
+* Distributed
