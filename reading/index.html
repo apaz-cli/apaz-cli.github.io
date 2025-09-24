@@ -348,6 +348,21 @@ blockquote {
             </div>
         </div>
         <div class="grid">
+            <div class="item" data-tags="Data Eng RL">
+                <div class="urls">
+                    <h3>LIMI: Less is More for Agency</h3>
+                    <a href="https://arxiv.org/abs/2509.17567" class="url" target="_blank">https://arxiv.org/abs/2509.17567</a>
+                </div>
+                <details class="abstract-details">
+                    <summary>Abstract</summary>
+                    <div class="abstract">We define Agency as the emergent capacity of AI systems to function as autonomous agents actively discovering problems, formulating hypotheses, and executing solutions through self-directed engagement with environments and tools. This fundamental capability marks the dawn of the Age of AI Agency, driven by a critical industry shift: the urgent need for AI systems that don&#39;t just think, but work. While current AI excels at reasoning and generating responses, industries demand autonomous agents that can execute tasks, operate tools, and drive real-world outcomes. As agentic intelligence becomes the defining characteristic separating cognitive systems from productive workers, efficiently cultivating machine autonomy becomes paramount. Current approaches assume that more data yields better agency, following traditional scaling laws from language modeling. We fundamentally challenge this paradigm. LIMI (Less Is More for Intelligent Agency) demonstrates that agency follows radically different development principles. Through strategic focus on collaborative software development and scientific research workflows, we show that sophisticated agentic intelligence can emerge from minimal but strategically curated demonstrations of autonomous behavior. Using only 78 carefully designed training samples, LIMI achieves 73.5% on comprehensive agency benchmarks, dramatically outperforming state-of-the-art models: Kimi-K2-Instruct (24.1%), DeepSeek-V3.1 (11.9%), Qwen3-235B-A22B-Instruct (27.5%), and GLM-4.5 (45.1%). Most strikingly, LIMI demonstrates 53.7% improvement over models trained on 10,000 samples-achieving superior agentic intelligence with 128 times fewer samples. Our findings establish the Agency Efficiency Principle: machine autonomy emerges not from data abundance but from strategic curation of high-quality agentic demonstrations.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Data Eng</span>
+                    <span class="tag">RL</span>
+                </div>
+                <img src="paper_images/2509.17567_thumb.png" data-fullsize="paper_images/2509.17567.png" class="paper-image" alt="Paper preview">
+            </div>
             <div class="item" data-tags="RL">
                 <div class="urls">
                     <h3>$\Delta L$ Normalization: Rethink Loss Aggregation in RLVR</h3>
@@ -1112,6 +1127,22 @@ In practice if you use this method you should probably obsess over tracking whic
                     <span class="tag">Pretrain</span>
                 </div>
                 <img src="paper_images/2207.14255_thumb.png" data-fullsize="paper_images/2207.14255.png" class="paper-image" alt="Paper preview">
+            </div>
+            <div class="item" data-tags="Data Eng Model Release Pretrain">
+                <div class="urls">
+                    <h3>PanGu-$\alpha$: Large-scale Autoregressive Pretrained Chinese Language Models with Auto-parallel Computation</h3>
+                    <a href="https://arxiv.org/abs/2104.12369" class="url" target="_blank">https://arxiv.org/abs/2104.12369</a>
+                </div>
+                <details class="abstract-details">
+                    <summary>Abstract</summary>
+                    <div class="abstract">Large-scale Pretrained Language Models (PLMs) have become the new paradigm for Natural Language Processing (NLP). PLMs with hundreds of billions parameters such as GPT-3 have demonstrated strong performances on natural language understanding and generation with \textit{few-shot in-context} learning. In this work, we present our practice on training large-scale autoregressive language models named PanGu-$\alpha$, with up to 200 billion parameters. PanGu-$\alpha$ is developed under the MindSpore and trained on a cluster of 2048 Ascend 910 AI processors. The training parallelism strategy is implemented based on MindSpore Auto-parallel, which composes five parallelism dimensions to scale the training task to 2048 processors efficiently, including data parallelism, op-level model parallelism, pipeline model parallelism, optimizer model parallelism and rematerialization. To enhance the generalization ability of PanGu-$\alpha$, we collect 1.1TB high-quality Chinese data from a wide range of domains to pretrain the model. We empirically test the generation ability of PanGu-$\alpha$ in various scenarios including text summarization, question answering, dialogue generation, etc. Moreover, we investigate the effect of model scales on the few-shot performances across a broad range of Chinese NLP tasks. The experimental results demonstrate the superior capabilities of PanGu-$\alpha$ in performing various tasks under few-shot or zero-shot settings.</div>
+                </details>
+                <div class="tags">
+                    <span class="tag">Data Eng</span>
+                    <span class="tag">Model Release</span>
+                    <span class="tag">Pretrain</span>
+                </div>
+                <img src="paper_images/2104.12369_thumb.png" data-fullsize="paper_images/2104.12369.png" class="paper-image" alt="Paper preview">
             </div>
             <div class="item" data-tags="Distributed Pretrain Quantization">
                 <div class="urls">

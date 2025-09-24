@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./generate.py)",
+      "Bash(python3:*)",
+      "Read(/tmp/arxiv_cache/**)",
+      "Read(/tmp/arxiv_cache/**)",
+      "Bash(grep:*)",
+      "Bash(sed:*)",
+      "Read(/tmp/arxiv_cache/**)",
+      "Read(/tmp/arxiv_cache/**)",
+      "Read(/tmp/arxiv_cache/**)",
+      "Read(/tmp/arxiv_cache/**)",
+      "Read(/tmp/arxiv_cache/**)",
+      "Read(/tmp/arxiv_cache/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
