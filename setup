@@ -1,22 +1,31 @@
 #!/bin/sh
 
-# Check if we're using apt
-APT="$(which apt)"
+# Check which package manager we're using
+APT="$(which apt 2>/dev/null)"
+PACMAN="$(which pacman 2>/dev/null)"
 
 install_package() {
     # $@ = packages
 
-    if [ "$APT" = "" ]; then
-        echo "This is not an apt system, so cannot install packages. Exiting..."
-        exit 1
-    fi
-
-    if [ "$(id -u)" -ne 0 ]; then
-        NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive sudo apt update
-        NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive sudo apt install -y $@
+    if [ -n "$APT" ]; then
+        # Debian/Ubuntu system
+        if [ "$(id -u)" -ne 0 ]; then
+            NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive sudo apt update
+            NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive sudo apt install -y $@
+        else
+            NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive apt update
+            NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive apt install -y $@
+        fi
+    elif [ -n "$PACMAN" ]; then
+        # Arch system
+        if [ "$(id -u)" -ne 0 ]; then
+            sudo pacman -Sy --noconfirm $@
+        else
+            pacman -Sy --noconfirm $@
+        fi
     else
-        NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive apt update
-        NEEDRESTART_MODE=a DEBIAN_FRONTEND=noninteractive apt install -y $@
+        echo "No supported package manager found (apt or pacman). Exiting..."
+        exit 1
     fi
 }
 
@@ -59,14 +68,25 @@ pid2=$!
 #fi
 
 # Install the important packages
-install_package \
-  python3-pip python3-venv \
-  nano tree less file locate jq ranger \
-  kitty-terminfo \
-  git wget curl gcc g++ clang cmake libcurl4-openssl-dev \
-  htop nvtop btop psmisc \
-  numactl libnuma-dev \
-  linux-tools-$(uname -r) linux-tools-generic # for perf
+if [ -n "$APT" ]; then
+    install_package \
+      python3-pip python3-venv \
+      nano tree less file locate jq ranger \
+      kitty-terminfo \
+      git wget curl gcc g++ clang cmake libcurl4-openssl-dev \
+      htop nvtop btop psmisc \
+      numactl libnuma-dev \
+      linux-tools-$(uname -r) linux-tools-generic # for perf
+elif [ -n "$PACMAN" ]; then
+    install_package \
+      python-pip \
+      nano tree less file mlocate jq ranger \
+      kitty-terminfo \
+      git wget curl gcc clang cmake curl \
+      htop nvtop btop psmisc \
+      numactl numactl \
+      perf
+fi
 
 # Make sure python aliases python3, and create it if it doesn't
 if ! command -v python &> /dev/null
