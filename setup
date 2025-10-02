@@ -48,6 +48,7 @@ fi
 
 # Make a git folder if it doesn't exist
 GIT_DIR="$HOME/git"
+mkdir "$GIT_DIR" >/dev/null
 cd "$GIT_DIR"
 
 # Set git creds
