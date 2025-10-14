@@ -80,7 +80,7 @@ if [ -n "$APT" ]; then
       linux-tools-$(uname -r) linux-tools-generic # for perf
 elif [ -n "$PACMAN" ]; then
     install_package \
-      python-pip \
+      inetutils python-pip \
       nano tree less file mlocate jq ranger \
       kitty-terminfo \
       git wget curl gcc clang cmake curl \

@@ -145,7 +145,7 @@ various subcultures.
 
 For many years I didn't understand how to beg. It seemed... cringe? I've always had trouble with asking for things. In kink but also the rest of my life. Ever since childhood when I convinced myself that I didn't want anything from the candy aisle. Because then I would have to ask for things. And I hate asking for things.
 
-But eventually something clicked. I learned that it's not about asking for things. What that you're begging for doesn't matter. Neither does actually getting it. Often it's actually better if you don't get it. Begging is for expressing emotion.
+But eventually something clicked. I learned that it's not about asking for things. What you're begging for doesn't matter. Neither does actually getting it. Often it's actually better if you don't get it. Begging is for expressing emotion.
 
 As such, the actual words you use don't matter. I've gotten a lot of milegage out of repeating please, thank you, master, mistress, no, I'm sorry, etc. You can mix and match, even words that are contradictory. It doesn't matter, as long as the words come from the heart your emotions will come across.
 
