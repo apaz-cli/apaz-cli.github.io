@@ -35,7 +35,9 @@ Paragraph
 
 ### 2. It's cheap.
 
-Paragraph
+Storage is cheap. CPU compute is cheap. Even inference has become really cheap. Even H100 time is really cheap nowadays. The only thing that hasn't become super cheap is time on densely interconnected GPUs, and we don't need that.
+
+The most expensive thing, honestly, is the labor. It's you, sitting there, writing the data procurement and processing scripts. Compared to NVL B200 time, the cost is negligible, and once you have written the infrastructure the cost is close to zero.
 
 ### 3. Stay on the Chinchilla-optimality curve
 
@@ -58,7 +60,7 @@ with open("output.txt", 'w') as f:
   f.write(res)
 ```
 
-You can get away with this until you hit a memory wall. Eventually it is no longer possible to fit the full dataset in memory, and you have to stream it.
+You can get away with this until you hit a memory wall. Eventually it is no longer possible to fit the full dataset in memory, and you have to stream it sample by sample.
 
 ```py
 with open("input.txt", 'r') as f_in:
@@ -68,7 +70,7 @@ with open("input.txt", 'r') as f_in:
       f_out.write(processed_line)
 ```
 
-Eventually though, you hit another wall. It's slow. You're bottlenecked on something. Probably disk speed or memory bandwidth. If you're processing data on the GPU, VRAM bandwidth, PCIE bandwidth, or actual compute. In any case, it's very slow. So, you go to speed it up.
+Not too long after, you're going to hit another wall. It's slow. You're bottlenecked on something. Probably disk speed or memory bandwidth. If you're processing data on the GPU, it's VRAM bandwidth, PCIE bandwidth, or actual compute. In any case, it's very slow. So, you go to speed it up.
 
 ```py
 from multiprocessing import Pool
@@ -82,26 +84,22 @@ with open("input.txt", 'r') as f_in:
 
 You can probably process a few terabytes this way if you leave it overnight. But it isn't enough. You crave more. NEED more.
 
-There's also the question of where you got the data in the first place. Web scraper, probably? That can only go so fast.
+There's also the question of where you got the data in the first place. Web scraper, probably? That can only go so fast. You'll get rate limited, or bottlenecked on transfer speeds, or something. There are bottlenecks everywhere.
 
 Clearly the only thing to do is to scale out to many machines. But this raises its own challenges.
 
 
-## Designing For Arbitrary Scale
+## Achieving Performance and Fault Tolerance
 
-* Database problems
-
-* Producer Consumer Problem
-
-* Asynchrony
-
-
-## Fault Tolerance
+The above sounds kinda basic. And actually, it really is. The problem is that to do this at scale you have to get everything right, and if you don't you will eventually burn for it. Drives fail. Networks are spotty. If you don't figure this out, you will regret it.
 
 * Shoot any machine in the head and keep going
 
 * Data coherence (leave in valid state)
 
+* Database problems
+
+* Producer Consumer Problem/Asynchrony
 
 ## Putting It All Together
 

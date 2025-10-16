@@ -354,7 +354,14 @@ The data you collect for BigModel 1 can be used to train BigModel
 2.</h3>
 <p>Paragraph</p>
 <h3 id="its-cheap.">2. It's cheap.</h3>
-<p>Paragraph</p>
+<p>Storage is cheap. CPU compute is cheap. Even inference has become
+really cheap. Even H100 time is really cheap nowadays. The only thing
+that hasn't become super cheap is time on densely interconnected GPUs,
+and we don't need that.</p>
+<p>The most expensive thing, honestly, is the labor. It's you, sitting
+there, writing the data procurement and processing scripts. Compared to
+NVL B200 time, the cost is negligible, and once you have written the
+infrastructure the cost is close to zero.</p>
 <h3 id="stay-on-the-chinchilla-optimality-curve">3. Stay on the
 Chinchilla-optimality curve</h3>
 <p><img src="images/Chinchilla_Loss_Curves.png"></p>
@@ -371,17 +378,17 @@ You just do the thing.</p>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  f.write(res)</span></code></pre></div>
 <p>You can get away with this until you hit a memory wall. Eventually it
 is no longer possible to fit the full dataset in memory, and you have to
-stream it.</p>
+stream it sample by sample.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;input.txt&quot;</span>, <span class="st">&#39;r&#39;</span>) <span class="im">as</span> f_in:</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;output.txt&quot;</span>, <span class="st">&#39;w&#39;</span>) <span class="im">as</span> f_out:</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> line <span class="kw">in</span> f_in:</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>      processed_line <span class="op">=</span> process_data(line)</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>      f_out.write(processed_line)</span></code></pre></div>
-<p>Eventually though, you hit another wall. It's slow. You're
-bottlenecked on something. Probably disk speed or memory bandwidth. If
-you're processing data on the GPU, VRAM bandwidth, PCIE bandwidth, or
-actual compute. In any case, it's very slow. So, you go to speed it
-up.</p>
+<p>Not too long after, you're going to hit another wall. It's slow.
+You're bottlenecked on something. Probably disk speed or memory
+bandwidth. If you're processing data on the GPU, it's VRAM bandwidth,
+PCIE bandwidth, or actual compute. In any case, it's very slow. So, you
+go to speed it up.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> multiprocessing <span class="im">import</span> Pool</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;input.txt&quot;</span>, <span class="st">&#39;r&#39;</span>) <span class="im">as</span> f_in:</span>
@@ -392,20 +399,22 @@ up.</p>
 <p>You can probably process a few terabytes this way if you leave it
 overnight. But it isn't enough. You crave more. NEED more.</p>
 <p>There's also the question of where you got the data in the first
-place. Web scraper, probably? That can only go so fast.</p>
+place. Web scraper, probably? That can only go so fast. You'll get rate
+limited, or bottlenecked on transfer speeds, or something. There are
+bottlenecks everywhere.</p>
 <p>Clearly the only thing to do is to scale out to many machines. But
 this raises its own challenges.</p>
-<h2 id="designing-for-arbitrary-scale">Designing For Arbitrary
-Scale</h2>
-<ul>
-<li><p>Database problems</p></li>
-<li><p>Producer Consumer Problem</p></li>
-<li><p>Asynchrony</p></li>
-</ul>
-<h2 id="fault-tolerance">Fault Tolerance</h2>
+<h2 id="achieving-performance-and-fault-tolerance">Achieving Performance
+and Fault Tolerance</h2>
+<p>The above sounds kinda basic. And actually, it really is. The problem
+is that to do this at scale you have to get everything right, and if you
+don't you will eventually burn for it. Drives fail. Networks are spotty.
+If you don't figure this out, you will regret it.</p>
 <ul>
 <li><p>Shoot any machine in the head and keep going</p></li>
 <li><p>Data coherence (leave in valid state)</p></li>
+<li><p>Database problems</p></li>
+<li><p>Producer Consumer Problem/Asynchrony</p></li>
 </ul>
 <h2 id="putting-it-all-together">Putting It All Together</h2>
 <ul>
