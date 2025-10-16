@@ -43,6 +43,7 @@ Paragraph
 
 Paragraph
 
+
 ## Immediate Growing Pains
 
 How to write code to process a gigabyte of data is common knowledge. You just do the thing.
@@ -69,7 +70,7 @@ with open("input.txt", 'r') as f_in:
 
 Eventually though, you hit another wall. It's slow. You're bottlenecked on something. Probably disk speed or memory bandwidth. If you're processing data on the GPU, VRAM bandwidth, PCIE bandwidth, or actual compute. In any case, it's very slow. So, you go to speed it up.
 
-```
+```py
 from multiprocessing import Pool
 
 with open("input.txt", 'r') as f_in:
@@ -85,6 +86,7 @@ There's also the question of where you got the data in the first place. Web scra
 
 Clearly the only thing to do is to scale out to many machines. But this raises its own challenges.
 
+
 ## Designing For Arbitrary Scale
 
 * Database problems
@@ -93,9 +95,15 @@ Clearly the only thing to do is to scale out to many machines. But this raises i
 
 * Asynchrony
 
+
 ## Fault Tolerance
 
 * Shoot any machine in the head and keep going
 
 * Data coherence (leave in valid state)
+
+
+## Putting It All Together
+
+* Just describe everything, from scraping through synthetic data
 

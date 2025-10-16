@@ -382,13 +382,13 @@ bottlenecked on something. Probably disk speed or memory bandwidth. If
 you're processing data on the GPU, VRAM bandwidth, PCIE bandwidth, or
 actual compute. In any case, it's very slow. So, you go to speed it
 up.</p>
-<pre><code>from multiprocessing import Pool
-
-with open(&quot;input.txt&quot;, &#39;r&#39;) as f_in:
-  with open(&quot;output.txt&quot;, &#39;w&#39;) as f_out:
-    with Pool() as pool:
-      for result in pool.imap(process_data, f_in):
-        f_out.write(result)</code></pre>
+<div class="sourceCode" id="cb3"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> multiprocessing <span class="im">import</span> Pool</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;input.txt&quot;</span>, <span class="st">&#39;r&#39;</span>) <span class="im">as</span> f_in:</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;output.txt&quot;</span>, <span class="st">&#39;w&#39;</span>) <span class="im">as</span> f_out:</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">with</span> Pool() <span class="im">as</span> pool:</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span> result <span class="kw">in</span> pool.imap(process_data, f_in):</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>        f_out.write(result)</span></code></pre></div>
 <p>You can probably process a few terabytes this way if you leave it
 overnight. But it isn't enough. You crave more. NEED more.</p>
 <p>There's also the question of where you got the data in the first
@@ -406,6 +406,10 @@ Scale</h2>
 <ul>
 <li><p>Shoot any machine in the head and keep going</p></li>
 <li><p>Data coherence (leave in valid state)</p></li>
+</ul>
+<h2 id="putting-it-all-together">Putting It All Together</h2>
+<ul>
+<li>Just describe everything, from scraping through synthetic data</li>
 </ul>
 </body>
 </html>
