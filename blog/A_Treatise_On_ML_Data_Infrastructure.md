@@ -45,8 +45,57 @@ Paragraph
 
 ## Immediate Growing Pains
 
+How to write code to process a gigabyte of data is common knowledge. You just do the thing.
+
+```py
+with open("input.txt", 'r') as f:
+  data = f.read()
+
+res = process_data(data)
+
+with open("output.txt", 'w') as f:
+  f.write(res)
+```
+
+You can get away with this until you hit a memory wall. Eventually it is no longer possible to fit the full dataset in memory, and you have to stream it.
+
+```py
+with open("input.txt", 'r') as f_in:
+  with open("output.txt", 'w') as f_out:
+    for line in f_in:
+      processed_line = process_data(line)
+      f_out.write(processed_line)
+```
+
+Eventually though, you hit another wall. It's slow. You're bottlenecked on something. Probably disk speed or memory bandwidth. If you're processing data on the GPU, VRAM bandwidth, PCIE bandwidth, or actual compute. In any case, it's very slow. So, you go to speed it up.
+
+```
+from multiprocessing import Pool
+
+with open("input.txt", 'r') as f_in:
+  with open("output.txt", 'w') as f_out:
+    with Pool() as pool:
+      for result in pool.imap(process_data, f_in):
+        f_out.write(result)
+```
+
+You can probably process a few terabytes this way if you leave it overnight. But it isn't enough. You crave more. NEED more.
+
+There's also the question of where you got the data in the first place. Web scraper, probably? That can only go so fast.
+
+Clearly the only thing to do is to scale out to many machines. But this raises its own challenges.
+
 ## Designing For Arbitrary Scale
+
+* Database problems
+
+* Producer Consumer Problem
+
+* Asynchrony
 
 ## Fault Tolerance
 
+* Shoot any machine in the head and keep going
+
+* Data coherence (leave in valid state)
 

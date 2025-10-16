@@ -45,8 +45,52 @@ Chinchilla-optimality curve</h3>
 <p><img src="images/Chinchilla_Loss_Curves.png"></p>
 <p>Paragraph</p>
 <h2 id="immediate-growing-pains">Immediate Growing Pains</h2>
+<p>How to write code to process a gigabyte of data is common knowledge.
+You just do the thing.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;input.txt&quot;</span>, <span class="st">&#39;r&#39;</span>) <span class="im">as</span> f:</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  data <span class="op">=</span> f.read()</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>res <span class="op">=</span> process_data(data)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;output.txt&quot;</span>, <span class="st">&#39;w&#39;</span>) <span class="im">as</span> f:</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  f.write(res)</span></code></pre></div>
+<p>You can get away with this until you hit a memory wall. Eventually it
+is no longer possible to fit the full dataset in memory, and you have to
+stream it.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;input.txt&quot;</span>, <span class="st">&#39;r&#39;</span>) <span class="im">as</span> f_in:</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">with</span> <span class="bu">open</span>(<span class="st">&quot;output.txt&quot;</span>, <span class="st">&#39;w&#39;</span>) <span class="im">as</span> f_out:</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> line <span class="kw">in</span> f_in:</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>      processed_line <span class="op">=</span> process_data(line)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>      f_out.write(processed_line)</span></code></pre></div>
+<p>Eventually though, you hit another wall. It's slow. You're
+bottlenecked on something. Probably disk speed or memory bandwidth. If
+you're processing data on the GPU, VRAM bandwidth, PCIE bandwidth, or
+actual compute. In any case, it's very slow. So, you go to speed it
+up.</p>
+<pre><code>from multiprocessing import Pool
+
+with open(&quot;input.txt&quot;, &#39;r&#39;) as f_in:
+  with open(&quot;output.txt&quot;, &#39;w&#39;) as f_out:
+    with Pool() as pool:
+      for result in pool.imap(process_data, f_in):
+        f_out.write(result)</code></pre>
+<p>You can probably process a few terabytes this way if you leave it
+overnight. But it isn't enough. You crave more. NEED more.</p>
+<p>There's also the question of where you got the data in the first
+place. Web scraper, probably? That can only go so fast.</p>
+<p>Clearly the only thing to do is to scale out to many machines. But
+this raises its own challenges.</p>
 <h2 id="designing-for-arbitrary-scale">Designing For Arbitrary
 Scale</h2>
+<ul>
+<li><p>Database problems</p></li>
+<li><p>Producer Consumer Problem</p></li>
+<li><p>Asynchrony</p></li>
+</ul>
 <h2 id="fault-tolerance">Fault Tolerance</h2>
+<ul>
+<li><p>Shoot any machine in the head and keep going</p></li>
+<li><p>Data coherence (leave in valid state)</p></li>
+</ul>
 </body>
 </html>
