@@ -346,8 +346,9 @@ Or they must buy it from someone else,
 <a href="https://www.forbes.com/sites/janakirammsv/2025/06/23/meta-invests-14-billion-in-scale-ai-to-strengthen-model-training/">exorbitant</a>
 <a href="https://www.reuters.com/technology/reddit-ai-content-licensing-deal-with-google-sources-say-2024-02-22/">cost</a>.</p>
 <p>In the ML world, we are very scalingpilled. There are some things
-that are very appealing about scaling data collection and
-processing.</p>
+that are very appealing about scaling data collection and processing.
+Given these things, I am rather surprised why more people are not
+scaling along this axis, or at least talking more about it.</p>
 <h3
 id="the-data-you-collect-for-bigmodel-1-can-be-used-to-train-bigmodel-2.">1.
 The data you collect for BigModel 1 can be used to train BigModel
@@ -406,13 +407,30 @@ bottlenecks everywhere.</p>
 this raises its own challenges.</p>
 <h2 id="achieving-performance-and-fault-tolerance">Achieving Performance
 and Fault Tolerance</h2>
-<p>The above sounds kinda basic. And actually, it really is. The problem
-is that to do this at scale you have to get everything right, and if you
-don't you will eventually burn for it. Drives fail. Networks are spotty.
-If you don't figure this out, you will regret it.</p>
+<p>The above sounds basic. And actually, it is.</p>
+<p>The problem is that to do this at scale you're going to be adding a
+whole bunch of intermediate steps inbetween. Those steps are going to
+introduce a bunch of of complications, and the potential for error. You
+have to get everything right, because at a large enough scale anything
+that can go wrong will go wrong. So you will eventually burn for it.
+Drives fail. Networks are spotty. If you don't figure this out, and have
+a plan for it ahead of time, you will regret it.</p>
+<p>Ideally, we want to be able set fire to any single computer, or few
+computers, or cut any cable, and keep the pipeline still running (or
+stalled but consistent), without data loss or corruption.</p>
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/computer_fire.jpg">
+<figcaption aria-hidden="true">
+Part of a still-functional data pipeline.
+</figcaption>
+</figure>
+</div>
+<p><br></p>
+<p>How close you get to this depends on your</p>
+<p>It is important, then, that data is exchanged in transactions.</p>
 <ul>
-<li><p>Shoot any machine in the head and keep going</p></li>
-<li><p>Data coherence (leave in valid state)</p></li>
 <li><p>Database problems</p></li>
 <li><p>Producer Consumer Problem/Asynchrony</p></li>
 </ul>
@@ -420,5 +438,8 @@ If you don't figure this out, you will regret it.</p>
 <ul>
 <li>Just describe everything, from scraping through synthetic data</li>
 </ul>
+<h2 id="building-this">Building this</h2>
+<p>No, lmao. This shit is hard. Unless maybe someone wants to hire me to
+build it.</p>
 </body>
 </html>

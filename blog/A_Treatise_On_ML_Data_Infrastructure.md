@@ -27,7 +27,7 @@ Any research lab needs a good dataset. Having good data gives you an edge. After
 <a href="https://www.forbes.com/sites/janakirammsv/2025/06/23/meta-invests-14-billion-in-scale-ai-to-strengthen-model-training/">exorbitant</a>
 <a href="https://www.reuters.com/technology/reddit-ai-content-licensing-deal-with-google-sources-say-2024-02-22/">cost</a>.
 
-In the ML world, we are very scalingpilled. There are some things that are very appealing about scaling data collection and processing.
+In the ML world, we are very scalingpilled. There are some things that are very appealing about scaling data collection and processing. Given these things, I am rather surprised why more people are not scaling along this axis, or at least talking more about it.
 
 ### 1. The data you collect for BigModel 1 can be used to train BigModel 2.
 
@@ -91,11 +91,25 @@ Clearly the only thing to do is to scale out to many machines. But this raises i
 
 ## Achieving Performance and Fault Tolerance
 
-The above sounds kinda basic. And actually, it really is. The problem is that to do this at scale you have to get everything right, and if you don't you will eventually burn for it. Drives fail. Networks are spotty. If you don't figure this out, you will regret it.
+The above sounds basic. And actually, it is. 
 
-* Shoot any machine in the head and keep going
+The problem is that to do this at scale you're going to be adding a whole bunch of intermediate steps inbetween. Those steps are going to introduce a bunch of of complications, and the potential for error. You have to get everything right, because at a large enough scale anything that can go wrong will go wrong. So you will eventually burn for it. Drives fail. Networks are spotty. If you don't figure this out, and have a plan for it ahead of time, you will regret it.
 
-* Data coherence (leave in valid state)
+Ideally, we want to be able set fire to any single computer, or few computers, or cut any cable, and keep the pipeline still running (or stalled but consistent), without data loss or corruption.
+
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/computer_fire.jpg">
+<figcaption aria-hidden="true">Part of a still-functional data pipeline.</figcaption>
+</figure>
+</div>
+<br>
+
+How close you get to this depends on your 
+
+It is important, then, that data is exchanged in transactions.
+
 
 * Database problems
 
@@ -104,4 +118,8 @@ The above sounds kinda basic. And actually, it really is. The problem is that to
 ## Putting It All Together
 
 * Just describe everything, from scraping through synthetic data
+
+## Building this
+
+No, lmao. This shit is hard. Unless maybe someone wants to hire me to build it.
 
