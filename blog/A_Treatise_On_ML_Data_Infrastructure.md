@@ -164,14 +164,14 @@ If you don't want to be leather daddy Bezos's paypig, you gotta build your own S
 * Data movement optimizations
 
 * Pipelining and the Producer/Consumer Problem
-  * Storing data on disk to cache the result of a step increases wear on SSDs
-
-
+  * Storing data on disk to cache the result of a step increases wear on SSDs, so holding things in memory is good when you can.
 
 
 ## Putting It All Together
 
-* Describe the entire process, from scraping through synthetic data
+* Describe the architecture, make a diagram, discuss kubernetes
+
+* Describe the entire data process, from scraping through synthetic data
 
 
 ## You Should Build this
