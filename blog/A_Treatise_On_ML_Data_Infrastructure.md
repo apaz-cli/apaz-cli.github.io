@@ -157,7 +157,7 @@ Fuck sending Bezos money though. I hate that dude. I don't care how rich and buf
 Storing that much data with Amazon is very expensive. The cheapest S3 tier appears to be $23/TB/month. So $276,000/PB/year. That's before the cost of actually using it ($0.005 per 1,000 writes, $0.0004 per 1,000 reads), which is also substantial. Big Jeff will fuck your Claude and your wallet. Let's pass.
 
 If you don't want to be leather daddy Bezos's paypig, you gotta build your own S3. For this, I recommend a solution like
-<a href="https://github.com/minio/minio">MinIO</a>. You will have to build your own servers, but if you're storing and processing enough data it will be worth it.
+<a href="https://github.com/minio/minio">MinIO</a>. You will need a load balancer, and you will have to build your own servers, but if you're storing and processing enough data it will be worth it.
 
 ## Performance Considerations
 
@@ -178,6 +178,6 @@ If you don't want to be leather daddy Bezos's paypig, you gotta build your own S
 
 No, lmao. This shit is hard. This is a whole ass startup.
 
-I would do it though if someone wanted to fund or hire me, or give me like a million dollars to build it for them. I could be convinced.
+I would do it though if someone wanted to fund or hire me, or give me a million dollars to build it for them. I could be convinced.
 
 You can contact me with inquiries <a href="mailto:aarpazdera@gmail.com">here</a>.
