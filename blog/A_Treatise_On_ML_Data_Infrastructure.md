@@ -174,10 +174,10 @@ If you don't want to be leather daddy Bezos's paypig, you gotta build your own S
 * Describe the entire data process, from scraping through synthetic data
 
 
-## You Should Build this
+## "You Should Build this"
 
 No, lmao. This shit is hard. This is a whole ass startup.
 
-I would do it though if someone wanted to fund or hire me, or give me a million dollars to build it for them. I could be convinced.
+I would do it though if someone wanted to fund or hire me, or give me money to build it for them. I could be convinced. It's work that I enjoy doing, I just don't have the resources to make use of it once it's done.
 
-You can contact me with inquiries <a href="mailto:aarpazdera@gmail.com">here</a>.
+If you do, you can contact me with inquiries <a href="mailto:aarpazdera@gmail.com">here</a>.
