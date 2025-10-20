@@ -514,12 +514,12 @@ Leather Daddy Jeff makes his dramatic entrance.
 rich and buff he is. Okay maybe that part is kinda hot. He looks good in
 leather. But why is he so boring otherwise? Kind of a turnoff. I don't
 like his wife either. The lip filler is objectifying, I think. Anyway, I
-digress. Storage. ￼ Sky — 12:53 AMMonday, October 20, 2025 at 12:53 AM
-Hey there Storing that much data with Amazon is very expensive. The
-cheapest S3 tier appears to be $23/TB/month. So $276,000/PB/year. That's
-before the cost of actually using it ($0.005 per 1,000 writes, $0.0004
-per 1,000 reads), which is also substantial. Big Jeff will fuck your
-Claude and your wallet. Let's pass.</p>
+digress. Storage.</p>
+<p>Storing that much data with Amazon is very expensive. The cheapest S3
+tier appears to be $23/TB/month. So $276,000/PB/year. That's before the
+cost of actually using it ($0.005 per 1,000 writes, $0.0004 per 1,000
+reads), which is also substantial. Big Jeff will fuck your Claude and
+your wallet. Let's pass.</p>
 <p>If you don't want to be leather daddy Bezos's paypig, you gotta build
 your own S3. For this, I recommend a solution like
 <a href="https://github.com/minio/minio">MinIO</a>. You will have to
@@ -528,11 +528,16 @@ it will be worth it.</p>
 <h2 id="performance-considerations">Performance Considerations</h2>
 <ul>
 <li><p>Data movement optimizations</p></li>
-<li><p>Producer Consumer Problem/Asynchrony</p></li>
+<li><p>Pipelining and the Producer/Consumer Problem</p>
+<ul>
+<li>Storing data on disk to cache the result of a step increases wear on
+SSDs</li>
+</ul></li>
 </ul>
 <h2 id="putting-it-all-together">Putting It All Together</h2>
 <ul>
-<li>Just describe everything, from scraping through synthetic data</li>
+<li>Describe the entire process, from scraping through synthetic
+data</li>
 </ul>
 <h2 id="you-should-build-this">You Should Build this</h2>
 <p>No, lmao. This shit is hard. This is a whole ass startup.</p>

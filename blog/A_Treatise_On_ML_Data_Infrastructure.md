@@ -153,9 +153,7 @@ There's also another fairly obvious solution, Amazon S3. Databases generally are
 <br>
 
 Fuck sending Bezos money though. I hate that dude. I don't care how rich and buff he is. Okay maybe that part is kinda hot. He looks good in leather. But why is he so boring otherwise? Kind of a turnoff. I don't like his wife either. The lip filler is objectifying, I think. Anyway, I digress. Storage.
-￼
-Sky — 12:53 AMMonday, October 20, 2025 at 12:53 AM
-Hey there
+
 Storing that much data with Amazon is very expensive. The cheapest S3 tier appears to be $23/TB/month. So $276,000/PB/year. That's before the cost of actually using it ($0.005 per 1,000 writes, $0.0004 per 1,000 reads), which is also substantial. Big Jeff will fuck your Claude and your wallet. Let's pass.
 
 If you don't want to be leather daddy Bezos's paypig, you gotta build your own S3. For this, I recommend a solution like
@@ -165,11 +163,15 @@ If you don't want to be leather daddy Bezos's paypig, you gotta build your own S
 
 * Data movement optimizations
 
-* Producer Consumer Problem/Asynchrony
+* Pipelining and the Producer/Consumer Problem
+  * Storing data on disk to cache the result of a step increases wear on SSDs
+
+
+
 
 ## Putting It All Together
 
-* Just describe everything, from scraping through synthetic data
+* Describe the entire process, from scraping through synthetic data
 
 
 ## You Should Build this
