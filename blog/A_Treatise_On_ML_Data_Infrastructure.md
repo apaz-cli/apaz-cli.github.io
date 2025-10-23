@@ -152,7 +152,7 @@ There's also another fairly obvious solution, Amazon S3. Databases generally are
 </div>
 <br>
 
-Fuck sending Bezos money though. I hate that dude. I don't care how rich and buff he is. Okay maybe that part is kinda hot. He looks good in leather. But why is he so boring otherwise? Kind of a turnoff. I don't like his wife either. The lip filler is objectifying, I think. Anyway, I digress. Storage.
+Fuck sending Bezos money though. I hate that dude. I don't care how rich and buff he is. Okay maybe that part is kinda hot. He looks good in leather. But why is he such a square? Anyway, I digress. Storage.
 
 Storing that much data with Amazon is very expensive. The cheapest S3 tier appears to be $23/TB/month. So $276,000/PB/year. That's before the cost of actually using it ($0.005 per 1,000 writes, $0.0004 per 1,000 reads), which is also substantial. Big Jeff will fuck your Claude and your wallet. Let's pass.
 
