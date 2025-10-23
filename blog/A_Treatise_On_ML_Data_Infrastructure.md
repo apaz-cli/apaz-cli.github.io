@@ -160,7 +160,7 @@ If you don't want to be leather daddy Bezos's paypig, you gotta build your own S
 <a href="https://github.com/minio/minio">MinIO</a>. You will need a load balancer in front of it, and you will have to build your own servers, but if you're storing and processing enough data it will be worth it.
 
 
-## Softawre, Producers, and Consumers
+## Software, Producers, and Consumers
 
 Let's talk about how to put the pipeline together.
 
