@@ -162,20 +162,21 @@ The best approach is to not be burned out. I'm not great at that. Or to have a s
 
 But the point is that being burned out doesn't have to completely wreck the experience. There are ways to be dominant that are low effort but high emotional payoff. You probably shouldn't be beating someone to a pulp while you're burned out, but you can still bond with them, make them feel small and loved, and have a generally good time.
 
+
 ## Revelation 9: Careful with coddling.
 
-When someone is having a bad time, sometimes you have to let them
-suffer. Coddling is my first instict, and I pride myself in being
-emotionally available, but that is not a path to growth in all cases. If
-you acknowledge them as weak, they may internalize it. Now they are
-weak. They might need to overcome it, and be strong.
+When someone is having a bad time, sometimes you have to let them suffer. Coddling is
+my first instict, and I pride myself in being emotionally available, but that is not a
+path to growth in all cases. If you acknowledge them as weak, they may internalize it.
+Now they are weak. This is probably not what you indended. They may need to overcome
+it, and be strong.
 
-I think that this is distinct from "tough love," a concept that I don't
-necessarily agree with. Suffering is not always a path to growth either,
-and this concept has certainly helped justify a lot of neglect and
-abuse.
+I think that this is distinct from "tough love," a concept which I don't necessarily
+agree with. Suffering is not always a path to growth either, and this concept has
+certainly helped justify a lot of neglect and abuse.
 
-Whether there's to be assistance rendered, or suffering endured, it's
-the framing of that experience which is important. If they should come
-out of it feeling more confident than they did going in, then that's how
-you know you've succeeded, and done well by them.
+Whether there's to be assistance rendered, or suffering endured, it's the framing of
+that experience which is important. If they should come out of it feeling more
+confident than they did going in, then that's how you know you've done well by them and
+succeeded.
+

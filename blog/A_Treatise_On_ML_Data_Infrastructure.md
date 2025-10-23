@@ -56,7 +56,7 @@ How exactly you filter this data matters a lot of course. There are plenty of ex
 The Chinchilla paper states very simply that to train a bigger model, you need more data. To stay in the compute optimal regime, the amount of data you need is proportional to the parameter count, leading to logarithmic improvements in the loss.
 This results in a quadratic (or more when you consider the memory ramifications of backprop) increase in the cost of training.
 
-Let's think about what this means in practice though. The Chincilla paper makes one load bearing assumption which is almost never true in practice. It assumes that all data is created equal.
+Let's think about what this means in practice though. The Chinchilla paper makes one load bearing assumption which is almost never true in practice. It assumes that all data is created equal.
 
 But, this is clearly not true. Labs aren't dumb. Recall that data filtering is OP. Suppose you scrape your 1000 TB, and filter it down to 10 TB. In Chinchilla, on the models they were training, for every parameter they needed ~20 tokens to stay on the compute optimality curve. Now suppose we decide to double the size of the model. We need about twice as much data. Half of the data in this new larger dataset is such low quality that we would have previously thrown it out. The dataset is worse.
 
@@ -141,7 +141,7 @@ How close you get to this ideal depends on your needs. But I think that people t
 Believe it or not, problems are the same ones that databases deal with. Over the past 50 years or so they have developed a rich literature describing the solutions to these
 problems. I absolutely hate databases, but we need a database or similar.
 
-There's also another fairly obvious solution, Amazon S3. Databases generally are optimized for running queries on them. Object storage systems have no such limitations. We need an object storage system that has replication, sharding, and can handle high throughput.
+There's also another fairly obvious solution, Amazon S3. Databases generally are optimized for lookup, for running queries on them. Object storage systems have no such requirements for complex indexing, and so can achieve much higher performance. We need an object storage system that has replication, sharding, and can handle high throughput.
 
 <br>
 <div style="text-align: center;">
@@ -152,32 +152,69 @@ There's also another fairly obvious solution, Amazon S3. Databases generally are
 </div>
 <br>
 
-Fuck sending Bezos money though. I hate that dude. I don't care how rich and buff he is. Okay maybe that part is kinda hot. He looks good in leather. But why is he such a square? Anyway, I digress. Storage.
+Sending Bezos money though? I hate that dude. I don't care how rich and buff he is. Okay maybe that part is kinda hot. He looks good in leather. Anyway, I digress. Storage.
 
 Storing that much data with Amazon is very expensive. The cheapest S3 tier appears to be $23/TB/month. So $276,000/PB/year. That's before the cost of actually using it ($0.005 per 1,000 writes, $0.0004 per 1,000 reads), which is also substantial. Big Jeff will fuck your Claude and your wallet. Let's pass.
 
 If you don't want to be leather daddy Bezos's paypig, you gotta build your own S3. For this, I recommend a solution like
-<a href="https://github.com/minio/minio">MinIO</a>. You will need a load balancer, and you will have to build your own servers, but if you're storing and processing enough data it will be worth it.
+<a href="https://github.com/minio/minio">MinIO</a>. You will need a load balancer in front of it, and you will have to build your own servers, but if you're storing and processing enough data it will be worth it.
 
-## Performance Considerations
 
-* Data movement optimizations
+## Softawre, Producers, and Consumers
 
-* Pipelining and the Producer/Consumer Problem
-  * Storing data on disk to cache the result of a step increases wear on SSDs, so holding things in memory is good when you can.
+Let's talk about how to put the pipeline together.
+
+First, we need a data source. This could be a scraper, or maybe you've got a dataset from HuggingFace, streaming or on disk. It could be coming in over the network, or you might have it on disk. In any case, we have a stream of data, arriving asynchronously. That way if reading or receiving data is the bottleneck we can maximize the amount of time spent reading or receiving instead of doing other things.
+
+This is the first spot where we have to make a decision. Suppose the data arrives faster than we can process it. How should we deal with this situation? There are a few resolutions to the producer/consumer problem, and how you wish to resolve it may depend on the situation. But it comes up in almost every situation.
+
+Suppose you've got a bunch of scrapers sending data to your load balancer, which store it to MinIO to be processed and filtered by workers. This could work depending on the amount of data you're working with. It works until your drives fill up. If you're processing enough data though, even if that never occurs you may shred your SSDs by writing so much. So I do not recommend this if you're processing more than a few hundred terabytes.
+
+The more economical thing to do is to make sure it never gets stored to disk at all, at least until it's been filtered somewhat. At which point I recommend using an object store, for all the fault tolerance and scalability reasons previously stated.
+
+Another scenario. Suppose you've got the data on disk, and you're reading it. Buffering to disk if the producer outpaces the consumer doesn't make sense, because... it's already there. You want to tell it to stop reading until you need more data. There has to be some mechanism for the consumer to signal to the producer to speed up or slow down.
+
+I would also argue that it would be very helpful to be able to compose this abstraction any way we like between various producers and consumers, in a polymorphic manner.
+
+It would also be nice to be able to do layout optimizations on streaming the data around. In the same process? Use a ring buffer, and block the producer thread if it fills up. On the same machine? Send it over a pipe. On the same network? Send it over QUIC. Not on the same network? Figure a way to exchange IPs.
+
+We are slowly reinventing Apache Spark. You are welcome.
+
+Not that Spark does these things by default. It can be coerced, through force of will. What I'm suggesting is a bit more extreme, I think.
 
 
 ## Putting It All Together
 
-* Describe the architecture, make a diagram, discuss kubernetes
+An example pipeline might look like:
 
-* Describe the entire data process, from scraping through synthetic data
+```
+
+(TODO: Finish this)
+
+Scrapers-------------->-->--> Load balancer --->
+                     /  /
+Streamed HF Dataset--  /
+                      /
+Data on Disk----------
+
+```
+
+Of course, you're going to want something to orchestrate it. Kubernetes may be an option.
+Although because the processes will not be able to see each other if they are in different containers, I think you end up building a megacontainer. The container checks to see what it has access to, and checks in with a server on startup. That server keeps track of the topology, manages it, and assigns new containers a set of processes or services to run, and decides how they will communicate and with what.
+
+This is already something that makes sense to build, so, building your own orchestration might not be much harder than that. Just have the server start and kill them. There is some extra fault tolerance trickery here because we just introduced a single point of failure, but it's nothing that can't be overcome.
+
+
+# The Actual Workload
+
+For an example of the actual data processing that you'd be doing to build a machine learning dataset, I recommend checking out the [finepdfs]() technical report. And, to some extent the code release. It's a very good Spark codebase, so a lot carries over.
 
 
 ## "You Should Build this"
 
-No, lmao. This shit is hard. This is a whole ass startup.
+No, lmao. This shit is hard. This is the effort of a whole ass startup. This is the shit that Google does.
 
-I would do it though if someone wanted to fund or hire me, or give me money to build it for them. I could be convinced. It's work that I enjoy doing, I just don't have the resources to make use of it once it's done.
+I would do it though if someone wanted to fund or hire me, or give me money to build it for them. I could be convinced. It's work that I enjoy doing, I just don't have a personal use for hundreds of terabytes of high quality training data, nor at this time do I have the requisite data to feed the pipeline. Yet surely someone does.
 
-If you do, you can contact me with inquiries <a href="mailto:aarpazdera@gmail.com">here</a>.
+If you are interested, you can contact me with inquiries <a href="mailto:aarpazdera@gmail.com">here</a>.
+
