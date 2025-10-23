@@ -5,7 +5,7 @@
 
 If you want to do machine learning, you need a lot of data.
 
-If you need a lot of data, someone must collect and process a lot of data. 
+If you need a lot of data, someone must collect and process a lot of data.
 
 If someone must collect and process a lot of data, they need infrastructure.
 
@@ -119,7 +119,7 @@ Clearly the only thing to do is to scale out to many machines. But this raises i
 
 ## Fault Tolerance
 
-The above sounds basic. And actually, it is. 
+The above sounds basic. And actually, it is.
 
 The problem is that to do this at scale you're going to be adding a whole bunch of intermediate steps inbetween. Those steps are going to introduce a bunch of of complications, and the potential for error. You have to get everything right, because at a large enough scale anything that can go wrong will go wrong. You will burn for your sins. Drives fail. Networks are spotty. If you don't figure this out, if you don't have a plan for it ahead of time, you will regret it.
 

@@ -112,10 +112,10 @@ def generate_article(i, f):
 
 def gen_index():
     md_basenames = {splitext(f)[0] for f in glob("*.md") if not f.startswith("_")}
-    html_files = [f for f in glob("*.html") if not f.startswith("_") and f != "index.html" and not f.endswith("-unstyled.html")]
-    html_only = [f for f in html_files if splitext(f)[0] not in md_basenames]
+    html_files = sorted([f for f in glob("*.html") if not f.startswith("_") and f != "index.html" and not f.endswith("-unstyled.html")])
+    html_only = sorted([f for f in html_files if splitext(f)[0] not in md_basenames])
 
-    all_posts = [(splitext(f)[0] + ".html", get_title_from_html(f)) for f in html_files]
+    all_posts = sorted([(splitext(f)[0] + ".html", get_title_from_html(f)) for f in html_files])
 
     categorize = lambda p: ("programming" if splitext(p[0])[0] in prog_posts else
                            "nsfw" if splitext(p[0])[0] in nsfw_posts else
