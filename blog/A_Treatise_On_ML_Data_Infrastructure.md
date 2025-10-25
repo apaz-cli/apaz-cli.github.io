@@ -188,6 +188,9 @@ Not that Spark does these things by default. It can be coerced, through force of
 An example pipeline might look like:
 
 ```
+              ┌───────────────┬───────────────┬───────────────┐
+              │               │               │               │
+              ▼               ▼               ▼               │
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Web Scrapers  │    │ HuggingFace API │    │  Local Datasets │
 │  (CommonCrawl,  │    │   Streaming     │    │   (PDFs, Text)  │
