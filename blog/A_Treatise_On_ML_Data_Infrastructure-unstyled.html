@@ -253,16 +253,6 @@ network? Figure a way to exchange IPs.</p>
 through force of will. What I'm suggesting is a bit more extreme, I
 think.</p>
 <h2 id="putting-it-all-together">Putting It All Together</h2>
-<p>An example pipeline might look like:</p>
-<pre><code>
-(TODO: Finish this)
-
-Scrapers--------------&gt;--&gt;--&gt; Load balancer ---&gt;
-                     /  /
-Streamed HF Dataset--  /
-                      /
-Data on Disk----------
-</code></pre>
 <p>Of course, you're going to want something to orchestrate it.
 Kubernetes may be an option. Although because the processes will not be
 able to see each other if they are in different containers, I think you
@@ -276,19 +266,90 @@ your own orchestration might not be much harder than that. Just have the
 server start and kill them. There is some extra fault tolerance trickery
 here because we just introduced a single point of failure, but it's
 nothing that can't be overcome.</p>
-<h1 id="the-actual-workload">The Actual Workload</h1>
+<p>An example pipeline might look like:</p>
+<pre><code>          ┌────────────────────┬────────────────────────┬───────────────┐
+          │                    │                        │               │
+          ▼                    ▼                        ▼               │
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐       │
+│   Web Scrapers  │    │ HuggingFace API │    │  Local Datasets │       │
+│  (CommonCrawl,  │    │   Streaming     │    │   (Sharded)     │       │
+│    Reddit, etc) │    │                 │    │                 │       │
+└─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘       │
+          │                      │                      │               │
+          └──────────┬───────────┘                      │               │
+                     │                                  │               │
+                     ▼                                  │               │
+          ┌─────────────────────┐                       │               │
+          │   Load Balancer     │◄─────────────────┐    │               │
+          └─────────┬───────────┘                  │    │               │
+                    │                              │    │               │
+                    ▼                              │    │               │
+          ┌─────────────────────┐                  │    │               │
+          │   Format, Clean,    │◄─────────────────┤    │               │
+          │    Extract Text     │◄─────────────────├────┘               │
+          └─────────┬───────────┘                  │                    │
+                    │                              │                    │
+                    ▼                              ├────────────────────┘
+          ┌─────────────────────┐                  │
+          │   Quality Filter    │◄─────────────────┤
+          └─────────┬───────────┘                  │
+                    │                              │
+                    ▼                              │
+          ┌─────────────────────┐                  │
+          │   Load Balancer     │◄─────────────────┤
+          └─────────┬───────────┘                  │
+                    │                              │
+                    ▼                              │
+          ┌─────────────────────┐                  │
+          │   MinIO Cluster     │◄─────────────────┤
+          └─────────┬───────────┘                  │
+                    │                              │
+                    ▼                              │
+          ┌─────────────────────┐                  │
+          │  Embedding Model    │◄─────────────────┤
+          └─────────┬───────────┘                  │
+                    │                              │
+                    ▼                              │
+          ┌─────────────────────┐                  │
+          │   Vector DB         │◄─────────────────┤
+          │   (Weaviate)        │                  │
+          └─────────┬───────────┘                  │
+                    │                              │
+                    ▼                              │
+          ┌─────────────────────┐                  │
+          │   Final MinIO       │◄─────────────────┤
+          │  Object Store       │                  │
+          └─────────────────────┘                  │
+                                                   │
+                                    ┌─────────────────────┐
+                                    │  Pipeline Manager   │
+                                    │      Server         │
+                                    │ (Scaling Control &amp;  │
+                                    │ Backpressure Mgmt)  │
+                                    └─────────────────────┘</code></pre>
+<h2 id="another-realistic-workload">Another Realistic Workload</h2>
+<br>
+<div style="text-align: center;">
+<p><img src="images/finepdfs.png" width=400></p>
+</div>
+<p><br></p>
 <p>For an example of the actual data processing that you'd be doing to
-build a machine learning dataset, I recommend checking out the <a
-href="">finepdfs</a> technical report. And, to some extent the code
-release. It's a very good Spark codebase, so a lot carries over.</p>
+build a machine learning dataset</p>
+<p>I recommend checking out the <a
+href="https://github.com/huggingface/finepdfs">finepdfs</a> technical
+report as an example of the sort of data processing you'd be doing to
+build a machine learning dataset. They released it while I was writing
+this, and I've got to throw them a mention. It's cool to read their code
+and see how they dealt with some of the problems described earlier. It's
+written in Spark, and they did a lot of bending Spark to their will.</p>
 <h2 id="you-should-build-this">"You Should Build this"</h2>
-<p>No, lmao. This shit is hard. This is the effort of a whole ass
-startup. This is the shit that Google does.</p>
+<p>No, lmao. This is hard. This is the effort of a whole ass startup.
+This is the type of shit that Google does.</p>
 <p>I would do it though if someone wanted to fund or hire me, or give me
-money to build it for them. I could be convinced. It's work that I enjoy
+money to build it for them. I could be convinced. It's work that I love
 doing, I just don't have a personal use for hundreds of terabytes of
 high quality training data, nor at this time do I have the requisite
-data to feed the pipeline. Yet surely someone does.</p>
+data to feed the pipeline. Yet surely someone else does.</p>
 <p>If you are interested, you can contact me with inquiries
 <a href="mailto:aarpazdera@gmail.com">here</a>.</p>
 </body>

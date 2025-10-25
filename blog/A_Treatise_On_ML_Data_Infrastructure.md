@@ -185,32 +185,38 @@ Not that Spark does these things by default. It can be coerced, through force of
 
 ## Putting It All Together
 
+Of course, you're going to want something to orchestrate it. Kubernetes may be an option.
+Although because the processes will not be able to see each other if they are in different containers, I think you end up building a megacontainer. The container checks to see what it has access to, and checks in with a server on startup. That server keeps track of the topology, manages it, and assigns new containers a set of processes or services to run, and decides how they will communicate and with what.
+
+This is already something that makes sense to build, so, building your own orchestration might not be much harder than that. Just have the server start and kill them. There is some extra fault tolerance trickery here because we just introduced a single point of failure, but it's nothing that can't be overcome.
+
+
 An example pipeline might look like:
 
 ```
-              ┌───────────────┬───────────────┬───────────────┐
-              │               │               │               │
-              ▼               ▼               ▼               │
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Web Scrapers  │    │ HuggingFace API │    │  Local Datasets │
-│  (CommonCrawl,  │    │   Streaming     │    │   (Sharded)     │
-│    Reddit, etc) │    │                 │    │                 │
-└─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘
-          │                      │                      │
-          └──────────┬───────────┘                      │
-                     │                                  │
-                     ▼                                  │
-          ┌─────────────────────┐                       │
-          │   Load Balancer     │◄─────────────────┐    │
-          └─────────┬───────────┘                  │    │
-                    │                              │    │
-                    ▼                              │    │
-          ┌─────────────────────┐                  │    │
-          │   Format, Clean,    │◄─────────────────┤    │
-          │    Extract Text     │◄─────────────────├────┘
-          └─────────┬───────────┘                  │
-                    │                              │
-                    ▼                              │
+          ┌────────────────────┬────────────────────────┬───────────────┐
+          │                    │                        │               │
+          ▼                    ▼                        ▼               │
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐       │
+│   Web Scrapers  │    │ HuggingFace API │    │  Local Datasets │       │
+│  (CommonCrawl,  │    │   Streaming     │    │   (Sharded)     │       │
+│    Reddit, etc) │    │                 │    │                 │       │
+└─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘       │
+          │                      │                      │               │
+          └──────────┬───────────┘                      │               │
+                     │                                  │               │
+                     ▼                                  │               │
+          ┌─────────────────────┐                       │               │
+          │   Load Balancer     │◄─────────────────┐    │               │
+          └─────────┬───────────┘                  │    │               │
+                    │                              │    │               │
+                    ▼                              │    │               │
+          ┌─────────────────────┐                  │    │               │
+          │   Format, Clean,    │◄─────────────────┤    │               │
+          │    Extract Text     │◄─────────────────├────┘               │
+          └─────────┬───────────┘                  │                    │
+                    │                              │                    │
+                    ▼                              ├────────────────────┘
           ┌─────────────────────┐                  │
           │   Quality Filter    │◄─────────────────┤
           └─────────┬───────────┘                  │
@@ -242,20 +248,13 @@ An example pipeline might look like:
           │  Object Store       │                  │
           └─────────────────────┘                  │
                                                    │
-                    ┌─────────────────────┐        │
-                    │  Pipeline Manager   │────────┘
-                    │      Server         │
-                    │ (Scaling Control &  │
-                    │ Backpressure Mgmt)  │
-                    └─────────────────────┘
-
+                                    ┌─────────────────────┐
+                                    │  Pipeline Manager   │
+                                    │      Server         │
+                                    │ (Scaling Control &  │
+                                    │ Backpressure Mgmt)  │
+                                    └─────────────────────┘
 ```
-
-Of course, you're going to want something to orchestrate it. Kubernetes may be an option.
-Although because the processes will not be able to see each other if they are in different containers, I think you end up building a megacontainer. The container checks to see what it has access to, and checks in with a server on startup. That server keeps track of the topology, manages it, and assigns new containers a set of processes or services to run, and decides how they will communicate and with what.
-
-This is already something that makes sense to build, so, building your own orchestration might not be much harder than that. Just have the server start and kill them. There is some extra fault tolerance trickery here because we just introduced a single point of failure, but it's nothing that can't be overcome.
-
 
 ## Another Realistic Workload
 
@@ -272,9 +271,9 @@ I recommend checking out the [finepdfs](https://github.com/huggingface/finepdfs)
 
 ## "You Should Build this"
 
-No, lmao. This shit is hard. This is the effort of a whole ass startup. This is the shit that Google does.
+No, lmao. This is hard. This is the effort of a whole ass startup. This is the type of shit that Google does.
 
-I would do it though if someone wanted to fund or hire me, or give me money to build it for them. I could be convinced. It's work that I enjoy doing, I just don't have a personal use for hundreds of terabytes of high quality training data, nor at this time do I have the requisite data to feed the pipeline. Yet surely someone else does.
+I would do it though if someone wanted to fund or hire me, or give me money to build it for them. I could be convinced. It's work that I love doing, I just don't have a personal use for hundreds of terabytes of high quality training data, nor at this time do I have the requisite data to feed the pipeline. Yet surely someone else does.
 
 If you are interested, you can contact me with inquiries <a href="mailto:aarpazdera@gmail.com">here</a>.
 
