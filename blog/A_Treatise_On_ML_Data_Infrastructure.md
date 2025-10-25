@@ -190,7 +190,7 @@ An example pipeline might look like:
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Web Scrapers  │    │ HuggingFace API │    │  Local Datasets │
-│   (CommonCrawl, │    │   Streaming     │    │   (PDFs, Text)  │
+│  (CommonCrawl,  │    │   Streaming     │    │   (PDFs, Text)  │
 │    Reddit, etc) │    │                 │    │                 │
 └─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘
           │                      │                      │
@@ -199,56 +199,46 @@ An example pipeline might look like:
                      ▼
           ┌─────────────────────┐
           │   Load Balancer     │◄─────────────────┐
-          │  (HAProxy/Nginx)    │                  │
           └─────────┬───────────┘                  │
                     │                              │
                     ▼                              │
           ┌─────────────────────┐                  │
-          │  Processing Workers │◄─────────────────┤
-          │ (In-Memory Buffer,  │                  │
-          │  Format, Clean,     │                  │
-          │  Extract Text)      │                  │
+          │   Format, Clean,    │◄─────────────────┤
+          │    Extract Text     │                  │
           └─────────┬───────────┘                  │
                     │                              │
                     ▼                              │
           ┌─────────────────────┐                  │
-          │  MinHash Dedup      │◄─────────────────┤
-          │   (In Workers)      │                  │
+          │   Quality Filter    │◄─────────────────┤
           └─────────┬───────────┘                  │
                     │                              │
                     ▼                              │
           ┌─────────────────────┐                  │
-          │  Quality Filters    │◄─────────────────┤
-          │ (Perplexity, Lang   │                  │
-          │  Detect, Custom)    │                  │
+          │   Load Balancer     │◄─────────────────┤
           └─────────┬───────────┘                  │
                     │                              │
                     ▼                              │
           ┌─────────────────────┐                  │
           │   MinIO Cluster     │◄─────────────────┤
-          │  (Filtered Data)    │                  │
           └─────────┬───────────┘                  │
                     │                              │
                     ▼                              │
           ┌─────────────────────┐                  │
-          │  Embedding Models   │◄─────────────────┤
-          │ (SentenceTransform, │                  │
-          │   OpenAI, etc)      │                  │
+          │  Embedding Model    │◄─────────────────┤
           └─────────┬───────────┘                  │
                     │                              │
                     ▼                              │
           ┌─────────────────────┐                  │
           │   Vector DB         │◄─────────────────┤
-          │ (MinIO + Chroma/    │                  │
-          │   Weaviate)         │                  │
+          │   (Weaviate)        │                  │
           └─────────┬───────────┘                  │
                     │                              │
                     ▼                              │
           ┌─────────────────────┐                  │
           │   Final MinIO       │──────────────────┘
           │  Object Store       │  Backpressure to
-          │ (Training Ready)    │  Previous Step
-          └─────────────────────┘
+          └─────────────────────┘   Previous Step
+
 ```
 
 Of course, you're going to want something to orchestrate it. Kubernetes may be an option.
@@ -257,7 +247,7 @@ Although because the processes will not be able to see each other if they are in
 This is already something that makes sense to build, so, building your own orchestration might not be much harder than that. Just have the server start and kill them. There is some extra fault tolerance trickery here because we just introduced a single point of failure, but it's nothing that can't be overcome.
 
 
-## The Actual Workload
+## Another Realistic Workload
 
 <br>
 <div style="text-align: center;">
