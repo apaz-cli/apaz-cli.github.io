@@ -190,64 +190,64 @@ An example pipeline might look like:
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Web Scrapers  │    │ HuggingFace API │    │  Local Datasets │
-│   (CommonCrawl, │◄───┤   Streaming     │◄───┤   (PDFs, Text)  │
+│   (CommonCrawl, │    │   Streaming     │    │   (PDFs, Text)  │
 │    Reddit, etc) │    │                 │    │                 │
 └─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘
           │                      │                      │
           └──────────┬───────────┴──────────────────────┘
-                     │                                   ▲
-                     ▼                                   │
-          ┌─────────────────────┐                       │
-          │   Load Balancer     │◄──────────────────────┤
-          │  (HAProxy/Nginx)    │                       │
-          └─────────┬───────────┘                       │
-                    │                                   │
-                    ▼                                   │
-          ┌─────────────────────┐                       │
-          │  Processing Workers │◄──────────────────────┤
-          │ (In-Memory Buffer,  │                       │
-          │  Format, Clean,     │                       │
-          │  Extract Text)      │                       │
-          └─────────┬───────────┘                       │
-                    │                                   │
-                    ▼                                   │
-          ┌─────────────────────┐                       │
-          │  MinHash Dedup      │◄──────────────────────┤
-          │   (In Workers)      │                       │
-          └─────────┬───────────┘                       │
-                    │                                   │
-                    ▼                                   │
-          ┌─────────────────────┐                       │
-          │  Quality Filters    │◄──────────────────────┤
-          │ (Perplexity, Lang   │                       │
-          │  Detect, Custom)    │                       │
-          └─────────┬───────────┘                       │
-                    │                                   │
-                    ▼                                   │
-          ┌─────────────────────┐                       │
-          │   MinIO Cluster     │◄──────────────────────┤
-          │  (Filtered Data)    │                       │
-          └─────────┬───────────┘                       │
-                    │                                   │
-                    ▼                                   │
-          ┌─────────────────────┐                       │
-          │  Embedding Models   │◄──────────────────────┤
-          │ (SentenceTransform, │                       │
-          │   OpenAI, etc)      │                       │
-          └─────────┬───────────┘                       │
-                    │                                   │
-                    ▼                                   │
-          ┌─────────────────────┐                       │
-          │   Vector DB         │◄──────────────────────┤
-          │ (MinIO + Chroma/    │                       │
-          │   Weaviate)         │                       │
-          └─────────┬───────────┘                       │
-                    │                                   │
-                    ▼                                   │
-          ┌─────────────────────┐                       │
-          │   Final MinIO       │───────────────────────┘
-          │  Object Store       │    Backpressure/
-          │ (Training Ready)    │    Throttle Signals
+                     │
+                     ▼
+          ┌─────────────────────┐
+          │   Load Balancer     │◄─────────────────┐
+          │  (HAProxy/Nginx)    │                  │
+          └─────────┬───────────┘                  │
+                    │                              │
+                    ▼                              │
+          ┌─────────────────────┐                  │
+          │  Processing Workers │◄─────────────────┤
+          │ (In-Memory Buffer,  │                  │
+          │  Format, Clean,     │                  │
+          │  Extract Text)      │                  │
+          └─────────┬───────────┘                  │
+                    │                              │
+                    ▼                              │
+          ┌─────────────────────┐                  │
+          │  MinHash Dedup      │◄─────────────────┤
+          │   (In Workers)      │                  │
+          └─────────┬───────────┘                  │
+                    │                              │
+                    ▼                              │
+          ┌─────────────────────┐                  │
+          │  Quality Filters    │◄─────────────────┤
+          │ (Perplexity, Lang   │                  │
+          │  Detect, Custom)    │                  │
+          └─────────┬───────────┘                  │
+                    │                              │
+                    ▼                              │
+          ┌─────────────────────┐                  │
+          │   MinIO Cluster     │◄─────────────────┤
+          │  (Filtered Data)    │                  │
+          └─────────┬───────────┘                  │
+                    │                              │
+                    ▼                              │
+          ┌─────────────────────┐                  │
+          │  Embedding Models   │◄─────────────────┤
+          │ (SentenceTransform, │                  │
+          │   OpenAI, etc)      │                  │
+          └─────────┬───────────┘                  │
+                    │                              │
+                    ▼                              │
+          ┌─────────────────────┐                  │
+          │   Vector DB         │◄─────────────────┤
+          │ (MinIO + Chroma/    │                  │
+          │   Weaviate)         │                  │
+          └─────────┬───────────┘                  │
+                    │                              │
+                    ▼                              │
+          ┌─────────────────────┐                  │
+          │   Final MinIO       │──────────────────┘
+          │  Object Store       │  Backpressure to
+          │ (Training Ready)    │  Previous Step
           └─────────────────────┘
 ```
 
