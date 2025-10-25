@@ -205,16 +205,24 @@ Although because the processes will not be able to see each other if they are in
 This is already something that makes sense to build, so, building your own orchestration might not be much harder than that. Just have the server start and kill them. There is some extra fault tolerance trickery here because we just introduced a single point of failure, but it's nothing that can't be overcome.
 
 
-# The Actual Workload
+## The Actual Workload
 
-For an example of the actual data processing that you'd be doing to build a machine learning dataset, I recommend checking out the [finepdfs]() technical report. And, to some extent the code release. It's a very good Spark codebase, so a lot carries over.
+<br>
+<div style="text-align: center;">
+<img src="images/finepdfs.png" width=400>
+</div>
+<br>
+
+For an example of the actual data processing that you'd be doing to build a machine learning dataset
+
+I recommend checking out the [finepdfs](https://github.com/huggingface/finepdfs) technical report as an example of the sort of data processing you'd be doing to build a machine learning dataset. They released it while I was writing this, and I've got to throw them a mention. It's cool to read their code and see how they dealt with some of the problems described earlier. It's written in Spark, and they did a lot of bending Spark to their will.
 
 
 ## "You Should Build this"
 
 No, lmao. This shit is hard. This is the effort of a whole ass startup. This is the shit that Google does.
 
-I would do it though if someone wanted to fund or hire me, or give me money to build it for them. I could be convinced. It's work that I enjoy doing, I just don't have a personal use for hundreds of terabytes of high quality training data, nor at this time do I have the requisite data to feed the pipeline. Yet surely someone does.
+I would do it though if someone wanted to fund or hire me, or give me money to build it for them. I could be convinced. It's work that I enjoy doing, I just don't have a personal use for hundreds of terabytes of high quality training data, nor at this time do I have the requisite data to feed the pipeline. Yet surely someone else does.
 
 If you are interested, you can contact me with inquiries <a href="mailto:aarpazdera@gmail.com">here</a>.
 
