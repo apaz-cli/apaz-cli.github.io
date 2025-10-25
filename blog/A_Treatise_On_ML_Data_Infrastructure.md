@@ -188,15 +188,79 @@ Not that Spark does these things by default. It can be coerced, through force of
 An example pipeline might look like:
 
 ```
-
-(TODO: Finish this)
-
-Scrapers-------------->-->--> Load balancer --->
-                     /  /
-Streamed HF Dataset--  /
-                      /
-Data on Disk----------
-
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Web Scrapers  │    │ HuggingFace API │    │  Local Datasets │
+│   (CommonCrawl, │    │   Streaming     │    │   (PDFs, Text)  │
+│    Reddit, etc) │    │                 │    │                 │
+└─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘
+          │                      │                      │
+          └──────────┬───────────┴──────────────────────┘
+                     │
+                     ▼
+          ┌─────────────────────┐
+          │   Load Balancer     │
+          │  (HAProxy/Nginx)    │
+          └─────────┬───────────┘
+                    │
+                    ▼
+          ┌─────────────────────┐
+          │  Raw Data Queue     │
+          │   (Kafka/Redis)     │
+          └─────────┬───────────┘
+                    │
+                    ▼
+          ┌─────────────────────┐
+          │  Data Processors    │
+          │ (Format, Clean,     │
+          │  Extract Text)      │
+          └─────────┬───────────┘
+                    │
+                    ▼
+          ┌─────────────────────┐
+          │   MinIO Cluster     │
+          │  (Raw Processed)    │
+          └─────────┬───────────┘
+                    │
+                    ▼
+          ┌─────────────────────┐
+          │  MinHash Dedup      │
+          │   Workers           │
+          └─────────┬───────────┘
+                    │
+                    ▼
+          ┌─────────────────────┐
+          │   Vector DB         │
+          │ (MinIO + Chroma/    │
+          │   Weaviate)         │
+          └─────────┬───────────┘
+                    │
+                    ▼
+          ┌─────────────────────┐
+          │  Embedding Models   │
+          │ (SentenceTransform, │
+          │   OpenAI, etc)      │
+          └─────────┬───────────┘
+                    │
+                    ▼
+          ┌─────────────────────┐
+          │   Vector DB         │
+          │  (Embeddings +      │
+          │   Similarity)       │
+          └─────────┬───────────┘
+                    │
+                    ▼
+          ┌─────────────────────┐
+          │  Quality Filters    │
+          │ (Perplexity, Lang   │
+          │  Detect, Custom)    │
+          └─────────┬───────────┘
+                    │
+                    ▼
+          ┌─────────────────────┐
+          │   Final MinIO       │
+          │  Object Store       │
+          │ (Training Ready)    │
+          └─────────────────────┘
 ```
 
 Of course, you're going to want something to orchestrate it. Kubernetes may be an option.
