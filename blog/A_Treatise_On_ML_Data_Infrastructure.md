@@ -235,9 +235,16 @@ An example pipeline might look like:
                     │                              │
                     ▼                              │
           ┌─────────────────────┐                  │
-          │   Final MinIO       │──────────────────┘
-          │  Object Store       │  Backpressure to
-          └─────────────────────┘   Previous Step
+          │   Final MinIO       │◄─────────────────┤
+          │  Object Store       │                  │
+          └─────────────────────┘                  │
+                                                   │
+                    ┌─────────────────────┐        │
+                    │  Pipeline Manager   │────────┘
+                    │      Server         │
+                    │ (Scaling Control &  │
+                    │ Backpressure Mgmt)  │
+                    └─────────────────────┘
 
 ```
 
