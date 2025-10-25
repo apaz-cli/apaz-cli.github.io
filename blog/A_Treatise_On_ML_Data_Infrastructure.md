@@ -204,34 +204,29 @@ An example pipeline might look like:
                     │
                     ▼
           ┌─────────────────────┐
-          │  Raw Data Queue     │
-          │   (Kafka/Redis)     │
-          └─────────┬───────────┘
-                    │
-                    ▼
-          ┌─────────────────────┐
-          │  Data Processors    │
-          │ (Format, Clean,     │
+          │  Processing Workers │
+          │ (In-Memory Buffer,  │
+          │  Format, Clean,     │
           │  Extract Text)      │
           └─────────┬───────────┘
                     │
                     ▼
           ┌─────────────────────┐
-          │   MinIO Cluster     │
-          │  (Raw Processed)    │
-          └─────────┬───────────┘
-                    │
-                    ▼
-          ┌─────────────────────┐
           │  MinHash Dedup      │
-          │   Workers           │
+          │   (In Workers)      │
           └─────────┬───────────┘
                     │
                     ▼
           ┌─────────────────────┐
-          │   Vector DB         │
-          │ (MinIO + Chroma/    │
-          │   Weaviate)         │
+          │  Quality Filters    │
+          │ (Perplexity, Lang   │
+          │  Detect, Custom)    │
+          └─────────┬───────────┘
+                    │
+                    ▼
+          ┌─────────────────────┐
+          │   MinIO Cluster     │
+          │  (Filtered Data)    │
           └─────────┬───────────┘
                     │
                     ▼
@@ -244,15 +239,8 @@ An example pipeline might look like:
                     ▼
           ┌─────────────────────┐
           │   Vector DB         │
-          │  (Embeddings +      │
-          │   Similarity)       │
-          └─────────┬───────────┘
-                    │
-                    ▼
-          ┌─────────────────────┐
-          │  Quality Filters    │
-          │ (Perplexity, Lang   │
-          │  Detect, Custom)    │
+          │ (MinIO + Chroma/    │
+          │   Weaviate)         │
           └─────────┬───────────┘
                     │
                     ▼
