@@ -273,7 +273,16 @@ data arrives faster than we can process it. How should we deal with this
 situation? There are a few resolutions to the producer/consumer problem,
 and how you wish to resolve it may depend on the situation. But it comes
 up in almost every situation.</p>
-<p>TODO: An image of the producer/consumer problem.</p>
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/producer_consumer_problem.png">
+<figcaption aria-hidden="true">
+The problem at hand.
+</figcaption>
+</figure>
+</div>
+<p><br></p>
 <h3 id="specific-examples">Specific examples</h3>
 <p>Suppose you've got a bunch of scrapers sending data to your load
 balancer, which store it to MinIO to be processed and filtered by

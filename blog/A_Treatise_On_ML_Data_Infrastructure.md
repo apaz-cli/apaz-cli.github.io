@@ -188,7 +188,15 @@ First, we have a data source. This could be a scraper, or perhaps a dataset from
 
 This is the first spot where we have to make a decision. Suppose the data arrives faster than we can process it. How should we deal with this situation? There are a few resolutions to the producer/consumer problem, and how you wish to resolve it may depend on the situation. But it comes up in almost every situation.
 
-TODO: An image of the producer/consumer problem.
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/producer_consumer_problem.png">
+<figcaption aria-hidden="true">The problem at hand.</figcaption>
+</figure>
+</div>
+<br>
+
 
 ### Specific examples
 
