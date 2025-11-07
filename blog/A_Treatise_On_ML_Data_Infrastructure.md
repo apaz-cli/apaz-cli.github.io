@@ -15,6 +15,7 @@ Here is a way to build that infrastructure.
 
 ![](images/Cirno_Computer.jpg)
 
+<br>
 
 ## Scalingpill Me
 
@@ -79,6 +80,7 @@ The internet of today cannot be collected tomorrow. Scrape or regret. Archive wh
 
 It is true that we now live in an era unlike the 2022-2023 scaling era where random undifferentiated internet data is not as valuable. Frontier datasets are much higher quality nowadays, and actually not that much high quality data exists on the internet. But I think this point still applies.
 
+<br>
 
 ## Immediate Growing Pains
 
@@ -124,6 +126,7 @@ There's also the question of where you got the data in the first place. Web scra
 
 Clearly the only thing to do is to scale out to many machines. But this raises its own challenges.
 
+<br>
 
 ## Fault Tolerance
 
@@ -144,6 +147,7 @@ Ideally, we want to be able set fire to any single computer, or drive, or few co
 
 How close you get to this ideal depends on your needs. But I think that people tend to make the mistake of underestimating the problem and their needs. They assume that some potential data loss in X or Y case is acceptable, only to run into issues. Either immediately due to network or device instability, or later when they have to scale up and hit a bottleneck. In my experience, it is better to be paranoid from the start.
 
+<br>
 
 ## Allowable Algorithms
 
@@ -157,6 +161,7 @@ You're probably going to have to shuffle though. An efficient way to do this is 
 
 Many algorithms need to be creatively rethought. Especially once you get to the point where you can no longer even fit all the data indices in memory. You have to stream the indices from disk as well. Given this limitation, you're probably not going to be able to do anything too complicated. So, keep whatever you're doing extremely simple.
 
+<br>
 
 ## Storage
 
@@ -179,6 +184,7 @@ Storing that much data with Amazon is very expensive. The cheapest S3 tier appea
 
 If you don't want to be leather daddy Bezos's paypig, you gotta build your own S3. For this, I recommend a solution like <a href="https://github.com/minio/minio">MinIO</a>. You will need a load balancer in front of it, and you will have to build your own servers, but if you're storing and processing enough data regularly enough it will surely be worth it.
 
+<br>
 
 ## Producers and Consumers
 
@@ -212,6 +218,7 @@ It would also be nice to be able to do layout optimizations on streaming the dat
 
 Another thing that comes to mind is that we are slowly reinventing [Datatrove](https://github.com/huggingface/datatrove). Perhaps a somewhat more advanced version of Datatrove. I don't think it supports everything we've talked about. But we are solving the same problem in the same way, and Datatrove is already battle tested on thousands of petabytes for this purpose by Huggingface. If you did not know about datatrove, you are welcome, now you know.
 
+<br>
 
 ## Putting A Pipeline Together
 
@@ -284,6 +291,8 @@ TODO: Ensure we use a font with good box drawing chars in code blocks.
                                     └─────────────────────┘
 ```
 
+<br>
+
 ## Another Realistic Workload
 
 <br>
@@ -298,10 +307,11 @@ In general, that's what I recommend you do. A lot of reading. Look back through 
 
 Data pipelines are hell. Hopefully this article has helped.
 
+<br>
 
-## "You Should Build this"
+## "You Should Build This"
 
-No, lmao. This is hard. This is the effort of a whole-ass startup. I do not half-ass, and at present I would not be able to give it the attention it deserves.
+No, lmao. This is hard. This is the effort of a whole-ass startup. I would prefer not to not half-ass something like this, and at present I would not be able to give it the attention it deserves.
 
 I would do it though if someone wanted to fund or hire me, or give me money to build it for them. I could be convinced. It's work that I love doing, I just don't have a personal use for hundreds of terabytes of high quality training data. Yet surely someone else does.
 

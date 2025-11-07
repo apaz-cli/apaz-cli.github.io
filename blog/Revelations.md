@@ -166,7 +166,7 @@ But the point is that being burned out doesn't have to completely wreck the expe
 ## Revelation 9: Careful with coddling.
 
 When someone is having a bad time, sometimes you have to let them suffer. Coddling is
-my first instict, and I pride myself in being emotionally available, but that is not a
+my first instinct, and I pride myself in being emotionally available, but that is not a
 path to growth in all cases. If you acknowledge them as weak, they may internalize it.
 Now they are weak. This is probably not what you indended. They may need to overcome
 it, and be strong.

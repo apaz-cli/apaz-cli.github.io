@@ -18,6 +18,7 @@ infrastructure.</p>
 <p>Here is a way to build that infrastructure.</p>
 <p><br></p>
 <p><img src="images/Cirno_Computer.jpg" /></p>
+<p><br></p>
 <h2 id="scalingpill-me">Scalingpill Me</h2>
 <p>Data work is unsexy. Why do it?</p>
 <p>I don't know. Depends on what you want to spend your time on I guess.
@@ -121,6 +122,7 @@ era where random undifferentiated internet data is not as valuable.
 Frontier datasets are much higher quality nowadays, and actually not
 that much high quality data exists on the internet. But I think this
 point still applies.</p>
+<p><br></p>
 <h2 id="immediate-growing-pains">Immediate Growing Pains</h2>
 <p>Now that we've gotten why we're scaling data out of the way, let's
 talk about how to do it.</p>
@@ -164,6 +166,7 @@ limited, or bottlenecked on transfer speeds, or something. There are
 bottlenecks everywhere.</p>
 <p>Clearly the only thing to do is to scale out to many machines. But
 this raises its own challenges.</p>
+<p><br></p>
 <h2 id="fault-tolerance">Fault Tolerance</h2>
 <p>The above sounds basic. And actually, it is.</p>
 <p>The problem is that to do this at scale you're going to be adding a
@@ -194,6 +197,7 @@ acceptable, only to run into issues. Either immediately due to network
 or device instability, or later when they have to scale up and hit a
 bottleneck. In my experience, it is better to be paranoid from the
 start.</p>
+<p><br></p>
 <h2 id="allowable-algorithms">Allowable Algorithms</h2>
 <p>One idea for data filtering might come to mind that's something along
 the lines of "For every piece of text, calculate its distance in
@@ -221,6 +225,7 @@ get to the point where you can no longer even fit all the data indices
 in memory. You have to stream the indices from disk as well. Given this
 limitation, you're probably not going to be able to do anything too
 complicated. So, keep whatever you're doing extremely simple.</p>
+<p><br></p>
 <h2 id="storage">Storage</h2>
 <p>Believe it or not, problems are the same ones that databases deal
 with. Over the past 50 years or so the database community has developed
@@ -257,6 +262,7 @@ your own S3. For this, I recommend a solution like
 balancer in front of it, and you will have to build your own servers,
 but if you're storing and processing enough data regularly enough it
 will surely be worth it.</p>
+<p><br></p>
 <h2 id="producers-and-consumers">Producers and Consumers</h2>
 <p>Let's talk about how to put a data pipeline together. I call it a
 pipeline because it is an apt description, and because other people seem
@@ -315,6 +321,7 @@ everything we've talked about. But we are solving the same problem in
 the same way, and Datatrove is already battle tested on thousands of
 petabytes for this purpose by Huggingface. If you did not know about
 datatrove, you are welcome, now you know.</p>
+<p><br></p>
 <h2 id="putting-a-pipeline-together">Putting A Pipeline Together</h2>
 <p>Of course, you're going to want something to orchestrate all this. At
 first I thought Kubernetes may be an option. The problem is that the
@@ -393,6 +400,7 @@ blocks.</p>
           └─────────────────────┘   │ (Scaling Control &amp;  │
                                     │ Backpressure Mgmt)  │
                                     └─────────────────────┘</code></pre>
+<p><br></p>
 <h2 id="another-realistic-workload">Another Realistic Workload</h2>
 <br>
 <div style="text-align: center;">
@@ -410,10 +418,11 @@ implementation details. This will give you inspiration. I have found the
 Kimi K2 paper particularly inspiring as well, for how they did data
 augmentation.</p>
 <p>Data pipelines are hell. Hopefully this article has helped.</p>
-<h2 id="you-should-build-this">"You Should Build this"</h2>
+<p><br></p>
+<h2 id="you-should-build-this">"You Should Build This"</h2>
 <p>No, lmao. This is hard. This is the effort of a whole-ass startup. I
-do not half-ass, and at present I would not be able to give it the
-attention it deserves.</p>
+would prefer not to not half-ass something like this, and at present I
+would not be able to give it the attention it deserves.</p>
 <p>I would do it though if someone wanted to fund or hire me, or give me
 money to build it for them. I could be convinced. It's work that I love
 doing, I just don't have a personal use for hundreds of terabytes of
