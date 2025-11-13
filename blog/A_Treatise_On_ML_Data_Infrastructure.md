@@ -69,10 +69,7 @@ Clearly this is not true. Labs aren't dumb, they will use the best data they hav
 
 It's actually quite miraculous though that in the compute optimal regime to double the size of your model you only need to collect twice as much data. I feel that people take this for granted. Neural networks are doing compression, and compression does not work like this. Compressors typically get more efficient as you put more data into them. It surprising, to me at least, that the Chinchilla scaling dynamics do not work this way. Or rather, that neural networks actually do work this way, which is why the loss goes down slower later in training, throwing it off the compute optimal path.
 
-Really though, whatever your interpretation of the scaling laws, you should be collecting even more data so you can overtrain a bit. Most labs are doing this, and it makes sense to do so if you're training a model that a lot of people are going to use. Yet it may not make sense to overtrain by *too* much, or you'll end up in a Llama3-8b situation where the model does not quantize well.
-
-TODO: Add source for quantization claim above.
-
+Really though, whatever your interpretation of the scaling laws, you should be collecting even more data so you can overtrain a bit. Most labs are doing this, and it makes sense to do so if you're training a model that a lot of people are going to use. Yet it may not make sense to overtrain by *too* much, or you'll end up in a <a href="https://arxiv.org/abs/2503.19206">Llama3-8b situation</a> where the model does not quantize well.
 
 ### 5. You can't scrape retroactively.
 
@@ -153,11 +150,11 @@ How close you get to this ideal depends on your needs. But I think that people t
 
 One idea for data filtering might come to mind that's something along the lines of "For every piece of text, calculate its distance in embedding space from every other piece of text, and delete the ones that are too close."
 
-This is a great idea! It doesn't work though. It's an `O(n^2)` algorithm, and `n` is many terabytes. So, ya know, good luck with that. There do, however, exist approximate solutions to this problem, and these approximate solutions, though also very compute intensive, do see use.
+This is a great idea! It doesn't work though. It's an `O(n^2)` algorithm, and `n` is many terabytes. So, ya know, good luck with that. There do, however, exist approximate solutions to this problem. These approximate solutions, though also very compute intensive, do see use.
 
 Similarly, consider sorting. It's `O(n * log n)`. You can do it. It just takes a long time, and it requires a lot of copying. You're also going to have to figure out how to orchestrate it across a bunch of machines. Kind of a pain. If you need to, you can do it. But you probably don't need to, so in general try not to bother. Just store it in whatever order.
 
-You're probably going to have to shuffle though. An efficient way to do this is to shuffle the indices. This scales pretty well, onto a point. The potentially more scalable way to do this is that there are PRNGs that can be seeded such that they hit every number within their range exactly once before repeating. You can skip the indices that aren't in your dataset and derive a new ordering from this.
+When it's time to do a run you're probably going to have to shuffle though. An efficient way to do this is to shuffle the indices. This scales pretty well, onto a point. The potentially more scalable way to do this is that there are PRNGs that can be seeded such that they hit every number within their range exactly once before repeating. You can skip the indices that aren't in your dataset and derive a new ordering from this.
 
 Many algorithms need to be creatively rethought. Especially once you get to the point where you can no longer even fit all the data indices in memory. You have to stream the indices from disk as well. Given this limitation, you're probably not going to be able to do anything too complicated. So, keep whatever you're doing extremely simple.
 
@@ -165,9 +162,9 @@ Many algorithms need to be creatively rethought. Especially once you get to the 
 
 ## Storage
 
-Believe it or not, problems are the same ones that databases deal with. Over the past 50 years or so the database community has developed a rich literature describing the solutions to these problems. I absolutely hate databases, but we need a database or similar.
+Believe it or not, atomicity, consistency, and fault tolerance are the exact same problems that databases deal with. Over the past 50 years or so the database community has developed a rich literature describing solutions. I absolutely hate databases, I think they are overused, but to solve these problems we need a database or similar.
 
-There's also another fairly obvious solution, Amazon S3. Databases generally are optimized for lookup, for running queries on them. Object storage systems have no such requirements for complex indexing, and so can achieve much higher performance. We need an object storage system that has replication, sharding, and can handle high throughput.
+There's another fairly obvious solution, Amazon S3. Relational databases generally are optimized for lookup, for running queries on them. Object storage databases like S3 have no such requirements for complex indexing, and so can achieve much higher performance. This is perfect for our use case. So, we need an object storage system that has replication, sharding, fault tolerance, and can handle high throughput.
 
 <br>
 <div style="text-align: center;">
@@ -182,7 +179,9 @@ Sending Bezos money though? I hate that dude. I don't care how rich and buff he 
 
 Storing that much data with Amazon is very expensive. The cheapest S3 tier appears to be $23/TB/month. Which sounds reasonable until you do the math. $276,000/PB/year. Nice. And that's before the cost of actually using it ($0.005 per 1,000 writes, $0.0004 per 1,000 reads), which is also rather substantial. Big Jeff will fuck your Claude and your wallet. Let's pass.
 
-If you don't want to be leather daddy Bezos's paypig, you gotta build your own S3. For this, I recommend a solution like <a href="https://github.com/minio/minio">MinIO</a>. You will need a load balancer in front of it, and you will have to build your own servers, but if you're storing and processing enough data regularly enough it will surely be worth it.
+If you don't want to be leather daddy Bezos's paypig, you gotta build your own S3. For this, I recommend a solution like <a href="https://github.com/minio/minio">MinIO</a>. You will need a load balancer in front of it, and you will have to build your own servers, but if you're storing and processing enough data regularly enough it will surely be worth it. You could also potentially use something like geohot's <a href="https://github.com/geohot/minikeyvalue">minikeyvalue</a>.
+
+But luckily this problem has been solved enough times that you don't have to do it again yourself. Please don't write your own, it's a mistake. You'll either waste a bunch of time or mess it up or both.
 
 <br>
 
@@ -229,71 +228,21 @@ I think what we really want is a server that keeps track of the pipeline topolog
 This is already something that makes sense to build because we need to handle backpressure. So, building your own orchestration might not be much harder than that. Just have the server start and monitor and kill and scale and relink the various pipeline processes. There is some extra fault tolerance trickery here because we just introduced a single point of failure, but it's nothing that can't be overcome.
 
 
-An example pipeline might look like:
+So an example pipeline might look like:
 
-TODO: Ensure we use a font with good box drawing chars in code blocks.
-
-```
-          ┌────────────────────┬────────────────────────┬───────────────┐
-          │                    │                        │               │
-          ▼                    ▼                        ▼               │
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐       │
-│   Web Scrapers  │    │ HuggingFace API │    │  Local Datasets │       │
-│  (CommonCrawl,  │    │   Streaming     │    │   (Sharded)     │       │
-│    Reddit, etc) │    │                 │    │                 │       │
-└─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘       │
-          │                      │                      │               │
-          └─────────┬────────────┘                      │               │
-                    │                                   │               │
-                    ▼                                   │               │
-          ┌─────────────────────┐                       │               │
-          │   Load Balancer     │◄─────────────────┐    │               │
-          └─────────┬───────────┘                  │    │               │
-                    │                              │    │               │
-                    ▼                              │    │               │
-          ┌─────────────────────┐                  │    │               │
-          │   Format, Clean,    │◄─────────────────┤    │               │
-          │    Extract Text     │◄─────────────────├────┘               │
-          └─────────┬───────────┘                  │                    │
-                    │                              │                    │
-                    ▼                              ├────────────────────┘
-          ┌─────────────────────┐                  │
-          │   Quality Filter    │◄─────────────────┤
-          └─────────┬───────────┘                  │
-                    │                              │
-                    ▼                              │
-          ┌─────────────────────┐                  │
-          │   Load Balancer     │◄─────────────────┤
-          └─────────┬───────────┘                  │
-                    │                              │
-                    ▼                              │
-          ┌─────────────────────┐                  │
-          │   MinIO Cluster     │◄─────────────────┤
-          └─────────┬───────────┘                  │
-                    │                              │
-                    ▼                              │
-          ┌─────────────────────┐                  │
-          │  Embedding Model    │◄─────────────────┤
-          └─────────┬───────────┘                  │
-                    │                              │
-                    ▼                              │
-          ┌─────────────────────┐                  │
-          │   Vector DB         │◄─────────────────┤
-          │(Weaviate or similar)│                  │
-          └─────────┬───────────┘                  │
-                    │                              │
-                    ▼                              │
-          ┌─────────────────────┐   ┌─────────────────────┐
-          │   Final MinIO       │   │  Pipeline Manager   │
-          │  Object Store       │   │      Server         │
-          └─────────────────────┘   │ (Scaling Control &  │
-                                    │ Backpressure Mgmt)  │
-                                    └─────────────────────┘
-```
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/example_data_pipeline.png">
+<figcaption aria-hidden="true">To make this image I made a <a href="../diagram_builder.html">Diagram Builder</a>. It's kinda bad, but maybe you'll find it useful.
+</figcaption>
+</figure>
+</div>
+<br>
 
 <br>
 
-## Another Realistic Workload
+## Related Work
 
 <br>
 <div style="text-align: center;">
@@ -314,5 +263,7 @@ Data pipelines are hell. Hopefully this article has helped.
 No, lmao. This is hard. This is the effort of a whole-ass startup. I would prefer not to not half-ass something like this, and at present I would not be able to give it the attention it deserves.
 
 I would do it though if someone wanted to fund or hire me, or give me money to build it for them. I could be convinced. It's work that I love doing, I just don't have a personal use for hundreds of terabytes of high quality training data. Yet surely someone else does.
+
+I am convinced that you do not need a differentiated data source to build high quality datasets. Filtering common crawl ought to be enough. High quality needles in the internet haystack are findable, but nobody seems to be looking.
 
 If you are interested, you can contact me with inquiries <a href="mailto:aarpazdera@gmail.com">here</a>.

@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagram Builder</title>
+    <style type="text/css">
+        @font-face {
+            font-family: "lemon";
+            src: url('lemon.woff');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "lemon", "Courier New", monospace;
+            background-color: #222;
+            color: #fafafa;
+            padding: 20px;
+            overflow: hidden;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: #333;
+            border: 3px solid #01ff70;
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            padding: 16px;
+            border-bottom: 3px solid #01ff70;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #222;
+        }
+        
+        .header h1 {
+            font-family: "lemon", "Courier New", monospace;
+            font-size: 2rem;
+            color: rgb(112, 221, 0);
+            font-weight: bold;
+            margin: 0;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-right: 3px solid #01ff70;
+            padding-right: 8px;
+            margin-right: 8px;
+        }
+        
+        button {
+            padding: 8px 16px;
+            border: 2px solid #01ff70;
+            border-radius: 0;
+            background: #222;
+            color: #01ff70;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: "lemon", "Courier New", monospace;
+            font-weight: bold;
+            transition: all 0.1s;
+        }
+        
+        button:hover {
+            background: #01ff70;
+            color: #222;
+            box-shadow: inset 0 0 0 1px #222;
+        }
+        
+        button.active {
+            background: #01ff70;
+            color: #222;
+            border-color: #01ff70;
+            box-shadow: inset 0 0 0 2px #01ff70;
+        }
+        
+        button.active:hover {
+            background: #00ff00;
+            border-color: #00ff00;
+        }
+
+        button.danger {
+            border-color: #ff3333;
+            color: #ff3333;
+        }
+
+        button.danger:hover {
+            background: #ff3333;
+            color: #222;
+            border-color: #ff3333;
+        }
+
+        button.danger.active {
+            background: #ff3333;
+            color: #222;
+            border-color: #ff3333;
+            box-shadow: inset 0 0 0 2px #ff3333;
+        }
+
+        .home-btn {
+            border-color: #01ff70;
+            color: #01ff70;
+            margin-right: 12px;
+            border-right: 3px solid #01ff70;
+            padding-right: 12px;
+        }
+
+        .home-btn:hover {
+            background: #01ff70;
+            color: #222;
+        }
+        
+        .zoom-level {
+            font-size: 14px;
+            color: #01ff70;
+            min-width: 50px;
+            text-align: center;
+            font-family: "lemon", "Courier New", monospace;
+            font-weight: bold;
+        }
+        
+        .canvas-wrapper {
+            flex: 1;
+            overflow: auto;
+            position: relative;
+            background: #111;
+            border: 2px solid #01ff70;
+        }
+
+        .canvas-wrapper.delete-mode {
+            background: #1a0a0a;
+            border-color: #ff3333;
+        }
+        
+        svg {
+            display: block;
+            user-select: none;
+            background: #1a1a1a;
+        }
+
+        svg.delete-mode {
+            background: #2a1a1a;
+        }
+        
+        .node {
+            cursor: grab;
+        }
+        
+        .node:active {
+            cursor: grabbing;
+        }
+        
+        .node rect {
+            fill: #333;
+            stroke: #01ff70;
+            stroke-width: 2;
+            rx: 0;
+        }
+        
+        .node:hover rect {
+            fill: #2a2a2a;
+            stroke: #2ecc40;
+            stroke-width: 3;
+        }
+        
+        .node.editing rect {
+            stroke: #ff3333;
+            stroke-width: 3;
+            fill: #3a2a2a;
+        }
+
+        .node.deletable:hover rect {
+            stroke: #ff3333 !important;
+            fill: #4a3a3a !important;
+            stroke-width: 3 !important;
+        }
+        
+        .node text {
+            pointer-events: none;
+            font-size: 12px;
+            fill: #01ff70;
+            font-family: "lemon", "Courier New", monospace;
+            font-weight: bold;
+        }
+        
+        .connector {
+            fill: none;
+            stroke: #01ff70;
+            stroke-width: 2;
+            marker-end: url(#arrowhead-lime);
+            pointer-events: auto;
+            cursor: pointer;
+        }
+        
+        .connector:hover {
+            stroke-width: 3;
+            stroke: #2ecc40;
+        }
+
+        .connector.deletable:hover {
+            stroke: #ff3333 !important;
+            stroke-width: 4 !important;
+        }
+        
+        .drawing-line {
+            fill: none;
+            stroke: #01ff70;
+            stroke-width: 2;
+            stroke-dasharray: 5,5;
+            pointer-events: none;
+        }
+        
+        .edit-input {
+            position: fixed;
+            padding: 8px;
+            border: 3px solid #ff3333;
+            border-radius: 0;
+            font-family: "lemon", "Courier New", monospace;
+            font-size: 13px;
+            z-index: 1000;
+            background: #333;
+            color: #01ff70;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(1, 255, 112, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button id="homeBtn" class="home-btn" onclick="goHome()" title="Go back">🏠 HOME</button>
+            <h1>[ DIAGRAM BUILDER ]</h1>
+            <div class="controls">
+                <div class="zoom-controls">
+                    <button onclick="zoomOut()">−</button>
+                    <span class="zoom-level" id="zoomLevel">100%</span>
+                    <button onclick="zoomIn()">+</button>
+                </div>
+                <button id="drawArrowBtn" onclick="toggleDrawMode()">-> DRAW ARROW</button>
+                <button id="deleteBtn" class="danger" onclick="toggleDeleteMode()">✕ DELETE MODE</button>
+                <button onclick="addNode()">+ ADD BOX</button>
+                <button onclick="saveDiagram()">💾 SAVE</button>
+                <button onclick="loadDiagram()">📂 LOAD</button>
+                <button onclick="downloadPNG()">🖼️  PNG</button>
+                <button onclick="resetDiagram()">RESET</button>
+            </div>
+        </div>
+        
+        <div class="canvas-wrapper" id="canvasWrapper",>
+            <svg id="canvas" width="3200" height="1800"></svg>
+        </div>
+    </div>
+
+    <script>
+        // Node definitions
+        let nodes = [];
+
+        // Connection definitions
+        let connections = [];
+
+        const nodeWidth = 120;
+        const nodeHeight = 80;
+        let draggingNode = null;
+        let offsetX = 0;
+        let offsetY = 0;
+        let zoom = 1;
+        let canvasWrapper = document.getElementById('canvasWrapper');
+        let svg = document.getElementById('canvas');
+        let drawMode = false;
+        let deleteMode = false;
+        let drawFrom = null;
+        let drawLine = null;
+
+        // Go home function
+        function goHome() {
+            window.history.back();
+        }
+
+        // Add arrowhead markers
+        const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+        
+        const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+        marker.setAttribute('id', 'arrowhead-lime');
+        marker.setAttribute('markerWidth', '10');
+        marker.setAttribute('markerHeight', '10');
+        marker.setAttribute('refX', '9');
+        marker.setAttribute('refY', '3');
+        marker.setAttribute('orient', 'auto');
+        const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        polygon.setAttribute('points', '0 0, 10 3, 0 6');
+        polygon.setAttribute('fill', '#01ff70');
+        marker.appendChild(polygon);
+        defs.appendChild(marker);
+        svg.appendChild(defs);
+
+        // Wrap text to fit in box
+        function wrapText(text, maxWidth) {
+            const parts = text.split('\n');
+            const lines = [];
+            parts.forEach(part => {
+                const words = part.split(' ');
+                let currentLine = '';
+                words.forEach(word => {
+                    if ((currentLine + ' ' + word).length > 14) {
+                        if (currentLine) lines.push(currentLine);
+                        currentLine = word;
+                    } else {
+                        currentLine = currentLine ? currentLine + ' ' + word : word;
+                    }
+                });
+                if (currentLine) lines.push(currentLine);
+            });
+            return lines;
+        }
+
+        // Draw connections
+        function drawConnections() {
+            const connectorGroup = document.getElementById('connectors') || 
+                                   document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            connectorGroup.id = 'connectors';
+            connectorGroup.innerHTML = '';
+
+            connections.forEach((conn, idx) => {
+                const fromNode = nodes.find(n => n.id === conn.from);
+                const toNode = nodes.find(n => n.id === conn.to);
+                
+                if (!fromNode || !toNode) return;
+
+                const x1 = fromNode.x + nodeWidth / 2;
+                const y1 = fromNode.y + nodeHeight;
+                const x2 = toNode.x + nodeWidth / 2;
+                const y2 = toNode.y;
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('class', deleteMode ? 'connector deletable' : 'connector');
+                path.setAttribute('d', `M ${x1} ${y1} L ${x2} ${y2}`);
+                path.setAttribute('stroke-width', '2');
+                path.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (deleteMode) {
+                        deleteConnection(idx);
+                    }
+                });
+                connectorGroup.appendChild(path);
+            });
+
+            if (!svg.contains(connectorGroup)) {
+                svg.appendChild(connectorGroup);
+            }
+        }
+
+        // Draw nodes
+        function drawNodes() {
+            const nodeGroup = document.getElementById('nodes') || 
+                              document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            nodeGroup.id = 'nodes';
+            nodeGroup.innerHTML = '';
+
+            nodes.forEach(node => {
+                const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                g.setAttribute('class', deleteMode ? 'node deletable' : 'node');
+                g.setAttribute('data-id', node.id);
+                g.setAttribute('transform', `translate(${node.x}, ${node.y})`);
+
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('width', nodeWidth);
+                rect.setAttribute('height', nodeHeight);
+                rect.setAttribute('x', 0);
+                rect.setAttribute('y', 0);
+                g.appendChild(rect);
+
+                const lines = wrapText(node.label, nodeWidth - 10);
+                const lineHeight = 14;
+                const startY = (nodeHeight - lines.length * lineHeight) / 2 + 8;
+                
+                lines.forEach((line, index) => {
+                    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                    text.setAttribute('x', nodeWidth / 2);
+                    text.setAttribute('y', startY + index * lineHeight);
+                    text.setAttribute('text-anchor', 'middle');
+                    text.setAttribute('dominant-baseline', 'middle');
+                    text.textContent = line;
+                    g.appendChild(text);
+                });
+
+                g.addEventListener('mousedown', (e) => {
+                    if (deleteMode) {
+                        e.stopPropagation();
+                        deleteNode(node.id);
+                    } else if (drawMode) {
+                        e.stopPropagation();
+                        startDrawing(e, node);
+                    } else {
+                        startDrag(e, node);
+                    }
+                });
+                g.addEventListener('dblclick', (e) => {
+                    if (!deleteMode) {
+                        editNode(e, node);
+                    }
+                });
+
+                nodeGroup.appendChild(g);
+            });
+
+            if (!svg.contains(nodeGroup)) {
+                svg.appendChild(nodeGroup);
+            }
+        }
+
+        // Toggle draw mode
+        function toggleDrawMode() {
+            if (deleteMode) toggleDeleteMode();
+            drawMode = !drawMode;
+            const btn = document.getElementById('drawArrowBtn');
+            if (drawMode) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+                if (drawLine) drawLine.remove();
+                drawLine = null;
+            }
+        }
+
+        // Toggle delete mode
+        function toggleDeleteMode() {
+            if (drawMode) toggleDrawMode();
+            deleteMode = !deleteMode;
+            const btn = document.getElementById('deleteBtn');
+            const wrapper = document.getElementById('canvasWrapper');
+            
+            if (deleteMode) {
+                btn.classList.add('active');
+                wrapper.classList.add('delete-mode');
+                svg.classList.add('delete-mode');
+                document.addEventListener('keydown', handleDeleteModeEsc);
+            } else {
+                btn.classList.remove('active');
+                wrapper.classList.remove('delete-mode');
+                svg.classList.remove('delete-mode');
+                document.removeEventListener('keydown', handleDeleteModeEsc);
+            }
+            redraw();
+        }
+
+        function handleDeleteModeEsc(e) {
+            if (e.key === 'Escape') {
+                toggleDeleteMode();
+            }
+        }
+
+        // Start drawing connection
+        function startDrawing(e, fromNode) {
+            e.stopPropagation();
+            drawFrom = fromNode;
+            
+            const x1 = fromNode.x + nodeWidth / 2;
+            const y1 = fromNode.y + nodeHeight;
+            
+            drawLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            drawLine.setAttribute('class', 'drawing-line');
+            drawLine.setAttribute('d', `M ${x1} ${y1} L ${x1} ${y1}`);
+            svg.appendChild(drawLine);
+
+            const onMouseMove = (e) => {
+                const rect = svg.getBoundingClientRect();
+                const x2 = (e.clientX - rect.left) / zoom;
+                const y2 = (e.clientY - rect.top) / zoom;
+                drawLine.setAttribute('d', `M ${x1} ${y1} L ${x2} ${y2}`);
+            };
+
+            const onMouseUp = (e) => {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                
+                const rect = svg.getBoundingClientRect();
+                const endX = (e.clientX - rect.left) / zoom;
+                const endY = (e.clientY - rect.top) / zoom;
+
+                // Find if we're hovering over a node
+                const toNode = nodes.find(n => {
+                    const dx = endX - (n.x + nodeWidth / 2);
+                    const dy = endY - (n.y + nodeHeight / 2);
+                    return Math.sqrt(dx * dx + dy * dy) < 60;
+                });
+
+                if (toNode && toNode.id !== drawFrom.id) {
+                    connections.push({ from: drawFrom.id, to: toNode.id });
+                }
+
+                drawLine.remove();
+                drawLine = null;
+                drawFrom = null;
+                redraw();
+            };
+
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        }
+
+        // Delete connection
+        function deleteConnection(idx) {
+            connections.splice(idx, 1);
+            redraw();
+        }
+
+        // Delete node
+        function deleteNode(nodeId) {
+            nodes = nodes.filter(n => n.id !== nodeId);
+            connections = connections.filter(c => c.from !== nodeId && c.to !== nodeId);
+            redraw();
+        }
+
+        // Edit node text
+        function editNode(e, node) {
+            e.stopPropagation();
+            
+            const nodeGroup = document.querySelector(`[data-id="${node.id}"]`);
+            nodeGroup.classList.add('editing');
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'edit-input';
+            input.value = node.label.replace(/\n/g, ' ');
+            input.style.width = (nodeWidth + 50) + 'px';
+            
+            const nodeRect = nodeGroup.getBoundingClientRect();
+            input.style.left = (nodeRect.left + 10) + 'px';
+            input.style.top = (nodeRect.top + 10) + 'px';
+            
+            document.body.appendChild(input);
+            input.focus();
+            input.select();
+
+            function saveEdit() {
+                node.label = input.value.trim() || 'New Box';
+                document.body.removeChild(input);
+                nodeGroup.classList.remove('editing');
+                redraw();
+            }
+
+            input.addEventListener('blur', saveEdit);
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') saveEdit();
+                if (e.key === 'Escape') {
+                    document.body.removeChild(input);
+                    nodeGroup.classList.remove('editing');
+                }
+            });
+        }
+
+        // Add new node
+        function addNode() {
+            const centerX = canvasWrapper.scrollLeft / zoom + canvasWrapper.clientWidth / (2 * zoom);
+            const centerY = canvasWrapper.scrollTop / zoom + canvasWrapper.clientHeight / (2 * zoom);
+            
+            const newNode = {
+                id: 'node_' + Date.now(),
+                label: 'New Box',
+                x: centerX - nodeWidth / 2,
+                y: centerY - nodeHeight / 2
+            };
+            nodes.push(newNode);
+            redraw();
+        }
+
+        // Drag functionality
+        function startDrag(e, node) {
+            if (e.button !== 0) return;
+            draggingNode = node;
+            const rect = svg.getBoundingClientRect();
+            offsetX = (e.clientX - rect.left) / zoom - node.x;
+            offsetY = (e.clientY - rect.top) / zoom - node.y;
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', stopDrag);
+            e.preventDefault();
+        }
+
+        function onDrag(e) {
+            if (!draggingNode) return;
+            const rect = svg.getBoundingClientRect();
+            draggingNode.x = (e.clientX - rect.left) / zoom - offsetX;
+            draggingNode.y = (e.clientY - rect.top) / zoom - offsetY;
+            redraw();
+        }
+
+        function stopDrag() {
+            draggingNode = null;
+            document.removeEventListener('mousemove', onDrag);
+            document.removeEventListener('mouseup', stopDrag);
+        }
+
+        // Zoom functions
+        function zoomIn() {
+            zoom = Math.min(zoom + 0.1, 2);
+            applyZoom();
+        }
+
+        function zoomOut() {
+            zoom = Math.max(zoom - 0.1, 0.5);
+            applyZoom();
+        }
+
+        function applyZoom() {
+            svg.style.transform = `scale(${zoom})`;
+            svg.style.transformOrigin = '0 0';
+            document.getElementById('zoomLevel').textContent = Math.round(zoom * 100) + '%';
+        }
+
+        // Redraw everything
+        function redraw() {
+            drawNodes();
+            drawConnections();
+        }
+
+        // Reset diagram
+        function resetDiagram() {
+            if (confirm('Are you sure? This will clear everything.')) {
+                // Clear all nodes and connections
+                nodes = [];
+                connections = [];
+                
+                // Exit delete/draw modes if active
+                if (deleteMode) toggleDeleteMode();
+                if (drawMode) toggleDrawMode();
+                
+                // Reset zoom
+                zoom = 1;
+                applyZoom();
+                
+                // Redraw
+                redraw();
+            }
+        }
+
+        // Download SVG
+        function downloadSVG() {
+            const svgCopy = svg.cloneNode(true);
+            svgCopy.style.transform = 'scale(1)';
+            svgCopy.classList.remove('delete-mode');
+            const svgData = '<?xml version="1.0" encoding="UTF-8"?>\n' + svgCopy.outerHTML;
+            const blob = new Blob([svgData], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'data-pipeline-diagram.svg';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Save diagram to file
+        function saveDiagram() {
+            const data = {
+                nodes: nodes,
+                connections: connections,
+                timestamp: new Date().toLocaleString()
+            };
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `diagram-${Date.now()}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Load diagram from file
+        function loadDiagram() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const data = JSON.parse(event.target.result);
+                        nodes = data.nodes || [];
+                        connections = data.connections || [];
+                        
+                        // Exit delete/draw modes if active
+                        if (deleteMode) toggleDeleteMode();
+                        if (drawMode) toggleDrawMode();
+                        
+                        // Reset zoom
+                        zoom = 1;
+                        applyZoom();
+                        
+                        redraw();
+                        alert(`Diagram loaded from ${data.timestamp} ✓`);
+                    } catch (err) {
+                        alert('Error loading file: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Download PNG
+        function downloadPNG() {
+            // Get SVG bounds
+            const bbox = svg.getBBox();
+            const padding = 20;
+            const width = bbox.width + padding * 2;
+            const height = bbox.height + padding * 2;
+
+            // Create canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+
+            // Fill background
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw nodes
+            nodes.forEach(node => {
+                const x = node.x + padding - bbox.x;
+                const y = node.y + padding - bbox.y;
+
+                // Draw box background
+                ctx.fillStyle = '#333333';
+                ctx.fillRect(x, y, nodeWidth, nodeHeight);
+
+                // Draw box border
+                ctx.strokeStyle = '#01ff70';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(x, y, nodeWidth, nodeHeight);
+
+                // Draw text
+                ctx.fillStyle = '#01ff70';
+                ctx.font = 'bold 12px monospace';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                const lines = wrapText(node.label, nodeWidth - 10);
+                const lineHeight = 14;
+                const startY = y + (nodeHeight - lines.length * lineHeight) / 2 + 8;
+
+                lines.forEach((line, index) => {
+                    ctx.fillText(line, x + nodeWidth / 2, startY + index * lineHeight);
+                });
+            });
+
+            // Draw connections/arrows on top
+            connections.forEach(conn => {
+                const fromNode = nodes.find(n => n.id === conn.from);
+                const toNode = nodes.find(n => n.id === conn.to);
+                
+                if (!fromNode || !toNode) return;
+
+                const x1 = fromNode.x + nodeWidth / 2 + padding - bbox.x;
+                const y1 = fromNode.y + nodeHeight + padding - bbox.y;
+                const x2 = toNode.x + nodeWidth / 2 + padding - bbox.x;
+                const y2 = toNode.y + padding - bbox.y;
+
+                ctx.strokeStyle = '#01ff70';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+
+                // Draw arrowhead
+                const angle = Math.atan2(y2 - y1, x2 - x1);
+                const arrowSize = 10;
+                ctx.fillStyle = '#01ff70';
+                ctx.beginPath();
+                ctx.moveTo(x2, y2);
+                ctx.lineTo(x2 - arrowSize * Math.cos(angle - Math.PI / 6), y2 - arrowSize * Math.sin(angle - Math.PI / 6));
+                ctx.lineTo(x2 - arrowSize * Math.cos(angle + Math.PI / 6), y2 - arrowSize * Math.sin(angle + Math.PI / 6));
+                ctx.closePath();
+                ctx.fill();
+            });
+
+            // Download PNG
+            canvas.toBlob(blob => {
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'data-pipeline-diagram.png';
+                link.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        // Initial draw
+        redraw();
+    </script>
+</body>
+</html>
