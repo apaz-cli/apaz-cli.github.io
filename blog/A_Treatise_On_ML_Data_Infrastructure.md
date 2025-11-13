@@ -191,7 +191,7 @@ Let's talk about how to put a data pipeline together. I call it a pipeline becau
 
 First, we have a data source. This could be a scraper, or perhaps a dataset from HuggingFace or Common Crawl or similar. It could be coming in over the network, or you might have it on disk. In any case, we have a stream of data, arriving to another process running on another machine, or the same machine, asynchronously. We want to read asynchronously because that way if reading or processing data is a bottleneck we can maximize the amount of time spent doing that.
 
-This is the first spot where we have to make a decision. Suppose the data arrives faster than we can process it. How should we deal with this situation? There are a few resolutions to the producer/consumer problem, and how you wish to resolve it may depend on the situation. But it comes up in almost every situation.
+This is the first spot where we have to make a decision. Suppose the data arrives faster than we can process it. How should we deal with this situation? There are a few resolutions to the producer/consumer problem, also called the bounded buffer problem, or backpressure. How you wish to resolve it may depend on the situation. But it does come up in almost every situation.
 
 <br>
 <div style="text-align: center;">
