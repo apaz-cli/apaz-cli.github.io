@@ -3,8 +3,9 @@ Airplanes, Safety, and Correctness           | blog/Safety_and_Correctness.html
 How to Write a Compiler Without Going Insane | blog/How_to_Write_a_Compiler_Without_Going_Insane.html
 The Craziest Bug I Have Ever Witnessed       | blog/The_Craziest_Bug_I_Have_Ever_Witnessed.html
 Cursed Code Collection                       | blog/Cursed_Code_Collection.html
-Hyperparameter Heuristics                    | blog/Hyperparameter_Heuristics.html
+#Hyperparameter Heuristics                    | blog/Hyperparameter_Heuristics.html
 The Competition For Contributors             | blog/The_Contributor_Competition.html
+A Treatise on ML Infrastructure              | blog/A_Treatise_On_ML_Data_Infrastructure.html
 
 Open Source:
 Prime (Decentralized LLM Training)              | https://github.com/PrimeIntellect-ai/prime
@@ -17,7 +18,7 @@ The Julia Programming Language                  | https://github.com/JuliaLang/j
 
 Links:
 Github          | https://github.com/apaz-cli/
-Arxiv           | https://arxiv.org/search/?searchtype=author&query=Pazdera%2C+A
+Arxiv           | https://arxiv.org/search/?searchtype=author&query=Pazdera%2C+Aaron
 Email           | mailto:aarpazdera@gmail.com
 Linkedin        | https://www.linkedin.com/in/aaron-pazdera-b32155194/
 Discord (@apaz) | https://discord.com/channels/@me
