@@ -45,9 +45,9 @@ The compute that you spend training a model is all thrown out when you train its
 
 ### 3. Data filtering is OP.
 
-Suppose you need 10 TB of data to train a model. Would you rather scrape 10 TB of data, or scrape 1000 TB of data and filter it down to 10 TB. Which will make the better model? Remember, collecting and processing this data is super cheap.
+Suppose you need 10 TB of data to train a model. Would you rather scrape 10 TB of data, or scrape 1000 TB of data and filter it down to 10 TB. Which will make the better model? Remember, collecting and processing the data is super cheap.
 
-How exactly you filter this data matters a lot of course. Perhaps more than anything else. There are plenty of experiments to be done here.
+How exactly you filter the data matters a lot of course. Perhaps more than anything else. There are plenty of experiments to be done here.
 
 This is, as I understand it,
 <a href="https://www.datologyai.com">Datology AI</a>'s entire business model. Large scale data filtering is
