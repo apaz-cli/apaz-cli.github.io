@@ -26,7 +26,7 @@ I don't know. Depends on what you want to spend your time on I guess. But here a
 Any research lab needs a good dataset. Having good data gives you an edge. After all, <a href="https://nonint.com/2023/06/10/the-it-in-ai-models-is-the-dataset/">the model is the dataset</a>. And so every lab must dedicate resources to building data pipelines to process hundreds or thousands of petabytes. Or they must buy data from someone else,
 <a href="https://www.deeplearning.ai/the-batch/openai-licenses-financial-times-archive-in-fifth-deal-with-major-news-publishers/">at</a>
 <a href="https://www.forbes.com/sites/janakirammsv/2025/06/23/meta-invests-14-billion-in-scale-ai-to-strengthen-model-training/">exorbitant</a>
-<a href="https://www.reuters.com/technology/reddit-ai-content-licensing-deal-with-google-sources-say-2024-02-22/">cost</a>. And who knows if it's going to be any good.
+<a href="https://www.reuters.com/technology/reddit-ai-content-licensing-deal-with-google-sources-say-2024-02-22/">cost</a>. And who knows if it's going to be any good. Meta researchers consistently complained that ScaleAI's data was terrible.
 
 In the ML world, we are very scalingpilled. There are some things that are very appealing about scaling data collection and processing. Given these things, I am rather surprised why more people are not scaling along this axis, or at least talking more about it.
 
@@ -177,7 +177,7 @@ There's another fairly obvious solution, Amazon S3. Relational databases general
 
 Sending Bezos money though? I hate that dude. I don't care how rich and buff he is. Okay maybe that part is kinda hot. He looks good in leather too. Not really into the whole Lex Luther vibe though. Anyway, I digress. Storage.
 
-Storing that much data with Amazon is very expensive. The cheapest S3 tier appears to be $23/TB/month. Which sounds reasonable until you do the math. $276,000/PB/year. Nice. And that's before the cost of actually using it ($0.005 per 1,000 writes, $0.0004 per 1,000 reads), which is also rather substantial. Big Jeff will fuck your Claude and your wallet. Let's pass.
+Storing that much data with Amazon is very expensive. The cheapest S3 tier appears to be $23/TB/month. Which sounds reasonable until you do the math. $276,000/PB/year. Nice. And that's before the cost of actually using it ($0.005 per 1,000 writes, $0.0004 per 1,000 reads), which is also rather substantial. It's possible to reduce storage costs substantially by switching to different tiers of S3, but then that makes read and write costs go up. Big Jeff will fuck your Claude and your wallet. Let's pass.
 
 If you don't want to be leather daddy Bezos's paypig, you gotta build your own S3. For this, I recommend a solution like <a href="https://github.com/minio/minio">MinIO</a>. You will need a load balancer in front of it, and you will have to build your own servers, but if you're storing and processing enough data regularly enough it will surely be worth it. You could also potentially use something like geohot's <a href="https://github.com/geohot/minikeyvalue">minikeyvalue</a>.
 
@@ -221,7 +221,7 @@ Another thing that comes to mind is that we are slowly reinventing [Datatrove](h
 
 ## Putting A Pipeline Together
 
-Of course, you're going to want something to orchestrate all this. At first I thought Kubernetes may be an option. The problem is that the processes will not be able to see each other if they are in different containers. I think you end up building a megacontainer, handling all the services on that machine. In which case, what exactly is the point of kubernetes? You're better off provisioning machines and deploying through whatever the API of your platform is, or building your own. Virtualization doesn't really bring you any benefits if it comes at the cost of speed.
+Of course, you're going to want something to orchestrate all this. At first I thought Kubernetes may be an option. The problem is that the processes will not be able to see each other if they are in different containers. You can network them, but passing the data over a socket will never be as fast as using shared memory. I think you end up building a megacontainer, handling all the services on that machine. In which case, what exactly is the point of kubernetes? You're better off provisioning machines and deploying through whatever the API of your platform is, or building your own. Virtualization doesn't really bring you any benefits if it comes at the cost of speed.
 
 I think what we really want is a server that keeps track of the pipeline topology, manages it, and assigns new machines a set of processes or services to run, and decides how they will communicate and with what.
 
@@ -252,7 +252,9 @@ So an example pipeline might look like:
 
 For another example, I recommend checking out the [finepdfs](https://github.com/huggingface/finepdfs) paper and codebase. They released it while I was writing this, and I've got to throw them a mention. It's cool to read their code and see how they dealt with some of the problems described earlier.
 
-In general, that's what I recommend you do. A lot of reading. Look back through all the popular model and dataset releases and scour for implementation details. This will give you inspiration. I have found the Kimi K2 paper particularly inspiring as well, for how they did data augmentation.
+In general, that's what I recommend you do. A lot of reading. Look back through all the popular model and dataset releases and scour for them implementation details. What data processing/cleaning/filtering steps did they do? This will give you inspiration. I have found the Kimi K2 paper particularly inspiring as well, for how they did their data augmentation and synthetic data.
+
+Ultimately, I think the answer to "how should I process what will become my training data" is highly dependant and contextual. So instead I focus on how to build out the infrastructure to do whatever you want.
 
 Data pipelines are hell. Hopefully this article has helped.
 
@@ -260,9 +262,9 @@ Data pipelines are hell. Hopefully this article has helped.
 
 ## "You Should Build This"
 
-No, lmao. This is hard. This is the effort of a whole-ass startup. I would prefer not to not half-ass something like this, and at present I would not be able to give it the attention it deserves.
+No, lmao. This is hard. This is the effort of a whole-ass startup. I would prefer not to not half-ass something like this, and at present I would not be able to give it the attention it deserves. I am doing data curation and cleaning work for my own purposes, but I am choosing to write throwaway scripts rather than go all out.
 
-I would do it though if someone wanted to fund or hire me, or give me money to build it for them. I could be convinced. It's work that I love doing, I just don't have a personal use for hundreds of terabytes of high quality training data. Yet surely someone else does.
+I would go all out though if someone wanted to fund or hire me, or give me money to build it for them. I could be convinced. It's work that I love doing, I just don't have a personal use for hundreds of terabytes of high quality training data. Yet surely someone else does.
 
 I am convinced that you do not need a differentiated data source to build high quality datasets. Filtering common crawl ought to be enough. High quality needles in the internet haystack are findable, but nobody seems to be looking.
 
