@@ -225,7 +225,7 @@ Of course, you're going to want something to orchestrate all this. At first I th
 
 I think what we really want is a server that keeps track of the pipeline topology, manages it, and assigns new machines a set of processes or services to run, and decides how they will communicate and with what.
 
-This is already something that makes sense to build because we need to handle backpressure. So, building your own orchestration might not be much harder than that. Just have the server start and monitor and kill and scale and relink the various pipeline processes. There is some extra fault tolerance trickery here because we just introduced a single point of failure, but it's nothing that can't be overcome.
+This is already something that makes sense to build because we need to handle backpressure. So, building your own orchestration might not be much harder than that. Just have the server start and monitor and kill and scale and re-link the various pipeline processes. There is some extra fault tolerance trickery here because we just introduced a single point of failure, but it's nothing that can't be overcome.
 
 
 So an example pipeline might look like:
@@ -254,7 +254,7 @@ For another example, I recommend checking out the [finepdfs](https://github.com/
 
 In general, that's what I recommend you do. A lot of reading. Look back through all the popular model and dataset releases and scour for them implementation details. What data processing/cleaning/filtering steps did they do? This will give you inspiration. I have found the Kimi K2 paper particularly inspiring as well, for how they did their data augmentation and synthetic data.
 
-Ultimately, I think the answer to "how should I process what will become my training data" is highly dependant and contextual. So instead I focus on how to build out the infrastructure to do whatever you want.
+Ultimately, I think the answer to "how should I process what will become my training data" is highly dependent and contextual. So instead I focus on how to build out the infrastructure to do whatever you want.
 
 Data pipelines are hell. This article has not been a very practical guide. But hopefully it has helped call attention to the specific reasons why data pipelines are hard, and hopefully that aids you in your journey.
 

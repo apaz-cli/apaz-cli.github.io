@@ -668,9 +668,9 @@ with what.</p>
 <p>This is already something that makes sense to build because we need
 to handle backpressure. So, building your own orchestration might not be
 much harder than that. Just have the server start and monitor and kill
-and scale and relink the various pipeline processes. There is some extra
-fault tolerance trickery here because we just introduced a single point
-of failure, but it's nothing that can't be overcome.</p>
+and scale and re-link the various pipeline processes. There is some
+extra fault tolerance trickery here because we just introduced a single
+point of failure, but it's nothing that can't be overcome.</p>
 <p>So an example pipeline might look like:</p>
 <br>
 <div style="text-align: center;">
@@ -702,7 +702,7 @@ steps did they do? This will give you inspiration. I have found the Kimi
 K2 paper particularly inspiring as well, for how they did their data
 augmentation and synthetic data.</p>
 <p>Ultimately, I think the answer to "how should I process what will
-become my training data" is highly dependant and contextual. So instead
+become my training data" is highly dependent and contextual. So instead
 I focus on how to build out the infrastructure to do whatever you
 want.</p>
 <p>Data pipelines are hell. This article has not been a very practical
