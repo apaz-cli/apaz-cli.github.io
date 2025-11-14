@@ -256,16 +256,17 @@ In general, that's what I recommend you do. A lot of reading. Look back through 
 
 Ultimately, I think the answer to "how should I process what will become my training data" is highly dependant and contextual. So instead I focus on how to build out the infrastructure to do whatever you want.
 
-Data pipelines are hell. Hopefully this article has helped.
+Data pipelines are hell. This article has not been a very practical guide. But hopefully it has helped call attention to the specific reasons why data pipelines are hard, and hopefully that aids you in your journey.
 
 <br>
 
 ## "You Should Build This"
 
-No, lmao. This is hard. This is the effort of a whole-ass startup. I would prefer not to not half-ass something like this, and at present I would not be able to give it the attention it deserves. I am doing data curation and cleaning work for my own purposes, but I am choosing to write throwaway scripts rather than go all out.
+No, lmao. This is hard. This is the effort of a whole-ass startup. I would prefer not to not half-ass something like this, and at present I would not be able to give it the attention it deserves. I am doing data curation and cleaning work for my own purposes, but I am choosing to write throwaway scripts rather than go all out. But this is what I wish I had access to instead.
 
-I would go all out though if someone wanted to fund or hire me, or give me money to build it for them. I could be convinced. It's work that I love doing, I just don't have a personal use for hundreds of terabytes of high quality training data. Yet surely someone else does.
+I would go all out though if someone wanted to fund or hire me, or give me money to build it for them. I could be convinced. It's work that I love doing, I just don't have a personal use for hundreds of terabytes of high quality training data. Yet surely someone else does. If you are interested, you can contact me with inquiries <a href="mailto:aarpazdera@gmail.com">here</a>.
 
-I am convinced that you do not need a differentiated data source to build high quality datasets. Filtering common crawl ought to be enough. High quality needles in the internet haystack are findable, but nobody seems to be looking.
+I am convinced though that you do not need a differentiated data source to build high quality datasets. Filtering common crawl plus selective rescraping ought to be enough. High quality needles in the internet haystack are plentiful, but nobody seems to be looking. Everyone is just training on fineweb and calling it good. But probably the biggest gains in model training are going to come from advancing the state of the art in data curation.
 
-If you are interested, you can contact me with inquiries <a href="mailto:aarpazdera@gmail.com">here</a>.
+Best of luck to you, and happy filtering.
+
