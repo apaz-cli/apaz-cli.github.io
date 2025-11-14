@@ -26,7 +26,9 @@ I don't know. Depends on what you want to spend your time on I guess. But here a
 Any research lab needs a good dataset. Having good data gives you an edge. After all, <a href="https://nonint.com/2023/06/10/the-it-in-ai-models-is-the-dataset/">the model is the dataset</a>. And so every lab must dedicate resources to building data pipelines to process hundreds or thousands of petabytes. Or they must buy data from someone else,
 <a href="https://www.deeplearning.ai/the-batch/openai-licenses-financial-times-archive-in-fifth-deal-with-major-news-publishers/">at</a>
 <a href="https://www.forbes.com/sites/janakirammsv/2025/06/23/meta-invests-14-billion-in-scale-ai-to-strengthen-model-training/">exorbitant</a>
-<a href="https://www.reuters.com/technology/reddit-ai-content-licensing-deal-with-google-sources-say-2024-02-22/">cost</a>. And who knows if it's going to be any good. Meta researchers consistently complained that ScaleAI's data was terrible.
+<a href="https://www.reuters.com/technology/reddit-ai-content-licensing-deal-with-google-sources-say-2024-02-22/">cost</a>.
+And who knows if it's going to be any good. Meta researchers consistently complained that
+<a href="https://techcrunch.com/2025/08/29/cracks-are-forming-in-metas-partnership-with-scale-ai/">ScaleAI's data is terrible</a>.
 
 In the ML world, we are very scalingpilled. There are some things that are very appealing about scaling data collection and processing. Given these things, I am rather surprised why more people are not scaling along this axis, or at least talking more about it.
 
