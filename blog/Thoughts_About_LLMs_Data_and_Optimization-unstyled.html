@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Thoughts About LLMs Data and Optimization</title>
+</head>
+<body>
+<h1 id="thoughts-about-llms-data-and-optimization">Thoughts About LLMs,
+Data, and Optimization</h1>
+<p><br></p>
+<p><img src="images/126524434_p0.png" /></p>
+<p><br></p>
+<p>First you select a metric. You acquire suitable data. Then you apply
+optimization pressure. Easy, right?</p>
+<p><br></p>
+<h1 id="disclaimers">Disclaimers</h1>
+<p>I'm not writing this for you, necessarily. I mean, I am. There's a
+reason you're reading this. But mostly I'm writing this for me. I am
+attempting to think from first principles. You are an afterthought.</p>
+<p>You may disagree with me over matters of opinion, or of framing, or
+of fact. Please shout your disagreements at me. In the words of Zach de
+la Rocha, if ignorance is bliss, then knock the smile off my face. I
+want to Think Rightly on this.</p>
+<p>With that out of the way, time to spew the most asanine and
+disorganized non-arguments imaginable. I will not cite sources. I will
+get things wrong. I will not apologize.</p>
+<h2 id="yeah-its-that-easy.">Yeah, it's that easy.</h2>
+<p>You select a metric and you apply optimization pressure. On suitable
+data.</p>
+<p>For LLM pretraining, this metric is next token prediction on internet
+data, which approximates compression of all human skills, knowledge, and
+practice. Or at least all of it that's on the internet. By definition
+this gets you basically everything you want. Lots and lots of long tail
+knowledge.</p>
+<p>It also never quite gets you all the way there.</p>
+<p>That is to say, the model learns a lot of irrelevant stuff, and the
+skills and knowledge it learns are not super accessible. Firstly because
+you have to prompt base models very carefully and creatively. But also
+because the model is not trained to recall training data, it is doing
+autocomplete. Making shit up. And memorizing a lot of extra structural
+stuff. Exactly what we asked it to do.</p>
+<p>So, to fix these two things, we apply optimization pressure. We tell
+it to act like a helpful assistant, and we train on factual recall to
+make the information more accessible. There are lots and lots of
+competing ways to do this. Generally some sort of reinforcement
+learning.</p>
+<p>But it really is that easy.</p>
+<h3 id="i-knew-that.">I knew that.</h3>
+<p>Yeah. I know you know that.</p>
+<p>I think the deeper lesson here is that there is no magic. "We do
+pretraining and then we do instruct tuning and then we finetune and then
+we quantize" is a formula that works pretty well, but there is nothing
+special about it. You can rationalize why it works, but there is no
+proof that it's optimal, and I would be surprised if it was.</p>
+<p>There's also nothing particularly special about helpful assistants or
+factual recall. This is just the direction that the big labs have
+decided to pursue because it's useful, economically valuable, and
+marketable. Also having your own personal assistant is pretty cool. But
+there's an enitre world of alternative model personalities out there,
+unexplored.</p>
+<h2 id="datasets-skills-knowledge-practice-and-objectives.">Datasets,
+Skills, Knowledge, Practice, and Objectives.</h2>
+<p>Let's go back and re-read something. I said that internet data
+approximates "all human skills, knowledge, and practice."</p>
+<p>I don't think that these are the same thing. And I don't think it's
+obvious.</p>
+<p>The common narrative is that when you instruct tune a model, you can
+elicit the latent knowledge of the model even if that knowledge is not
+in the instruct tuning dataset. Assuming that the data is diverse
+enough, the model learns the general capability to recall knowledge that
+it saw in pretraining. It generalizes.</p>
+<p>This is True. It does do that. It does generalize. But not as well as
+if the pretraining data was actually in distribution. Doing synthetic
+data to reword your training data to question answer pairs and then
+instruct tuning on top of that is a way to improve your score on
+SimpleQA. The same factual data is being recalled, but it is more
+accessible in this format.</p>
+<p>Is this cheating? Benchmaxxing? Or just smart? I would say it's just
+smart. Some data formats are more amenable to capabilities crystalizing
+out of them than others. Why would you not take advantage of that?</p>
+<p>Suppose you want to reduce hallucinations. Why would you not rephrase
+your training data, or at least your finetuning data, to be more
+amenable to that? Build a dataset of unknowable things by generating
+questions from other pretraining data and filtering. Add refusals
+("sorry I'm a language model I don't know this") with diverse phrasing
+so it can get a sense for when to do so. Then finetune on this data.</p>
+<p>That works pretty well, but why not embed it deeper? Pretrain on it
+too. Then your finetuning will be easier.</p>
+<p>And likewise with RL. We have results that</p>
+<h2 id="outline">Outline</h2>
+<p>Over the past while I've been thinking about creative writing. I
+wrote an RL environment.</p>
+<p>Mixture of verifiable and nonverifiable tasks is good but can still
+hack part of the reward</p>
+<p>The importance of rollout diversity and different types of diversity
+(pass@k)</p>
+<p>Applying the right kind of optimization pressure versus applying a
+lot of it</p>
+</body>
+</html>
