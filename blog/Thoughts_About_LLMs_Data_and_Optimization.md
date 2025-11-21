@@ -56,7 +56,7 @@ Is this cheating? Benchmaxxing? Or just smart? I would say it's just smart. Some
 
 Suppose you want to reduce hallucinations. Why would you not rephrase your training data, or at least your finetuning data, to be more amenable to that? Build a dataset of unknowable things by generating questions from other pretraining data and filtering. Add refusals ("sorry I'm a language model I don't know this") with diverse phrasing so it can get a sense for when to do so. Then finetune on this data.
 
-That works pretty well, but why not embed it deeper? Pretrain on it too. Then your finetuning will be easier.
+That works pretty well, but why not embed it deeper? Pretrain on it too. Then eliciting that behavior will be easier when you optimize for it later.
 
 And likewise with RL. We have results that
 
