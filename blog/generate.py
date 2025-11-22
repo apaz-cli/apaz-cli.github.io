@@ -32,6 +32,7 @@ prog_posts = [
   "Descending_Into_The_Stack_And_Madness",
   "PerfWizard",
   "A_Treatise_On_ML_Data_Infrastructure",
+  "Thoughts_About_LLMs_Data_and_Optimization",
 ]
 nsfw_posts = [
   "Seduction",
