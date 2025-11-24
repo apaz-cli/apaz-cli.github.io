@@ -87,12 +87,8 @@ def generate_article(i, f):
 
     un = "_"
     sp = " "
-    run(
-        f'pandoc -s --metadata pagetitle="{title.replace(un, sp)}" -f markdown-smart -H {stylefile} {f} -o {to}'
-    )
-    run(
-        f'pandoc -s --metadata pagetitle="{title.replace(un, sp)}" -f markdown-smart {f} -o {unstyled}'
-    )
+    run(f'pandoc -s --metadata pagetitle="{title.replace(un, sp)}" -f markdown-smart -H {stylefile} {f} -o {to}')
+    run(f'pandoc -s --metadata pagetitle="{title.replace(un, sp)}" -f markdown-smart {f} -o {unstyled}')
 
     with open(to, "r+") as tmp:
         stxt = tmp.read()
