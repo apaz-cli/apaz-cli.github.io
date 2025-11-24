@@ -20,29 +20,35 @@ run = lambda s: subprocess.run(split(s), check=True)
 replace = "\s+.sourceCode {\s+background-color: transparent;\s+overflow: visible;\s+}"
 repwith = "\n    .sourceCode {\n      font-size: 20px;\n    }"
 
-# Categories
-prog_posts = [
-  "Hyperparameter_Heuristics",
-  "Cursed_Code_Collection",
-  "How_to_Write_a_Compiler_Without_Going_Insane",
-  "Safety_and_Correctness",
-  "LLM_Code_Optimization",
-  "The_Contributor_Competition",
-  "The_Craziest_Bug_I_Have_Ever_Witnessed",
-  "Descending_Into_The_Stack_And_Madness",
-  "PerfWizard",
-  "A_Treatise_On_ML_Data_Infrastructure",
-  "Thoughts_About_LLMs_Data_and_Optimization",
-]
-nsfw_posts = [
-  "Seduction",
-  "Revelations",
-]
-mirrored_posts = [
-  "rat",
-  "bml",
-  "khome",
-  "shirt",
+# Categories: list of (name, articles)
+categories = [
+  ("Programming", [
+    "Hyperparameter_Heuristics",
+    "Cursed_Code_Collection",
+    "How_to_Write_a_Compiler_Without_Going_Insane",
+    "Safety_and_Correctness",
+    "LLM_Code_Optimization",
+    "The_Contributor_Competition",
+    "The_Craziest_Bug_I_Have_Ever_Witnessed",
+    "Descending_Into_The_Stack_And_Madness",
+    "PerfWizard",
+    "A_Treatise_On_ML_Data_Infrastructure",
+    "Thoughts_About_LLMs_Data_and_Optimization",
+  ]),
+  ("SFW", [
+    "Grifters",
+    "Prompting",
+  ]),
+  ("NSFW", [
+    "Seduction",
+    "Revelations",
+  ]),
+  ("Mirrored", [
+    "rat",
+    "bml",
+    "khome",
+    "shirt",
+  ]),
 ]
 
 def get_title_from_html(f):
@@ -114,14 +120,20 @@ def gen_index():
 
     all_posts = sorted([(splitext(f)[0] + ".html", get_title_from_html(f)) for f in html_files])
 
-    categorize = lambda p: ("programming" if splitext(p[0])[0] in prog_posts else
-                           "nsfw" if splitext(p[0])[0] in nsfw_posts else
-                           "mirrored" if splitext(p[0])[0] in mirrored_posts else
-                           "sfw")
+    # Build lookup map from article name to category name
+    article_to_category = {}
+    for category_name, articles in categories:
+        for article in articles:
+            article_to_category[article] = category_name
 
-    cats = {"programming": [], "sfw": [], "nsfw": [], "mirrored": []}
+    # Categorize posts
+    categorized_posts = {category_name: [] for category_name, _ in categories}
+    categorized_posts["Other"] = []
+
     for post in all_posts:
-        cats[categorize(post)].append(post)
+        post_basename = splitext(post[0])[0]
+        category = article_to_category.get(post_basename, "Other")
+        categorized_posts[category].append(post)
 
     # Read CSS from pandoc.html
     css_content = ""
@@ -139,12 +151,21 @@ def gen_index():
     <img src="images/100439997_p0.jpg" style="display: block; margin: 0 auto;" height=400>
 """
 
-    for cat, posts in cats.items():
+    # Output categories in order, then "Other"
+    for category_name, _ in categories:
+        posts = categorized_posts[category_name]
         if posts:
-            idx_html += f"    <h2>{cat.upper()}</h2>\n    <ul>\n"
+            idx_html += f"    <h2>{category_name.upper()}</h2>\n    <ul>\n"
             for post_file, post_title in posts:
                 idx_html += f"        <li><a href=\"{post_file}\">{post_title}</a></li>\n"
             idx_html += "    </ul>\n"
+
+    # Output "Other" category if it has posts
+    if categorized_posts["Other"]:
+        idx_html += f"    <h2>OTHER</h2>\n    <ul>\n"
+        for post_file, post_title in categorized_posts["Other"]:
+            idx_html += f"        <li><a href=\"{post_file}\">{post_title}</a></li>\n"
+        idx_html += "    </ul>\n"
 
     idx_html += "</body>\n</html>"
 
