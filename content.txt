@@ -22,4 +22,5 @@ Arxiv           | https://arxiv.org/search/?searchtype=author&query=Pazdera%2C+A
 Email           | mailto:aarpazdera@gmail.com
 Linkedin        | https://www.linkedin.com/in/aaron-pazdera-b32155194/
 Discord (@apaz) | https://discord.com/channels/@me
+Twitter (X)     | https://x.com/apaz_cli
 ML Reading List | reading/
