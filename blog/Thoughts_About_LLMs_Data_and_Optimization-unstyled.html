@@ -66,6 +66,7 @@ decided to pursue because it's useful, economically valuable, and
 marketable. Also having your own personal assistant is genuinely pretty
 cool. It's the first thing I would build too. But there's an enitre
 world of alternative model personalities out there, unexplored.</p>
+<p><br></p>
 <h2 id="datasets-skills-knowledge-practice-and-objectives.">Datasets,
 Skills, Knowledge, Practice, and Objectives.</h2>
 <p>Let's go back and re-read something. I said that internet data
@@ -80,20 +81,24 @@ in the instruct tuning dataset. Assuming that the data is diverse
 enough, the model learns the general capability to recall knowledge that
 it saw in pretraining. It generalizes.</p>
 <p>This is True. It does do that. It does generalize. But not as well as
-if the pretraining data was actually in distribution. Doing synthetic
-data to reword your training data to question answer pairs and then
-instruct tuning on top of that is a way to improve your score on
+if the pretraining data was actually in distribution. For example, doing
+synthetic data to reword your training data to question answer pairs and
+then instruct tuning on top of that is a way to improve your score on
 SimpleQA. The same factual data is being recalled, but it is more
-accessible in this format.</p>
-<p>Is this cheating? Benchmaxxing? Or just smart? I would say it's just
-smart. Some data formats are more amenable to capabilities crystalizing
-out of them than others. Why would you not take advantage of that?</p>
+accessible in this format. The model doesn't have to work as hard to put
+two and two together from coincidental statistics.</p>
+<p>Or so I would rationalize. I am no interpretability expert.</p>
+<p><img src="images/synth_mf_hoe.png" width=500></p>
+<p>You may ask, is this cheating? Benchmaxxing? Or just smart? I would
+say it's just smart. Some data formats are more amenable to capabilities
+crystalizing out of them than others. Why would you not take advantage
+of that?</p>
 <p>Suppose you want to train a model that can do tool calling. I can bet
 you that your base model understands what a tool is. But there's
 basically no chance that your model is going to generate
 <code>&lt;tool_call&gt;[get_weather(city='San Francisco', metric='celsius'),]&lt;/tool_call&gt;</code>
 by accident. You need to prompt it to do so, and hope through in-context
-learning it generalizes. Which is probably will, some of the time.</p>
+learning it generalizes. Which it probably will, some of the time.</p>
 <p>You can use this to build a dataset. Generate tons of rollouts, and
 remove the ones that aren't sensible. If you want to learn to use
 arbitrary user-defined tools instead of specific ones, you're also going
@@ -104,21 +109,73 @@ reinforcement learning. Now that you have a model that can generate tool
 calls with some reasonable degree of consistency, you can tune it to
 make sure it actually generates good tool calls.</p>
 <p>The resulting model can then be used to generate tool use rollouts,
-and those rollouts can be filtered into a really nice dataset.</p>
-<p>Then you can build a pretraining dataset to do it again.</p>
+and those rollouts can be filtered into a really nice dataset. You can
+finetune on these, and it makes RL work a lot better.</p>
 <p>This is
 <a href="https://www.dbreunig.com/2025/07/30/how-kimi-was-post-trained-for-tool-use.html">what
 Kimi did for their tool calling post training</a>. But you can do this
 with just about any verifiable capability that you want to hill climb
 on.</p>
-<p>This is not to say that you can't do this for capabilities that are
-not verifiable.</p>
+<p><br></p>
+<h3 id="claim-1.-why-just-sft-go-back-to-pretraining.">Claim 1. Why just
+SFT? Go back to pretraining.</h3>
+<p>You have a bunch of data now, that looks like your target domain. So
+why not build a pretraining dataset? Pretrain on those filtered
+rollouts.</p>
+<p>There is <a href="https://arxiv.org/abs/2510.03264">evidence</a> that
+including some reasoning data in your base model, before the model is
+quenched, greatly benefits it in ways that SFT cannot replicate.</p>
+<p>I hypothesize that this has downstream benefits more domains than
+just baking in useful reasoning patterns. I think this probably works
+basically no matter what your objective is, whether you're using
+<code>&lt;think&gt;</code> tags or not. It would be really surprising to
+me if this were not the case. But needs testing.</p>
+<p>There's a limit to how much you can do this. If you retrain models on
+rollouts a bunch of times it will collapse in a sense. The rollouts that
+you get will probably stop being meaninfully unique in some way.</p>
+<p>Then again. If you trained multiple models to generate rollouts, each
+of which had different statistics, discovered different reasoning
+patterns, different solutions, were generated from different base
+models, maybe you could gain some performance in that way? You want high
+quality data diversity to train on, and maybe this is a way to make that
+happen. It could work.</p>
+<p>In the nearer term, I am more interested in answering questions that
+the Nvidia paper did not, such as "what is the roughly optimal
+proportion of reasoning data to include?" And, more generally, "what
+does the answer depend on?" I do not have a good intuition for how much
+it would depend on the task, versus model size or dataset statistics,
+versus the setting you want to optimize for, and the Nvidia paper
+referenced above does not explore this question.</p>
+<h3 id="claim-2.-generalization-beyond-objectives.">Claim 2.
+Generalization beyond objectives.</h3>
+<p>Deepseek R1 is somehow a general reasoner despite only being trained
+on math and code. There was a second more general RL phase also. But the
+ability to <code>&lt;think&gt;</code> is clearly a general skill that
+the model has learned to apply generally. I can ask it questions about
+poetry, endocrinology, niche Magic the Gathering interactions, stuff
+that it has almost certainly never seen before since pretraining, that
+no one would think to include in their RLFT dataset, and R1 can access
+that information and reason about it.</p>
+<p>The
+<a href="https://assets.anthropic.com/m/74342f2c96095771/original/Natural-emergent-misalignment-from-reward-hacking-paper.pdf">Anthropic
+reward hacking alignment generalization paper</a> is way more important
+than we think.</p>
+<h3
+id="claim-3.-this-also-works-for-arbitrary-non-verifiable-capabilities-with-less-predictable-results.">Claim
+3. This also works for arbitrary non-verifiable capabilities, with less
+predictable results.</h3>
+<p>You can do this on basically any capability. This includes
+capabilities that are not verifiable.</p>
 <p>Suppose you want to reduce hallucinations. Why would you not rephrase
 your training data, or at least your finetuning data, to be more
 amenable to that? Build a dataset of unknowable things by generating
 questions from other pretraining data and filtering. Add refusals
 ("sorry I'm a language model I don't know this") with diverse phrasing
 so it can get a sense for when to do so. Then finetune on this data.</p>
+<p>Or, you know, give the model access to a google search tool or
+whatever.</p>
+<p>But then you run into a sort of issue. Are you gonna finetune on...
+google search results? idk.</p>
 <p>That works pretty well, but why not embed it deeper? Pretrain on it
 too. Then eliciting that behavior will be easier when you optimize for
 it later.</p>
@@ -136,5 +193,6 @@ the reward</p>
 <p>Applying the right kind of optimization pressure versus applying a
 lot of it Compare pretraining (high bits per loss evaluation) to RL (low
 bits)</p>
+<p>Relation to RLP and the new XHS paper</p>
 </body>
 </html>
