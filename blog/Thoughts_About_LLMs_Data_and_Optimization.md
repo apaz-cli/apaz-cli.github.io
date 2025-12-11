@@ -93,20 +93,24 @@ In the nearer term, I am more interested in answering questions that the Nvidia 
 
 Deepseek R1 is somehow a general reasoner despite only being trained on math and code. There was a second more general RL phase also. But the ability to `<think>` is clearly a general skill that the model has learned to apply generally. I can ask it questions about poetry, endocrinology, niche Magic the Gathering interactions, stuff that it has almost certainly never seen before since pretraining, that no one would think to include in their RLFT dataset, and R1 can access that information and reason about it.
 
-The <a href="https://assets.anthropic.com/m/74342f2c96095771/original/Natural-emergent-misalignment-from-reward-hacking-paper.pdf">Anthropic reward hacking alignment generalization paper</a> is way more important than we think.
+The <a href="https://assets.anthropic.com/m/74342f2c96095771/original/Natural-emergent-misalignment-from-reward-hacking-paper.pdf">Anthropic reward hacking alignment generalization paper</a> is probably way more important than we think.
 
 
-### Claim 3. This also works for arbitrary non-verifiable capabilities, with less predictable results.
+### Claim 3. This also works for arbitrary non-verifiable capabilities.
 
 You can do this on basically any capability. This includes capabilities that are not verifiable.
 
-Suppose you want to reduce hallucinations. Why would you not rephrase your training data, or at least your finetuning data, to be more amenable to that? Build a dataset of unknowable things by generating questions from other pretraining data and filtering. Add refusals ("sorry I'm a language model I don't know this") with diverse phrasing so it can get a sense for when to do so. Then finetune on this data.
+Suppose you want to reduce hallucinations. Why would you not rephrase your training data, or at least your finetuning data, to be more amenable to that? Build a dataset of unknowable things by generating questions from other pretraining data and filtering. Add refusals ("sorry I'm a language model I don't know this") with diverse phrasing so it can get a sense for when to do so. And/Or give the model access to a search tool or whatever. Generate a bunch of rollouts, filter them with an LLM, then finetune on this data. The result is a model that's hopefully less likely to lead users astray.
 
-Or, you know, give the model access to a google search tool or whatever.
+But like... consider the results of the Anthropic paper. We're putting arbitrary search results into the pretraining data now. What is that gonna do? Eh. I don't know. Nobody really knows why it happens or what the full extent of the downstream effects will be. We postulate that it occurs because the model associates these concepts, reward hacking is evil, we are rewarding the hacking, so we should be evil. When we 
 
-But then you run into a sort of issue. Are you gonna finetune on... google search results? idk.
 
-That works pretty well, but why not embed it deeper? Pretrain on it too. Then eliciting that behavior will be easier when you optimize for it later.
+
+
+
+
+
+This works pretty well, but why not embed it deeper? Pretrain on it too. Then eliciting that behavior will be easier when you optimize for it later.
 
 And likewise with RL. We have results that
 
