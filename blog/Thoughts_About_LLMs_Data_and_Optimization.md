@@ -19,7 +19,7 @@ You may disagree with me over matters of opinion, or of framing, or of fact. Ple
 
 With that out of the way, time to spew the most asanine and disorganized non-arguments imaginable. I will not cite sources or substantiate my claims with evidence. I will get things wrong. I will not apologize.
 
-So here are some thoughts. Some vibes.
+So here are some thoughts. Some thoroughly mixed metaphors. Some vibes.
 
 ## Yeah, it's that easy.
 
@@ -59,7 +59,7 @@ Or so I would rationalize. I am no interpretability expert.
 
 <img src="images/synth_mf_hoe.png" width=500>
 
-You may ask, is this cheating? Benchmaxxing? Or just smart? I would say it's just smart. Some data formats are more amenable to capabilities crystalizing out of them than others. Why would you not take advantage of that?
+You may ask, is training on rephrased data cheating? Benchmaxxing? Or just smart? I would say it's just smart. Some data formats are more amenable to capabilities crystalizing out of them than others. Why would you not take advantage of that?
 
 Suppose you want to train a model that can do tool calling. I can bet you that your base model understands what a tool is. But there's basically no chance that your model is going to generate `<tool_call>[get_weather(city='San Francisco', metric='celsius'),]</tool_call>` by accident. You need to prompt it to do so, and hope through in-context learning it generalizes. Which it probably will, some of the time.
 
@@ -82,16 +82,16 @@ There is <a href="https://arxiv.org/abs/2510.03264">evidence</a> that including 
 I hypothesize that this has downstream benefits more domains than just baking in useful reasoning patterns. I think this probably works basically no matter what your objective is, whether you're using `<think>` tags or not. It would be really surprising to me if this were not the case. But needs testing.
 
 
-There's a limit to how much you can do this. If you retrain models on rollouts a bunch of times it will collapse in a sense. The rollouts that you get will probably stop being meaninfully unique in some way. 
+There's a limit to how much you can do this. If you retrain models on rollouts a bunch of times it probably collapse in a sense. The rollouts that you get will probably stop being meaninfully unique in some way. 
 
 Then again. If you trained multiple models to generate rollouts, each of which had different statistics, discovered different reasoning patterns, different solutions, were generated from different base models, maybe you could gain some performance in that way? You want high quality data diversity to train on, and maybe this is a way to make that happen. It could work.
 
-In the nearer term, I am more interested in answering questions that the Nvidia paper did not, such as "what is the roughly optimal proportion of reasoning data to include?" And, more generally, "what does the answer depend on?" I do not have a good intuition for how much it would depend on the task, versus model size or dataset statistics, versus the setting you want to optimize for, and the Nvidia paper referenced above does not explore this question.
+In the nearer term, I am more interested in answering questions that the Nvidia paper did not, such as "what is the roughly optimal proportion of reasoning data to include?" And, more generally, "what does the answer depend on?" I do not have a good intuition for how much it would depend on the task, versus model size or dataset statistics, versus the setting you want to optimize for, versus how much you quenched the model, and the Nvidia paper referenced above does not explore this question.
 
 
 ### Claim 2. Generalization beyond objectives.
 
-Deepseek R1 is somehow a general reasoner despite only being trained on math and code. There was a second more general RL phase also. But the ability to `<think>` is clearly a general skill that the model has learned to apply generally. I can ask it questions about poetry, endocrinology, niche Magic the Gathering interactions, stuff that it has almost certainly never seen before since pretraining, that no one would think to include in their RLFT dataset, and R1 can access that information and reason about it.
+Deepseek R1 is somehow a general reasoner despite only being trained on math and code. There was a second more general RL phase also. But the ability to `<think>` is clearly a general skill that the model has learned to apply generally. I can ask it questions about poetry, endocrinology, niche Magic the Gathering interactions, and stuff that it has almost certainly never seen before since pretraining, that no one would think to include in their RLFT dataset, and R1 can access that information and reason about it.
 
 The <a href="https://assets.anthropic.com/m/74342f2c96095771/original/Natural-emergent-misalignment-from-reward-hacking-paper.pdf">Anthropic reward hacking alignment generalization paper</a> is probably way more important than we think.
 
@@ -137,3 +137,49 @@ Compare pretraining (high bits per loss evaluation) to RL (low bits)
 
 
 Relation to RLP and the new XHS paper
+
+
+
+
+Revisions:
+
+Fix this. What is *this*?
+
+You may ask, is this cheating? Benchmaxxing?
+
+
+
+All of ML is just mixed metaphors.
+
+
+
+Sometime Goodhart's law doesn't apply. Sometimes a measure is just a 
+
+good measure even if you benchmaxx.
+
+
+
+Finetuning on this dataset yields a model more amenable to reinforcement learning. Now that you have a model that can generate tool calls with some reasonable degree of consistency, you can tune it to make sure it actually generates good tool calls.
+
+
+
+The resulting model can then be used to generate tool use rollouts, and those rollouts can be filtered into a really nice dataset. You can finetune on these, and it makes RL work a lot better.
+
+
+
+Training is training.
+
+
+
+Make a stronger point about think tags versus rl, because they are not the same and one does not imply the other.
+
+
+
+Does LR decay quenching remove the degrees of freedom required by RL?
+
+
+
+Review:
+
+https://x.com/DhruvBatra_/status/2001009781960794448
+

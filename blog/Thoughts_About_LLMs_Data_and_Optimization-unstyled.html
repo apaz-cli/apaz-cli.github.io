@@ -28,7 +28,8 @@ perhaps others, to understanding, faster than saying nothing at all.</p>
 disorganized non-arguments imaginable. I will not cite sources or
 substantiate my claims with evidence. I will get things wrong. I will
 not apologize.</p>
-<p>So here are some thoughts. Some vibes.</p>
+<p>So here are some thoughts. Some thoroughly mixed metaphors. Some
+vibes.</p>
 <h2 id="yeah-its-that-easy.">Yeah, it's that easy.</h2>
 <p>You select a metric and you apply optimization pressure. On suitable
 data.</p>
@@ -89,10 +90,10 @@ accessible in this format. The model doesn't have to work as hard to put
 two and two together from coincidental statistics.</p>
 <p>Or so I would rationalize. I am no interpretability expert.</p>
 <p><img src="images/synth_mf_hoe.png" width=500></p>
-<p>You may ask, is this cheating? Benchmaxxing? Or just smart? I would
-say it's just smart. Some data formats are more amenable to capabilities
-crystalizing out of them than others. Why would you not take advantage
-of that?</p>
+<p>You may ask, is training on rephrased data cheating? Benchmaxxing? Or
+just smart? I would say it's just smart. Some data formats are more
+amenable to capabilities crystalizing out of them than others. Why would
+you not take advantage of that?</p>
 <p>Suppose you want to train a model that can do tool calling. I can bet
 you that your base model understands what a tool is. But there's
 basically no chance that your model is going to generate
@@ -131,8 +132,9 @@ basically no matter what your objective is, whether you're using
 <code>&lt;think&gt;</code> tags or not. It would be really surprising to
 me if this were not the case. But needs testing.</p>
 <p>There's a limit to how much you can do this. If you retrain models on
-rollouts a bunch of times it will collapse in a sense. The rollouts that
-you get will probably stop being meaninfully unique in some way.</p>
+rollouts a bunch of times it probably collapse in a sense. The rollouts
+that you get will probably stop being meaninfully unique in some
+way.</p>
 <p>Then again. If you trained multiple models to generate rollouts, each
 of which had different statistics, discovered different reasoning
 patterns, different solutions, were generated from different base
@@ -144,15 +146,16 @@ the Nvidia paper did not, such as "what is the roughly optimal
 proportion of reasoning data to include?" And, more generally, "what
 does the answer depend on?" I do not have a good intuition for how much
 it would depend on the task, versus model size or dataset statistics,
-versus the setting you want to optimize for, and the Nvidia paper
-referenced above does not explore this question.</p>
+versus the setting you want to optimize for, versus how much you
+quenched the model, and the Nvidia paper referenced above does not
+explore this question.</p>
 <h3 id="claim-2.-generalization-beyond-objectives.">Claim 2.
 Generalization beyond objectives.</h3>
 <p>Deepseek R1 is somehow a general reasoner despite only being trained
 on math and code. There was a second more general RL phase also. But the
 ability to <code>&lt;think&gt;</code> is clearly a general skill that
 the model has learned to apply generally. I can ask it questions about
-poetry, endocrinology, niche Magic the Gathering interactions, stuff
+poetry, endocrinology, niche Magic the Gathering interactions, and stuff
 that it has almost certainly never seen before since pretraining, that
 no one would think to include in their RLFT dataset, and R1 can access
 that information and reason about it.</p>
@@ -199,5 +202,26 @@ the reward</p>
 lot of it Compare pretraining (high bits per loss evaluation) to RL (low
 bits)</p>
 <p>Relation to RLP and the new XHS paper</p>
+<p>Revisions:</p>
+<p>Fix this. What is <em>this</em>?</p>
+<p>You may ask, is this cheating? Benchmaxxing?</p>
+<p>All of ML is just mixed metaphors.</p>
+<p>Sometime Goodhart's law doesn't apply. Sometimes a measure is just
+a</p>
+<p>good measure even if you benchmaxx.</p>
+<p>Finetuning on this dataset yields a model more amenable to
+reinforcement learning. Now that you have a model that can generate tool
+calls with some reasonable degree of consistency, you can tune it to
+make sure it actually generates good tool calls.</p>
+<p>The resulting model can then be used to generate tool use rollouts,
+and those rollouts can be filtered into a really nice dataset. You can
+finetune on these, and it makes RL work a lot better.</p>
+<p>Training is training.</p>
+<p>Make a stronger point about think tags versus rl, because they are
+not the same and one does not imply the other.</p>
+<p>Does LR decay quenching remove the degrees of freedom required by
+RL?</p>
+<p>Review:</p>
+<p>https://x.com/DhruvBatra_/status/2001009781960794448</p>
 </body>
 </html>
