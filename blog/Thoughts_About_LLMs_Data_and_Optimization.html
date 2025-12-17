@@ -284,7 +284,7 @@ not apologize.</p>
 vibes.</p>
 <h2 id="yeah-its-that-easy.">Yeah, it's that easy.</h2>
 <p>You select a metric and you apply optimization pressure. On suitable
-data.</p>
+data. Training is training.</p>
 <p>For LLM pretraining, this metric is next token prediction on internet
 data, which approximates compression of all human skills, knowledge, and
 practice. Or at least all of it that's on the internet. By definition
@@ -383,10 +383,17 @@ just baking in useful reasoning patterns. I think this probably works
 basically no matter what your objective is, whether you're using
 <code>&lt;think&gt;</code> tags or not. It would be really surprising to
 me if this were not the case. But needs testing.</p>
-<p>There's a limit to how much you can do this. If you retrain models on
-rollouts a bunch of times it probably collapse in a sense. The rollouts
-that you get will probably stop being meaninfully unique in some
-way.</p>
+<p>A very notable point that I feel compelled to make is that
+<code>&lt;think&gt;</code>ing is not RL, and RL is not
+<code>&lt;think&gt;</code>ing. Surely they are related in some
+meaningful sense, but you can do RL without think tags and vice-versa.
+Preference optimization is indeed generally a form of online or offline
+RL that does not involve think tags, and you can optimize for
+anything.</p>
+<p>Anyway, there's a limit to how much you can pretrain on your own
+prechewed and regurgitated rollouts. If you retrain models on rollouts a
+bunch of times it probably collapse in a sense. The rollouts that you
+get will probably stop being meaninfully unique in some way.</p>
 <p>Then again. If you trained multiple models to generate rollouts, each
 of which had different statistics, discovered different reasoning
 patterns, different solutions, were generated from different base
@@ -414,12 +421,20 @@ that information and reason about it.</p>
 <p>The
 <a href="https://assets.anthropic.com/m/74342f2c96095771/original/Natural-emergent-misalignment-from-reward-hacking-paper.pdf">Anthropic
 reward hacking alignment generalization paper</a> is probably way more
-important than we think.</p>
+important than we think. If you pull on one thing in concept space,
+other related things tend to follow. When I consider this, plus the I
+think there's a solid chance that this implies that it's possible
+through RL to learn capabilities and behaviors we don't understand
+yet.</p>
+<p>With that said, to get RL to "work" you still need to make sure those
+things are actually expressed in the rollouts. Which means the patterns
+already have to be there. And then there is still a lot of understanding
+of how the model is changing to be gained from reading rollouts.</p>
 <h3
 id="claim-3.-this-also-works-for-arbitrary-non-verifiable-capabilities.">Claim
 3. This also works for arbitrary non-verifiable capabilities.</h3>
-<p>You can do this on basically any capability. This includes
-capabilities that are not verifiable.</p>
+<p>You can pretrain on rollouts for basically any capability. This
+includes capabilities that are not verifiable.</p>
 <p>Suppose you want to reduce hallucinations. Why would you not rephrase
 your training data, or at least your finetuning data, to be more
 amenable to that? Build a dataset of unknowable things by generating
@@ -440,7 +455,8 @@ When we</p>
 too. Then eliciting that behavior will be easier when you optimize for
 it later.</p>
 <p>And likewise with RL. We have results that</p>
-<h2 id="stuff-to-touch-on">Stuff to touch on</h2>
+<h2 id="revisions-and-stuff-to-touch-on">Revisions and stuff to touch
+on</h2>
 <p>Generalization, friend and foe. * Weird in-distribution orthogonal
 data is best * Anthropic reward hacking alignment generalization results
 * The importance of rollout diversity and different types of questions
@@ -454,13 +470,9 @@ the reward</p>
 lot of it Compare pretraining (high bits per loss evaluation) to RL (low
 bits)</p>
 <p>Relation to RLP and the new XHS paper</p>
-<p>Revisions:</p>
-<p>Fix this. What is <em>this</em>?</p>
-<p>You may ask, is this cheating? Benchmaxxing?</p>
-<p>All of ML is just mixed metaphors.</p>
-<p>Sometime Goodhart's law doesn't apply. Sometimes a measure is just
-a</p>
-<p>good measure even if you benchmaxx.</p>
+<p>Mention that all of ML is just mixed metaphors.</p>
+<p>Sometime Goodhart's law doesn't apply. Sometimes a measure is just a
+good measure even if you optimize for it as hard as possible.</p>
 <p>Finetuning on this dataset yields a model more amenable to
 reinforcement learning. Now that you have a model that can generate tool
 calls with some reasonable degree of consistency, you can tune it to
@@ -468,7 +480,6 @@ make sure it actually generates good tool calls.</p>
 <p>The resulting model can then be used to generate tool use rollouts,
 and those rollouts can be filtered into a really nice dataset. You can
 finetune on these, and it makes RL work a lot better.</p>
-<p>Training is training.</p>
 <p>Make a stronger point about think tags versus rl, because they are
 not the same and one does not imply the other.</p>
 <p>Does LR decay quenching remove the degrees of freedom required by

@@ -23,7 +23,7 @@ So here are some thoughts. Some thoroughly mixed metaphors. Some vibes.
 
 ## Yeah, it's that easy.
 
-You select a metric and you apply optimization pressure. On suitable data.
+You select a metric and you apply optimization pressure. On suitable data. Training is training.
 
 For LLM pretraining, this metric is next token prediction on internet data, which approximates compression of all human skills, knowledge, and practice. Or at least all of it that's on the internet. By definition this gets you basically everything you want. Lots and lots of long tail knowledge.
 
@@ -81,8 +81,10 @@ There is <a href="https://arxiv.org/abs/2510.03264">evidence</a> that including 
 
 I hypothesize that this has downstream benefits more domains than just baking in useful reasoning patterns. I think this probably works basically no matter what your objective is, whether you're using `<think>` tags or not. It would be really surprising to me if this were not the case. But needs testing.
 
+A very notable point that I feel compelled to make is that `<think>`ing is not RL, and RL is not `<think>`ing. Surely they are related in some meaningful sense, but you can do RL without think tags and vice-versa. Preference optimization is indeed generally a form of online or offline RL that does not involve think tags, and you can optimize for anything.
 
-There's a limit to how much you can do this. If you retrain models on rollouts a bunch of times it probably collapse in a sense. The rollouts that you get will probably stop being meaninfully unique in some way. 
+
+Anyway, there's a limit to how much you can pretrain on your own prechewed and regurgitated rollouts. If you retrain models on rollouts a bunch of times it probably collapse in a sense. The rollouts that you get will probably stop being meaninfully unique in some way. 
 
 Then again. If you trained multiple models to generate rollouts, each of which had different statistics, discovered different reasoning patterns, different solutions, were generated from different base models, maybe you could gain some performance in that way? You want high quality data diversity to train on, and maybe this is a way to make that happen. It could work.
 
@@ -93,12 +95,14 @@ In the nearer term, I am more interested in answering questions that the Nvidia 
 
 Deepseek R1 is somehow a general reasoner despite only being trained on math and code. There was a second more general RL phase also. But the ability to `<think>` is clearly a general skill that the model has learned to apply generally. I can ask it questions about poetry, endocrinology, niche Magic the Gathering interactions, and stuff that it has almost certainly never seen before since pretraining, that no one would think to include in their RLFT dataset, and R1 can access that information and reason about it.
 
-The <a href="https://assets.anthropic.com/m/74342f2c96095771/original/Natural-emergent-misalignment-from-reward-hacking-paper.pdf">Anthropic reward hacking alignment generalization paper</a> is probably way more important than we think.
+The <a href="https://assets.anthropic.com/m/74342f2c96095771/original/Natural-emergent-misalignment-from-reward-hacking-paper.pdf">Anthropic reward hacking alignment generalization paper</a> is probably way more important than we think. If you pull on one thing in concept space, other related things tend to follow. When I consider this, plus the I think there's a solid chance that this implies that it's possible through RL to learn capabilities and behaviors we don't understand yet.
+
+With that said, to get RL to "work" you still need to make sure those things are actually expressed in the rollouts. Which means the patterns already have to be there. And then there is still a lot of understanding of how the model is changing to be gained from reading rollouts.
 
 
 ### Claim 3. This also works for arbitrary non-verifiable capabilities.
 
-You can do this on basically any capability. This includes capabilities that are not verifiable.
+You can pretrain on rollouts for basically any capability. This includes capabilities that are not verifiable.
 
 Suppose you want to reduce hallucinations. Why would you not rephrase your training data, or at least your finetuning data, to be more amenable to that? Build a dataset of unknowable things by generating questions from other pretraining data and filtering. Add refusals ("sorry I'm a language model I don't know this") with diverse phrasing so it can get a sense for when to do so. And/Or give the model access to a search tool or whatever. Generate a bunch of rollouts, filter them with an LLM, then finetune on this data. The result is a model that's hopefully less likely to lead users astray.
 
@@ -118,7 +122,7 @@ And likewise with RL. We have results that
 
 
 
-## Stuff to touch on
+## Revisions and stuff to touch on
 
 
 Generalization, friend and foe.
@@ -139,23 +143,11 @@ Compare pretraining (high bits per loss evaluation) to RL (low bits)
 Relation to RLP and the new XHS paper
 
 
-
-
-Revisions:
-
-Fix this. What is *this*?
-
-You may ask, is this cheating? Benchmaxxing?
+Mention that all of ML is just mixed metaphors.
 
 
 
-All of ML is just mixed metaphors.
-
-
-
-Sometime Goodhart's law doesn't apply. Sometimes a measure is just a 
-
-good measure even if you benchmaxx.
+Sometime Goodhart's law doesn't apply. Sometimes a measure is just a good measure even if you optimize for it as hard as possible.
 
 
 
@@ -164,10 +156,6 @@ Finetuning on this dataset yields a model more amenable to reinforcement learnin
 
 
 The resulting model can then be used to generate tool use rollouts, and those rollouts can be filtered into a really nice dataset. You can finetune on these, and it makes RL work a lot better.
-
-
-
-Training is training.
 
 
 
