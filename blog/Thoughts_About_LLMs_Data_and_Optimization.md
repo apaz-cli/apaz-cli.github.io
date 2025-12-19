@@ -73,11 +73,11 @@ This is <a href="https://www.dbreunig.com/2025/07/30/how-kimi-was-post-trained-f
 
 <br>
 
-### Claim 1. Why just SFT? Go back to pretraining.
+### Claim 1. Why just SFT? Pretrain on rollouts.
 
 You have a bunch of data now, that looks like your target domain. So why not build a pretraining dataset? Pretrain on those filtered rollouts.
 
-There is <a href="https://arxiv.org/abs/2510.03264">evidence</a> that including some reasoning data in your base model, before the model is quenched, greatly benefits it in ways that SFT cannot replicate.
+There is <a href="https://arxiv.org/abs/2510.03264">evidence</a> that including some reasoning data in your base model, before the model is quenched, greatly benefits it in ways that SFT cannot replicate. I phrased it as a claim, but Nvidia has sort of proven it already.
 
 I hypothesize that this has downstream benefits more domains than just baking in useful reasoning patterns. I think this probably works basically no matter what your objective is, whether you're using `<think>` tags or not. It would be really surprising to me if this were not the case. But needs testing.
 
@@ -102,7 +102,7 @@ With that said, to get RL to "work" you still need to make sure those things are
 
 ### Claim 3. This also works for arbitrary non-verifiable capabilities.
 
-You can pretrain on rollouts for basically any capability. This includes capabilities that are not verifiable.
+You can pretrain on rollouts for basically any capability. This includes capabilities that are not verifiable. This produces even better rollouts, 
 
 Suppose you want to reduce hallucinations. Why would you not rephrase your training data, or at least your finetuning data, to be more amenable to that? Build a dataset of unknowable things by generating questions from other pretraining data and filtering. Add refusals ("sorry I'm a language model I don't know this") with diverse phrasing so it can get a sense for when to do so. And/Or give the model access to a search tool or whatever. Generate a bunch of rollouts, filter them with an LLM, then finetune on this data. The result is a model that's hopefully less likely to lead users astray.
 
