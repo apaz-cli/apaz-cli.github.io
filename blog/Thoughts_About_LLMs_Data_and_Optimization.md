@@ -106,38 +106,8 @@ Another thought. The <a href="https://assets.anthropic.com/m/74342f2c96095771/or
 For this reason and others, developing fast automated interpretability tools to monitor RL training runs as they are progressing seems prudent. Another thing to look into, which I have seen no real movement on in OSS.
 
 
-## Revisions and stuff to touch on
+# Clonclusion?
 
-Over the past while I've been thinking about creative writing. I wrote an RL environment.
+IDK. Those were some thoughts and potential research directions. Consider this part one of two.
 
-Applying the right kind of optimization pressure versus applying a lot of it
-Compare pretraining (high bits per loss evaluation) to RL (low bits)
-
-Sometimes Goodhart's law doesn't apply. Sometimes a measure is just a good measure even if you optimize for it as hard as possible.
-
-Questions in training a good base model:
-* Does LR decay quenching remove the degrees of freedom required by RL?
-* In pretrain, conventional wisdom is that lots of weird in-distribution orthogonal data is best. I don't see any reason why this wouldn't transfer to rollouts as well.
-* How hard should you quench?
-* The importance of rollout diversity and different types of questions for retaining (pass@k) which is different than but probably correlated with generalization.
-
-Relationship to RLP
-* RLP/RLPT
- * Focal loss
- * XHS paper
-
-Entropy collapse/pass@k
-* https://x.com/AdtRaghunathan/status/2001743378308894982
-* Rollout diversity is probably important for generalization?
-
-Relationship to self-play
-* A diversity collapse in the questions it asks itself needs to be solved with filtered seed data
-* If I were to guess to make self
-* Benchmark for self play?
-
-Review:
-
-https://x.com/DhruvBatra_/status/2001009781960794448
-
-"On the interplay between pretraining and RL"
-
+Next time I will talk about the relationship between this and entropy and RLP and self play and some more research idea vomit.
