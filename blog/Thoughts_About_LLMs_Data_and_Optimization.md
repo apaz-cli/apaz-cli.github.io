@@ -15,11 +15,11 @@ First you select a metric. You acquire suitable data. Then you apply optimizatio
 
 I'm not writing this for you, necessarily. I mean, I am. There's a reason you're reading this. But mostly I'm writing this for me. I am attempting to think from first principles, and organize my thoughts.
 
-You may disagree with me over matters of opinion, or of framing, or of fact. Please shout your disagreements at me. In the words of Zach de la Rocha, if ignorance is bliss, then knock the smile off my face. Raising wrong opinions and getting publicly corrected will lead me, and perhaps others, to understanding, faster than saying nothing at all.
+You may disagree with me over matters of opinion, or of framing, or of fact. Please shout your disagreements at me. You will have disagreements. And, in the words of Zach de la Rocha, if ignorance is bliss, then knock the smile off my face. Raising wrong opinions and getting publicly corrected will lead me, and perhaps others, to understanding, faster than saying nothing at all.
 
 With that out of the way, time to spew the most asanine and disorganized non-arguments imaginable. I will not cite sources or substantiate my claims with evidence. I will get things wrong. I will not apologize.
 
-So here are some thoughts. Some thoroughly mixed metaphors. Some vibes.
+So here are some thoughts. Some thoroughly mixed metaphors. Wrongful terminology. Some vibes.
 
 ## Yeah, it's that easy.
 
@@ -63,7 +63,7 @@ You may ask, is training on rephrased data cheating? Benchmaxxing? Or just smart
 
 Suppose you want to train a model that can do tool calling. I can bet you that your base model understands what a tool is. But there's basically no chance that your model is going to generate `<tool_call>[get_weather(city='San Francisco', metric='celsius'),]</tool_call>` by accident. You need to prompt it to do so, and hope through in-context learning it generalizes. Which it probably will, some of the time.
 
-You can use this to build a dataset. Generate tons of rollouts, and remove the ones that aren't sensible. If you want to learn to use arbitrary user-defined tools instead of specific ones, you're also going to need to build a dataset of tools, and validate them to make sure they actually work.
+You can use this to build a new dataset. Generate tons of rollouts, and remove the ones that aren't sensible. If you want to learn to use arbitrary user-defined tools instead of specific ones, you're also going to need to build a dataset of tools, and validate them to make sure they actually work.
 
 Finetuning on this dataset yields a model more amenable to reinforcement learning. Now that you have a model that can generate tool calls with some reasonable degree of consistency, you can tune it to make sure it actually generates good tool calls.
 
@@ -75,100 +75,69 @@ This is <a href="https://www.dbreunig.com/2025/07/30/how-kimi-was-post-trained-f
 
 ### Claim 1. Why just SFT? Pretrain on rollouts.
 
-You have a bunch of data now, that looks like your target domain. So why not build a pretraining dataset? Pretrain on those filtered rollouts.
+You have a bunch of data now, that looks like your target domain. So why not build a pretraining dataset? Pretrain on those filtered rollouts. Then when you do RL the outputs will already look more like these trajectories.
 
-There is <a href="https://arxiv.org/abs/2510.03264">evidence</a> that including some reasoning data in your base model, before the model is quenched, greatly benefits it in ways that SFT cannot replicate. I phrased it as a claim, but Nvidia has sort of proven it already.
+There is evidence <a href="https://arxiv.org/abs/2510.03264">from an nvidia paper</a> that including some reasoning data in your base model, before the model is quenched, greatly benefits it in ways that SFT cannot replicate.
 
 I hypothesize that this has downstream benefits more domains than just baking in useful reasoning patterns. I think this probably works basically no matter what your objective is, whether you're using `<think>` tags or not. It would be really surprising to me if this were not the case. But needs testing.
 
 A very notable point that I feel compelled to make is that `<think>`ing is not RL, and RL is not `<think>`ing. Surely they are related in some meaningful sense, but you can do RL without think tags and vice-versa. Preference optimization is indeed generally a form of online or offline RL that does not involve think tags, and you can optimize for anything.
 
 
-Anyway, there's a limit to how much you can pretrain on your own prechewed and regurgitated rollouts. If you retrain models on rollouts a bunch of times it probably collapse in a sense. The rollouts that you get will probably stop being meaninfully unique in some way. 
+Anyway, there's a limit to how much you can pretrain on your own prechewed and regurgitated rollouts. If you retrain models on rollouts a bunch of times it probably collapse in a sense. The rollouts that you get will probably stop being meaninfully unique in some way.
 
-Then again. If you trained multiple models to generate rollouts, each of which had different statistics, discovered different reasoning patterns, different solutions, were generated from different base models, maybe you could gain some performance in that way? You want high quality data diversity to train on, and maybe this is a way to make that happen. It could work.
+Then again. If you trained multiple models to generate rollouts, each of which had different statistics, discovered different reasoning patterns, different solutions, were generated from different base models, maybe you could gain some performance in that way? You want high quality data diversity to train on, and maybe this is a way to make that happen. It could work. I presume that the best base models for RL are trained on as diverse of rollouts as possible. Worth looking into the data diversity question.
 
 In the nearer term, I am more interested in answering questions that the Nvidia paper did not, such as "what is the roughly optimal proportion of reasoning data to include?" And, more generally, "what does the answer depend on?" I do not have a good intuition for how much it would depend on the task, versus model size or dataset statistics, versus the setting you want to optimize for, versus how much you quenched the model, and the Nvidia paper referenced above does not explore this question.
 
-
-### Claim 2. Generalization beyond objectives.
-
-Deepseek R1 is somehow a general reasoner despite only being trained on math and code. There was a second more general RL phase also. But the ability to `<think>` is clearly a general skill that the model has learned to apply generally. I can ask it questions about poetry, endocrinology, niche Magic the Gathering interactions, and stuff that it has almost certainly never seen before since pretraining, that no one would think to include in their RLFT dataset, and R1 can access that information and reason about it.
-
-The <a href="https://assets.anthropic.com/m/74342f2c96095771/original/Natural-emergent-misalignment-from-reward-hacking-paper.pdf">Anthropic reward hacking alignment generalization paper</a> is probably way more important than we think. If you pull on one thing in concept space, other related things tend to follow. When I consider this, plus the I think there's a solid chance that this implies that it's possible through RL to learn capabilities and behaviors we don't understand yet.
-
-With that said, to get RL to "work" you still need to make sure those things are actually expressed in the rollouts. Which means the patterns already have to be there. And then there is still a lot of understanding of how the model is changing to be gained from reading rollouts.
+There's a lot of data experiments and ablations to do here. Lots of basic questions not answered yet.
 
 
-### Claim 3. This also works for arbitrary non-verifiable capabilities.
+### Claim 2. Generalization across and beyond objectives.
 
-You can pretrain on rollouts for basically any capability. This includes capabilities that are not verifiable. This produces even better rollouts, 
+I can ask Deepseek R1 multi-step questions about poetry, endocrinology, niche Magic the Gathering interactions, and stuff that I know for a fact it has not seen before.
 
-Suppose you want to reduce hallucinations. Why would you not rephrase your training data, or at least your finetuning data, to be more amenable to that? Build a dataset of unknowable things by generating questions from other pretraining data and filtering. Add refusals ("sorry I'm a language model I don't know this") with diverse phrasing so it can get a sense for when to do so. And/Or give the model access to a search tool or whatever. Generate a bunch of rollouts, filter them with an LLM, then finetune on this data. The result is a model that's hopefully less likely to lead users astray.
+I find it interesting that this is the case. We know that the edits made my RL training are low rank, and that explains a lot of it, and they did a second phase of RL question answering on more normal-looking instruction tuning data. But but the ability to `<think>` is clearly a general capability that the model has learned to apply more generally. The math/logic/code RL taught it to do multi-step reasoning, and the RLFT helped it generalize.
 
-But like... consider the results of the Anthropic paper. We're putting arbitrary search results into the pretraining data now. What is that gonna do? Eh. I don't know. Nobody really knows why it happens or what the full extent of the downstream effects will be. We postulate that it occurs because the model associates these concepts, reward hacking is evil, we are rewarding the hacking, so we should be evil. When we 
+The interplay here is interesting. It is a transfer of capabilities across objectives. It makes me wonder what else you can do. There are probably experiments to be done here. And experiments to be done on how best to incorporate the rollouts back into a pretraining dataset.
 
+Another thought. The <a href="https://assets.anthropic.com/m/74342f2c96095771/original/Natural-emergent-misalignment-from-reward-hacking-paper.pdf">Anthropic reward hacking alignment generalization paper</a> is probably way more important than we understand yet. If you pull on one thing in concept space, other related things tend to follow. When I consider this, plus the I think there's a solid chance that this implies that it's possible through RL to learn capabilities and behaviors we don't understand yet, and this may transfer across objectives in ways we don't understand yet.
 
-
-
-
-
-
-This works pretty well, but why not embed it deeper? Pretrain on it too. Then eliciting that behavior will be easier when you optimize for it later.
-
-And likewise with RL. We have results that
-
-
-
+For this reason and others, developing fast automated interpretability tools to monitor RL training runs as they are progressing seems prudent. Another thing to look into, which I have seen no real movement on in OSS.
 
 
 ## Revisions and stuff to touch on
 
-
-Generalization, friend and foe.
-* Weird in-distribution orthogonal data is best
-* Anthropic reward hacking alignment generalization results
-* The importance of rollout diversity and different types of questions for retaining (pass@k) which is different than but probably correlated with generalization
-
-
 Over the past while I've been thinking about creative writing. I wrote an RL environment.
-Not every environment is verifiable.
-Mixture of verifiable and nonverifiable tasks is good but can still hack part of the reward
-
 
 Applying the right kind of optimization pressure versus applying a lot of it
 Compare pretraining (high bits per loss evaluation) to RL (low bits)
 
+Sometimes Goodhart's law doesn't apply. Sometimes a measure is just a good measure even if you optimize for it as hard as possible.
 
-Relation to RLP and the new XHS paper
+Questions in training a good base model:
+* Does LR decay quenching remove the degrees of freedom required by RL?
+* In pretrain, conventional wisdom is that lots of weird in-distribution orthogonal data is best. I don't see any reason why this wouldn't transfer to rollouts as well.
+* How hard should you quench?
+* The importance of rollout diversity and different types of questions for retaining (pass@k) which is different than but probably correlated with generalization.
 
+Relationship to RLP
+* RLP/RLPT
+ * Focal loss
+ * XHS paper
 
-Mention that all of ML is just mixed metaphors.
+Entropy collapse/pass@k
+* https://x.com/AdtRaghunathan/status/2001743378308894982
+* Rollout diversity is probably important for generalization?
 
-
-
-Sometime Goodhart's law doesn't apply. Sometimes a measure is just a good measure even if you optimize for it as hard as possible.
-
-
-
-Finetuning on this dataset yields a model more amenable to reinforcement learning. Now that you have a model that can generate tool calls with some reasonable degree of consistency, you can tune it to make sure it actually generates good tool calls.
-
-
-
-The resulting model can then be used to generate tool use rollouts, and those rollouts can be filtered into a really nice dataset. You can finetune on these, and it makes RL work a lot better.
-
-
-
-Make a stronger point about think tags versus rl, because they are not the same and one does not imply the other.
-
-
-
-Does LR decay quenching remove the degrees of freedom required by RL?
-
-
+Relationship to self-play
+* A diversity collapse in the questions it asks itself needs to be solved with filtered seed data
+* If I were to guess to make self
+* Benchmark for self play?
 
 Review:
 
 https://x.com/DhruvBatra_/status/2001009781960794448
 
 "On the interplay between pretraining and RL"
+
