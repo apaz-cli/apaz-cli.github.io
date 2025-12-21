@@ -9,6 +9,9 @@
 
 Description
 
+
+Part 1: <a href="Thoughts_About_LLMs_Data_and_Optimization.html">Thoughts About LLMs, Data, and Optimization</a>
+
 <br>
 
 # Disclaimers

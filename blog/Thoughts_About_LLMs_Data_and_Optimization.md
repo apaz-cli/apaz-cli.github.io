@@ -114,22 +114,24 @@ There's a lot of data experiments and ablations to do here. Lots of basic questi
 
 I can ask Deepseek R1 multi-step questions about poetry, endocrinology, niche Magic the Gathering interactions, and stuff that I know for a fact it has not seen before.
 
-I find it interesting that this is the case. We know that the edits made my RL training are low rank, and that explains a lot of it, and they did a second phase of RL question answering on more normal-looking instruction tuning data. But but the ability to `<think>` is clearly a general capability that the model has learned to apply more generally. The math/logic/code RL taught it to do multi-step reasoning, and the RLFT helped it generalize.
+I find it interesting that this is the case. We know that the edits made my RL training are low rank, and that explains a lot of it. They also did a second phase of RL question answering on more normal-looking instruction tuning data. But but the ability to `<think>` is clearly a general capability that the model has learned to apply more generally. The math/logic/code RL taught it to do multi-step reasoning, and the RLFT helped it generalize.
 
-The interplay here is interesting. It is a transfer of capabilities across objectives. It makes me wonder what else you can do. There are probably experiments to be done here. And experiments to be done on how best to incorporate the trajectories back into a pretraining dataset.
+The interplay here is interesting. It is a transfer of capabilities across objectives. It makes me wonder what else you can do. There are probably experiments to be done here. Also experiments to be done on how best to incorporate the trajectories back into a pretraining dataset.
 
-Another thought. The <a href="https://assets.anthropic.com/m/74342f2c96095771/original/Natural-emergent-misalignment-from-reward-hacking-paper.pdf">Anthropic reward hacking alignment generalization paper</a> is probably way more important than we understand yet. If you pull on one thing in concept space, other related things tend to follow. When I consider this, plus the I think there's a solid chance that this implies that it's possible through RL to learn capabilities and behaviors we don't understand yet, and this may transfer across objectives in ways we don't understand yet.
+Another thought. The <a href="https://assets.anthropic.com/m/74342f2c96095771/original/Natural-emergent-misalignment-from-reward-hacking-paper.pdf">Anthropic reward hacking alignment generalization paper</a> is probably way more important than we understand yet. If you pull on one thing in concept space, other related things tend to follow. When I consider this, plus the I think there's a solid chance that this implies that it's possible through RL to learn capabilities and behaviors we don't understand yet, and this may also transfer across objectives in ways we don't understand yet.
 
 For this reason and others, developing fast automated interpretability tools to monitor RL training runs as they are progressing seems prudent. Another thing to look into, which I have seen no real movement on in OSS.
 
 
 ### Claim 3. Training is training.
 
-There is a tendency to treat pretraining, preference tuning, and RL as fundamentally different operations with different rules. And yeah, they have different rules. Different practicalities. But I would say that this is perhaps not the complete picture. A more useful frame is that they are all just optimization pressure applied to weights. You are pushing the model towards an objective. An objective that you can specify however you like.
+There is a tendency to treat pretraining, preference tuning, and RL as fundamentally different operations with different rules. The techniques work in different situations and have historically been useful for different things. It is useful to have different names for them.
 
-So, you can pretrain on trajectories. You can do preference optimization on trajectories. You can rephrase and compress reasoning traces in natural language and format it into a QA dataset and pretrain on it. You can pretrain on tool calls and mask out the results. You can do RL on next token prediction, RLP style. You could do some esoteric thing we haven't imagined yet.
+But I would say that this is perhaps not the complete picture. A more useful frame is that they are all just optimization pressure applied to weights. You are pushing the model towards an objective. An objective that you have significant choice in how to formalize, on which loss function, on which data.
 
-My suggestion is to stop thinking about training stages as a fixed pipeline. Instead, think about what you want the model to do. Then figure out the best way you can make that happen, to embed the behavior you're looking for as deeply as possible. This probably means revisiting every part of the pipeline.
+So, you can pretrain on trajectories. You can do preference optimization on trajectories. You can rephrase and compress reasoning traces in natural language and format it into a QA dataset and pretrain on it. You can pretrain on tool calls and mask out the results. You can do RL on next token prediction, RLP style. You can distill a reasoning model into a nonreasoning model. You could do some esoteric thing we haven't imagined yet.
+
+My suggestion is to stop thinking about training stages as a fixed pipeline. Instead, think about what you want the model to do. Then figure out the best way you can make that happen. It is probably useful to embed the behavior you're looking for as deeply as possible. This probably means revisiting every part of the pipeline.
 
 
 # Conclusion?
