@@ -125,7 +125,7 @@ For this reason and others, developing fast automated interpretability tools to 
 
 ### Claim 3. Training is training.
 
-There is a tendency to treat pretraining, preference tuning, and RL and fundamentally different operations with different rules. And yeah, they have different rules. Different practicalities. But I would say that this is perhaps not the complete picture. A more useful frame is that they are all just optimization pressure applied to weights. You are pushing the model towards an objective. An objective that you can specify however you like.
+There is a tendency to treat pretraining, preference tuning, and RL as fundamentally different operations with different rules. And yeah, they have different rules. Different practicalities. But I would say that this is perhaps not the complete picture. A more useful frame is that they are all just optimization pressure applied to weights. You are pushing the model towards an objective. An objective that you can specify however you like.
 
 So, you can pretrain on trajectories. You can do preference optimization on trajectories. You can rephrase and compress reasoning traces in natural language and format it into a QA dataset and pretrain on it. You can pretrain on tool calls and mask out the results. You can do RL on next token prediction, RLP style. You could do some esoteric thing we haven't imagined yet.
 
@@ -134,8 +134,8 @@ My suggestion is to stop thinking about training stages as a fixed pipeline. Ins
 
 # Conclusion?
 
-IDK man. These have been some thoughts and potential research directions. These claims could use some evidence backing them up. Working on it. Consider this part one of two or more.
+IDK. These have been some thoughts and potential research directions. These claims could use some evidence backing them up. Working on it. Consider this part one of two or more, and I'm hoping to do some specific experiments to validate these ideas.
 
-Next time I will talk about the relationship between this and entropy and RLP and self play and do some more research idea vomit. I think I have a real path to self play working. Although many have said that before me, and I cannot be sure until it is, you know, working.
+But I have more ideas. Next time we will talk about the relationship between this and entropy and RLP and self play. You can bet there will be more research idea vomit. I think that I have a real path to something like self play. Although many have said that before me. I cannot be sure until it is, you know, working. Probably it will not, but we shall see. I know how delusional I sound. But it might be worth a try.
 
 Until next time, I have been <a href="https://x.com/apaz_cli/">apaz</a>.
