@@ -13,7 +13,7 @@ First you select a metric. You acquire suitable data. Then you apply optimizatio
 
 # Disclaimers
 
-I'm not writing this for you, necessarily. I mean, I am. There's a reason you're reading this. But mostly I'm writing this for me. I am attempting to think from first principles, and organize my thoughts.
+I'm not writing this for you, necessarily. I mean, I am. There's a reason you're reading this. But mostly I'm writing this for me. I am attempting to think from first principles, and organize my thoughts. I'm setting up for the next article I want to write, and dumping some research ideas.
 
 You may disagree with me over matters of opinion, or of framing, or of fact. Please shout your disagreements at me. You will have disagreements. And, in the words of Zach de la Rocha, if ignorance is bliss, then knock the smile off my face. Raising wrong opinions and getting publicly corrected will lead me, and perhaps others, to understanding, faster than saying nothing at all.
 
@@ -63,19 +63,19 @@ You may ask, is training on rephrased data cheating? Benchmaxxing? Or just smart
 
 Suppose you want to train a model that can do tool calling. I can bet you that your base model understands what a tool is. But there's basically no chance that your model is going to generate `<tool_call>[get_weather(city='San Francisco', metric='celsius'),]</tool_call>` by accident. You need to prompt it to do so, and hope through in-context learning it generalizes. Which it probably will, some of the time.
 
-You can use this to build a new dataset. Generate tons of rollouts, and remove the ones that aren't sensible. If you want to learn to use arbitrary user-defined tools instead of specific ones, you're also going to need to build a dataset of tools, and validate them to make sure they actually work.
+You can use this to build a new dataset. Generate tons of trajectories, and remove the ones that aren't sensible. If you want to learn to use arbitrary user-defined tools instead of specific ones, you're also going to need to build a dataset of tools, and validate them to make sure they actually work.
 
 Finetuning on this dataset yields a model more amenable to reinforcement learning. Now that you have a model that can generate tool calls with some reasonable degree of consistency, you can tune it to make sure it actually generates good tool calls.
 
-The resulting model can then be used to generate tool use rollouts, and those rollouts can be filtered into a really nice dataset. You can finetune on these, and it makes RL work a lot better.
+The resulting model can then be used to generate tool use trajectories, and those trajectories can be filtered into a really nice dataset. You can finetune on these, and it makes RL work a lot better.
 
 This is <a href="https://www.dbreunig.com/2025/07/30/how-kimi-was-post-trained-for-tool-use.html">what Kimi did for their tool calling post training</a>. But you can do this with just about any verifiable capability that you want to hill climb on.
 
 <br>
 
-### Claim 1. Why just SFT? Pretrain on rollouts.
+### Claim 1. Why just SFT? Pretrain on trajectories.
 
-You have a bunch of data now, that looks like your target domain. So why not build a pretraining dataset? Pretrain on those filtered rollouts. Then when you do RL the outputs will already look more like these trajectories.
+You have a bunch of data now, that looks like your target domain. So why not build a pretraining dataset? Pretrain on those filtered trajectories. Then when you do RL the outputs will already look more like these trajectories.
 
 There is evidence <a href="https://arxiv.org/abs/2510.03264">from an nvidia paper</a> that including some reasoning data in your base model, before the model is quenched, greatly benefits it in ways that SFT cannot replicate.
 
@@ -84,9 +84,9 @@ I hypothesize that this has downstream benefits more domains than just baking in
 A very notable point that I feel compelled to make is that `<think>`ing is not RL, and RL is not `<think>`ing. Surely they are related in some meaningful sense, but you can do RL without think tags and vice-versa. Preference optimization is indeed generally a form of online or offline RL that does not involve think tags, and you can optimize for anything.
 
 
-Anyway, there's a limit to how much you can pretrain on your own prechewed and regurgitated rollouts. If you retrain models on rollouts a bunch of times it probably collapse in a sense. The rollouts that you get will probably stop being meaninfully unique in some way.
+Anyway, there's a limit to how much you can pretrain on your own prechewed and regurgitated trajectories. If you retrain models on trajectories a bunch of times it probably collapse in a sense. The trajectories that you get will probably stop being meaninfully unique in some way.
 
-Then again. If you trained multiple models to generate rollouts, each of which had different statistics, discovered different reasoning patterns, different solutions, were generated from different base models, maybe you could gain some performance in that way? You want high quality data diversity to train on, and maybe this is a way to make that happen. It could work. I presume that the best base models for RL are trained on as diverse of rollouts as possible. Worth looking into the data diversity question.
+Then again. If you trained multiple models to generate trajectories, each of which had different statistics, discovered different reasoning patterns, different solutions, were generated from different base models, maybe you could gain some performance in that way? You want high quality data diversity to train on, and maybe this is a way to make that happen. It could work. I presume that the best base models for RL are trained on as diverse of trajectories as possible. Worth looking into the data diversity question.
 
 In the nearer term, I am more interested in answering questions that the Nvidia paper did not, such as "what is the roughly optimal proportion of reasoning data to include?" And, more generally, "what does the answer depend on?" I do not have a good intuition for how much it would depend on the task, versus model size or dataset statistics, versus the setting you want to optimize for, versus how much you quenched the model, and the Nvidia paper referenced above does not explore this question.
 
@@ -99,15 +99,17 @@ I can ask Deepseek R1 multi-step questions about poetry, endocrinology, niche Ma
 
 I find it interesting that this is the case. We know that the edits made my RL training are low rank, and that explains a lot of it, and they did a second phase of RL question answering on more normal-looking instruction tuning data. But but the ability to `<think>` is clearly a general capability that the model has learned to apply more generally. The math/logic/code RL taught it to do multi-step reasoning, and the RLFT helped it generalize.
 
-The interplay here is interesting. It is a transfer of capabilities across objectives. It makes me wonder what else you can do. There are probably experiments to be done here. And experiments to be done on how best to incorporate the rollouts back into a pretraining dataset.
+The interplay here is interesting. It is a transfer of capabilities across objectives. It makes me wonder what else you can do. There are probably experiments to be done here. And experiments to be done on how best to incorporate the trajectories back into a pretraining dataset.
 
 Another thought. The <a href="https://assets.anthropic.com/m/74342f2c96095771/original/Natural-emergent-misalignment-from-reward-hacking-paper.pdf">Anthropic reward hacking alignment generalization paper</a> is probably way more important than we understand yet. If you pull on one thing in concept space, other related things tend to follow. When I consider this, plus the I think there's a solid chance that this implies that it's possible through RL to learn capabilities and behaviors we don't understand yet, and this may transfer across objectives in ways we don't understand yet.
 
 For this reason and others, developing fast automated interpretability tools to monitor RL training runs as they are progressing seems prudent. Another thing to look into, which I have seen no real movement on in OSS.
 
 
-# Clonclusion?
+# Conclusion?
 
-IDK. Those were some thoughts and potential research directions. Consider this part one of two.
+IDK. Wait for the next article. Those were some thoughts and potential research directions. Consider this part one of two.
 
-Next time I will talk about the relationship between this and entropy and RLP and self play and some more research idea vomit.
+Next time I will talk about the relationship between this and entropy and RLP and self play and do some more research idea vomit. I think I have a real path to self play working.
+
+Until next time.

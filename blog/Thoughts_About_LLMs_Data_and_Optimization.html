@@ -270,7 +270,9 @@ optimization pressure. Easy, right?</p>
 <h1 id="disclaimers">Disclaimers</h1>
 <p>I'm not writing this for you, necessarily. I mean, I am. There's a
 reason you're reading this. But mostly I'm writing this for me. I am
-attempting to think from first principles, and organize my thoughts.</p>
+attempting to think from first principles, and organize my thoughts. I'm
+setting up for the next article I want to write, and dumping some
+research ideas.</p>
 <p>You may disagree with me over matters of opinion, or of framing, or
 of fact. Please shout your disagreements at me. You will have
 disagreements. And, in the words of Zach de la Rocha, if ignorance is
@@ -353,30 +355,31 @@ basically no chance that your model is going to generate
 <code>&lt;tool_call&gt;[get_weather(city='San Francisco', metric='celsius'),]&lt;/tool_call&gt;</code>
 by accident. You need to prompt it to do so, and hope through in-context
 learning it generalizes. Which it probably will, some of the time.</p>
-<p>You can use this to build a new dataset. Generate tons of rollouts,
-and remove the ones that aren't sensible. If you want to learn to use
-arbitrary user-defined tools instead of specific ones, you're also going
-to need to build a dataset of tools, and validate them to make sure they
-actually work.</p>
+<p>You can use this to build a new dataset. Generate tons of
+trajectories, and remove the ones that aren't sensible. If you want to
+learn to use arbitrary user-defined tools instead of specific ones,
+you're also going to need to build a dataset of tools, and validate them
+to make sure they actually work.</p>
 <p>Finetuning on this dataset yields a model more amenable to
 reinforcement learning. Now that you have a model that can generate tool
 calls with some reasonable degree of consistency, you can tune it to
 make sure it actually generates good tool calls.</p>
-<p>The resulting model can then be used to generate tool use rollouts,
-and those rollouts can be filtered into a really nice dataset. You can
-finetune on these, and it makes RL work a lot better.</p>
+<p>The resulting model can then be used to generate tool use
+trajectories, and those trajectories can be filtered into a really nice
+dataset. You can finetune on these, and it makes RL work a lot
+better.</p>
 <p>This is
 <a href="https://www.dbreunig.com/2025/07/30/how-kimi-was-post-trained-for-tool-use.html">what
 Kimi did for their tool calling post training</a>. But you can do this
 with just about any verifiable capability that you want to hill climb
 on.</p>
 <p><br></p>
-<h3 id="claim-1.-why-just-sft-pretrain-on-rollouts.">Claim 1. Why just
-SFT? Pretrain on rollouts.</h3>
+<h3 id="claim-1.-why-just-sft-pretrain-on-trajectories.">Claim 1. Why
+just SFT? Pretrain on trajectories.</h3>
 <p>You have a bunch of data now, that looks like your target domain. So
 why not build a pretraining dataset? Pretrain on those filtered
-rollouts. Then when you do RL the outputs will already look more like
-these trajectories.</p>
+trajectories. Then when you do RL the outputs will already look more
+like these trajectories.</p>
 <p>There is evidence <a href="https://arxiv.org/abs/2510.03264">from an
 nvidia paper</a> that including some reasoning data in your base model,
 before the model is quenched, greatly benefits it in ways that SFT
@@ -394,17 +397,18 @@ Preference optimization is indeed generally a form of online or offline
 RL that does not involve think tags, and you can optimize for
 anything.</p>
 <p>Anyway, there's a limit to how much you can pretrain on your own
-prechewed and regurgitated rollouts. If you retrain models on rollouts a
-bunch of times it probably collapse in a sense. The rollouts that you
-get will probably stop being meaninfully unique in some way.</p>
-<p>Then again. If you trained multiple models to generate rollouts, each
-of which had different statistics, discovered different reasoning
+prechewed and regurgitated trajectories. If you retrain models on
+trajectories a bunch of times it probably collapse in a sense. The
+trajectories that you get will probably stop being meaninfully unique in
+some way.</p>
+<p>Then again. If you trained multiple models to generate trajectories,
+each of which had different statistics, discovered different reasoning
 patterns, different solutions, were generated from different base
 models, maybe you could gain some performance in that way? You want high
 quality data diversity to train on, and maybe this is a way to make that
 happen. It could work. I presume that the best base models for RL are
-trained on as diverse of rollouts as possible. Worth looking into the
-data diversity question.</p>
+trained on as diverse of trajectories as possible. Worth looking into
+the data diversity question.</p>
 <p>In the nearer term, I am more interested in answering questions that
 the Nvidia paper did not, such as "what is the roughly optimal
 proportion of reasoning data to include?" And, more generally, "what
@@ -430,7 +434,8 @@ it to do multi-step reasoning, and the RLFT helped it generalize.</p>
 <p>The interplay here is interesting. It is a transfer of capabilities
 across objectives. It makes me wonder what else you can do. There are
 probably experiments to be done here. And experiments to be done on how
-best to incorporate the rollouts back into a pretraining dataset.</p>
+best to incorporate the trajectories back into a pretraining
+dataset.</p>
 <p>Another thought. The
 <a href="https://assets.anthropic.com/m/74342f2c96095771/original/Natural-emergent-misalignment-from-reward-hacking-paper.pdf">Anthropic
 reward hacking alignment generalization paper</a> is probably way more
@@ -444,10 +449,12 @@ yet.</p>
 interpretability tools to monitor RL training runs as they are
 progressing seems prudent. Another thing to look into, which I have seen
 no real movement on in OSS.</p>
-<h1 id="clonclusion">Clonclusion?</h1>
-<p>IDK. Those were some thoughts and potential research directions.
-Consider this part one of two.</p>
+<h1 id="conclusion">Conclusion?</h1>
+<p>IDK. Wait for the next article. Those were some thoughts and
+potential research directions. Consider this part one of two.</p>
 <p>Next time I will talk about the relationship between this and entropy
-and RLP and self play and some more research idea vomit.</p>
+and RLP and self play and do some more research idea vomit. I think I
+have a real path to self play working.</p>
+<p>Until next time.</p>
 </body>
 </html>
