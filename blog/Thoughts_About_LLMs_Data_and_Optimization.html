@@ -197,27 +197,27 @@
       font-weight: inherit;
       line-height: 1.42;
   }
-  h1, .retro-h1 {
+  html h1, html .retro-h1 {
       color: rgb(112, 221, 0);
       margin-top: 0;
-      font-size: 3.998rem;
+      font-size: 400%;
   }
-  h2, .retro-h2 {
+  html h2, html .retro-h2 {
       color: rgb(112, 221, 0);
       margin-top: 0;
-      font-size: 2.827rem;
+      font-size: 283%;
   }
-  h3, .retro-h3 {
-      font-size: 1.999rem;
+  html h3, html .retro-h3 {
+      font-size: 200%;
   }
-  h4, .retro-h4 {
-      font-size: 1.414rem;
+  html h4, html .retro-h4 {
+      font-size: 141%;
   }
-  h5, .retro-h5 {
-      font-size: 1.121rem;
+  html h5, html .retro-h5 {
+      font-size: 112%;
   }
-  h6, .retro-h6 {
-      font-size: .88rem;
+  html h6, html .retro-h6 {
+      font-size: 88%;
   }
   small, .retro-small {
       font-size: .707em;
@@ -256,6 +256,22 @@
       border-left: 3px solid #01ff70;
       padding-left: 1rem;
   }
+
+  /* More dramatic mobile scaling */
+  @media (max-width: 600px) {
+      html h1, html .retro-h1 {
+          font-size: 250%;
+      }
+      html h2, html .retro-h2 {
+          font-size: 180%;
+      }
+      html h3, html .retro-h3 {
+          font-size: 140%;
+      }
+      html h4, html .retro-h4 {
+          font-size: 110%;
+      }
+  }
   </style>
 </head>
 <body>
@@ -279,7 +295,7 @@ disagreements. And, in the words of Zach de la Rocha, if ignorance is
 bliss, then knock the smile off my face. Raising wrong opinions and
 getting publicly corrected will lead me, and perhaps others, to
 understanding, faster than saying nothing at all.</p>
-<p>With that out of the way, time to spew the most asanine and
+<p>With that out of the way, time to spew the most asinine and
 disorganized non-arguments imaginable. I will not cite sources or
 substantiate my claims with evidence. I will get things wrong. I will
 not apologize.</p>
@@ -331,7 +347,7 @@ recipe.</p>
 factual recall. This is just the direction that the big labs have
 decided to pursue because it's useful, economically valuable, and
 marketable. Also having your own personal assistant is genuinely pretty
-cool. It's the first thing I would build too. But there's an enitre
+cool. It's the first thing I would build too. But there's an entire
 world of alternative model personalities out there, unexplored.</p>
 <p><br></p>
 <h2 id="datasets-skills-knowledge-practice-and-objectives.">Datasets,
@@ -369,8 +385,8 @@ should train on such.
 <p><br></p>
 <p>You may ask, is training on rephrased data cheating? Benchmaxxing? Or
 just smart? I would say it's just smart. Some data formats are more
-amenable to capabilities crystalizing out of them than others. Why would
-you not take advantage of that?</p>
+amenable to capabilities crystallizing out of them than others. Why
+would you not take advantage of that?</p>
 <p>Suppose you want to train a model that can do tool calling. I can bet
 you that your base model understands what a tool is. But there's
 basically no chance that your model is going to generate
@@ -422,8 +438,8 @@ anything.</p>
 <p>Anyway, there's a limit to how much you can pretrain on your own
 prechewed and regurgitated trajectories. If you retrain models on
 trajectories a bunch of times it probably collapses in a sense. The
-trajectories that you get will probably stop being meaninfully unique in
-some way. More on this in the next article.</p>
+trajectories that you get will probably stop being meaningfully unique
+in some way. More on this in the next article.</p>
 <p>Then again. If you trained multiple models to generate trajectories,
 each of which had different statistics, discovered different reasoning
 patterns, different solutions, were generated from different base
@@ -489,7 +505,7 @@ optimization on trajectories. You can rephrase and compress reasoning
 traces in natural language and format it into a QA dataset and pretrain
 on it. You can pretrain on tool calls and mask out the results. You can
 do RL on next token prediction, RLP style. You can distill a reasoning
-model into a nonreasoning model. You could do some esoteric thing we
+model into a non-reasoning model. You could do some esoteric thing we
 haven't imagined yet.</p>
 <p>My suggestion is to stop thinking about training stages as a fixed
 pipeline. Instead, think about what you want the model to do. Then

@@ -261,27 +261,27 @@
       font-weight: inherit;
       line-height: 1.42;
   }
-  h1, .retro-h1 {
+  html h1, html .retro-h1 {
       color: rgb(112, 221, 0);
       margin-top: 0;
-      font-size: 3.998rem;
+      font-size: 400%;
   }
-  h2, .retro-h2 {
+  html h2, html .retro-h2 {
       color: rgb(112, 221, 0);
       margin-top: 0;
-      font-size: 2.827rem;
+      font-size: 283%;
   }
-  h3, .retro-h3 {
-      font-size: 1.999rem;
+  html h3, html .retro-h3 {
+      font-size: 200%;
   }
-  h4, .retro-h4 {
-      font-size: 1.414rem;
+  html h4, html .retro-h4 {
+      font-size: 141%;
   }
-  h5, .retro-h5 {
-      font-size: 1.121rem;
+  html h5, html .retro-h5 {
+      font-size: 112%;
   }
-  h6, .retro-h6 {
-      font-size: .88rem;
+  html h6, html .retro-h6 {
+      font-size: 88%;
   }
   small, .retro-small {
       font-size: .707em;
@@ -319,6 +319,22 @@
   blockquote {
       border-left: 3px solid #01ff70;
       padding-left: 1rem;
+  }
+
+  /* More dramatic mobile scaling */
+  @media (max-width: 600px) {
+      html h1, html .retro-h1 {
+          font-size: 250%;
+      }
+      html h2, html .retro-h2 {
+          font-size: 180%;
+      }
+      html h3, html .retro-h3 {
+          font-size: 140%;
+      }
+      html h4, html .retro-h4 {
+          font-size: 110%;
+      }
   }
   </style>
 </head>
