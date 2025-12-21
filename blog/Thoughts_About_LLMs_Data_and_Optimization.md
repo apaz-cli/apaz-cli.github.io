@@ -39,7 +39,16 @@ But it really is that easy.
 
 Yeah. I know you know that.
 
-I think the deeper lesson here is that there is no magic. "We do pretraining and then we do instruct tuning and then we finetune and then we quantize" is a formula that works pretty well, but there is nothing special about it. You can rationalize why it works, but there is no proof that it's optimal, and I would be surprised if it was.
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/draw_the_rest_of_the_owl.jpg" width=500>
+<figcaption aria-hidden="true">Generally easier said than done, but at least it's straightforward.</figcaption>
+</figure>
+</div>
+<br>
+
+I think the deeper lesson here is that there is no magic. "We do pretraining and then we do instruct tuning and then we finetune and then we quantize" is a formula that works pretty well, but there is nothing special about it. You can rationalize why it works, but there is no proof that it's optimal, and no reason you couldn't come up with other recipe.
 
 There's also nothing particularly special about helpful assistants or factual recall. This is just the direction that the big labs have decided to pursue because it's useful, economically valuable, and marketable. Also having your own personal assistant is genuinely pretty cool. It's the first thing I would build too. But there's an enitre world of alternative model personalities out there, unexplored.
 
@@ -57,11 +66,19 @@ This is True. It does do that. It does generalize. But not as well as if the pre
 
 Or so I would rationalize. I am no interpretability expert.
 
+<br>
+<div style="text-align: center;">
+<figure>
 <img src="images/synth_mf_hoe.png" width=500>
+<figcaption aria-hidden="true">I think base models are good at what you train them on, and if you want them to be able to generate good trajectories and reasoning traces you should train on such.</figcaption>
+</figure>
+</div>
+<br>
+
 
 You may ask, is training on rephrased data cheating? Benchmaxxing? Or just smart? I would say it's just smart. Some data formats are more amenable to capabilities crystalizing out of them than others. Why would you not take advantage of that?
 
-Suppose you want to train a model that can do tool calling. I can bet you that your base model understands what a tool is. But there's basically no chance that your model is going to generate `<tool_call>[get_weather(city='San Francisco', metric='celsius'),]</tool_call>` by accident. You need to prompt it to do so, and hope through in-context learning it generalizes. Which it probably will, some of the time.
+Suppose you want to train a model that can do tool calling. I can bet you that your base model understands what a tool is. But there's basically no chance that your model is going to generate `<tool_call>[get_weather(city='San Francisco', metric='celsius'),]</tool_call>` by accident. You need to prompt it to do so, and hope through in-context learning it generalizes. Which it probably will, at least some of the time.
 
 You can use this to build a new dataset. Generate tons of trajectories, and remove the ones that aren't sensible. If you want to learn to use arbitrary user-defined tools instead of specific ones, you're also going to need to build a dataset of tools, and validate them to make sure they actually work.
 
@@ -77,14 +94,14 @@ This is <a href="https://www.dbreunig.com/2025/07/30/how-kimi-was-post-trained-f
 
 You have a bunch of data now, that looks like your target domain. So why not build a pretraining dataset? Pretrain on those filtered trajectories. Then when you do RL the outputs will already look more like these trajectories.
 
-There is evidence <a href="https://arxiv.org/abs/2510.03264">from an nvidia paper</a> that including some reasoning data in your base model, before the model is quenched, greatly benefits it in ways that SFT cannot replicate.
+There is evidence <a href="https://arxiv.org/abs/2510.03264">from an nvidia paper</a> (which you should read) that including some reasoning data in your base model, before the model is quenched, greatly benefits it in ways that SFT cannot replicate.
 
 I hypothesize that this has downstream benefits more domains than just baking in useful reasoning patterns. I think this probably works basically no matter what your objective is, whether you're using `<think>` tags or not. It would be really surprising to me if this were not the case. But needs testing.
 
 A very notable point that I feel compelled to make is that `<think>`ing is not RL, and RL is not `<think>`ing. Surely they are related in some meaningful sense, but you can do RL without think tags and vice-versa. Preference optimization is indeed generally a form of online or offline RL that does not involve think tags, and you can optimize for anything.
 
 
-Anyway, there's a limit to how much you can pretrain on your own prechewed and regurgitated trajectories. If you retrain models on trajectories a bunch of times it probably collapse in a sense. The trajectories that you get will probably stop being meaninfully unique in some way.
+Anyway, there's a limit to how much you can pretrain on your own prechewed and regurgitated trajectories. If you retrain models on trajectories a bunch of times it probably collapses in a sense. The trajectories that you get will probably stop being meaninfully unique in some way. More on this in the next article.
 
 Then again. If you trained multiple models to generate trajectories, each of which had different statistics, discovered different reasoning patterns, different solutions, were generated from different base models, maybe you could gain some performance in that way? You want high quality data diversity to train on, and maybe this is a way to make that happen. It could work. I presume that the best base models for RL are trained on as diverse of trajectories as possible. Worth looking into the data diversity question.
 
@@ -106,10 +123,19 @@ Another thought. The <a href="https://assets.anthropic.com/m/74342f2c96095771/or
 For this reason and others, developing fast automated interpretability tools to monitor RL training runs as they are progressing seems prudent. Another thing to look into, which I have seen no real movement on in OSS.
 
 
+### Claim 3. Training is training.
+
+There is a tendency to treat pretraining, preference tuning, and RL and fundamentally different operations with different rules. And yeah, they have different rules. Different practicalities. But I would say that this is perhaps not the complete picture. A more useful frame is that they are all just optimization pressure applied to weights. You are pushing the model towards an objective. An objective that you can specify however you like.
+
+So, you can pretrain on trajectories. You can do preference optimization on trajectories. You can rephrase and compress reasoning traces in natural language and format it into a QA dataset and pretrain on it. You can pretrain on tool calls and mask out the results. You can do RL on next token prediction, RLP style. You could do some esoteric thing we haven't imagined yet.
+
+My suggestion is to stop thinking about training stages as a fixed pipeline. Instead, think about what you want the model to do. Then figure out the best way you can make that happen, to embed the behavior you're looking for as deeply as possible. This probably means revisiting every part of the pipeline.
+
+
 # Conclusion?
 
-IDK. Wait for the next article. Those were some thoughts and potential research directions. Consider this part one of two.
+IDK man. These have been some thoughts and potential research directions. These claims could use some evidence backing them up. Working on it. Consider this part one of two or more.
 
 Next time I will talk about the relationship between this and entropy and RLP and self play and do some more research idea vomit. I think I have a real path to self play working.
 
-Until next time.
+Until next time, I have been <a href="https://x.com/apaz_cli/">apaz</a>.
