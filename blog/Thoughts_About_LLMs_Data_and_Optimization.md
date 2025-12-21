@@ -136,6 +136,6 @@ My suggestion is to stop thinking about training stages as a fixed pipeline. Ins
 
 IDK man. These have been some thoughts and potential research directions. These claims could use some evidence backing them up. Working on it. Consider this part one of two or more.
 
-Next time I will talk about the relationship between this and entropy and RLP and self play and do some more research idea vomit. I think I have a real path to self play working.
+Next time I will talk about the relationship between this and entropy and RLP and self play and do some more research idea vomit. I think I have a real path to self play working. Although many have said that before me, and I cannot be sure until it is, you know, working.
 
 Until next time, I have been <a href="https://x.com/apaz_cli/">apaz</a>.
