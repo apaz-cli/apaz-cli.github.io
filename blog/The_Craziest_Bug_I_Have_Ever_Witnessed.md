@@ -4,6 +4,8 @@
 ![](images/Lain_Kernel_Panic.png)
 </div>
 
+I thought I had seen it all. Nah. Not even close.
+
 # The Craziest Bug I Have Ever Witnessed
 
     Julia has a feature where you can report bugs and crashes from the command line. You just

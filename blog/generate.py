@@ -14,6 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 only = argv[1] if len(argv) > 1 else None
 
 stylefile = "../resources/style/pandoc.html"
+rss_description_max_length = 500  # Maximum length for RSS item descriptions
 
 run = lambda s: subprocess.run(split(s), check=True)
 
@@ -64,24 +65,87 @@ def get_title_from_html(f):
         else:
             return splitext(f)[0]
 
+def get_description_from_html(f):
+    STOP_TAGS = ['<pre', '<div class="sourceCode"', '<table', '<ul', '<ol']
+
+    def clean_text(html):
+        return re.sub(r'<[^>]+>', '', html).strip()
+
+    def is_empty_para(content):
+        return '<img' in content or clean_text(content) in ['', '<br>']
+
+    def has_stop_tags(content):
+        return any(tag in content for tag in STOP_TAGS)
+
+    def truncate_if_needed(text):
+        if len(text) > rss_description_max_length:
+            return text[:rss_description_max_length - 3] + "..."
+        return text
+
+    with open(f, "r") as tmp:
+        txt = tmp.read()
+
+    # Extract and combine opening paragraphs
+    body_match = re.search(r'<body>(.*?)</body>', txt, re.DOTALL)
+    if not body_match:
+        return ""
+
+    combined = ""
+    min_length = min(300, rss_description_max_length - 50)
+    seen_title = False
+
+    for match in re.finditer(r'<(h[1-6]|p)(?:[^>]*)?>.*?</\1>', body_match.group(1), re.DOTALL):
+        tag = match.group(1)
+        content = match.group(0)
+
+        # Skip h1 title, then stop at any subsequent heading
+        if tag.startswith('h'):
+            if tag == 'h1' and not seen_title:
+                seen_title = True
+                continue
+            if seen_title:
+                break
+
+        # Process text paragraphs only
+        if tag == 'p':
+            if is_empty_para(content):
+                continue
+
+            if has_stop_tags(content):
+                if combined:
+                    break
+                continue
+
+            text = clean_text(content)
+            if not text:
+                continue
+
+            combined = f"{combined} {text}" if combined else text
+
+            if len(combined) >= min_length:
+                break
+
+    return truncate_if_needed(combined) if combined else ""
+
 def generate_article(i, f):
 
-    def replace_meta_with_opengraph(html):
+    def replace_meta_with_opengraph(html, filepath):
         rep_str = "  <title>"
 
-        # Use content to generate opengraph meta tags.
-        # Get the first h1 tag specifically
+        # Get the first h1 tag for title
         titlegroup = re.search(r"<h1[^>]*>(.*?)</h1>", html, re.DOTALL)
-        subtitlegroup = re.search(r"<h4[^>]*>(.*?)</h4>", html, re.DOTALL)
         first_image = re.search(r'<img[^>]*src="([^"]*)"[^>]*>', html)
 
         meta_with = ""
         if titlegroup:
-            title_content = re.sub(r'\s+', ' ', titlegroup.group(1).strip())  # Replace newlines/multiple spaces with single space
+            title_content = re.sub(r'\s+', ' ', titlegroup.group(1).strip())
             meta_with += f"  <meta name=\"og:title\" content=\"{title_content}\">\n"
-            if subtitlegroup:
-                subtitle_content = re.sub(r'\s+', ' ', subtitlegroup.group(1).strip())  # Clean up subtitle too
-                meta_with += f"  <meta name=\"og:description\" content=\"{subtitle_content}\">\n"
+
+            # Use our smart description extraction
+            description = get_description_from_html(filepath)
+            if description:
+                meta_with += f"  <meta name=\"og:description\" content=\"{description}\">\n"
+
             if first_image:
                 image_src = first_image.group(1)
                 meta_with += f"  <meta name=\"og:image\" content=\"{image_src}\">\n"
@@ -100,7 +164,7 @@ def generate_article(i, f):
     with open(to, "r+") as tmp:
         stxt = tmp.read()
         txt = re.sub(replace, repwith, stxt, flags=re.DOTALL, count=1)
-        txt = replace_meta_with_opengraph(txt)
+        txt = replace_meta_with_opengraph(txt, to)
         tmp.seek(0)
         tmp.write(txt)
         tmp.truncate()
@@ -173,6 +237,59 @@ def gen_index():
     with open("index.html", "w") as f:
         f.write(idx_html)
 
+def gen_rss():
+    # Articles to exclude from RSS (NSFW and Mirrored)
+    excluded_articles = {"Seduction", "Revelations", "rat", "bml", "khome", "shirt"}
+
+    # Get all HTML files
+    html_files = sorted([f for f in glob("*.html")
+                         if not f.startswith("_")
+                         and f != "index.html"
+                         and not f.endswith("-unstyled.html")])
+
+    # Filter out excluded articles
+    rss_items = []
+    for f in html_files:
+        basename = splitext(f)[0]
+        if basename in excluded_articles:
+            continue
+
+        title = get_title_from_html(f)
+        description = get_description_from_html(f)
+
+        # Escape XML special characters
+        title = title.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+        description = description.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+        rss_items.append((f, title, description))
+
+    # Generate RSS feed
+    rss = """<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Blog Posts</title>
+    <link>https://apaz-cli.github.io/blog/</link>
+    <description>Programming and thoughts</description>
+    <atom:link href="https://apaz-cli.github.io/blog/index.rss" rel="self" type="application/rss+xml" />
+"""
+
+    for filename, title, description in rss_items:
+        link = f"https://apaz-cli.github.io/blog/{filename}"
+        rss += f"""    <item>
+      <title>{title}</title>
+      <link>{link}</link>
+      <guid>{link}</guid>
+"""
+        if description:
+            rss += f"      <description>{description}</description>\n"
+        rss += "    </item>\n"
+
+    rss += """  </channel>
+</rss>"""
+
+    with open("index.rss", "w") as f:
+        f.write(rss)
+
 md_files: list[tuple[int, str]] = list(enumerate([f for f in glob("*.md") if not f.startswith("_")], 1))
 if only:
     md_files = [(i, f) for i, f in md_files if i == int(only)]
@@ -189,5 +306,12 @@ with ThreadPoolExecutor() as executor:
             print(f"Generated article {i}: {f}")
             futures.pop(future)
 
-gen_index()
-print("Generated index.html")
+with ThreadPoolExecutor() as executor:
+    index_future = executor.submit(gen_index)
+    rss_future = executor.submit(gen_rss)
+
+    index_future.result()
+    print("Generated index.html")
+
+    rss_future.result()
+    print("Generated index.rss")
