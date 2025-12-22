@@ -155,7 +155,7 @@ like these trajectories.</p>
 nvidia paper</a> (which you should read) that including some reasoning
 data in your base model, before the model is quenched, greatly benefits
 it in ways that SFT cannot replicate.</p>
-<p>I hypothesize that this has downstream benefits more domains than
+<p>I hypothesize that this has downstream benefits in more domains than
 just baking in useful reasoning patterns. I think this probably works
 basically no matter what your objective is, whether you're using
 <code>&lt;think&gt;</code> tags or not. It would be really surprising to
@@ -211,11 +211,13 @@ dataset.</p>
 <a href="https://assets.anthropic.com/m/74342f2c96095771/original/Natural-emergent-misalignment-from-reward-hacking-paper.pdf">Anthropic
 reward hacking alignment generalization paper</a> is probably way more
 important than we understand yet. If you pull on one thing in concept
-space, other related things tend to follow. When I consider this, plus
-the I think there's a solid chance that this implies that it's possible
+space, other related things tend to follow. When I consider this, I
+think there's a solid chance that this implies that it's possible
 through RL to learn capabilities and behaviors we don't understand yet,
 and this may also transfer across objectives in ways we don't understand
-yet.</p>
+yet. It is difficult to know which concepts are entangled and in what
+ways. I'm not sure how I would create an experiment to explore this,
+although it is probably worth exploring somehow.</p>
 <p>For this reason and others, developing fast automated
 interpretability tools to monitor RL training runs as they are
 progressing seems prudent. Another thing to look into, which I have seen

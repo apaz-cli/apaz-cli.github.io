@@ -34,6 +34,7 @@ categories = [
     "PerfWizard",
     "A_Treatise_On_ML_Data_Infrastructure",
     "Thoughts_About_LLMs_Data_and_Optimization",
+    "Thoughts_About_Entropy_and_Objectives",
   ]),
   ("SFW", [
     "Grifters",

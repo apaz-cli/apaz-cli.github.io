@@ -48,7 +48,7 @@ Yeah. I know you know that.
 </div>
 <br>
 
-I think the deeper lesson here is that there is no magic. "We do pretraining and then we do instruct tuning and then we finetune and then we quantize" is a formula that works pretty well, but there is nothing special about it. You can rationalize why it works, but there is no proof that it's optimal, and no reason you couldn't come up with other recipe.
+I think the deeper lesson here is that there is no magic. "We do pretraining and then we do instruct tuning and then we finetune and then we quantize" is a formula that works pretty well, but there is nothing special about it. You can rationalize why it works, but there is no proof that it's optimal, and no reason you couldn't come up with other recipes.
 
 There's also nothing particularly special about helpful assistants or factual recall. This is just the direction that the big labs have decided to pursue because it's useful, economically valuable, and marketable. Also having your own personal assistant is genuinely pretty cool. It's the first thing I would build too. But there's an entire world of alternative model personalities out there, unexplored.
 
@@ -96,7 +96,7 @@ You have a bunch of data now, that looks like your target domain. So why not bui
 
 There is evidence <a href="https://arxiv.org/abs/2510.03264">from an nvidia paper</a> (which you should read) that including some reasoning data in your base model, before the model is quenched, greatly benefits it in ways that SFT cannot replicate.
 
-I hypothesize that this has downstream benefits more domains than just baking in useful reasoning patterns. I think this probably works basically no matter what your objective is, whether you're using `<think>` tags or not. It would be really surprising to me if this were not the case. But needs testing.
+I hypothesize that this has downstream benefits in more domains than just baking in useful reasoning patterns. I think this probably works basically no matter what your objective is, whether you're using `<think>` tags or not. It would be really surprising to me if this were not the case. But needs testing.
 
 A very notable point that I feel compelled to make is that `<think>`ing is not RL, and RL is not `<think>`ing. Surely they are related in some meaningful sense, but you can do RL without think tags and vice-versa. Preference optimization is indeed generally a form of online or offline RL that does not involve think tags, and you can optimize for anything.
 
@@ -118,7 +118,7 @@ I find it interesting that this is the case. We know that the edits made my RL t
 
 The interplay here is interesting. It is a transfer of capabilities across objectives. It makes me wonder what else you can do. There are probably experiments to be done here. Also experiments to be done on how best to incorporate the trajectories back into a pretraining dataset.
 
-Another thought. The <a href="https://assets.anthropic.com/m/74342f2c96095771/original/Natural-emergent-misalignment-from-reward-hacking-paper.pdf">Anthropic reward hacking alignment generalization paper</a> is probably way more important than we understand yet. If you pull on one thing in concept space, other related things tend to follow. When I consider this, plus the I think there's a solid chance that this implies that it's possible through RL to learn capabilities and behaviors we don't understand yet, and this may also transfer across objectives in ways we don't understand yet.
+Another thought. The <a href="https://assets.anthropic.com/m/74342f2c96095771/original/Natural-emergent-misalignment-from-reward-hacking-paper.pdf">Anthropic reward hacking alignment generalization paper</a> is probably way more important than we understand yet. If you pull on one thing in concept space, other related things tend to follow. When I consider this, I think there's a solid chance that this implies that it's possible through RL to learn capabilities and behaviors we don't understand yet, and this may also transfer across objectives in ways we don't understand yet. It is difficult to know which concepts are entangled and in what ways. I'm not sure how I would create an experiment to explore this, although it is probably worth exploring somehow.
 
 For this reason and others, developing fast automated interpretability tools to monitor RL training runs as they are progressing seems prudent. Another thing to look into, which I have seen no real movement on in OSS.
 

@@ -9,12 +9,37 @@
 
 Description
 
+<br>
+
+## Disclaimers
+
+The same disclaimers that applied to part 1 apply to this one. If you haven't read that one, you should read that one first.
 
 Part 1: <a href="Thoughts_About_LLMs_Data_and_Optimization.html">Thoughts About LLMs, Data, and Optimization</a>
 
-<br>
+# Intro
 
-# Disclaimers
+So there I was. Seething with rage. Or, what approximates rage for me.
+
+I think it would be instructive to go over the different ways people are trying to do reinforcement learning pretraining.
+
+I had just finished reading the <a href="https://arxiv.org/abs/2512.03442">PretrainZero paper</a>. It is derived from the <a href="https://arxiv.org/abs/2506.08007">RPT paper</a>. There is also the <a href="https://arxiv.org/abs/2510.01265">Nvidia RLP paper</a>, which also builds on the RPT paper. Confusingly, there is also an unrelated paper called <a href="https://arxiv.org/abs/2509.19249">RLPT</a>, and they take a completely different approach. All of the acronyms stand for Reinforcement Learning Pre Training, with various capitalizations and words omitted.
+
+This is all very confusing. But I'll try to summarize the papers.
+
+RPT works basically how you would expect. It is RL, with standard GRPO where the objective is reasoning followed by next token prediction. There are `<think>` tags, and the model can reason about what the next token is before generating it. The objective is whether it gets the next token correct or not. Technically they do something slightly more complicated, they use a "prefix matching reward" where the reward is 1 or 0 depending on whether the model produces one or more tokens which correctly match the prefix bytes of a possible tokenization of the sequence's continuation, where the prefix must also end on a token boundary. But disregard that, "NTP optimized with GRPO" is the essence of the idea. The prefix matching reward is an implementation detail because tokenization is weird.
+
+And anyway, the Nvidia RLP paper throws this objective away immediately. They propose something else. For each position in the prompt,
+
+Sample the logprobs from doing normal next token prediction, and then also sample using `<think>`. Compute the difference between the logprobs when you compute the 
+
+
+
+
+This got me thinking about entropy.
+
+perplexity, probability, and logentropy are all exponentiations of the same thing.
+
 
 
 <br>
