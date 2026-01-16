@@ -6,42 +6,34 @@
     <description>Programming and thoughts</description>
     <atom:link href="https://apaz-cli.github.io/blog/index.rss" rel="self" type="application/rss+xml" />
     <item>
-      <title>A Treatise On ML Data Infrastructure</title>
-      <link>https://apaz-cli.github.io/blog/A_Treatise_On_ML_Data_Infrastructure.html</link>
-      <guid>https://apaz-cli.github.io/blog/A_Treatise_On_ML_Data_Infrastructure.html</guid>
-      <description>If you want to do machine learning, you need a lot of data. If you need a lot of data, someone must collect and process a lot of
-data. If someone must collect and process a lot of data, they need
-infrastructure. Here is a way to build that infrastructure.</description>
-    </item>
-    <item>
-      <title>Cursed Code Collection</title>
-      <link>https://apaz-cli.github.io/blog/Cursed_Code_Collection.html</link>
-      <guid>https://apaz-cli.github.io/blog/Cursed_Code_Collection.html</guid>
-      <description>I have a pile of interesting programs, and nowhere to put them. So
-I'm putting them here. The shebang for C is just a little bit longer than one line.</description>
-    </item>
-    <item>
-      <title>Descending Into the Stack and Madness</title>
-      <link>https://apaz-cli.github.io/blog/Descending_Into_The_Stack_And_Madness.html</link>
-      <guid>https://apaz-cli.github.io/blog/Descending_Into_The_Stack_And_Madness.html</guid>
-      <description>AS-Safe glibc stack traces. A descent into madness. A death by a
-thousand cuts. Call me melodramatic, but all I want is a nice, pretty, formatted
-backtrace from a signal handler. What am I to do?</description>
-    </item>
-    <item>
-      <title>Grifters</title>
-      <link>https://apaz-cli.github.io/blog/Grifters.html</link>
-      <guid>https://apaz-cli.github.io/blog/Grifters.html</guid>
-      <description>Forgive me, but today we will be talking about politics. I will
-be speaking in hyperbole. Note that for every broad generalization that
-I make there is bound to be a counterexample, and for every
-simplification an elaboration. But this is, for the most part, what I
-believe. I am open to argument in good faith.</description>
-    </item>
-    <item>
       <title>How to Write a Compiler Without Going Insane</title>
       <link>https://apaz-cli.github.io/blog/How_to_Write_a_Compiler_Without_Going_Insane.html</link>
       <guid>https://apaz-cli.github.io/blog/How_to_Write_a_Compiler_Without_Going_Insane.html</guid>
+    </item>
+    <item>
+      <title>Thoughts About LLMs, Data, and Optimization</title>
+      <link>https://apaz-cli.github.io/blog/Thoughts_About_LLMs_Data_and_Optimization.html</link>
+      <guid>https://apaz-cli.github.io/blog/Thoughts_About_LLMs_Data_and_Optimization.html</guid>
+      <description>First you select a metric. You acquire suitable data. Then you apply
+optimization pressure. Easy, right?</description>
+    </item>
+    <item>
+      <title>The Competition For Contributors</title>
+      <link>https://apaz-cli.github.io/blog/The_Contributor_Competition.html</link>
+      <guid>https://apaz-cli.github.io/blog/The_Contributor_Competition.html</guid>
+    </item>
+    <item>
+      <title>The Craziest Bug I Have Ever Witnessed</title>
+      <link>https://apaz-cli.github.io/blog/The_Craziest_Bug_I_Have_Ever_Witnessed.html</link>
+      <guid>https://apaz-cli.github.io/blog/The_Craziest_Bug_I_Have_Ever_Witnessed.html</guid>
+      <description>I thought I had seen it all. Nah. Not even close. Julia has a feature where you can report bugs and crashes from
+the command line. You just run your program with
+julia --bug-report=rr, and it sends a crash report plus an
+rr trace of the process to our servers for us to take a
+look at. Sometimes we get some crazy stuff. This is in fact not the first
+time that someone from the Julia team has found something crazy in a
+crash dump. Keno Fischer wrote a similar (and substantially more
+detailed) ar...</description>
     </item>
     <item>
       <title>Hyperparameter Heuristics</title>
@@ -66,14 +58,25 @@ CPU. This is tragic. In the age of LLMs and tooling, we should expect
 more from our software and our hardware.</description>
     </item>
     <item>
-      <title>An IDE for Micro-Optimization</title>
-      <link>https://apaz-cli.github.io/blog/PerfWizard.html</link>
-      <guid>https://apaz-cli.github.io/blog/PerfWizard.html</guid>
-      <description>It's now popular concensus that LLM developer tools are not going
-anywhere, and will only become more prevalent. Like it or not, there is
-no going back. We live in a changed world. Resistance is futile. So it makes sense to learn the latest tools, and build new ones. I
-have some ideas on how to build new ones, which I will lay out here. I
-don't see anyone doing this, so I will do it myself.</description>
+      <title>Descending Into the Stack and Madness</title>
+      <link>https://apaz-cli.github.io/blog/Descending_Into_The_Stack_And_Madness.html</link>
+      <guid>https://apaz-cli.github.io/blog/Descending_Into_The_Stack_And_Madness.html</guid>
+      <description>AS-Safe glibc stack traces. A descent into madness. A death by a
+thousand cuts. Call me melodramatic, but all I want is a nice, pretty, formatted
+backtrace from a signal handler. What am I to do?</description>
+    </item>
+    <item>
+      <title>Cursed Code Collection</title>
+      <link>https://apaz-cli.github.io/blog/Cursed_Code_Collection.html</link>
+      <guid>https://apaz-cli.github.io/blog/Cursed_Code_Collection.html</guid>
+      <description>I have a pile of interesting programs, and nowhere to put them. So
+I'm putting them here. The shebang for C is just a little bit longer than one line.</description>
+    </item>
+    <item>
+      <title>Thoughts About Entropy and Objectives</title>
+      <link>https://apaz-cli.github.io/blog/Thoughts_About_Entropy_and_Objectives.html</link>
+      <guid>https://apaz-cli.github.io/blog/Thoughts_About_Entropy_and_Objectives.html</guid>
+      <description>Description</description>
     </item>
     <item>
       <title>Prompting LLMs and Humans</title>
@@ -88,43 +91,40 @@ word matters. The context you provide, the tone you use, the assumptions
 you embed, etc. It all influences the response you get.</description>
     </item>
     <item>
+      <title>Grifters</title>
+      <link>https://apaz-cli.github.io/blog/Grifters.html</link>
+      <guid>https://apaz-cli.github.io/blog/Grifters.html</guid>
+      <description>Forgive me, but today we will be talking about politics. I will
+be speaking in hyperbole. Note that for every broad generalization that
+I make there is bound to be a counterexample, and for every
+simplification an elaboration. But this is, for the most part, what I
+believe. I am open to argument in good faith.</description>
+    </item>
+    <item>
+      <title>An IDE for Micro-Optimization</title>
+      <link>https://apaz-cli.github.io/blog/PerfWizard.html</link>
+      <guid>https://apaz-cli.github.io/blog/PerfWizard.html</guid>
+      <description>It's now popular concensus that LLM developer tools are not going
+anywhere, and will only become more prevalent. Like it or not, there is
+no going back. We live in a changed world. Resistance is futile. So it makes sense to learn the latest tools, and build new ones. I
+have some ideas on how to build new ones, which I will lay out here. I
+don't see anyone doing this, so I will do it myself.</description>
+    </item>
+    <item>
+      <title>A Treatise On ML Data Infrastructure</title>
+      <link>https://apaz-cli.github.io/blog/A_Treatise_On_ML_Data_Infrastructure.html</link>
+      <guid>https://apaz-cli.github.io/blog/A_Treatise_On_ML_Data_Infrastructure.html</guid>
+      <description>If you want to do machine learning, you need a lot of data. If you need a lot of data, someone must collect and process a lot of
+data. If someone must collect and process a lot of data, they need
+infrastructure. Here is a way to build that infrastructure.</description>
+    </item>
+    <item>
       <title>Safety and Correctness</title>
       <link>https://apaz-cli.github.io/blog/Safety_and_Correctness.html</link>
       <guid>https://apaz-cli.github.io/blog/Safety_and_Correctness.html</guid>
       <description>Software safety is a lofty, but poorly defined goal. Everybody has
 their own opinion about how to achieve "safety" in software. However,
 nobody really seems to be able to define what that means.</description>
-    </item>
-    <item>
-      <title>The Competition For Contributors</title>
-      <link>https://apaz-cli.github.io/blog/The_Contributor_Competition.html</link>
-      <guid>https://apaz-cli.github.io/blog/The_Contributor_Competition.html</guid>
-    </item>
-    <item>
-      <title>The Craziest Bug I Have Ever Witnessed</title>
-      <link>https://apaz-cli.github.io/blog/The_Craziest_Bug_I_Have_Ever_Witnessed.html</link>
-      <guid>https://apaz-cli.github.io/blog/The_Craziest_Bug_I_Have_Ever_Witnessed.html</guid>
-      <description>I thought I had seen it all. Nah. Not even close. Julia has a feature where you can report bugs and crashes from
-the command line. You just run your program with
-julia --bug-report=rr, and it sends a crash report plus an
-rr trace of the process to our servers for us to take a
-look at. Sometimes we get some crazy stuff. This is in fact not the first
-time that someone from the Julia team has found something crazy in a
-crash dump. Keno Fischer wrote a similar (and substantially more
-detailed) ar...</description>
-    </item>
-    <item>
-      <title>Thoughts About Entropy and Objectives</title>
-      <link>https://apaz-cli.github.io/blog/Thoughts_About_Entropy_and_Objectives.html</link>
-      <guid>https://apaz-cli.github.io/blog/Thoughts_About_Entropy_and_Objectives.html</guid>
-      <description>Description</description>
-    </item>
-    <item>
-      <title>Thoughts About LLMs, Data, and Optimization</title>
-      <link>https://apaz-cli.github.io/blog/Thoughts_About_LLMs_Data_and_Optimization.html</link>
-      <guid>https://apaz-cli.github.io/blog/Thoughts_About_LLMs_Data_and_Optimization.html</guid>
-      <description>First you select a metric. You acquire suitable data. Then you apply
-optimization pressure. Easy, right?</description>
     </item>
   </channel>
 </rss>
