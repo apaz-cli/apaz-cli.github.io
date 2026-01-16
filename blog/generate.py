@@ -365,7 +365,8 @@ def generate_article(i, f):
 
         return html.replace("  <title>", meta_tags + "  <title>")
 
-    title = splitext(f)[0]
+    # Extract just the filename without path or extension
+    title = splitext(os.path.basename(f))[0]
     display_title = title.replace("_", " ")
     html_file = title + ".html"
     unstyled_file = title + "-unstyled.html"
@@ -409,10 +410,15 @@ def generate_article(i, f):
     return i, f
 
 def gen_index():
+    # Get all HTML files
     html_files = sorted([f for f in glob("*.html")
                          if not f.startswith("_") and f != "index.html" and not f.endswith("-unstyled.html")])
 
-    all_posts = [(f, get_title_from_html(f)) for f in html_files]
+    # Filter out articles from secrets directory
+    secrets_md_files = {splitext(os.path.basename(f))[0] for f in glob(os.path.expanduser("~/git/Secrets/secrets/blog/*.md"))}
+
+    all_posts = [(f, get_title_from_html(f)) for f in html_files
+                 if splitext(f)[0] not in secrets_md_files]
 
     # Build article to category mapping
     article_to_category = {article: cat_name
@@ -469,12 +475,17 @@ def gen_rss():
                        if cat_name in {"Programming", "SFW"}
                        for article in articles}
 
+    # Get all HTML files
     html_files = [f for f in glob("*.html")
                   if not f.startswith("_") and f != "index.html" and not f.endswith("-unstyled.html")]
 
+    # Filter out articles from secrets directory
+    secrets_md_files = {splitext(os.path.basename(f))[0] for f in glob(os.path.expanduser("~/git/Secrets/secrets/blog/*.md"))}
+
     rss_items = []
     for f in html_files:
-        if splitext(f)[0] not in allowed_articles:
+        basename = splitext(f)[0]
+        if basename not in allowed_articles or basename in secrets_md_files:
             continue
 
         title = get_title_from_html(f).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
@@ -509,12 +520,22 @@ def gen_rss():
         f.write(rss)
 
 # Generate articles
-md_files = [(i, f) for i, f in enumerate(glob("*.md"), 1) if not f.startswith("_")]
-if only:
-    md_files = [(i, f) for i, f in md_files if i == int(only)]
+# Glob from both local directory and secrets directory
+local_md_files = [(i, f) for i, f in enumerate(glob("*.md"), 1) if not f.startswith("_")]
+secrets_md_files = [(i, f) for i, f in enumerate(glob(os.path.expanduser("~/git/Secrets/secrets/blog/*.md")), len(local_md_files) + 1) if not os.path.basename(f).startswith("_")]
 
+if only:
+    local_md_files = [(i, f) for i, f in local_md_files if i == int(only)]
+    secrets_md_files = [(i, f) for i, f in secrets_md_files if i == int(only)]
+
+# Process both lists in parallel using the same executor
 with ThreadPoolExecutor() as executor:
-    for i, f in executor.map(lambda args: generate_article(*args), md_files):
+    # Process local files
+    for i, f in executor.map(lambda args: generate_article(*args), local_md_files):
+        print(f"Generated article {i}: {f}")
+
+    # Process secrets files
+    for i, f in executor.map(lambda args: generate_article(*args), secrets_md_files):
         print(f"Generated article {i}: {f}")
 
 # Generate index and RSS
