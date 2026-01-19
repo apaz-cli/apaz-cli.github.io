@@ -50,7 +50,7 @@ Yeah. I know you know that.
 
 I think the deeper lesson here is that there is no magic. "We do pretraining and then we do instruct tuning and then we finetune and then we quantize" is a formula that works pretty well, but there is nothing special about it. You can rationalize why it works, but there is no proof that it's optimal, and no reason you couldn't come up with other recipes.
 
-There's also nothing particularly special about helpful assistants or factual recall. This is just the direction that the big labs have decided to pursue because it's useful, economically valuable, and marketable. Also having your own personal assistant is genuinely pretty cool. It's the first thing I would build too. But there's an entire world of alternative model personalities out there, unexplored.
+There's also nothing particularly special about helpful assistants or factual recall. This is just the direction that the big labs decided to pursue first because it's useful, economically valuable, and marketable. Also having your own personal assistant is genuinely pretty cool. It's the first thing I would build too. But there's an entire world of alternative model personalities out there, unexplored.
 
 <br>
 
@@ -62,7 +62,7 @@ There are some things that leaves out. Also I don't think that skills, knowledge
 
 The common narrative is that when you instruct tune a model, you can elicit the latent knowledge of the model even if that knowledge is not in the instruct tuning dataset. Assuming that the data is diverse enough, the model learns the general capability to recall knowledge that it saw in pretraining. It generalizes.
 
-This is True. It does do that. It does generalize. But not as well as if the pretraining data was actually in distribution. For example, doing synthetic data to reword your training data to question answer pairs and then instruct tuning on top of that is a way to improve your score on SimpleQA. The same factual data is being recalled, but it is more accessible in this format. The model doesn't have to work as hard to put two and two together from coincidental statistics.
+This is True. It does do that. It does generalize. But not as well as if the pretraining data was actually in distribution. For example, doing synthetic data to reword your training data to question answer pairs and then instruct tuning on top of that is a way to improve your score on SimpleQA. The same factual data is being recalled, but it is more accessible in this format. The model doesn't have to work as hard to put two and two together from coincidental statistics during finetuning, so it generalizes better.
 
 Or so I would rationalize. I am no interpretability expert.
 

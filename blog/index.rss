@@ -76,7 +76,10 @@ I'm putting them here. The shebang for C is just a little bit longer than one li
       <title>Thoughts About Entropy and Objectives</title>
       <link>https://apaz-cli.github.io/blog/Thoughts_About_Entropy_and_Objectives.html</link>
       <guid>https://apaz-cli.github.io/blog/Thoughts_About_Entropy_and_Objectives.html</guid>
-      <description>Description</description>
+      <description>A bunch of Reinforcement Learning Pre-Training (RLPT) papers have
+come out recently. They're cool. They even work kinda mostly. Unfortunately, nobody seems to be in agreement on what they are doing
+or why. Here's my understanding of the problem, and a take on a path
+forward.</description>
     </item>
     <item>
       <title>Prompting LLMs and Humans</title>

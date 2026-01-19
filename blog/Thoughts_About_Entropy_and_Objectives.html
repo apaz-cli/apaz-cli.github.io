@@ -5,7 +5,10 @@
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="og:title" content="Thoughts About Entropy and Objectives">
-  <meta name="og:description" content="Description">
+  <meta name="og:description" content="A bunch of Reinforcement Learning Pre-Training (RLPT) papers have
+come out recently. They're cool. They even work kinda mostly. Unfortunately, nobody seems to be in agreement on what they are doing
+or why. Here's my understanding of the problem, and a take on a path
+forward.">
   <meta name="og:image" content="images/__original_drawn_by_fjsmu__7de05afebfaf7b9f8c03f673a7909731.png">
   <title>Thoughts About Entropy and Objectives</title>
   <style>
@@ -282,7 +285,11 @@ and Objectives</h1>
 <p><img
 src="images/__original_drawn_by_fjsmu__7de05afebfaf7b9f8c03f673a7909731.png" /></p>
 <p><br></p>
-<p>Description</p>
+<p>A bunch of Reinforcement Learning Pre-Training (RLPT) papers have
+come out recently. They're cool. They even work kinda mostly.</p>
+<p>Unfortunately, nobody seems to be in agreement on what they are doing
+or why. Here's my understanding of the problem, and a take on a path
+forward.</p>
 <p><br></p>
 <h2 id="disclaimers">Disclaimers</h2>
 <p>The same disclaimers that applied to part 1 apply to this one. If you
@@ -290,7 +297,143 @@ haven't read that one, you should read that one first.</p>
 <p>Part 1:
 <a href="Thoughts_About_LLMs_Data_and_Optimization.html">Thoughts About
 LLMs, Data, and Optimization</a></p>
-<h1 id="intro">Intro</h1>
+<h2 id="facts">Facts</h2>
+<p>In this post we will talk about five papers.</p>
+<p>There are the Reinforcement Learning Pre-Training papers, with
+different capitalizations and words omitted from acronyms.</p>
+<ul>
+<li>The <a href="https://arxiv.org/abs/2512.03442">PretrainZero</a></li>
+<li>The <a href="https://arxiv.org/abs/2506.08007">RPT paper</a></li>
+<li>The <a href="https://arxiv.org/abs/2510.01265">RLP paper</a></li>
+<li>The <a href="https://arxiv.org/abs/2509.19249">RLPT paper</a></li>
+</ul>
+<p>That's a lot of acronyms. They are hard to keep straight. Probably
+more papers like this have been published since I started writing this
+article a month ago, I will leave them out for brevity.</p>
+<p>There is also:</p>
+<ul>
+<li>The <a href="https://arxiv.org/abs/2601.03220">Epiplexity
+paper</a>.</li>
+</ul>
+<p>The sane thing to do would be to not read the first four papers
+unless you are going to be doing RL pretraining of some sort. Just wait
+it out and see who wins. But the epiplexity paper is a must-read, or
+actually a must-understand. I think it is very important for anyone
+interested in dataset construction.</p>
+<p>But back to the original topic. The issue is that the authors of all
+the above papers have different goals.</p>
+<p>The PretrainZero authors (Xiaohongshu) are inspired by cognitive
+science. They want to make a model that learns more like humans, who
+seek out knowledge and learn about it largely through Operant
+Conditioning, which they approximate through LLM RL.</p>
+<p>The RPT authors (Microsoft) are trying to create a new scaling
+paradigm. They want to blow a lot of compute and demonstrate scaling
+laws which hopefully are amenable to massive-scale training in the
+future. They optimize for predicting the next token correctly. They are
+doing almost the simplest possible thing and hoping that it leads
+somewhere good in terms of downstream tasks.</p>
+<p>The RLP authors (Nvidia) question the paradigm where we do lots of
+pretraining beforehand, then do RL afterward. They think that maybe this
+is not strictly correct from an information-theoretic sense, so they
+frame the CoT as an exploratory action and use entropy reduction as the
+reward signal.</p>
+<p>The RLPT authors want a way to squeeze more information out of their
+data. In information theory, compute out of their data.</p>
+<p>All of these are reasonable reasons to explore RLPT. Each line of
+reasoning probably leads somewhere. Still, I think it is worth examining
+what we are doing and why.</p>
+<h2 id="pretraining-and-information-theory-background">Pretraining and
+Information Theory Background</h2>
+<p>An LLM is a function that takes in a sequence of tokens and outputs a
+probability distribution over the next token.</p>
+<p>So, if you wanted to shape that probability distribution, what would
+you do with it? What do you want the distribution to look like?</p>
+<p>Which tokens would you want to be more sure about and less sure about
+outputting? Why? Does it depend?</p>
+<p>I mean, like, seriously take a step back and actually think about
+it.</p>
+<p>This is the question we are answering when we select data and an
+objective. I find this perspective to be incredibly useful in many
+different scenarios. It is helpful for explaining entropy collapse in
+RL, it explains why synthetic data is low entropy, it explains entropy
+as a "finetuning resource," and it is also is a good lens with which to
+view epiplexity.</p>
+<p>Different objectives (CrossEntropy pretraining, DPO, SFT, GRPO, etc)
+all provide distinct answers to the question of how to shape the
+probability distribution. In pretraining we shape the distribution such
+that the probabilities match the occurrence in the dataset. If the model
+can memorize the data, which is to say compress it, it can achieve zero
+loss. In practice this is not possible. The model must learn patterns to
+help it fit the data. In doing so it learns how the world works, how
+language works, and it generalizes.</p>
+<p>We have a pretty good idea why this works, rooted in information
+theory. If you'd like to know more about this, watch the Ilya video I
+linked in the previous article. It explains the link to Shannon Entropy
+and Kolmogorov Complexity, which are also required for understanding
+Epiplexity.</p>
+<h2 id="reinforcement-learning">Reinforcement Learning</h2>
+<p>In Reinforcement Learning, a different approach is taken. Instead of
+compression, the objective is "make it work." More specifically, "the
+probability distribution should be shaped such that tokens leading to
+comparatively successful rollouts are high probability and comparatively
+unsuccessful rollouts are low probability."</p>
+<p>One important thing to note is that unlike in pretraining, there is
+no richness guarantee in RL. There is no particular reason why the model
+must learn lots of facts about the world, and no reason it should learn
+the solution or breadth of solutions that you want it to. It only learns
+to maximize reward. Even if the task requires a plethora of strategies
+to be played optimally, RL may choose to optimize only one strategy if
+it works alright in the general case. RL wants to pigeonhole itself so
+bad, and we design RL environments with these considerations in
+mind.</p>
+<p>The parallels to operant and classical conditioning run deep, we even
+do reward shaping. I think this is best illustrated with an example,
+clicker training a puppy to play fetch.</p>
+<p>The puppy will probably not understand what you want it to do at the
+beginning. That's okay. Instead of rewarding the action that you're
+ultimately training for, you can give lesser rewards for stuff along the
+way. If you want it to fetch the stick, you can reward it for going over
+to investigate the stick after you throw it. You use the clicker to mark
+the moment that it did something right, so that it understands what
+caused it to be rewarded. Then the next time you throw the stick it will
+probably run to stand next to it. Get it to do this consistently, and
+start to back off the rewards. It will probably get bored and start
+trying things. The moment it puts its mouth on the stick, give it
+another click to mark the moment and a reward. It will keep doing it.
+When the puppy wanders closer to you, give it another click. A few more
+times, and it will have figured it out. The puppy probably would not
+have figured it out if all you clicked for was a successful fetch.</p>
+<p>Anyway. Long extended metaphor. But I think RL is RL is RL whether
+it's on puppies or people or language models. I also think it's
+interesting that we don't currently have an analog in LLM RL for for
+backing off the rewards once a behavior is established. Also known in
+operant conditioning as schedule thinning. Interestingly, we do have an
+analog for the clicker. For marking, to use the conditioning word. We
+have credit assignment algorithms, for example
+<a href="https://arxiv.org/abs/2510.00194">GRPO-λ</a>.</p>
+<p>Anyway, point is, think about the target output distribution you
+want. If you're thinking about RL, think about how to get there.</p>
+<h2 id="finetuning-entropy">Finetuning Entropy</h2>
+<p>Let's think back to the question. If you wanted to shape the
+probability distribution of an LLM, what would you do with it?
+Equivalently, let's look at how this plays out in practice, in perhaps
+its rawest form. Let's compare the distributions outputted by a model
+before and after finetuning.</p>
+<p>To illustrate the choices the Qwen team made, I've had Claude create
+a webpage comparing the output distributions of Qwen3-1.5B-Base and
+Qwen3-1.5B-Instruct.</p>
+<p>See the page <a href="...">HERE</a>.</p>
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/example.jpg" width=500>
+<figcaption aria-hidden="true">
+Example.
+</figcaption>
+</figure>
+</div>
+<p><br></p>
+<h2 id="papers">Papers</h2>
 <p>So there I was. Seething with rage. Or, what approximates rage for
 me.</p>
 <p>I think it would be instructive to go over the different ways people
@@ -326,7 +469,7 @@ for predicting the next token. The loss you would want to minimize is is
 But we are doing RL, specifically GRPO, because we cannot actually
 propagate the gradient through sampling multiple tokens from the policy
 <code>θ</code>. We also do not compare directly against the policy, but
-agaisnt a slowly-updated exponential moving average of the policy
+against a slowly-updated exponential moving average of the policy
 parameters <code>φ</code>. Using the EMA of the policy <code>θ</code>
 instead of just the policy prevents reward hacking. So, as we are doing
 GRPO, we flip the sign and sample <code>G &gt;= 2</code> (16 in the
