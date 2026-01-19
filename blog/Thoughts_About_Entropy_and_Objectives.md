@@ -78,7 +78,7 @@ The puppy will probably not understand what you want it to do at the beginning. 
 
 Anyway. Long extended metaphor. But I think RL is RL is RL whether it's performed on puppies or people or language models. I also think it's interesting that we don't currently have an analog in LLM RL for for backing off the rewards once a behavior is established. Also known in operant conditioning as schedule thinning. Interestingly, we do have an analog for the clicker. For marking, we have credit assignment algorithms, for example <a href="https://arxiv.org/abs/2510.00194">GRPO-λ</a>.
 
-Anyway, point is, think about the target output distribution you want. If you're thinking about RL, think about how to get there too.
+Point is, think about the target output distribution you want. If you're thinking about RL, think about how to get there too.
 
 ## Finetuning Entropy
 
