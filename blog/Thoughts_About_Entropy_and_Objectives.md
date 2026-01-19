@@ -3,7 +3,7 @@
 
 <br>
 
-![](images/__original_drawn_by_fjsmu__7de05afebfaf7b9f8c03f673a7909731.png)
+![](images/7de05afebfaf7b9f8c03f673a7909731.png)
 
 <br>
 
