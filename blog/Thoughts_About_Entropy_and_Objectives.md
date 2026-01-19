@@ -7,7 +7,7 @@
 
 <br>
 
-A bunch of Reinforcement Learning Pre-Training (RLPT) papers have come out recently. They're cool. They even work kinda mostly.
+A bunch of Reinforcement Learning Pre-Training (RLPT) papers have come out recently. They're cool. They even work kinda mostly. They can improve benchmark scores.
 
 Unfortunately, nobody seems to be in agreement on what they are doing or why. Here's my understanding of the problem, and a take on a path forward.
 
@@ -15,7 +15,7 @@ Unfortunately, nobody seems to be in agreement on what they are doing or why. He
 
 ## Disclaimers
 
-The same disclaimers that applied to part 1 apply to this one. If you haven't read that one, you should read that one first.
+The same disclaimers that applied to part 1 apply to this one. If you haven't read that one, you should read that one first. I make the case for pretraining on trajectories.
 
 Part 1: <a href="Thoughts_About_LLMs_Data_and_Optimization.html">Thoughts About LLMs, Data, and Optimization</a>
 
@@ -76,9 +76,9 @@ The parallels to operant and classical conditioning run deep, we even do reward 
 
 The puppy will probably not understand what you want it to do at the beginning. That's okay. Instead of rewarding the action that you're ultimately training for, you can give lesser rewards for stuff along the way. If you want it to fetch the stick, you can reward it for going over to investigate the stick after you throw it. You use the clicker to mark the moment that it did something right, so that it understands what caused it to be rewarded. Then the next time you throw the stick it will probably run to stand next to it. Get it to do this consistently, and start to back off the rewards. It will probably get bored and start trying things. The moment it puts its mouth on the stick, give it another click to mark the moment and a reward. It will keep doing it. When the puppy wanders closer to you, give it another click. A few more times, and it will have figured it out. The puppy probably would not have figured it out if all you clicked for was a successful fetch.
 
-Anyway. Long extended metaphor. But I think RL is RL is RL whether it's on puppies or people or language models. I also think it's interesting that we don't currently have an analog in LLM RL for for backing off the rewards once a behavior is established. Also known in operant conditioning as schedule thinning. Interestingly, we do have an analog for the clicker. For marking, to use the conditioning word. We have credit assignment algorithms, for example <a href="https://arxiv.org/abs/2510.00194">GRPO-λ</a>.
+Anyway. Long extended metaphor. But I think RL is RL is RL whether it's performed on puppies or people or language models. I also think it's interesting that we don't currently have an analog in LLM RL for for backing off the rewards once a behavior is established. Also known in operant conditioning as schedule thinning. Interestingly, we do have an analog for the clicker. For marking, we have credit assignment algorithms, for example <a href="https://arxiv.org/abs/2510.00194">GRPO-λ</a>.
 
-Anyway, point is, think about the target output distribution you want. If you're thinking about RL, think about how to get there.
+Anyway, point is, think about the target output distribution you want. If you're thinking about RL, think about how to get there too.
 
 ## Finetuning Entropy
 
@@ -97,9 +97,33 @@ See the page [HERE](...).
 </div>
 <br>
 
+TODO: Explain entropy (uncertainty) as a finetuning resource, summarize my tweet from before
+
+* Include the figure from the paper about their recipe
+
+## Dataset Construction, Synthetic Data, and Epiplexity
+
+* LLMs cannot produce high entropy tokens by definition, you are sampling from the probability distribution. If they do, it's by literal random chance, that entropy does not reflect any sort of external reality.
 
 
+## Critique of RLPT and a path forward
 
+* The benefits of RLPT in general seems to be in making RL better for downstream tasks (CLAUDE)
+
+* The best way to do this is probably to pretrain on rollouts, if you want to do something specific. This benefits from dataset filtering and curation research.
+
+* Maybe identify important tokens and upweight on them? Maybe only propagate the grad for the most important tokens and crank the effective batch size? Maybe something like Focal loss?
+
+* The path to general RLPT is not clear to me. In the case of compression, there is a well understood information-theoretic reasoning behind why it should work.
+
+* The RLP paper approach seems the most justifiable to me. I think information gain is a good metric. It seems like it could improve something. But what, exactly (CLAUDE)?
+
+* I wish that we were all thinking about these questions collectively. But in particular I would love to get to know a model trained with RLP (CLAUDE: Are there any that I can mess with). I think this about the models from all these papers, but sadly none have made their weights available.
+
+
+## Conclusion
+
+* I may just be biased and stupid. I'm sitting here talking about information theory and some lab is going to scale raw RLPT and it's going to work. It could happen. You decide what to believe.
 
 
 ## Papers
@@ -116,7 +140,7 @@ RPT works basically how you would expect. It is RL, with standard GRPO where the
 
 The Nvidia RLP paper does not use this objective. They propose something else. For each position in the prompt, they sample a CoT of 2048 tokens. Then they measure the information gain provided by the CoT for predicting the next token. The loss you would want to minimize is is `CE(θ(seq, CoT, pred), expected) - CE(φ(seq, pred), expected)`. But we are doing RL, specifically GRPO, because we cannot actually propagate the gradient through sampling multiple tokens from the policy `θ`. We also do not compare directly against the policy, but against a slowly-updated exponential moving average of the policy parameters `φ`. Using the EMA of the policy `θ` instead of just the policy prevents reward hacking. So, as we are doing GRPO, we flip the sign and sample `G >= 2` (16 in the paper) thoughts per position. Then we calculate advantages in the usual GRPO way using the group mean and use this to update the model. Important to note is that Nvidia only computed advantages for the CoT tokens, not the seq tokens or predicted token. Those are not being trained, only the CoT after each token position is. They found that this method outperformed RPT in direct comparison with matched data and compute. They also showed that these improvements persist and compound after subsequent (SFT + RLVR) post-training.
 
-PretrainZero does its own thing, which is kind of interesting. Instead of training one model, they train two models. One m
+PretrainZero does its own thing, which is kind of interesting. Instead of training one model, they train two models. One model 
 
 
 I feel like I should note that the 
