@@ -128,8 +128,6 @@ TODO: Explain entropy (uncertainty) as a finetuning resource, summarize my tweet
 
 ## Papers
 
-So there I was. Seething with rage. Or, what approximates rage for me.
-
 I think it would be instructive to go over the different ways people are trying to do reinforcement learning pretraining.
 
 I had just finished reading the <a href="https://arxiv.org/abs/2512.03442">PretrainZero paper</a>. It is derived from the <a href="https://arxiv.org/abs/2506.08007">RPT paper</a>. There is also the <a href="https://arxiv.org/abs/2510.01265">Nvidia RLP paper</a>, which also builds on the RPT paper. Confusingly, there is also an unrelated paper called <a href="https://arxiv.org/abs/2509.19249">RLPT</a>, and they take a completely different approach which I don't feel the need to get into. All of the acronyms stand for Reinforcement Learning Pre Training, with various capitalizations and words omitted.
