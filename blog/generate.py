@@ -409,10 +409,11 @@ def generate_article(i, f):
 
     return i, f
 
-def gen_index():
+def gen_index_html(exclude_nsfw=False, output_filename="index.html", title="Blog Posts"):
+    """Generate an index HTML file, optionally excluding NSFW content."""
     # Get all HTML files
     html_files = sorted([f for f in glob("*.html")
-                         if not f.startswith("_") and f != "index.html" and not f.endswith("-unstyled.html")])
+                         if not f.startswith("_") and f != "index.html" and f != "fullindex.html" and not f.endswith("-unstyled.html")])
 
     # Filter out articles from secrets directory
     secrets_md_files = {splitext(os.path.basename(f))[0] for f in glob(os.path.expanduser("~/git/Secrets/secrets/blog/*.md"))}
@@ -441,16 +442,20 @@ def gen_index():
     html = f"""<!DOCTYPE html>
 <html>
 <head>
-    <title>Blog Index</title>
+    <title>{title}</title>
 {css}
 </head>
 <body>
-    <h1>Blog Posts</h1>
+    <h1>{title}</h1>
     <img src="images/100439997_p0.jpg" style="display: block; margin: 0 auto;" height=400>
 """
 
     # Output categories
     for cat_name, _ in categories:
+        # Skip NSFW category if exclude_nsfw is True
+        if exclude_nsfw and cat_name == "NSFW":
+            continue
+
         if categorized_posts[cat_name]:
             html += f"    <h2>{cat_name.upper()}</h2>\n    <ul>\n"
             for post_file, post_title in categorized_posts[cat_name]:
@@ -465,8 +470,16 @@ def gen_index():
 
     html += "</body>\n</html>"
 
-    with open("index.html", "w") as f:
+    with open(output_filename, "w") as f:
         f.write(html)
+
+def gen_index():
+    """Generate both index files: one without NSFW, one with all content."""
+    # Generate clean index (no NSFW)
+    gen_index_html(exclude_nsfw=True, output_filename="index.html", title="Blog Posts")
+
+    # Generate full index (includes NSFW)
+    gen_index_html(exclude_nsfw=False, output_filename="fullindex.html", title="Blog Posts")
 
 def gen_rss():
     # Only include Programming and SFW articles
