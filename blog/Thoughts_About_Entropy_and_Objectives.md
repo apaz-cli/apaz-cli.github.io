@@ -123,7 +123,7 @@ TODO: Explain entropy (uncertainty) as a finetuning resource, summarize my tweet
 
 ## Conclusion
 
-* I may just be biased and stupid. I'm sitting here talking about information theory and some lab is going to scale raw RLPT and it's going to work. It could happen. You decide what to believe.
+* I may just be biased and stupid. I'm sitting here talking about information theory and some lab is going to scale naive RLPT and it's going to work. I don't think it will, but it could happen. You decide what to believe.
 
 
 ## Papers

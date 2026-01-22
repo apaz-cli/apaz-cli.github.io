@@ -22,7 +22,7 @@ from cryptography.hazmat.primitives import padding as sym_padding
 # Configuration
 stylefile = "../resources/style/pandoc.html"
 rss_description_max_length = 500
-only = argv[1] if len(argv) > 1 else None
+target_index = int(argv[1]) if len(argv) > 1 else None
 
 # Load password-protected articles
 protected_articles = {}
@@ -34,6 +34,10 @@ except (FileNotFoundError, json.JSONDecodeError):
 
 def run(cmd):
     subprocess.run(split(cmd), check=True)
+
+def escape_xml(text):
+    """Escape special characters for XML/HTML content."""
+    return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 replace = "\s+.sourceCode {\s+background-color: transparent;\s+overflow: visible;\s+}"
 repwith = "\n    .sourceCode {\n      font-size: 20px;\n    }"
@@ -71,39 +75,17 @@ categories = [
   ]),
 ]
 
-def create_encrypted_html(original_html, password, title):
-    """Create an encrypted HTML page with password prompt and decryption logic using AES-CBC with HMAC."""
+def encrypt_content_aes_cbc(body_content, password):
+    """Encrypt content using AES-CBC with HMAC, returning base64-encoded components.
 
-    # Extract the body content to encrypt
-    body_match = re.search(r'<body>(.*)</body>', original_html, re.DOTALL)
-    if not body_match:
-        return original_html  # Fallback if no body found
-
-    body_content = body_match.group(1)
-
-    # Load CryptoJS library
-    cryptojs_path = os.path.join(os.path.dirname(__file__), 'crypto-js.min.js')
-    with open(cryptojs_path) as f:
-        cryptojs_code = f.read()
-
-    # Extract all CSS from the original HTML's head section
-    css_content = ""
-    head_match = re.search(r'<head>(.*?)</head>', original_html, re.DOTALL)
-    if head_match:
-        # Extract all style tags and link tags
-        head_content = head_match.group(1)
-        css_content = '\n'.join(re.findall(r'<style[^>]*>.*?</style>', head_content, re.DOTALL))
-    else:
-        # Fallback to reading from pandoc.html
-        with open(stylefile, "r") as css_file:
-            css_content = css_file.read()
-
-    # Encrypt the content using AES-CBC with HMAC
-    # Derive from content hash so encryption is reproducible (no spurious git changes)
+    Uses deterministic encryption based on content hash to avoid spurious git changes.
+    Returns (salt_b64, iv_b64, ciphertext_b64, auth_tag_b64).
+    """
     content_hash = hashlib.sha256(body_content.encode('utf-8')).digest()
 
-    # Derive deterministic salt from content hash
+    # Derive deterministic salt and IV from content hash
     salt = content_hash[:16]
+    iv = content_hash[16:32]
 
     # Derive key from password using PBKDF2 (64 bytes: 32 for AES, 32 for HMAC)
     kdf = PBKDF2HMAC(
@@ -114,11 +96,8 @@ def create_encrypted_html(original_html, password, title):
         backend=default_backend()
     )
     derived_key = kdf.derive(password.encode('utf-8'))
-    encryption_key = derived_key[:32]  # First 32 bytes for AES
-    hmac_key = derived_key[32:]  # Last 32 bytes for HMAC
-
-    # Derive deterministic IV from content hash
-    iv = content_hash[16:32]  # 16 bytes for AES IV
+    encryption_key = derived_key[:32]
+    hmac_key = derived_key[32:]
 
     # Pad and encrypt with AES-CBC
     padder = sym_padding.PKCS7(128).padder()
@@ -133,11 +112,39 @@ def create_encrypted_html(original_html, password, title):
     h.update(ciphertext)
     auth_tag = h.finalize()
 
-    # Base64 encode for embedding in HTML
-    salt_b64 = base64.b64encode(salt).decode('utf-8')
-    iv_b64 = base64.b64encode(iv).decode('utf-8')
-    ciphertext_b64 = base64.b64encode(ciphertext).decode('utf-8')
-    auth_tag_b64 = base64.b64encode(auth_tag).decode('utf-8')
+    return (
+        base64.b64encode(salt).decode('utf-8'),
+        base64.b64encode(iv).decode('utf-8'),
+        base64.b64encode(ciphertext).decode('utf-8'),
+        base64.b64encode(auth_tag).decode('utf-8'),
+    )
+
+def create_encrypted_html(original_html, password, title):
+    """Create an encrypted HTML page with password prompt and decryption logic using AES-CBC with HMAC."""
+
+    # Extract the body content to encrypt
+    body_match = re.search(r'<body>(.*)</body>', original_html, re.DOTALL)
+    if not body_match:
+        return original_html  # Fallback if no body found
+
+    body_content = body_match.group(1)
+
+    # Load CryptoJS library
+    cryptojs_path = os.path.join(os.path.dirname(__file__), 'crypto-js.min.js')
+    with open(cryptojs_path) as js_file:
+        cryptojs_code = js_file.read()
+
+    # Extract all CSS from the original HTML's head section
+    css_content = ""
+    head_match = re.search(r'<head>(.*?)</head>', original_html, re.DOTALL)
+    if head_match:
+        head_content = head_match.group(1)
+        css_content = '\n'.join(re.findall(r'<style[^>]*>.*?</style>', head_content, re.DOTALL))
+    else:
+        with open(stylefile, "r") as css_file:
+            css_content = css_file.read()
+
+    salt_b64, iv_b64, ciphertext_b64, auth_tag_b64 = encrypt_content_aes_cbc(body_content, password)
 
     encrypted_html = f'''<!DOCTYPE html>
 <html>
@@ -272,9 +279,9 @@ def create_encrypted_html(original_html, password, title):
 
     return encrypted_html
 
-def get_title_from_html(f):
-    with open(f, "r") as tmp:
-        txt = tmp.read()
+def get_title_from_html(filepath):
+    with open(filepath, "r") as html_file:
+        txt = html_file.read()
         title_match = re.search("<title>(.*?)</title>", txt)
         h1_match = re.search(r"<h1[^>]*>(.*?)</h1>", txt, re.DOTALL)
         if h1_match:
@@ -282,9 +289,9 @@ def get_title_from_html(f):
         elif title_match:
             return re.sub(r'\s+', ' ', title_match.group(1).strip())
         else:
-            return splitext(f)[0]
+            return splitext(filepath)[0]
 
-def get_description_from_html(f):
+def get_description_from_html(filepath):
     STOP_TAGS = ['<pre', '<div class="sourceCode"', '<table', '<ul', '<ol']
 
     def clean_text(html):
@@ -301,8 +308,8 @@ def get_description_from_html(f):
             return text[:rss_description_max_length - 3] + "..."
         return text
 
-    with open(f, "r") as tmp:
-        txt = tmp.read()
+    with open(filepath, "r") as html_file:
+        txt = html_file.read()
 
     # Extract and combine opening paragraphs
     body_match = re.search(r'<body>(.*?)</body>', txt, re.DOTALL)
@@ -346,7 +353,7 @@ def get_description_from_html(f):
 
     return truncate_if_needed(combined) if combined else ""
 
-def generate_article(i, f):
+def generate_article(i, md_file):
     def replace_meta_with_opengraph(html, filepath):
         titlegroup = re.search(r"<h1[^>]*>(.*?)</h1>", html, re.DOTALL)
         first_image = re.search(r'<img[^>]*src="([^"]*)"[^>]*>', html)
@@ -366,7 +373,7 @@ def generate_article(i, f):
         return html.replace("  <title>", meta_tags + "  <title>")
 
     # Extract just the filename without path or extension
-    title = splitext(os.path.basename(f))[0]
+    title = splitext(os.path.basename(md_file))[0]
     display_title = title.replace("_", " ")
     html_file = title + ".html"
     unstyled_file = title + "-unstyled.html"
@@ -382,8 +389,8 @@ def generate_article(i, f):
         unstyled_path = unstyled_file
 
     # Generate HTML with pandoc
-    run(f'pandoc -s --metadata pagetitle="{display_title}" -f markdown-smart -H {stylefile} {f} -o {styled_path}')
-    run(f'pandoc -s --metadata pagetitle="{display_title}" -f markdown-smart {f} -o {unstyled_path}')
+    run(f'pandoc -s --metadata pagetitle="{display_title}" -f markdown-smart -H {stylefile} {md_file} -o {styled_path}')
+    run(f'pandoc -s --metadata pagetitle="{display_title}" -f markdown-smart {md_file} -o {unstyled_path}')
 
     # Process styled version
     with open(styled_path) as file:
@@ -407,19 +414,19 @@ def generate_article(i, f):
     if is_protected:
         shutil.rmtree(tmp_dir)
 
-    return i, f
+    return i, md_file
 
-def gen_index_html(exclude_nsfw=False, output_filename="index.html", title="Blog Posts"):
-    """Generate an index HTML file, optionally excluding NSFW content."""
+def gen_index_html(exclude_nsfw=False, exclude_mirrored=False, sfw_label="SFW", output_filename="index.html", title="Blog Posts"):
+    """Generate an index HTML file, optionally excluding NSFW/Mirrored content."""
     # Get all HTML files
-    html_files = sorted([f for f in glob("*.html")
-                         if not f.startswith("_") and f != "index.html" and f != "fullindex.html" and not f.endswith("-unstyled.html")])
+    html_files = sorted([filepath for filepath in glob("*.html")
+                         if not filepath.startswith("_") and filepath != "index.html" and filepath != "fullindex.html" and not filepath.endswith("-unstyled.html")])
 
     # Filter out articles from secrets directory
-    secrets_md_files = {splitext(os.path.basename(f))[0] for f in glob(os.path.expanduser("~/git/Secrets/secrets/blog/*.md"))}
+    secrets_basenames = {splitext(os.path.basename(filepath))[0] for filepath in glob(os.path.expanduser("~/git/Secrets/secrets/blog/*.md"))}
 
-    all_posts = [(f, get_title_from_html(f)) for f in html_files
-                 if splitext(f)[0] not in secrets_md_files]
+    all_posts = [(filepath, get_title_from_html(filepath)) for filepath in html_files
+                 if splitext(filepath)[0] not in secrets_basenames]
 
     # Build article to category mapping
     article_to_category = {article: cat_name
@@ -436,8 +443,8 @@ def gen_index_html(exclude_nsfw=False, output_filename="index.html", title="Blog
         categorized_posts[category].append((post_file, post_title))
 
     # Build HTML
-    with open(stylefile) as f:
-        css = f.read()
+    with open(stylefile) as css_file:
+        css = css_file.read()
 
     html = f"""<!DOCTYPE html>
 <html>
@@ -455,9 +462,13 @@ def gen_index_html(exclude_nsfw=False, output_filename="index.html", title="Blog
         # Skip NSFW category if exclude_nsfw is True
         if exclude_nsfw and cat_name == "NSFW":
             continue
+        # Skip Mirrored category if exclude_mirrored is True
+        if exclude_mirrored and cat_name == "Mirrored":
+            continue
 
         if categorized_posts[cat_name]:
-            html += f"    <h2>{cat_name.upper()}</h2>\n    <ul>\n"
+            display_name = sfw_label if cat_name == "SFW" else cat_name
+            html += f"    <h2>{display_name.upper()}</h2>\n    <ul>\n"
             for post_file, post_title in categorized_posts[cat_name]:
                 html += f"        <li><a href=\"{post_file}\">{post_title}</a></li>\n"
             html += "    </ul>\n"
@@ -470,16 +481,16 @@ def gen_index_html(exclude_nsfw=False, output_filename="index.html", title="Blog
 
     html += "</body>\n</html>"
 
-    with open(output_filename, "w") as f:
-        f.write(html)
+    with open(output_filename, "w") as out_file:
+        out_file.write(html)
 
 def gen_index():
     """Generate both index files: one without NSFW, one with all content."""
-    # Generate clean index (no NSFW)
-    gen_index_html(exclude_nsfw=True, output_filename="index.html", title="Blog Posts")
+    # Generate clean index (no NSFW, no Mirrored, SFW renamed to Other)
+    gen_index_html(exclude_nsfw=True, exclude_mirrored=True, sfw_label="Other", output_filename="index.html", title="Blog Posts")
 
-    # Generate full index (includes NSFW)
-    gen_index_html(exclude_nsfw=False, output_filename="fullindex.html", title="Blog Posts")
+    # Generate full index (includes everything)
+    gen_index_html(exclude_nsfw=False, exclude_mirrored=False, sfw_label="SFW", output_filename="fullindex.html", title="Blog Posts")
 
 def gen_rss():
     # Only include Programming and SFW articles
@@ -489,21 +500,21 @@ def gen_rss():
                        for article in articles}
 
     # Get all HTML files
-    html_files = [f for f in glob("*.html")
-                  if not f.startswith("_") and f != "index.html" and not f.endswith("-unstyled.html")]
+    html_files = [filepath for filepath in glob("*.html")
+                  if not filepath.startswith("_") and filepath != "index.html" and not filepath.endswith("-unstyled.html")]
 
     # Filter out articles from secrets directory
-    secrets_md_files = {splitext(os.path.basename(f))[0] for f in glob(os.path.expanduser("~/git/Secrets/secrets/blog/*.md"))}
+    secrets_basenames = {splitext(os.path.basename(filepath))[0] for filepath in glob(os.path.expanduser("~/git/Secrets/secrets/blog/*.md"))}
 
     rss_items = []
-    for f in html_files:
-        basename = splitext(f)[0]
-        if basename not in allowed_articles or basename in secrets_md_files:
+    for filepath in html_files:
+        basename = splitext(filepath)[0]
+        if basename not in allowed_articles or basename in secrets_basenames:
             continue
 
-        title = get_title_from_html(f).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        description = get_description_from_html(f).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-        rss_items.append((f, title, description))
+        title = escape_xml(get_title_from_html(filepath))
+        description = escape_xml(get_description_from_html(filepath))
+        rss_items.append((filepath, title, description))
 
     # Build RSS feed
     rss = """<?xml version="1.0" encoding="UTF-8"?>
@@ -529,27 +540,27 @@ def gen_rss():
     rss += """  </channel>
 </rss>"""
 
-    with open("index.rss", "w") as f:
-        f.write(rss)
+    with open("index.rss", "w") as rss_file:
+        rss_file.write(rss)
 
 # Generate articles
 # Glob from both local directory and secrets directory
-local_md_files = [(i, f) for i, f in enumerate(glob("*.md"), 1) if not f.startswith("_")]
-secrets_md_files = [(i, f) for i, f in enumerate(glob(os.path.expanduser("~/git/Secrets/secrets/blog/*.md")), len(local_md_files) + 1) if not os.path.basename(f).startswith("_")]
+local_md_files = [(i, filepath) for i, filepath in enumerate(glob("*.md"), 1) if not filepath.startswith("_")]
+secrets_md_files = [(i, filepath) for i, filepath in enumerate(glob(os.path.expanduser("~/git/Secrets/secrets/blog/*.md")), len(local_md_files) + 1) if not os.path.basename(filepath).startswith("_")]
 
-if only:
-    local_md_files = [(i, f) for i, f in local_md_files if i == int(only)]
-    secrets_md_files = [(i, f) for i, f in secrets_md_files if i == int(only)]
+if target_index:
+    local_md_files = [(i, filepath) for i, filepath in local_md_files if i == target_index]
+    secrets_md_files = [(i, filepath) for i, filepath in secrets_md_files if i == target_index]
 
 # Process both lists in parallel using the same executor
 with ThreadPoolExecutor() as executor:
     # Process local files
-    for i, f in executor.map(lambda args: generate_article(*args), local_md_files):
-        print(f"Generated article {i}: {f}")
+    for i, filepath in executor.map(lambda args: generate_article(*args), local_md_files):
+        print(f"Generated article {i}: {filepath}")
 
     # Process secrets files
-    for i, f in executor.map(lambda args: generate_article(*args), secrets_md_files):
-        print(f"Generated article {i}: {f}")
+    for i, filepath in executor.map(lambda args: generate_article(*args), secrets_md_files):
+        print(f"Generated article {i}: {filepath}")
 
 # Generate index and RSS
 gen_index()
