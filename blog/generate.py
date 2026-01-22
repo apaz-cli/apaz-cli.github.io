@@ -390,7 +390,8 @@ def generate_article(i, md_file):
 
     # Generate HTML with pandoc
     run(f'pandoc -s --metadata pagetitle="{display_title}" -f markdown-smart -H {stylefile} {md_file} -o {styled_path}')
-    run(f'pandoc -s --metadata pagetitle="{display_title}" -f markdown-smart {md_file} -o {unstyled_path}')
+    if not is_protected:
+        run(f'pandoc -s --metadata pagetitle="{display_title}" -f markdown-smart {md_file} -o {unstyled_path}')
 
     # Process styled version
     with open(styled_path) as file:
@@ -404,12 +405,13 @@ def generate_article(i, md_file):
     with open(html_file, "w") as file:
         file.write(html)
 
-    # Process unstyled version
-    with open(unstyled_path) as file:
-        unstyled_html = re.sub("\s+<style>.*</style>", "", file.read(), flags=re.DOTALL, count=1)
+    # Process unstyled version (skip for protected articles)
+    if not is_protected:
+        with open(unstyled_path) as file:
+            unstyled_html = re.sub("\s+<style>.*</style>", "", file.read(), flags=re.DOTALL, count=1)
 
-    with open(unstyled_file, "w") as file:
-        file.write(unstyled_html)
+        with open(unstyled_file, "w") as file:
+            file.write(unstyled_html)
 
     if is_protected:
         shutil.rmtree(tmp_dir)
