@@ -88,16 +88,6 @@ data. If someone must collect and process a lot of data, they need
 infrastructure. Here is a way to build that infrastructure.</description>
     </item>
     <item>
-      <title>An IDE for Micro-Optimization</title>
-      <link>https://apaz-cli.github.io/blog/PerfWizard.html</link>
-      <guid>https://apaz-cli.github.io/blog/PerfWizard.html</guid>
-      <description>It's now popular concensus that LLM developer tools are not going
-anywhere, and will only become more prevalent. Like it or not, there is
-no going back. We live in a changed world. Resistance is futile. So it makes sense to learn the latest tools, and build new ones. I
-have some ideas on how to build new ones, which I will lay out here. I
-don't see anyone doing this, so I will do it myself.</description>
-    </item>
-    <item>
       <title>Cursed Code Collection</title>
       <link>https://apaz-cli.github.io/blog/Cursed_Code_Collection.html</link>
       <guid>https://apaz-cli.github.io/blog/Cursed_Code_Collection.html</guid>

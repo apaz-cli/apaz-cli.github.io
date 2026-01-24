@@ -86,7 +86,7 @@ Let's think back to the question. If you wanted to shape the probability distrib
 
 To illustrate the choices the Qwen team made, I've had Claude create a webpage comparing the output distributions of Qwen3-1.5B-Base and Qwen3-1.5B-Instruct.
 
-See the page [HERE](...).
+See the page [HERE](PAGE).
 
 <br>
 <div style="text-align: center;">
@@ -99,7 +99,7 @@ See the page [HERE](...).
 
 TODO: Explain entropy (uncertainty) as a finetuning resource, summarize my tweet from before
 
-* Include the figure from the paper about their recipe
+* Include the figure from the paper about their recipes
 
 ## Dataset Construction, Synthetic Data, and Epiplexity
 
