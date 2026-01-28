@@ -36,7 +36,7 @@ There is also:
 
 * The <a href="https://arxiv.org/abs/2601.03220">Epiplexity paper</a>.
 
-The sane thing to do would be to not read the first four papers unless you are going to be doing RL pretraining of some sort. Just wait it out and see who wins. But the epiplexity paper is a must-read, or actually a must-understand. I think it is very important for anyone interested in dataset construction.
+The sane thing to do would be to not read the first four papers unless you are going to be doing RL pretraining of some sort. Just wait it out and see who wins. But the epiplexity paper is a must-read, or actually a must-understand. I think it is very important for anyone interested in dataset construction. If you aren't, then perhaps not. But I have been, see part one and 
 
 But back to the original topic. The issue is that the authors of all the above papers have different goals.
 
@@ -46,7 +46,7 @@ The RPT authors (Microsoft) are trying to create a new scaling paradigm. They wa
 
 The RLP authors (Nvidia) question the paradigm where we do lots of pretraining beforehand, then do RL afterward. They think that maybe this is not strictly correct from an information-theoretic sense, so they frame the CoT as an exploratory action and use entropy reduction as the reward signal.
 
-The RLPT authors want a way to squeeze more information out of their data. In information theory, compute out of their data.
+The RLPT authors want a way to squeeze more gradient-accessible information out of their data.
 
 All of these are reasonable reasons to explore RLPT. Each line of reasoning probably leads somewhere. Still, I think it is worth examining what we are doing and why.
 
