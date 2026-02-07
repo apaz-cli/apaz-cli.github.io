@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>eco experiments plan</title>
+  <style>
+html {
+color: #1a1a1a;
+background-color: #fdfdfd;
+}
+body {
+margin: 0 auto;
+max-width: 36em;
+padding-left: 50px;
+padding-right: 50px;
+padding-top: 50px;
+padding-bottom: 50px;
+hyphens: auto;
+overflow-wrap: break-word;
+text-rendering: optimizeLegibility;
+font-kerning: normal;
+}
+@media (max-width: 600px) {
+body {
+font-size: 0.9em;
+padding: 12px;
+}
+h1 {
+font-size: 1.8em;
+}
+}
+@media print {
+html {
+background-color: white;
+}
+body {
+background-color: transparent;
+color: black;
+font-size: 12pt;
+}
+p, h2, h3 {
+orphans: 3;
+widows: 3;
+}
+h2, h3, h4 {
+page-break-after: avoid;
+}
+}
+p {
+margin: 1em 0;
+}
+a {
+color: #1a1a1a;
+}
+a:visited {
+color: #1a1a1a;
+}
+img {
+max-width: 100%;
+}
+svg {
+height: auto;
+max-width: 100%;
+}
+h1, h2, h3, h4, h5, h6 {
+margin-top: 1.4em;
+}
+h5, h6 {
+font-size: 1em;
+font-style: italic;
+}
+h6 {
+font-weight: normal;
+}
+ol, ul {
+padding-left: 1.7em;
+margin-top: 1em;
+}
+li > ol, li > ul {
+margin-top: 0;
+}
+blockquote {
+margin: 1em 0 1em 1.7em;
+padding-left: 1em;
+border-left: 2px solid #e6e6e6;
+color: #606060;
+}
+code {
+font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+font-size: 85%;
+margin: 0;
+hyphens: manual;
+}
+pre {
+margin: 1em 0;
+overflow: auto;
+}
+pre code {
+padding: 0;
+overflow: visible;
+overflow-wrap: normal;
+}
+    .sourceCode {
+      font-size: 20px;
+    }
+hr {
+background-color: #1a1a1a;
+border: none;
+height: 1px;
+margin: 1em 0;
+}
+table {
+margin: 1em 0;
+border-collapse: collapse;
+width: 100%;
+overflow-x: auto;
+display: block;
+font-variant-numeric: lining-nums tabular-nums;
+}
+table caption {
+margin-bottom: 0.75em;
+}
+tbody {
+margin-top: 0.5em;
+border-top: 1px solid #1a1a1a;
+border-bottom: 1px solid #1a1a1a;
+}
+th {
+border-top: 1px solid #1a1a1a;
+padding: 0.25em 0.5em 0.25em 0.5em;
+}
+td {
+padding: 0.125em 0.5em 0.25em 0.5em;
+}
+header {
+margin-bottom: 4em;
+text-align: center;
+}
+#TOC li {
+list-style: none;
+}
+#TOC ul {
+padding-left: 1.3em;
+}
+#TOC > ul {
+padding-left: 0;
+}
+#TOC a:not(:hover) {
+text-decoration: none;
+}
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+
+ul.task-list[class]{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+font-size: inherit;
+width: 0.8em;
+margin: 0 0.8em 0.2em -1.6em;
+vertical-align: middle;
+}
+.display.math{display: block; text-align: center; margin: 0.5rem auto;}
+
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+  <style type="text/css">
+
+@font-face {
+font-family: "lemon";
+src: url('data:font/woff;base64,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');
+}
+
+a, a:visited { color: #01ff70; }
+a:hover, a:focus, a:active { color: #2ecc40; }
+.retro-no-decoration { text-decoration: none; }
+p, .retro-p {
+font-size: 1rem;
+margin-bottom: 1.3rem;
+
+}
+h1, .retro-h1, h2, .retro-h2, h3, .retro-h3, h4, .retro-h4 {
+font-family: "lemon";
+margin: 1.414rem 0 .5rem;
+font-weight: inherit;
+line-height: 1.42;
+}
+html h1, html .retro-h1 {
+color: rgb(112, 221, 0);
+margin-top: 0;
+font-size: 400%;
+}
+html h2, html .retro-h2 {
+color: rgb(112, 221, 0);
+margin-top: 0;
+font-size: 283%;
+}
+html h3, html .retro-h3 {
+font-size: 200%;
+}
+html h4, html .retro-h4 {
+font-size: 141%;
+}
+html h5, html .retro-h5 {
+font-size: 112%;
+}
+html h6, html .retro-h6 {
+font-size: 88%;
+}
+small, .retro-small {
+font-size: .707em;
+}
+img, canvas, iframe, video, svg, select, textarea { max-width: 100%; }
+html, body {
+
+background-color: #222;
+min-height: 100%;
+font-size: 20px;
+}
+body {
+color: #fafafa;
+
+line-height: 1.65;
+max-width: 48rem;
+
+
+}
+pre, code {
+background-color: #333;
+font-family: "lemon", "Menlo", "Monaco", "Courier New";
+font-size: 12;
+}
+code span.dt { color: #e4a51e; } 
+pre {
+padding: .5rem;
+line-height: 1.25;
+overflow-x: scroll;
+}
+blockquote {
+border-left: 3px solid #01ff70;
+padding-left: 1rem;
+}
+
+@media (max-width: 600px) {
+html h1, html .retro-h1 {
+font-size: 250%;
+}
+html h2, html .retro-h2 {
+font-size: 180%;
+}
+html h3, html .retro-h3 {
+font-size: 140%;
+}
+html h4, html .retro-h4 {
+font-size: 110%;
+}
+}
+</style>
+</head>
+<body>
+<h1 id="eco-experiments-implementation-plan-v2">ECO Experiments:
+Implementation Plan v2</h1>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol start="0" type="1">
+<li><a href="#0-infrastructure-setup">Infrastructure Setup</a></li>
+<li><a href="#1-base-eco-implementation">Base ECO
+Implementation</a></li>
+<li><a href="#2-scaling-to-llama-3-8b">Scaling to Llama 3 8B</a></li>
+<li><a href="#3-bf16-optimizer-states">BF16 Optimizer States</a></li>
+<li><a href="#4-adam-β1β2-sensitivity">Adam β₁/β₂ Sensitivity</a></li>
+<li><a href="#5-eco-for-muon">ECO for Muon</a></li>
+<li><a href="#6-implementation-roadmap">Implementation Roadmap</a></li>
+</ol>
+<hr />
+<h2 id="infrastructure-setup">0. Infrastructure Setup</h2>
+<p>Before any ECO work, two components need to be ported from
+<code>/mnt/skraid0/torchtitan/</code>.</p>
+<h3 id="aim-logger">0.1 AIM Logger</h3>
+<p>The ECO repo (<code>/home/apaz/git/ECO_Experiments/</code>) currently
+has only TensorBoard and WandB loggers
+(<code>torchtitan/components/metrics.py</code>). The other torchtitan
+repo at <code>/mnt/skraid0/torchtitan/</code> has an
+<code>AimLogger</code> class (lines 167–239 of
+<code>torchtitan/components/metrics.py</code>) that we will use for all
+experiments.</p>
+<p><strong>What to port:</strong> - <code>AimLogger</code> class from
+<code>/mnt/skraid0/torchtitan/torchtitan/components/metrics.py:167-239</code>
+— wraps <code>aim.Run</code>, supports run resume via
+<code>run_hash</code>, tracks hparams, uses shared <code>.aim</code>
+repo. - <code>enable_aim: bool = False</code> config field from
+<code>/mnt/skraid0/torchtitan/torchtitan/config/job_config.py:95</code>.
+- Updates to <code>_build_metric_logger()</code> to wire in AIM
+(<code>/mnt/skraid0/torchtitan/torchtitan/components/metrics.py:324-421</code>)
+— this version also supports a <code>LoggerContainer</code> that runs
+multiple loggers, and accepts an <code>aim_run_hash</code> parameter for
+checkpoint resume. - The
+<code>MetricsProcessor.initialize_logger()</code> method
+(<code>/mnt/skraid0/torchtitan/torchtitan/components/metrics.py:590-606</code>)
+— defers logger creation until after checkpoint loading, so resumed runs
+don&#39;t create throwaway AIM runs. -
+<code>/mnt/skraid0/torchtitan/start_aim_server.sh</code> — convenience
+script for the AIM UI.</p>
+<h3 id="toml-shebang-runner">0.2 TOML Shebang Runner</h3>
+<p>The other torchtitan repo has a pattern where TOML config files are
+directly executable. A shebang on line 1 points to a runner script:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode toml"><code class="sourceCode toml"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/path/to/run_config.sh</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">[job]</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="dt">dump_folder</span> <span class="op">=</span> <span class="st">&quot;./outputs&quot;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="dt">...</span></span></code></pre></div>
+<p>TOML treats <code>#!...</code> as a comment, so parsers ignore it.
+The OS treats it as a shebang, so
+<code>chmod +x myconfig.toml &amp;&amp; ./myconfig.toml</code> launches
+training with that config.</p>
+<p>The runner script is
+<code>/mnt/skraid0/torchtitan/run_config.sh</code> — a minimal wrapper
+that takes <code>$1</code> as the config file path and passes the rest
+as CLI overrides to torchrun:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">#!/bin/bash</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">set</span> <span class="at">-ex</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="va">CONFIG_FILE</span><span class="op">=</span><span class="st">&quot;</span><span class="va">$1</span><span class="st">&quot;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="bu">shift</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="va">NGPU</span><span class="op">=</span><span class="va">${NGPU</span><span class="op">:-</span><span class="st">&quot;1&quot;</span><span class="va">}</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">LOG_RANK</span><span class="op">=</span><span class="va">${LOG_RANK</span><span class="op">:-</span>0<span class="va">}</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="va">TRAIN_FILE</span><span class="op">=</span><span class="va">${TRAIN_FILE</span><span class="op">:-</span><span class="st">&quot;torchtitan.train&quot;</span><span class="va">}</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="va">PYTORCH_ALLOC_CONF</span><span class="op">=</span><span class="st">&quot;expandable_segments:True&quot;</span> <span class="dt">\</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="ex">torchrun</span> <span class="at">--nproc_per_node</span><span class="op">=</span><span class="va">${NGPU}</span> <span class="at">--rdzv_backend</span> c10d <span class="at">--rdzv_endpoint</span><span class="op">=</span><span class="st">&quot;localhost:0&quot;</span> <span class="dt">\</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">--local-ranks-filter</span> <span class="va">${LOG_RANK}</span> <span class="at">--role</span> rank <span class="at">--tee</span> 3 <span class="dt">\</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">-m</span> <span class="va">${TRAIN_FILE}</span> <span class="at">--job.config_file</span> <span class="va">${CONFIG_FILE}</span> <span class="st">&quot;</span><span class="va">$@</span><span class="st">&quot;</span></span></code></pre></div>
+<p><strong>What to do:</strong> - Copy <code>run_config.sh</code> into
+the ECO repo root. - All ECO experiment TOML configs should include the
+shebang as line 1, e.g.
+<code>#!/home/apaz/git/ECO_Experiments/run_config.sh</code>. This lets
+us run experiments as <code>NGPU=8 ./llama3_8b_eco.toml</code> instead
+of the more verbose <code>CONFIG_FILE=... ./run_train.sh</code>
+invocation. - The existing <code>run_train.sh</code> (which uses
+<code>CONFIG_FILE</code> as an env var) is kept for backward
+compatibility and for the sweep script (which sets
+<code>CONFIG_FILE</code> explicitly).</p>
+<h3 id="experiment-sweep-script">0.3 Experiment Sweep Script</h3>
+<p><code>/mnt/skraid0/torchtitan/collect_ablation_traces.py</code>
+provides a framework for running multiple training configurations. It
+generates combinations from a dict of options, executes each via
+<code>./run_train.sh</code> with CLI overrides, and has smart skipping
+via monotonicity rules (if a smaller batch size OOMs, skip larger
+ones).</p>
+<p>We adapt this script for ECO experiments: - Replace the
+profiling-oriented options (<code>use_liger_loss</code>,
+<code>use_flex_attn</code>, <code>ac_mode</code>, etc.) with
+ECO-relevant dimensions: <code>eco_enabled</code>,
+<code>rounding_mode</code>, <code>optimizer_type</code>,
+<code>beta1</code>, <code>beta2</code>, <code>model_size</code>, etc. -
+Remove the <code>--profiling.kill_after_profile</code> flag — we want
+full training runs. - Add Aim integration: pass
+<code>--job.description</code> and <code>--job.run_name</code> for each
+variation so runs are organized in the Aim UI. - Keep the
+monotonicity-based skip logic (useful for batch size sweeps).</p>
+<hr />
+<h2 id="base-eco-implementation">1. Base ECO Implementation</h2>
+<h3 id="algorithm">1.1 Algorithm</h3>
+<p>ECO (Algorithm 3 from the paper, line 206–218 of
+<code>ECO_Paper.tex</code>): after each Adam step,</p>
+<pre><code>θ̂_{t+1} = quantize(θ̃_{t+1})
+e_{t+1} = θ̃_{t+1} − θ̂_{t+1}
+m̂_{t+1} = m̃_{t+1} + [(1 − β₁^t) / η] · (1 − 1/β₁) · (√(v_{t+1}/(1 − β₂^t)) + ε) ⊙ e_{t+1}</code></pre>
+<p>The second moment v is not modified. The injection is
+element-wise.</p>
+<h3 id="quantization">1.2 Quantization</h3>
+<p>Use the same FP8 setup that torchtitan already provides through its
+<code>Float8LinearConverter</code>
+(<code>torchtitan/components/quantization/float8.py</code>). This uses
+torchao&#39;s <code>convert_to_float8_training</code>, which replaces
+<code>nn.Linear</code> modules with <code>Float8Linear</code>. The
+format is E4M3 (<code>torch.float8_e4m3fn</code>). Scaling is dynamic,
+either tensorwise (default) or rowwise (via the <code>recipe_name</code>
+config). See <code>torchtitan/config/job_config.py</code> lines ~730–740
+for recipe options: <code>&quot;tensorwise&quot;</code>, <code>&quot;rowwise&quot;</code>,
+<code>&quot;rowwise_with_gw_hp&quot;</code>.</p>
+<p>Torchtitan&#39;s Float8 setup handles the forward-pass quantization
+(weights and activations are cast to FP8 for matmuls). For ECO, we
+additionally need to simulate quantized weight <em>storage</em>: after
+each optimizer step, round-trip the parameter through FP8 (quantize then
+dequantize back to the training dtype). The difference between pre- and
+post-roundtrip is the quantization error e.</p>
+<p>This &quot;simulation mode&quot; produces the same numerical trajectory as true
+FP8 storage but doesn&#39;t physically save memory — the parameters remain
+in the training dtype (BF16). This is sufficient for measuring ECO&#39;s
+effect on convergence. Actual memory savings follow analytically (see
+Section 3). The quantization format and rounding used for this
+round-trip should be the same as what Float8LinearConverter uses for the
+forward pass, so the stored weights and the compute weights are on the
+same grid.</p>
+<p>Which layers are quantized is determined by the
+Float8LinearConverter&#39;s filter function
+(<code>torchtitan/components/quantization/float8.py:104-138</code>),
+controlled by the <code>filter_fqns</code> config. The paper quantizes
+only linear layers in transformer blocks, excluding embeddings and the
+output head (paper line 443: &quot;For quantized runs, we apply the method
+only to the linear layers within transformer blocks, excluding the
+embedding and output layers&quot;). Torchtitan&#39;s Float8 config already
+supports this via <code>filter_fqns</code>. ECO applies wherever
+quantization applies — there is no separate notion of &quot;ECO scope.&quot;</p>
+<h3 id="hook-point">1.3 Hook Point</h3>
+<p>torchtitan&#39;s model converters
+(<code>torchtitan/protocols/model_converter.py</code>) provide a
+<code>post_optimizer_hook(model)</code> that fires after each optimizer
+step (wired in <code>torchtitan/train.py:287-291</code> via
+<code>register_step_post_hook</code>). The existing
+<code>Float8LinearConverter</code> uses this hook to precompute FP8
+scales.</p>
+<p>ECO needs access to both the model parameters and the optimizer state
+(to inject into the momentum buffer <code>exp_avg</code>). The current
+<code>post_optimizer_hook</code> signature only receives the model. Two
+options:</p>
+<ol type="1">
+<li><strong>Extend the post_optimizer_hook signature</strong> to also
+pass the optimizer. This is a small change to
+<code>ModelConvertersContainer.post_optimizer_hook</code> and the lambda
+in <code>train.py:287-291</code>.</li>
+<li><strong>Register a separate hook</strong> on the optimizer directly
+in <code>train.py</code>, outside the model converter system.</li>
+</ol>
+<p>Option 1 is cleaner since ECO is conceptually a model converter (it
+modifies parameter storage). The implementation should keep ECO&#39;s hook
+ordered <em>after</em> Float8&#39;s hook (if both are active) since Float8&#39;s
+hook precomputes scales that ECO&#39;s quantization may use.</p>
+<h3 id="heuristic-validation-logging">1.4 Heuristic Validation
+Logging</h3>
+<p>The paper&#39;s key approximation is e_t ≈ e_{t+1} (consecutive
+quantization errors are similar; paper lines 155–163). The approximation
+error in the momentum injection is exactly (1/η)·(e_t − e_{t+1})
+(derivable from the exact formula in Appendix A, paper lines 583–592).
+We validate this heuristic in every experiment.</p>
+<p><strong>Metrics (per-layer, aggregated to model-wide
+min/mean/max):</strong></p>
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 34%" />
+<col style="width: 34%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Metric</th>
+<th>Formula</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Relative norm ratio</td>
+<td>‖e_{t+1}‖ / ‖e_t‖</td>
+<td>Magnitude stability (paper&#39;s metric, Fig. 3)</td>
+</tr>
+<tr class="even">
+<td>Cosine similarity</td>
+<td>cos(e_t, e_{t+1})</td>
+<td>Direction stability (paper&#39;s metric, Fig. 3)</td>
+</tr>
+<tr class="odd">
+<td>Relative diff norm</td>
+<td>‖e_t − e_{t+1}‖ / ‖e_t‖</td>
+<td>Direct approximation quality</td>
+</tr>
+<tr class="even">
+<td>Injection-relative error</td>
+<td>(1/η)·‖e_t − e_{t+1}‖ / ‖m_t‖</td>
+<td>Approximation error vs momentum — <strong>the metric that directly
+measures whether the heuristic is adequate</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Implementation:</strong> Every
+<code>heuristic_log_freq</code> steps (configurable), stash a clone of
+e_t. On the very next step, compute e_{t+1}, evaluate all metrics, log
+them via the AIM logger, free the buffer. Cost: one transient copy of
+the quantized parameters, held for exactly 1 step per logging
+interval.</p>
+<h3 id="files-to-createmodify">1.5 Files to Create/Modify</h3>
+<p><strong>New files:</strong> -
+<code>torchtitan/components/eco.py</code> — ECO logic:
+quantize-error-inject cycle, heuristic validation, configuration. -
+<code>torchtitan/models/llama3/train_configs/llama3_eco_*.toml</code> —
+experiment configs.</p>
+<p><strong>Modified files:</strong> -
+<code>torchtitan/components/metrics.py</code> — Port AIM logger (Section
+0.1). - <code>torchtitan/config/job_config.py</code> — Add
+<code>[eco]</code> config section and <code>enable_aim</code> field. -
+<code>torchtitan/protocols/model_converter.py</code> — Extend
+<code>post_optimizer_hook</code> signature to receive optimizer (if
+using option 1 from Section 1.3). - <code>torchtitan/train.py</code> —
+Wire up ECO; update <code>post_optimizer_hook</code> call.</p>
+<p><strong>Ported/adapted files:</strong> - <code>run_config.sh</code> —
+Copied from <code>/mnt/skraid0/torchtitan/run_config.sh</code> (Section
+0.2). All new TOML configs include <code>#!/path/to/run_config.sh</code>
+as line 1. - <code>collect_eco_sweeps.py</code> — Adapted from
+<code>/mnt/skraid0/torchtitan/collect_ablation_traces.py</code> (Section
+0.3). - <code>start_aim_server.sh</code> — Copied from
+<code>/mnt/skraid0/torchtitan/start_aim_server.sh</code>.</p>
+<h3 id="baseline">1.6 Baseline</h3>
+<p>Every experiment compares: - <strong>BF16 baseline</strong> (standard
+training, no quantization, no ECO) - <strong>ECO</strong> (FP8 weight
+quantization with error injection, no master weights)</p>
+<p>The BF16 baseline uses torchtitan&#39;s default mixed-precision setup:
+parameters in the training dtype, BF16 matmuls via FSDP&#39;s
+<code>mixed_precision_param</code>.</p>
+<hr />
+<h2 id="scaling-to-llama-3-8b">2. Scaling to Llama 3 8B</h2>
+<h3 id="motivation">2.1 Motivation</h3>
+<p>The paper tests dense models up to 1B (Gemma-3, paper line 466) and
+MoE up to 2.1B (paper line 480). 8B is the standard scale for current
+open-weight models. Demonstrating ECO at 8B is the single most impactful
+experiment.</p>
+<h3 id="setup">2.2 Setup</h3>
+<p><strong>Model:</strong> Llama 3 8B — torchtitan already has this
+config:
+<code>TransformerModelArgs(dim=4096, n_layers=32, n_heads=32, ...)</code>,
+defined in <code>torchtitan/models/llama3/__init__.py</code>.</p>
+<p><strong>Hyperparameters (matching the paper where possible, paper
+lines 438–442):</strong> - AdamW, β₁=0.9, β₂=0.98, ε=10⁻⁹ - Weight decay
+0.1, gradient clipping 1.0 - LR: linear warmup (10% of steps), cosine
+decay to 0.1× peak - Dataset: C4 (matching the paper; paper line
+436)</p>
+<p><strong>Parallelism:</strong> FSDP2 across available GPUs. torchtitan
+configs for 8B already exist at
+<code>torchtitan/models/llama3/train_configs/</code>.</p>
+<h3 id="scaling-law-replication">2.3 Scaling Law Replication</h3>
+<p>Before the 8B run, replicate the paper&#39;s scaling law study (30M–800M,
+Table 1 on paper line 373) to validate the ECO implementation. This
+requires creating small Llama-style model configs. The paper follows the
+QUEST architecture (paper line 434: &quot;following &quot;); exact dims need to be
+matched. Each model trains on 100N tokens (paper line 436).</p>
+<h3 id="what-to-measure">2.4 What to Measure</h3>
+<ul>
+<li>Validation loss curves and final validation loss.</li>
+<li>Heuristic validation metrics (Section 1.4) — does e_t ≈ e_{t+1} hold
+at 8B?</li>
+<li>Training stability (any divergence).</li>
+<li>Peak memory (<code>torch.cuda.max_memory_allocated</code>).</li>
+</ul>
+<hr />
+<h2 id="bf16-optimizer-states">3. BF16 Optimizer States</h2>
+<h3 id="motivation-1">3.1 Motivation</h3>
+<p>ECO eliminates master weights. Quantizing optimizer states to BF16
+eliminates another large memory cost. BF16 has the same 8-bit exponent
+as FP32 (same dynamic range), with 7 mantissa bits instead of 23 (paper
+Section 2, &quot;Optimizer State Quantization,&quot; line 111–112, notes this is a
+separate and complementary line of work).</p>
+<p>Combined memory per parameter:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Configuration</th>
+<th>Weights</th>
+<th>m</th>
+<th>v</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Standard BF16 training (MW=FP32)</td>
+<td>2B + 4B = 6B</td>
+<td>4B</td>
+<td>4B</td>
+<td>14B</td>
+</tr>
+<tr class="even">
+<td>ECO (FP8 weights, FP32 opt)</td>
+<td>1B</td>
+<td>4B</td>
+<td>4B</td>
+<td>9B</td>
+</tr>
+<tr class="odd">
+<td>ECO + BF16 opt</td>
+<td>1B</td>
+<td>2B</td>
+<td>2B</td>
+<td>5B</td>
+</tr>
+</tbody>
+</table>
+<p>(Bytes per parameter. MW = master weights. &quot;1B&quot; for FP8 weights
+includes scale overhead.)</p>
+<h3 id="setup-1">3.2 Setup</h3>
+<p><strong>Four runs</strong> at 430M and/or 1B:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Run</th>
+<th>ECO</th>
+<th>Optimizer dtype</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>BF16 baseline</td>
+<td>No</td>
+<td>FP32</td>
+</tr>
+<tr class="even">
+<td>BF16 optim only</td>
+<td>No</td>
+<td>BF16</td>
+</tr>
+<tr class="odd">
+<td>ECO + FP32 optim</td>
+<td>Yes</td>
+<td>FP32</td>
+</tr>
+<tr class="even">
+<td>ECO + BF16 optim</td>
+<td>Yes</td>
+<td>BF16</td>
+</tr>
+</tbody>
+</table>
+<p>This is a 2×2 design: ±ECO × ±BF16 optimizer states.</p>
+<h3 id="implementation">3.3 Implementation</h3>
+<p>After the optimizer step, cast optimizer state tensors to the target
+dtype:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>state[<span class="st">&#39;exp_avg&#39;</span>] <span class="op">=</span> state[<span class="st">&#39;exp_avg&#39;</span>].to(target_dtype)      <span class="co"># m</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>state[<span class="st">&#39;exp_avg_sq&#39;</span>] <span class="op">=</span> state[<span class="st">&#39;exp_avg_sq&#39;</span>].to(target_dtype) <span class="co"># v</span></span></code></pre></div>
+<p>The ECO injection is computed in FP32, then the result is stored in
+whatever dtype m is. If the injection Δm is too small relative to
+existing m values, BF16 addition will lose it. To monitor this, log
+<code>|Δm| / |m|</code> as a histogram — if consistently below ~2⁻⁷
+(≈0.008, BF16&#39;s mantissa precision), the injection is being silently
+dropped.</p>
+<h3 id="baseline-1">3.4 Baseline</h3>
+<p>The 2×2 design is self-controlled. The key comparison is: - Does
+adding ECO to BF16-optimizer training help, hurt, or do nothing? - Does
+BF16 optimizer degrade ECO quality?</p>
+<hr />
+<h2 id="adam-β₁β₂-sensitivity">4. Adam β₁/β₂ Sensitivity</h2>
+<h3 id="motivation-2">4.1 Motivation</h3>
+<p>ECO&#39;s injection coefficient depends directly on β₁ (paper Algorithm
+3, line 216):</p>
+<pre><code>injection ∝ (1 − 1/β₁)</code></pre>
+<p>Evaluating this factor at different β₁:</p>
+<table>
+<thead>
+<tr class="header">
+<th>β₁</th>
+<th>(1 − 1/β₁)</th>
+<th>Injection strength</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0.80</td>
+<td>−0.250</td>
+<td>Strong</td>
+</tr>
+<tr class="even">
+<td>0.85</td>
+<td>−0.176</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>0.90</td>
+<td>−0.111</td>
+<td>Standard (paper&#39;s choice)</td>
+</tr>
+<tr class="even">
+<td>0.95</td>
+<td>−0.053</td>
+<td>Weak</td>
+</tr>
+<tr class="odd">
+<td>0.99</td>
+<td>−0.010</td>
+<td>Very weak</td>
+</tr>
+</tbody>
+</table>
+<p>Meanwhile, the theoretical SGDM noise floor is L²σ²/(1−β²) (paper
+Theorem 3.5, line 307–311):</p>
+<table>
+<thead>
+<tr class="header">
+<th>β</th>
+<th>1/(1−β²)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0.80</td>
+<td>2.78</td>
+</tr>
+<tr class="even">
+<td>0.90</td>
+<td>5.26</td>
+</tr>
+<tr class="odd">
+<td>0.95</td>
+<td>10.26</td>
+</tr>
+<tr class="even">
+<td>0.99</td>
+<td>50.25</td>
+</tr>
+</tbody>
+</table>
+<p>Higher β₁ → weaker injection AND higher noise floor. This predicts
+ECO may prefer lower β₁ than standard training, potentially shifting the
+optimal hyperparameters.</p>
+<h3 id="setup-2">4.2 Setup</h3>
+<p><strong>Model:</strong> 100M and 430M (small enough for a sweep).</p>
+<p><strong>Sweep grid:</strong> - β₁ ∈ {0.8, 0.85, 0.9, 0.95, 0.99} - β₂
+∈ {0.95, 0.98, 0.99, 0.999}</p>
+<p>At each (β₁, β₂): run both baseline and ECO. Total: 5 × 4 × 2 = 40
+runs at 100M.</p>
+<p>Use the adapted sweep script (Section 0.2) to generate and launch all
+configs.</p>
+<h3 id="what-to-measure-1">4.3 What to Measure</h3>
+<ul>
+<li><strong>Validation loss</strong> at each (β₁, β₂) → 2D heatmaps for
+baseline vs ECO.</li>
+<li><strong>Optimal (β₁, β₂)</strong> for each method — does ECO shift
+the optimum?</li>
+<li><strong>Sensitivity contours</strong> — is ECO more or less
+sensitive to β choice?</li>
+<li><strong>Injection magnitude</strong> |Δm|/|m| at each β₁.</li>
+<li><strong>Heuristic validation</strong> at each β₁.</li>
+</ul>
+<hr />
+<h2 id="eco-for-muon">5. ECO for Muon</h2>
+<h3 id="muon-background">5.1 Muon Background</h3>
+<p>Muon replaces Adam&#39;s per-element adaptive step size with spectral
+normalization of the momentum via Newton-Schulz (NS) iterations. The
+user states that <code>torch.optim.Muon</code> is now available in
+PyTorch nightly. torchtitan currently only supports Adam/AdamW
+(<code>torchtitan/components/optimizer.py:314-317</code>), so we add
+Muon to the <code>optimizer_classes</code> dict and handle any
+Muon-specific kwargs (NS steps, etc.).</p>
+<p>Muon&#39;s update for a weight matrix W (following the standard
+implementation in kellerjordan/modded-nanogpt, which torch.optim.Muon
+standardizes):</p>
+<pre><code>m_{t+1} = β · m_t + g_t                     # momentum (no (1−β) scaling)
+X₀ = m_{t+1} / ‖m_{t+1}‖_F                 # normalize
+Xₖ₊₁ = Xₖ · (aI + bXₖᵀXₖ + c(XₖᵀXₖ)²)   # NS iteration, 5 steps
+u_{t+1} ≈ UVᵀ                               # polar factor of m_{t+1}
+W_{t+1} = W_t − η · u_{t+1}                 # update</code></pre>
+<p>Muon applies only to 2D parameters (weight matrices). For 1D
+parameters (biases, norms, embeddings), a standard Adam optimizer is
+used.</p>
+<h3 id="derivation">5.2 Derivation</h3>
+<p><strong>Step 1: SGDM ECO recap.</strong> For SGDM (θ ← θ − η·m), the
+paper derives the exact injection (Appendix A, paper lines 583–592) by
+constructing implicit master weights θ* = θ̂ + e and implicit momentum m*
+= m̂ + (1/(ηβ))·e, and showing these follow the standard SGDM recurrence.
+The approximate (memory-free) injection is:</p>
+<pre><code>Δm = (1/η)(1 − 1/β) · e</code></pre>
+<p>This works because the update θ ← θ − η·m is <strong>linear</strong>
+in m: injecting Δm into m produces a correction of −η·Δm in θ.</p>
+<p><strong>Step 2: Why Muon breaks the SGDM derivation.</strong> For
+Muon, the update is θ ← θ − η·NS(m), which is <strong>nonlinear</strong>
+in m. The virtual sequence construction requires θ* − C·m* to follow
+gradient descent, but NS prevents the error terms from canceling cleanly
+(the cancellation in the SGDM proof relies on linearity; see paper lines
+706–726 where the e_{t+1} coefficient vanishes <em>because</em> the
+update is linear in m).</p>
+<p><strong>Step 3: What exact compensation would require.</strong> For
+the implicit master weights to match, we need (from the same logic as
+the SGDM proof):</p>
+<pre><code>NS(m*_{t+1}) = NS(m̃_{t+1}) + e_t/η</code></pre>
+<p>i.e., the orthogonalized implicit momentum must differ from the ECO
+orthogonalized momentum by exactly e_t/η. Linearizing NS around m̃:</p>
+<pre><code>NS(m̃ + Δm) ≈ NS(m̃) + J_NS(m̃) · Δm</code></pre>
+<p>where J_NS is the Fréchet derivative of the polar factor map. So we
+need:</p>
+<pre><code>J_NS(m̃) · Δm = e_t/η</code></pre>
+<p>This requires inverting J_NS, which is problematic: - J_NS is
+<strong>singular</strong>: perturbations to m that only scale its
+singular values (without rotating singular vectors) produce zero change
+in NS(m), because the polar factor UVᵀ is invariant to singular value
+scaling. So J_NS has a nontrivial null space. - The full Fréchet
+derivative of the polar factor involves the singular value decomposition
+and is expensive to compute.</p>
+<p><strong>Step 4: Practical approximation.</strong> NS begins by
+normalizing m → m/‖m‖_F, then iterates toward UVᵀ. For the first-order
+effect, NS maps a perturbation Δm to approximately Δm/‖m‖_F (after
+projecting out the component along m&#39;s dominant singular directions,
+which NS is insensitive to). Since the quantization error e is
+effectively random with respect to m&#39;s singular structure, most of e
+lies outside the null space of J_NS, and the effective gain is ≈
+1/‖m‖_F.</p>
+<p>To achieve the SGDM-equivalent correction in the update direction, we
+compensate for this gain by multiplying by ‖m‖_F:</p>
+<pre><code>Δm = (‖m̃_{t+1}‖_F / η)(1 − 1/β) · e_{t+1}</code></pre>
+<p><strong>This is the proposed ECO-Muon injection formula.</strong> The
+‖m‖_F factor plays the analogous role to Adam&#39;s (√v + ε) factor — it
+converts from update-space back to momentum-space, accounting for how
+the optimizer transforms momentum before applying it as an update.</p>
+<p>Computing ‖m‖_F is a single reduction (negligible cost).</p>
+<p><strong>Step 5: Limitations of this derivation.</strong> - NS is not
+a simple division by ‖m‖_F — it does full spectral normalization. The
+‖m‖<em>F scaling is a scalar approximation of a matrix-valued operation.
+- Components of e aligned with the dominant singular vectors of m will
+be suppressed by NS regardless of the scaling. For low-rank momentum
+(which is typical), this means a small fraction of the error correction
+is lost each step. - The e_t ≈ e</em>{t+1} approximation adds further
+error on top.</p>
+<p>Whether these approximations are tolerable is an empirical question —
+hence the experiment.</p>
+<h3 id="experimental-setup">5.3 Experimental Setup</h3>
+<p><strong>Model:</strong> 100M and 430M.</p>
+<p><strong>Conditions:</strong></p>
+<table>
+<thead>
+<tr class="header">
+<th>Run</th>
+<th>Optimizer</th>
+<th>ECO</th>
+<th>Formula</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Muon baseline</td>
+<td>Muon</td>
+<td>No</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Muon naive (no MW, no ECO)</td>
+<td>Muon</td>
+<td>No</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>Muon ECO-A (naive SGDM)</td>
+<td>Muon</td>
+<td>Yes</td>
+<td>Δm = (1/η)(1−1/β)·e</td>
+</tr>
+<tr class="even">
+<td>Muon ECO-B (Frobenius)</td>
+<td>Muon</td>
+<td>Yes</td>
+<td>Δm = (‖m‖_F/η)(1−1/β)·e</td>
+</tr>
+<tr class="odd">
+<td>Adam baseline</td>
+<td>Adam</td>
+<td>No</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>Adam ECO</td>
+<td>Adam</td>
+<td>Yes</td>
+<td>Paper formula (Alg. 3)</td>
+</tr>
+</tbody>
+</table>
+<p>ECO-A is the control: what happens if we just apply the SGDM formula
+and ignore NS. ECO-B is the derived formula. Comparing A vs B isolates
+the effect of the ‖m‖_F scaling.</p>
+<h3 id="implementation-1">5.4 Implementation</h3>
+<p><strong>Adding Muon to torchtitan:</strong> - Add
+<code>&quot;Muon&quot;: torch.optim.Muon</code> to <code>optimizer_classes</code>
+in <code>torchtitan/components/optimizer.py:314-317</code>. - Add
+Muon-specific config fields to
+<code>torchtitan/config/job_config.py</code> (momentum, NS steps, etc.).
+- Muon uses Adam for 1D params (biases, norms) — handle this in the
+optimizer builder by splitting parameters by dimensionality.</p>
+<p><strong>ECO-Muon injection:</strong> Add
+<code>eco_inject_muon_a()</code> and <code>eco_inject_muon_b()</code> to
+<code>torchtitan/components/eco.py</code>. The Muon optimizer state has
+<code>momentum_buffer</code> (not
+<code>exp_avg</code>/<code>exp_avg_sq</code> like Adam). The injection
+targets this buffer.</p>
+<h3 id="what-to-measure-2">5.5 What to Measure</h3>
+<ul>
+<li><strong>Primary:</strong> Does ECO-B prevent the 1/η divergence that
+naive master-weight removal causes? (Compare &quot;Muon naive&quot; vs &quot;Muon
+ECO-B&quot;.)</li>
+<li><strong>Secondary:</strong> How does ECO-B compare to ECO-A? Does
+the ‖m‖_F scaling matter?</li>
+<li><strong>Heuristic validation:</strong> Same 4 metrics as Section
+1.4. Additionally, log ‖m‖_F per layer over training to understand the
+scaling factor&#39;s dynamics.</li>
+<li><strong>Cross-optimizer:</strong> How does the best Muon+ECO compare
+to Adam+ECO?</li>
+</ul>
+<hr />
+<h2 id="implementation-roadmap">6. Implementation Roadmap</h2>
+<h3 id="phase-1-infrastructure-base-eco">Phase 1: Infrastructure + Base
+ECO</h3>
+<p>Everything else depends on this.</p>
+<ol type="1">
+<li>Port AIM logger and adapt sweep script (Section 0).</li>
+<li>Implement <code>torchtitan/components/eco.py</code>: quantize →
+error → inject cycle for Adam, heuristic validation logging,
+configuration.</li>
+<li>Wire ECO into <code>train.py</code> and
+<code>job_config.py</code>.</li>
+<li><strong>Validation:</strong> Replicate the paper&#39;s 30M–800M scaling
+results (Table 1) to confirm correctness. ECO+SR at 100M should produce
+a validation loss near 2.9888 (paper Table 1, line 387).</li>
+</ol>
+<h3 id="phase-2-scale-up">Phase 2: Scale Up</h3>
+<ol start="5" type="1">
+<li>Create Llama 3 8B ECO configs. Run 8B baseline + ECO. Analyze
+heuristic validation at 8B.</li>
+</ol>
+<h3 id="phase-3-bf16-optimizer-β-sweep-muon-parallelizable">Phase 3:
+BF16 Optimizer + β Sweep + Muon (parallelizable)</h3>
+<p>These three experiments are independent and can proceed in
+parallel.</p>
+<ol start="6" type="1">
+<li>Implement optimizer state dtype control. Run the 4 conditions at
+430M/1B.</li>
+<li>Run β₁/β₂ sweep at 100M using the sweep script.</li>
+<li>Add Muon to torchtitan. Validate Muon baseline. Implement ECO-A and
+ECO-B. Run comparison at 100M/430M.</li>
+</ol>
+<h3 id="notes">Notes</h3>
+<ul>
+<li><strong>MXFP4:</strong> torchtitan currently supports only MXFP8 for
+training (<code>torchtitan/components/quantization/mx.py</code>;
+<code>torchtitan/config/job_config.py</code> only lists
+<code>mxfp8_cublas</code> and <code>mxfp8_cublas_rceil</code> recipes).
+MXFP4 appears only for checkpoint loading, not training
+(<code>torchtitan/models/gpt_oss/model/state_dict_adapter.py:56</code>).
+torchao may add MXFP4 training support in the future, at which point ECO
++ MXFP4 becomes a natural experiment.</li>
+<li><strong>FP8 all-gather with FSDP:</strong> If weights are already
+stored in FP8 (no master weights), FSDP all-gather communicates the FP8
+data directly — this is just standard FSDP, not a special &quot;quantized
+all-gather&quot; mode. No separate experiment needed.</li>
+<li><strong>Gradient accumulation:</strong> ECO operates per optimizer
+step. GA changes how gradients are computed but not how the optimizer
+step works. No special interaction expected.</li>
+</ul>
+</body>
+</html>

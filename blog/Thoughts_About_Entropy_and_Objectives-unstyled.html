@@ -48,7 +48,8 @@ paper</a>.</li>
 unless you are going to be doing RL pretraining of some sort. Just wait
 it out and see who wins. But the epiplexity paper is a must-read, or
 actually a must-understand. I think it is very important for anyone
-interested in dataset construction.</p>
+interested in dataset construction. If you aren't, then perhaps not. But
+I have been, see part one and</p>
 <p>But back to the original topic. The issue is that the authors of all
 the above papers have different goals.</p>
 <p>The PretrainZero authors (Xiaohongshu) are inspired by cognitive
@@ -66,15 +67,16 @@ pretraining beforehand, then do RL afterward. They think that maybe this
 is not strictly correct from an information-theoretic sense, so they
 frame the CoT as an exploratory action and use entropy reduction as the
 reward signal.</p>
-<p>The RLPT authors want a way to squeeze more information out of their
-data. In information theory, compute out of their data.</p>
+<p>The RLPT authors want a way to squeeze more gradient-accessible
+information out of their data.</p>
 <p>All of these are reasonable reasons to explore RLPT. Each line of
 reasoning probably leads somewhere. Still, I think it is worth examining
 what we are doing and why.</p>
 <h2 id="pretraining-and-information-theory-background">Pretraining and
 Information Theory Background</h2>
-<p>An LLM is a function that takes in a sequence of tokens and outputs a
-probability distribution over the next token.</p>
+<p>A language model, as we concieve them today, is a function that takes
+in a sequence of tokens and outputs a probability distribution over the
+next token.</p>
 <p>So, if you wanted to shape that probability distribution, what would
 you do with it? What do you want the distribution to look like?</p>
 <p>Which tokens would you want to be more sure about and less sure about

@@ -52,7 +52,7 @@ All of these are reasonable reasons to explore RLPT. Each line of reasoning prob
 
 ## Pretraining and Information Theory Background
 
-An LLM is a function that takes in a sequence of tokens and outputs a probability distribution over the next token.
+A language model, as we concieve them today, is a function that takes in a sequence of tokens and outputs a probability distribution over the next token.
 
 So, if you wanted to shape that probability distribution, what would you do with it? What do you want the distribution to look like?
 
