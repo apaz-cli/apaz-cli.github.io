@@ -332,9 +332,11 @@ Implementation Plan v3</h1>
 Implementation</a></li>
 <li><a href="#2-scaling-to-llama-3-8b">Scaling to Llama 3 8B</a></li>
 <li><a href="#3-bf16-optimizer-states">BF16 Optimizer States</a></li>
-<li><a href="#4-adam-β1β2-sensitivity">Adam β₁/β₂ Sensitivity</a></li>
-<li><a href="#5-eco-for-muon">ECO for Muon</a></li>
-<li><a href="#6-implementation-roadmap">Implementation Roadmap</a></li>
+<li><a href="#4-adam-β1-sensitivity">Adam β₁ Sensitivity</a></li>
+<li><a href="#5-weight-decay-injection-factor">Weight Decay Injection
+Factor</a></li>
+<li><a href="#6-eco-for-muon">ECO for Muon</a></li>
+<li><a href="#7-implementation-roadmap">Implementation Roadmap</a></li>
 </ol>
 <hr />
 <h2 id="infrastructure-setup">0. Infrastructure Setup</h2>
@@ -443,6 +445,12 @@ iterate over), <code>flags</code> (CLI args per value), and
 <code>name</code> (short label for run naming).</p>
 <p><strong>Current sweep files:</strong></p>
 <table>
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 18%" />
+<col style="width: 28%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th>File</th>
@@ -453,35 +461,53 @@ iterate over), <code>flags</code> (CLI args per value), and
 </thead>
 <tbody>
 <tr class="odd">
-<td><code>sweeps/eco_vs_baseline.py</code></td>
-<td>±ECO</td>
-<td>2</td>
+<td><code>sweeps/paper_repro.py</code></td>
+<td>7 paper treatments × speed</td>
+<td>~7</td>
 <td>§2</td>
 </tr>
 <tr class="even">
-<td><code>sweeps/eco_rounding.py</code></td>
-<td>±ECO × ±stochastic rounding</td>
-<td>4</td>
+<td><code>sweeps/bf16_eco.py</code></td>
+<td>bf16 vs bf16+ECO × speed</td>
+<td>~2</td>
 <td>§2</td>
 </tr>
 <tr class="odd">
 <td><code>sweeps/bf16_optim.py</code></td>
-<td>±ECO × FP32/BF16 optim states</td>
-<td>4</td>
+<td>4 BF16 optim treatments × speed</td>
+<td>~4</td>
 <td>§3</td>
 </tr>
 <tr class="even">
 <td><code>sweeps/beta.py</code></td>
-<td>β₁(5) × β₂(4) × ±ECO</td>
-<td>40</td>
+<td>β₁(5)</td>
+<td>5</td>
 <td>§4</td>
+</tr>
+<tr class="odd">
+<td><code>sweeps/weight_decay_injection.py</code></td>
+<td>wd(2) × wd_in_injection(2)</td>
+<td>3</td>
+<td>§5</td>
+</tr>
+<tr class="even">
+<td><code>sweeps/muon_approaches.py</code></td>
+<td>4 ECO approaches × speed</td>
+<td>~4</td>
+<td>§6</td>
+</tr>
+<tr class="odd">
+<td><code>sweeps/debug_smoke.py</code></td>
+<td>eco × quant × sr × optim_dtype × compute_dtype</td>
+<td>32</td>
+<td>—</td>
 </tr>
 </tbody>
 </table>
-<p>All sweep files use common flag patterns: -
-<code>ECO_OFF = [&quot;--eco.enabled=false&quot;, &quot;--model.converters&quot;, &quot;&quot;]</code>
--
-<code>ECO_ON = [&quot;--eco.enabled=true&quot;, &quot;--model.converters&quot;, &quot;quantize.linear.float8,eco&quot;]</code></p>
+<p>All sweep files use <code>_treatments.py</code> for standard
+treatment definitions and <code>_flags()</code> to generate CLI
+arguments. Sweeps can define <code>EXTRA_FLAGS</code> for flags
+prepended to every run.</p>
 <hr />
 <h2 id="base-eco-implementation">1. Base ECO Implementation</h2>
 <p><strong>Status: Complete.</strong> All ECO logic lives in
@@ -831,7 +857,7 @@ dropped.</p>
 adding ECO to BF16-optimizer training help, hurt, or do nothing? - Does
 BF16 optimizer degrade ECO quality?</p>
 <hr />
-<h2 id="adam-β₁β₂-sensitivity">4. Adam β₁/β₂ Sensitivity</h2>
+<h2 id="adam-β₁-sensitivity">4. Adam β₁ Sensitivity</h2>
 <h3 id="motivation-2">4.1 Motivation</h3>
 <p>ECO&#39;s injection coefficient depends directly on β₁ (paper Algorithm
 3, line 216):</p>
@@ -904,27 +930,60 @@ Theorem 3.5, line 307–311):</p>
 <p>Higher β₁ → weaker injection AND higher noise floor. This predicts
 ECO may prefer lower β₁ than standard training, potentially shifting the
 optimal hyperparameters.</p>
+<p>β₂ is fixed at 0.98 (the paper&#39;s choice, line 305). β₂ enters the
+injection only through Adam&#39;s standard adaptive scaling
+<code>√(v/(1−β₂^t)) + ε</code>, which is unchanged by ECO. No
+ECO-specific β₂ sensitivity is expected.</p>
 <h3 id="setup-2">4.2 Setup</h3>
 <p><strong>Model:</strong> 100M and 430M (small enough for a sweep).</p>
-<p><strong>Sweep grid:</strong> - β₁ ∈ {0.8, 0.85, 0.9, 0.95, 0.99} - β₂
-∈ {0.95, 0.98, 0.99, 0.999}</p>
-<p>At each (β₁, β₂): run both baseline and ECO. Total: 5 × 4 × 2 = 40
-runs at 100M.</p>
-<p>Use the adapted sweep script (Section 0.3) to generate and launch all
-configs.</p>
+<p><strong>Sweep:</strong> β₁ ∈ {0.8, 0.85, 0.9, 0.95, 0.99}, β₂ = 0.98
+(fixed). Total: 5 runs per model size, all on <code>fp8_eco_sr</code>
+base treatment.</p>
 <h3 id="what-to-measure-1">4.3 What to Measure</h3>
 <ul>
-<li><strong>Validation loss</strong> at each (β₁, β₂) → 2D heatmaps for
-baseline vs ECO.</li>
-<li><strong>Optimal (β₁, β₂)</strong> for each method — does ECO shift
-the optimum?</li>
-<li><strong>Sensitivity contours</strong> — is ECO more or less
-sensitive to β choice?</li>
+<li><strong>Validation loss</strong> at each β₁.</li>
 <li><strong>Injection magnitude</strong> |Δm|/|m| at each β₁.</li>
-<li><strong>Heuristic validation</strong> at each β₁.</li>
+<li><strong>Heuristic validation</strong> at each β₁ — does e_t ≈
+e_{t+1} degrade at extreme β₁?</li>
 </ul>
 <hr />
-<h2 id="eco-for-muon">5. ECO for Muon</h2>
+<h2 id="weight-decay-injection-factor">5. Weight Decay Injection
+Factor</h2>
+<h3 id="motivation-3">5.1 Motivation</h3>
+<p>The paper&#39;s ECO injection (Algorithm 3) derives the momentum
+correction for SGDM without weight decay. With AdamW-style decoupled
+weight decay (θ ← θ − ηλθ − η·update), the virtual sequence construction
+gains an extra factor. Following leloykun&#39;s derivation
+(https://leloykun.github.io/ponder/eco/), the corrected injection
+coefficient is:</p>
+<pre><code>Δm = (1/η)(1 − 1/β₁)(1 − ηλ) · diag(√(v/(1−β₂^t)) + ε) · e</code></pre>
+<p>The additional <code>(1 − ηλ)</code> factor accounts for weight decay
+shrinking the weights between steps. The paper does not report this
+factor — the derivation in Appendix A (lines 583–592) assumes no weight
+decay.</p>
+<p>At typical hyperparameters (η = 3e-4, λ = 0.1), the factor is
+<code>1 − 3e-5 ≈ 0.99997</code> — a negligible correction. This
+experiment confirms that empirically: the factor should make no
+measurable difference, but including it makes the derivation exact.</p>
+<h3 id="setup-3">5.2 Setup</h3>
+<p><strong>Model:</strong> 100M (Muon,
+<code>configs/experiments/muon.toml</code>).</p>
+<p><strong>Sweep:</strong> weight_decay ∈ {0.0, 0.1} ×
+include_weight_decay_in_injection ∈ {False, True}. The combo (wd=0,
+injection=True) is excluded (factor is always 1 when λ=0). Total: 3
+runs.</p>
+<h3 id="what-to-measure-2">5.3 What to Measure</h3>
+<ul>
+<li><strong>Validation loss</strong> — confirm no meaningful difference
+between ±factor at wd=0.1.</li>
+<li><strong>Injection coefficient</strong> — verify the (1 − ηλ)
+correction is negligibly small.</li>
+<li>This is a completeness result: the paper&#39;s formula is practically
+correct even without the weight decay factor, but the exact formula
+includes it.</li>
+</ul>
+<hr />
+<h2 id="eco-for-muon">6. ECO for Muon</h2>
 <h3 id="muon-background">5.1 Muon Background</h3>
 <p>Muon replaces Adam&#39;s per-element adaptive step size with spectral
 normalization of the momentum via Newton-Schulz (NS) iterations. The
@@ -944,8 +1003,9 @@ W_{t+1} = W_t − η · u_{t+1}                 # update</code></pre>
 <p>Muon applies only to 2D parameters (weight matrices). For 1D
 parameters (biases, norms, embeddings), a standard Adam optimizer is
 used.</p>
-<h3 id="derivation">5.2 Derivation</h3>
-<p><strong>Step 1: SGDM ECO recap.</strong> For SGDM (θ ← θ − η·m), the
+<h3 id="four-eco-approaches-for-muon">5.2 Four ECO Approaches for
+Muon</h3>
+<p><strong>Background: SGDM ECO.</strong> For SGDM (θ ← θ − η·m), the
 paper derives the exact injection (Appendix A, paper lines 583–592) by
 constructing implicit master weights θ* = θ̂ + e and implicit momentum m*
 = m̂ + (1/(ηβ))·e, and showing these follow the standard SGDM recurrence.
@@ -953,56 +1013,77 @@ The approximate (memory-free) injection is:</p>
 <pre><code>Δm = (1/η)(1 − 1/β) · e</code></pre>
 <p>This works because the update θ ← θ − η·m is <strong>linear</strong>
 in m: injecting Δm into m produces a correction of −η·Δm in θ.</p>
-<p><strong>Step 2: Why Muon breaks the SGDM derivation.</strong> For
-Muon, the update is θ ← θ − η·NS(m), which is <strong>nonlinear</strong>
-in m. The virtual sequence construction requires θ* − C·m* to follow
-gradient descent, but NS prevents the error terms from canceling cleanly
-(the cancellation in the SGDM proof relies on linearity; see paper lines
-706–726 where the e_{t+1} coefficient vanishes <em>because</em> the
-update is linear in m).</p>
-<p><strong>Step 3: What exact compensation would require.</strong> For
-the implicit master weights to match, we need (from the same logic as
-the SGDM proof):</p>
-<pre><code>NS(m*_{t+1}) = NS(m̃_{t+1}) + e_t/η</code></pre>
-<p>i.e., the orthogonalized implicit momentum must differ from the ECO
-orthogonalized momentum by exactly e_t/η. Linearizing NS around m̃:</p>
+<p><strong>Why Muon is Different.</strong> For Muon, the update is θ ← θ
+− η·NS(m), which is <strong>nonlinear</strong> in m. The virtual
+sequence construction requires θ* − C·m* to follow gradient descent, but
+NS prevents the error terms from canceling cleanly (the cancellation in
+the SGDM proof relies on linearity; see paper lines 706–726 where the
+e_{t+1} coefficient vanishes <em>because</em> the update is linear in
+m).</p>
+<p>We implement <strong>four approaches</strong> to handle this
+nonlinearity:</p>
+<h4 id="approach-1-pre-newton-schulz-injection-simplest-try-this-first">Approach
+1: Pre-Newton-Schulz Injection (Simplest — Try This First)</h4>
+<pre><code>m ← m + (1/η)(1 − 1/β)·e  (inject BEFORE NS)
+u = NS(m)                  (then apply NS to error-corrected momentum)
+θ̂ ← q(θ̃ - η·u)</code></pre>
+<p>Injects error into momentum <strong>before</strong> applying
+Newton-Schulz, rather than trying to invert the NS transformation. The
+error goes through the same nonlinear transformation as the gradient.
+Philosophically different: instead of compensating for NS, we let NS
+naturally process the error.</p>
+<p><strong>Why try this first:</strong> The math doesn&#39;t quite add up
+(the error should be injected after NS to match the paper&#39;s exact
+derivation), but it&#39;s the simplest approach and might just work. If
+momentum is slowly varying and NS is approximately linear locally,
+pre-injection might be &quot;close enough&quot; to exact compensation. Worth
+testing before getting fancy.</p>
+<h4 id="approach-2-naive-sgdm-baseline-control">Approach 2: Naive SGDM
+(Baseline Control)</h4>
+<pre><code>Δm = (1/η)(1 − 1/β) · e</code></pre>
+<p>Directly applies the SGDM formula, completely ignoring Newton-Schulz
+nonlinearity. Serves as a control to measure how much the nonlinearity
+matters.</p>
+<h4 id="approach-3-frobenius-norm-scaling-primary-method">Approach 3:
+Frobenius Norm Scaling (Primary Method)</h4>
+<pre><code>Δm = (‖m̃_{t+1}‖_F / η)(1 − 1/β) · e_{t+1}</code></pre>
+<p><strong>Derivation:</strong> For exact compensation, we need
+NS(m*<em>{t+1}) = NS(m̃</em>{t+1}) + e_t/η. Linearizing NS around m̃:</p>
 <pre><code>NS(m̃ + Δm) ≈ NS(m̃) + J_NS(m̃) · Δm</code></pre>
-<p>where J_NS is the Fréchet derivative of the polar factor map. So we
+<p>where J_NS is the Fréchet derivative of the polar factor map. We
 need:</p>
 <pre><code>J_NS(m̃) · Δm = e_t/η</code></pre>
-<p>This requires inverting J_NS, which is problematic: - J_NS is
-<strong>singular</strong>: perturbations to m that only scale its
-singular values (without rotating singular vectors) produce zero change
-in NS(m), because the polar factor UVᵀ is invariant to singular value
-scaling. So J_NS has a nontrivial null space. - The full Fréchet
-derivative of the polar factor involves the singular value decomposition
-and is expensive to compute.</p>
-<p><strong>Step 4: Practical approximation.</strong> NS begins by
-normalizing m → m/‖m‖_F, then iterates toward UVᵀ. For the first-order
-effect, NS maps a perturbation Δm to approximately Δm/‖m‖_F (after
-projecting out the component along m&#39;s dominant singular directions,
-which NS is insensitive to). Since the quantization error e is
+<p>Computing J_NS exactly is problematic: - J_NS is
+<strong>singular</strong>: perturbations that only scale singular values
+produce zero change in NS(m), since the polar factor UVᵀ is invariant to
+singular value scaling. - The full Fréchet derivative involves SVD and
+is expensive.</p>
+<p><strong>Practical approximation:</strong> NS begins by normalizing m
+→ m/‖m‖_F, then iterates toward UVᵀ. For first-order effects, NS maps a
+perturbation Δm to approximately Δm/‖m‖_F (after projecting out
+components along m&#39;s null space). Since the quantization error e is
 effectively random with respect to m&#39;s singular structure, most of e
-lies outside the null space of J_NS, and the effective gain is ≈
-1/‖m‖_F.</p>
-<p>To achieve the SGDM-equivalent correction in the update direction, we
-compensate for this gain by multiplying by ‖m‖_F:</p>
-<pre><code>Δm = (‖m̃_{t+1}‖_F / η)(1 − 1/β) · e_{t+1}</code></pre>
-<p><strong>This is the proposed ECO-Muon injection formula.</strong> The
-‖m‖_F factor plays the analogous role to Adam&#39;s (√v + ε) factor — it
-converts from update-space back to momentum-space, accounting for how
-the optimizer transforms momentum before applying it as an update.</p>
-<p>Computing ‖m‖_F is a single reduction (negligible cost).</p>
-<p><strong>Step 5: Limitations of this derivation.</strong> - NS is not
-a simple division by ‖m‖_F — it does full spectral normalization. The
-‖m‖<em>F scaling is a scalar approximation of a matrix-valued operation.
-- Components of e aligned with the dominant singular vectors of m will
-be suppressed by NS regardless of the scaling. For low-rank momentum
-(which is typical), this means a small fraction of the error correction
-is lost each step. - The e_t ≈ e</em>{t+1} approximation adds further
-error on top.</p>
-<p>Whether these approximations are tolerable is an empirical question —
-hence the experiment.</p>
+lies outside the null space, and the effective gain is ≈ 1/‖m‖_F.</p>
+<p>To achieve the SGDM-equivalent correction, we compensate for this
+gain by multiplying by ‖m‖_F. This is the <strong>Adam analogy</strong>:
+just as Adam scales error injection by (√v + ε) to convert from
+update-space to momentum-space, we scale by ‖m‖_F to account for how NS
+transforms momentum.</p>
+<p><strong>Limitations:</strong> - NS is not just division by ‖m‖<em>F —
+it does full spectral normalization - Components of e aligned with
+dominant singular vectors will be suppressed regardless - The e_t ≈
+e</em>{t+1} approximation adds further error</p>
+<h4 id="approach-4-jacobian-based-exact">Approach 4: Jacobian-Based
+(Exact)</h4>
+<pre><code>Solve: J_NS(m̃) · Δm ≈ e/η</code></pre>
+<p>Uses finite differences to approximate the Jacobian J_NS =
+∂NS(m)/∂m:</p>
+<pre><code>J·v ≈ [NS(m + εv) - NS(m - εv)] / (2ε)</code></pre>
+<p>Then solves the linear system using conjugate gradient (initialized
+with the naive SGDM injection as a warm start). This is the
+<strong>mathematically exact</strong> approach, but expensive: each CG
+iteration requires two NS evaluations (10 Newton-Schulz iterations
+total). Serves as an upper bound on achievable performance.</p>
 <h3 id="experimental-setup">5.3 Experimental Setup</h3>
 <p><strong>Model:</strong> 100M and 430M.</p>
 <p><strong>Conditions:</strong></p>
@@ -1012,12 +1093,12 @@ hence the experiment.</p>
 <th>Run</th>
 <th>Optimizer</th>
 <th>ECO</th>
-<th>Formula</th>
+<th>Approach</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>Muon baseline</td>
+<td>Muon baseline (w/ MW)</td>
 <td>Muon</td>
 <td>No</td>
 <td>—</td>
@@ -1029,19 +1110,31 @@ hence the experiment.</p>
 <td>—</td>
 </tr>
 <tr class="odd">
-<td>Muon ECO-A (naive SGDM)</td>
+<td>Muon ECO (pre_ns)</td>
+<td>Muon</td>
+<td>Yes</td>
+<td>Inject before NS</td>
+</tr>
+<tr class="even">
+<td>Muon ECO (naive_sgdm)</td>
 <td>Muon</td>
 <td>Yes</td>
 <td>Δm = (1/η)(1−1/β)·e</td>
 </tr>
-<tr class="even">
-<td>Muon ECO-B (Frobenius)</td>
+<tr class="odd">
+<td>Muon ECO (frobenius)</td>
 <td>Muon</td>
 <td>Yes</td>
 <td>Δm = (‖m‖_F/η)(1−1/β)·e</td>
 </tr>
+<tr class="even">
+<td>Muon ECO (jacobian)</td>
+<td>Muon</td>
+<td>Yes</td>
+<td>Solve J·Δm = e/η via CG</td>
+</tr>
 <tr class="odd">
-<td>Adam baseline</td>
+<td>Adam baseline (w/ MW)</td>
 <td>Adam</td>
 <td>No</td>
 <td>—</td>
@@ -1054,37 +1147,65 @@ hence the experiment.</p>
 </tr>
 </tbody>
 </table>
-<p>ECO-A is the control: what happens if we just apply the SGDM formula
-and ignore NS. ECO-B is the derived formula. Comparing A vs B isolates
-the effect of the ‖m‖_F scaling.</p>
-<h3 id="implementation-1">5.4 Implementation</h3>
-<p><strong>Adding Muon to torchtitan:</strong> - Add
-<code>&quot;Muon&quot;: torch.optim.Muon</code> to <code>optimizer_classes</code>
-in <code>torchtitan/components/optimizer.py</code>. - Add Muon-specific
-config fields to <code>torchtitan/config/job_config.py</code> (momentum,
-NS steps, etc.). - Muon uses Adam for 1D params (biases, norms) — handle
-this in the optimizer builder by splitting parameters by
-dimensionality.</p>
-<p><strong>ECO-Muon injection:</strong> Add Muon-specific injection to
-the ECO optimizer. The Muon optimizer state has
-<code>momentum_buffer</code> (not
-<code>exp_avg</code>/<code>exp_avg_sq</code> like Adam). The injection
-targets this buffer.</p>
-<h3 id="what-to-measure-2">5.5 What to Measure</h3>
+<p><strong>Comparisons:</strong> - <strong>naive vs no-ECO</strong>:
+Does any error compensation help? - <strong>pre_ns vs
+naive_sgdm</strong>: Does injecting before NS help? - <strong>naive_sgdm
+vs frobenius</strong>: Does the ‖m‖_F scaling matter? -
+<strong>frobenius vs jacobian</strong>: How much better can exact
+Jacobian do? - <strong>Best Muon+ECO vs Adam+ECO</strong>:
+Cross-optimizer comparison</p>
+<h3 id="implementation-done">5.4 Implementation
+(<strong>DONE</strong>)</h3>
+<p><strong>ECOMuon optimizer:</strong>
+<code>torchtitan/components/eco_muon.py</code> - Standalone optimizer
+similar to ECOAdamW - 2D params: Muon with Newton-Schulz5
+(<code>zeropower_via_newtonschulz5</code>) - 1D params: Falls back to
+Adam - Four approaches selectable via <code>eco_approach</code>
+argument: - <code>&quot;naive_sgdm&quot;</code>, <code>&quot;frobenius&quot;</code>,
+<code>&quot;jacobian&quot;</code>, <code>&quot;pre_ns&quot;</code> - Same dtype support as
+ECOAdamW (<code>optim_state_dtype</code>,
+<code>optim_compute_dtype</code>) - Same quantization support
+(<code>quantize_weights</code>, <code>quant_dtype</code>) - Logs all
+ECOAdamW heuristics plus Muon-specific metrics: -
+<code>eco/muon/frobenius_norm</code> — ‖m‖_F per layer -
+<code>eco/muon/update_norm</code> — ‖u‖ (NS output) -
+<code>eco/muon/injection_scale</code> — injection coefficient
+magnitude</p>
+<p><strong>Integration TODO:</strong> - Add <code>&quot;ECOMuon&quot;</code> to
+<code>optimizer_classes</code> in
+<code>torchtitan/components/optimizer.py</code> - Add Muon config
+dataclass to <code>torchtitan/config/job_config.py</code> - Wire ECOMuon
+config into <code>build_optimizers</code> - Create config files:
+<code>configs/debug/muon.toml</code>,
+<code>configs/experiments/muon_*.toml</code> - Create sweep:
+<code>sweeps/muon_eco.py</code> to test all four approaches</p>
+<h3 id="what-to-measure-3">5.5 What to Measure</h3>
 <ul>
-<li><strong>Primary:</strong> Does ECO-B prevent the 1/η divergence that
-naive master-weight removal causes? (Compare &quot;Muon naive&quot; vs &quot;Muon
-ECO-B&quot;.)</li>
-<li><strong>Secondary:</strong> How does ECO-B compare to ECO-A? Does
-the ‖m‖_F scaling matter?</li>
-<li><strong>Heuristic validation:</strong> Same 4 metrics as Section
-1.5. Additionally, log ‖m‖_F per layer over training to understand the
-scaling factor&#39;s dynamics.</li>
+<li><strong>Primary:</strong> Does ECO (any approach) prevent the 1/η
+divergence that naive master-weight removal causes? (Compare &quot;naive
+no-ECO&quot; vs all ECO approaches.)</li>
+<li><strong>Approach comparison:</strong>
+<ul>
+<li>Does <code>frobenius</code> beat <code>naive_sgdm</code>? (Does
+‖m‖_F scaling matter?)</li>
+<li>Does <code>jacobian</code> beat <code>frobenius</code>? (Is exact
+Jacobian worth the cost?)</li>
+<li>Does <code>pre_ns</code> beat <code>frobenius</code>? (Pre-NS vs
+post-NS philosophy?)</li>
+</ul></li>
+<li><strong>Heuristic validation:</strong> Same metrics as ECOAdamW:
+<ul>
+<li><code>eco/heuristic/norm_ratio</code> — ‖e_{t+1}‖ / ‖e_t‖</li>
+<li><code>eco/heuristic/cosine_sim</code> — cos(e_t, e_{t+1})</li>
+<li><code>eco/heuristic/rel_diff_norm</code> — ‖e_{t+1} - e_t‖ /
+‖e_t‖</li>
+<li>Plus Muon-specific: ‖m‖_F, ‖u‖, injection scale dynamics</li>
+</ul></li>
 <li><strong>Cross-optimizer:</strong> How does the best Muon+ECO compare
 to Adam+ECO?</li>
 </ul>
 <hr />
-<h2 id="implementation-roadmap">6. Implementation Roadmap</h2>
+<h2 id="implementation-roadmap">7. Implementation Roadmap</h2>
 <h3 id="phase-1-infrastructure-base-eco-done">Phase 1: Infrastructure +
 Base ECO (<strong>DONE</strong>)</h3>
 <ol type="1">
@@ -1109,16 +1230,17 @@ a validation loss near 2.9888 (paper Table 1, line 387).</li>
 <li>Create Llama 3 8B ECO configs. Run 8B baseline + ECO. Analyze
 heuristic validation at 8B.</li>
 </ol>
-<h3 id="phase-3-bf16-optimizer-β-sweep-muon-parallelizable">Phase 3:
-BF16 Optimizer + β Sweep + Muon (parallelizable)</h3>
-<p>These three experiments are independent and can proceed in
-parallel.</p>
+<h3 id="phase-3-bf16-optimizer-β-sweep-weight-decay-muon-parallelizable">Phase
+3: BF16 Optimizer + β Sweep + Weight Decay + Muon (parallelizable)</h3>
+<p>These experiments are independent and can proceed in parallel.</p>
 <ol start="9" type="1">
 <li>Run the 4 BF16-optimizer conditions at 430M/1B using
 <code>--eco.optim_state_dtype bf16</code>.</li>
-<li>Run β₁/β₂ sweep at 100M using the sweep script.</li>
-<li>Add Muon to torchtitan. Validate Muon baseline. Implement ECO-A and
-ECO-B. Run comparison at 100M/430M.</li>
+<li>Run β₁ sweep at 100M (5 runs, β₂ fixed at 0.98).</li>
+<li>Run weight decay injection factor sweep at 100M (3 runs, Section
+5).</li>
+<li>Add Muon to torchtitan. Validate Muon baseline. Implement four ECO
+approaches. Run comparison at 100M/430M.</li>
 </ol>
 <h3 id="notes">Notes</h3>
 <ul>

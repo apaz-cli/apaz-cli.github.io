@@ -73,6 +73,7 @@ if [ -n "$APT" ]; then
     install_package \
       python3-pip python3-venv \
       nano tree less file locate jq ranger \
+      screen tmux \
       kitty-terminfo \
       git wget curl gcc g++ clang cmake libcurl4-openssl-dev \
       htop btop psmisc \
@@ -82,6 +83,7 @@ elif [ -n "$PACMAN" ]; then
     install_package \
       inetutils python-pip \
       nano tree less file mlocate jq ranger \
+      screen tmux \
       kitty-terminfo \
       git wget curl gcc clang cmake curl \
       htop btop psmisc \
