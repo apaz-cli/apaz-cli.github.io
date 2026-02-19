@@ -16,5 +16,9 @@
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "enabledMcpjsonServers": [
+    "slop-guard"
+  ],
+  "enableAllProjectMcpServers": true
 }

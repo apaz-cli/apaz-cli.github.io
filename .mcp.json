@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "slop-guard": {
+      "type": "stdio",
+      "command": "/home/apaz/git/Scripts/slop_guard",
+      "args": [],
+      "env": {}
+    }
+  }
+}
