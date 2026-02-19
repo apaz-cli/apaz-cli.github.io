@@ -1,4 +1,5 @@
 .aider*
 .env
+.mcp.json
 *.swp
 **/__pycache__/**
