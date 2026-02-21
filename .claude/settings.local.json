@@ -12,13 +12,14 @@
       "Read(/tmp/arxiv_cache/**)",
       "Read(/tmp/arxiv_cache/**)",
       "Read(/tmp/arxiv_cache/**)",
-      "Read(/tmp/arxiv_cache/**)"
+      "Read(/tmp/arxiv_cache/**)",
+      "mcp__slop-guard__check_slop_file"
     ],
     "deny": [],
     "ask": []
   },
+  "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "slop-guard"
-  ],
-  "enableAllProjectMcpServers": true
+  ]
 }
