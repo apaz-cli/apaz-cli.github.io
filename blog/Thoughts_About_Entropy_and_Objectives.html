@@ -7,7 +7,8 @@
   <meta name="og:title" content="Thoughts About Entropy and Objectives">
   <meta name="og:description" content="A bunch of Reinforcement Learning Pre-Training (RLPT) papers have
 come out recently. They're cool. They even work kinda mostly. They can
-improve benchmark scores. Unfortunately, nobody seems to be in agreement on what they are doing
+improve benchmark scores. So, like, probably there's gotta be something
+there. It's doing something. Unfortunately, nobody seems to be in agreement on what they are doing
 or why. Here's my understanding of the problem, and a take on a path
 forward.">
   <meta name="og:image" content="images/7de05afebfaf7b9f8c03f673a7909731.png">
@@ -300,15 +301,16 @@ and Objectives</h1>
 <p><br></p>
 <p>A bunch of Reinforcement Learning Pre-Training (RLPT) papers have
 come out recently. They're cool. They even work kinda mostly. They can
-improve benchmark scores.</p>
+improve benchmark scores. So, like, probably there's gotta be something
+there. It's doing something.</p>
 <p>Unfortunately, nobody seems to be in agreement on what they are doing
 or why. Here's my understanding of the problem, and a take on a path
 forward.</p>
 <p><br></p>
 <h2 id="disclaimers">Disclaimers</h2>
 <p>The same disclaimers that applied to part 1 apply to this one. If you
-haven't read that one, you should read that one first. I make the case
-for pretraining on trajectories.</p>
+haven't read that one, consider reading that one first. In it I make the
+case for pretraining on rollouts/trajectories.</p>
 <p>Part 1:
 <a href="Thoughts_About_LLMs_Data_and_Optimization.html">Thoughts About
 LLMs, Data, and Optimization</a></p>
@@ -460,8 +462,8 @@ Construction, Synthetic Data, and Epiplexity</h2>
 <ul>
 <li>LLMs cannot produce high entropy tokens by definition, you are
 sampling from the probability distribution. If they do, it's by literal
-random chance, that entropy does not reflect any sort of external
-reality.</li>
+random chance. That entropy is not only unlikely, it also cannot reflect
+any sort of external reality.</li>
 </ul>
 <h2 id="critique-of-rlpt-and-a-path-forward">Critique of RLPT and a path
 forward</h2>

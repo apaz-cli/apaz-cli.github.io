@@ -13,7 +13,16 @@
       "Read(/tmp/arxiv_cache/**)",
       "Read(/tmp/arxiv_cache/**)",
       "Read(/tmp/arxiv_cache/**)",
-      "mcp__slop-guard__check_slop_file"
+      "mcp__slop-guard__check_slop_file",
+      "Read(//home/apaz/git/Scripts/**)",
+      "Read(//tmp/slop-guard/**)",
+      "Bash(git -C /tmp/slop-guard log --oneline -5)",
+      "Read(//tmp/slop-guard-venv/bin/**)",
+      "Bash(/tmp/slop-guard-venv/bin/slop-guard --help)",
+      "Bash(ls:*)",
+      "Bash(git:*)",
+      "Read(//home/apaz/.claude/**)",
+      "Bash(curl -s \"https://api.github.com/repos/eric-tramel/slop-guard/commits/main\")"
     ],
     "deny": [],
     "ask": []

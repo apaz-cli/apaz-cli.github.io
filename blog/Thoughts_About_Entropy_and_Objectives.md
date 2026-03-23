@@ -7,7 +7,7 @@
 
 <br>
 
-A bunch of Reinforcement Learning Pre-Training (RLPT) papers have come out recently. They're cool. They even work kinda mostly. They can improve benchmark scores.
+A bunch of Reinforcement Learning Pre-Training (RLPT) papers have come out recently. They're cool. They even work kinda mostly. They can improve benchmark scores. So, like, probably there's gotta be something there. It's doing something.
 
 Unfortunately, nobody seems to be in agreement on what they are doing or why. Here's my understanding of the problem, and a take on a path forward.
 
@@ -15,7 +15,7 @@ Unfortunately, nobody seems to be in agreement on what they are doing or why. He
 
 ## Disclaimers
 
-The same disclaimers that applied to part 1 apply to this one. If you haven't read that one, you should read that one first. I make the case for pretraining on trajectories.
+The same disclaimers that applied to part 1 apply to this one. If you haven't read that one, consider reading that one first. In it I make the case for pretraining on rollouts/trajectories.
 
 Part 1: <a href="Thoughts_About_LLMs_Data_and_Optimization.html">Thoughts About LLMs, Data, and Optimization</a>
 
@@ -103,7 +103,7 @@ TODO: Explain entropy (uncertainty) as a finetuning resource, summarize my tweet
 
 ## Dataset Construction, Synthetic Data, and Epiplexity
 
-* LLMs cannot produce high entropy tokens by definition, you are sampling from the probability distribution. If they do, it's by literal random chance, that entropy does not reflect any sort of external reality.
+* LLMs cannot produce high entropy tokens by definition, you are sampling from the probability distribution. If they do, it's by literal random chance. That entropy is not only unlikely, it also cannot reflect any sort of external reality.
 
 
 ## Critique of RLPT and a path forward
