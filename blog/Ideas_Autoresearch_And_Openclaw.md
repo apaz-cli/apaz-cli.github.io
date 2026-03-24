@@ -48,16 +48,16 @@ Before proceeding, there are some design considerations to... consider. Here are
 
 Perhaps you are starting to notice a pattern here. This is openclaw. We are describing problems which openclaw has already solved.
 
-This is what [AutoResearchClaw](https://github.com/aiming-lab/AutoResearchClaw/) is. A plugin to openclaw which does all this. Prompts it to behave like autoresearch, and generates you research papers with graphs and experiments. Notably, it is not *exactly* what I am describing. It also uses [AIDE](https://github.com/WecoAI/aideml)-style operators, `PIVOT`/`REFINE`/`PROCEED`, etc. They have their own ideas about what the pipeline should look like.
+This is what [AutoResearchClaw](https://github.com/aiming-lab/AutoResearchClaw/) is. A plugin to openclaw which does all this. Prompts it to behave like autoresearch, and generates you research papers with graphs and experiments. Notably, it is not *exactly* what I am describing. It also uses [AIDE](https://github.com/WecoAI/aideml)-style operators, `PIVOT`/`REFINE`/`PROCEED`, builds a tree of research paths, etc. They have their own ideas about what the pipeline should look like.
 
-Other papers and projects have been coming out too. See [EurekaClaw](https://x.com/EurekaClaw/), which dropped yesterday as of publication time, but four hours ago as of the time of writing this. They do something similar, using openclaw as a substrate. It seems to be a more general tool. I like general tools.
+Other papers and projects have been coming out too. See [EurekaClaw](https://x.com/EurekaClaw/), which dropped two days ago as of publication time, but an hour ago as of the time of writing this. They do something similar, using openclaw as a substrate. But this one seems to be more of a general tool. I like general tools.
 
-The "hijack openclaw" approach is is pretty cool because that means you don't have to run a ton of code, or be particularly careful in setting up the sandboxing yourself. Your paper or project gets published early. The flood of them are coming out right now.
+The "hijack openclaw" approach is is pretty cool because that means you don't have to write any infrastructure. It's just a prompt, and the sandboxing is already taken care of. So your paper or project gets published early. The flood of them are coming out right now.
 
 
 ## Reconsidering These Infra Considerations
 
-Do you want to hardcode the loop, or do you want the agent to handle control flow internally, OG autoresearch style? I'm honestly not sure. Yes and no, I think. There are good reasons and bad reasons.
+Do you want to hardcode the loop, or do you want the agent to handle control flow internally, OG autoresearch style? I'm honestly not sure which is correct. Yes and no, I think. There are good reasons and bad reasons.
 
 Coding agents are pretty reliable. But they are not 100% reliable yet. There are in fact arguments why they may never be 100% reliable. Why not build in safeguards? They will help you. I believe that the correct approach may be to go full schizo mode. Take control of the process as much as possible, build in code audits and reward hacking detection, and force the agent to do the right thing.
 
