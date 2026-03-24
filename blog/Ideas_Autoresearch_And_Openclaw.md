@@ -6,6 +6,8 @@
 
 ## Background
 
+Skip to the next section if you already know what these things are.
+
 ### Autoresearch
 
 An agent is [prompted](https://github.com/karpathy/autoresearch/blob/master/program.md) to enter a loop to improve some metric. It proposes ideas, tests and validates them. If they work, they are accepted. If the change was not good enough, it's rolled back. Using this methodology, agents can keep themselves churning overnight.

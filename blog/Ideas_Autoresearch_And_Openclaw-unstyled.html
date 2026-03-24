@@ -14,6 +14,8 @@ do Idea Generation, Autoresearch, and Openclaw have in common?</h1>
 <p><img src="images/rural_watching.jpg" /></p>
 </div>
 <h2 id="background">Background</h2>
+<p>Skip to the next section if you already know what these things
+are.</p>
 <h3 id="autoresearch">Autoresearch</h3>
 <p>An agent is <a
 href="https://github.com/karpathy/autoresearch/blob/master/program.md">prompted</a>
@@ -92,22 +94,23 @@ autoresearch, and generates you research papers with graphs and
 experiments. Notably, it is not <em>exactly</em> what I am describing.
 It also uses <a href="https://github.com/WecoAI/aideml">AIDE</a>-style
 operators, <code>PIVOT</code>/<code>REFINE</code>/<code>PROCEED</code>,
-etc. They have their own ideas about what the pipeline should look
-like.</p>
+builds a tree of research paths, etc. They have their own ideas about
+what the pipeline should look like.</p>
 <p>Other papers and projects have been coming out too. See <a
-href="https://x.com/EurekaClaw/">EurekaClaw</a>, which dropped yesterday
-as of publication time, but four hours ago as of the time of writing
-this. They do something similar, using openclaw as a substrate. It seems
-to be a more general tool. I like general tools.</p>
+href="https://x.com/EurekaClaw/">EurekaClaw</a>, which dropped two days
+ago as of publication time, but an hour ago as of the time of writing
+this. They do something similar, using openclaw as a substrate. But this
+one seems to be more of a general tool. I like general tools.</p>
 <p>The "hijack openclaw" approach is is pretty cool because that means
-you don't have to run a ton of code, or be particularly careful in
-setting up the sandboxing yourself. Your paper or project gets published
-early. The flood of them are coming out right now.</p>
+you don't have to write any infrastructure. It's just a prompt, and the
+sandboxing is already taken care of. So your paper or project gets
+published early. The flood of them are coming out right now.</p>
 <h2 id="reconsidering-these-infra-considerations">Reconsidering These
 Infra Considerations</h2>
 <p>Do you want to hardcode the loop, or do you want the agent to handle
-control flow internally, OG autoresearch style? I'm honestly not sure.
-Yes and no, I think. There are good reasons and bad reasons.</p>
+control flow internally, OG autoresearch style? I'm honestly not sure
+which is correct. Yes and no, I think. There are good reasons and bad
+reasons.</p>
 <p>Coding agents are pretty reliable. But they are not 100% reliable
 yet. There are in fact arguments why they may never be 100% reliable.
 Why not build in safeguards? They will help you. I believe that the
