@@ -15,7 +15,7 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: "lemon", "Courier New", monospace;
             background-color: #222;
@@ -24,7 +24,7 @@
             overflow: hidden;
             min-height: 100vh;
         }
-        
+
         .container {
             background: #333;
             border: 3px solid #01ff70;
@@ -32,7 +32,7 @@
             display: flex;
             flex-direction: column;
         }
-        
+
         .header {
             padding: 16px;
             border-bottom: 3px solid #01ff70;
@@ -43,7 +43,7 @@
             gap: 12px;
             background: #222;
         }
-        
+
         .header h1 {
             font-family: "lemon", "Courier New", monospace;
             font-size: 2rem;
@@ -51,14 +51,14 @@
             font-weight: bold;
             margin: 0;
         }
-        
+
         .controls {
             display: flex;
             gap: 8px;
             align-items: center;
             flex-wrap: wrap;
         }
-        
+
         .zoom-controls {
             display: flex;
             align-items: center;
@@ -67,7 +67,7 @@
             padding-right: 8px;
             margin-right: 8px;
         }
-        
+
         button {
             padding: 8px 16px;
             border: 2px solid #01ff70;
@@ -80,20 +80,20 @@
             font-weight: bold;
             transition: all 0.1s;
         }
-        
+
         button:hover {
             background: #01ff70;
             color: #222;
             box-shadow: inset 0 0 0 1px #222;
         }
-        
+
         button.active {
             background: #01ff70;
             color: #222;
             border-color: #01ff70;
             box-shadow: inset 0 0 0 2px #01ff70;
         }
-        
+
         button.active:hover {
             background: #00ff00;
             border-color: #00ff00;
@@ -129,7 +129,7 @@
             background: #01ff70;
             color: #222;
         }
-        
+
         .zoom-level {
             font-size: 14px;
             color: #01ff70;
@@ -138,7 +138,7 @@
             font-family: "lemon", "Courier New", monospace;
             font-weight: bold;
         }
-        
+
         .canvas-wrapper {
             flex: 1;
             overflow: auto;
@@ -151,7 +151,7 @@
             background: #1a0a0a;
             border-color: #ff3333;
         }
-        
+
         svg {
             display: block;
             user-select: none;
@@ -161,28 +161,28 @@
         svg.delete-mode {
             background: #2a1a1a;
         }
-        
+
         .node {
             cursor: grab;
         }
-        
+
         .node:active {
             cursor: grabbing;
         }
-        
+
         .node rect {
             fill: #333;
             stroke: #01ff70;
             stroke-width: 2;
             rx: 0;
         }
-        
+
         .node:hover rect {
             fill: #2a2a2a;
             stroke: #2ecc40;
             stroke-width: 3;
         }
-        
+
         .node.editing rect {
             stroke: #ff3333;
             stroke-width: 3;
@@ -194,7 +194,7 @@
             fill: #4a3a3a !important;
             stroke-width: 3 !important;
         }
-        
+
         .node text {
             pointer-events: none;
             font-size: 12px;
@@ -202,7 +202,7 @@
             font-family: "lemon", "Courier New", monospace;
             font-weight: bold;
         }
-        
+
         .connector {
             fill: none;
             stroke: #01ff70;
@@ -211,7 +211,7 @@
             pointer-events: auto;
             cursor: pointer;
         }
-        
+
         .connector:hover {
             stroke-width: 3;
             stroke: #2ecc40;
@@ -221,7 +221,7 @@
             stroke: #ff3333 !important;
             stroke-width: 4 !important;
         }
-        
+
         .drawing-line {
             fill: none;
             stroke: #01ff70;
@@ -229,7 +229,7 @@
             stroke-dasharray: 5,5;
             pointer-events: none;
         }
-        
+
         .edit-input {
             position: fixed;
             padding: 8px;
@@ -265,7 +265,7 @@
                 <button onclick="resetDiagram()">RESET</button>
             </div>
         </div>
-        
+
         <div class="canvas-wrapper" id="canvasWrapper",>
             <svg id="canvas" width="3200" height="1800"></svg>
         </div>
@@ -298,7 +298,7 @@
 
         // Add arrowhead markers
         const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-        
+
         const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
         marker.setAttribute('id', 'arrowhead-lime');
         marker.setAttribute('markerWidth', '10');
@@ -335,7 +335,7 @@
 
         // Draw connections
         function drawConnections() {
-            const connectorGroup = document.getElementById('connectors') || 
+            const connectorGroup = document.getElementById('connectors') ||
                                    document.createElementNS('http://www.w3.org/2000/svg', 'g');
             connectorGroup.id = 'connectors';
             connectorGroup.innerHTML = '';
@@ -343,7 +343,7 @@
             connections.forEach((conn, idx) => {
                 const fromNode = nodes.find(n => n.id === conn.from);
                 const toNode = nodes.find(n => n.id === conn.to);
-                
+
                 if (!fromNode || !toNode) return;
 
                 const x1 = fromNode.x + nodeWidth / 2;
@@ -371,7 +371,7 @@
 
         // Draw nodes
         function drawNodes() {
-            const nodeGroup = document.getElementById('nodes') || 
+            const nodeGroup = document.getElementById('nodes') ||
                               document.createElementNS('http://www.w3.org/2000/svg', 'g');
             nodeGroup.id = 'nodes';
             nodeGroup.innerHTML = '';
@@ -392,7 +392,7 @@
                 const lines = wrapText(node.label, nodeWidth - 10);
                 const lineHeight = 14;
                 const startY = (nodeHeight - lines.length * lineHeight) / 2 + 8;
-                
+
                 lines.forEach((line, index) => {
                     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
                     text.setAttribute('x', nodeWidth / 2);
@@ -448,7 +448,7 @@
             deleteMode = !deleteMode;
             const btn = document.getElementById('deleteBtn');
             const wrapper = document.getElementById('canvasWrapper');
-            
+
             if (deleteMode) {
                 btn.classList.add('active');
                 wrapper.classList.add('delete-mode');
@@ -473,10 +473,10 @@
         function startDrawing(e, fromNode) {
             e.stopPropagation();
             drawFrom = fromNode;
-            
+
             const x1 = fromNode.x + nodeWidth / 2;
             const y1 = fromNode.y + nodeHeight;
-            
+
             drawLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             drawLine.setAttribute('class', 'drawing-line');
             drawLine.setAttribute('d', `M ${x1} ${y1} L ${x1} ${y1}`);
@@ -492,7 +492,7 @@
             const onMouseUp = (e) => {
                 document.removeEventListener('mousemove', onMouseMove);
                 document.removeEventListener('mouseup', onMouseUp);
-                
+
                 const rect = svg.getBoundingClientRect();
                 const endX = (e.clientX - rect.left) / zoom;
                 const endY = (e.clientY - rect.top) / zoom;
@@ -534,7 +534,7 @@
         // Edit node text
         function editNode(e, node) {
             e.stopPropagation();
-            
+
             const nodeGroup = document.querySelector(`[data-id="${node.id}"]`);
             nodeGroup.classList.add('editing');
 
@@ -543,11 +543,11 @@
             input.className = 'edit-input';
             input.value = node.label.replace(/\n/g, ' ');
             input.style.width = (nodeWidth + 50) + 'px';
-            
+
             const nodeRect = nodeGroup.getBoundingClientRect();
             input.style.left = (nodeRect.left + 10) + 'px';
             input.style.top = (nodeRect.top + 10) + 'px';
-            
+
             document.body.appendChild(input);
             input.focus();
             input.select();
@@ -573,7 +573,7 @@
         function addNode() {
             const centerX = canvasWrapper.scrollLeft / zoom + canvasWrapper.clientWidth / (2 * zoom);
             const centerY = canvasWrapper.scrollTop / zoom + canvasWrapper.clientHeight / (2 * zoom);
-            
+
             const newNode = {
                 id: 'node_' + Date.now(),
                 label: 'New Box',
@@ -639,15 +639,15 @@
                 // Clear all nodes and connections
                 nodes = [];
                 connections = [];
-                
+
                 // Exit delete/draw modes if active
                 if (deleteMode) toggleDeleteMode();
                 if (drawMode) toggleDrawMode();
-                
+
                 // Reset zoom
                 zoom = 1;
                 applyZoom();
-                
+
                 // Redraw
                 redraw();
             }
@@ -693,22 +693,22 @@
             input.onchange = (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
-                
+
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     try {
                         const data = JSON.parse(event.target.result);
                         nodes = data.nodes || [];
                         connections = data.connections || [];
-                        
+
                         // Exit delete/draw modes if active
                         if (deleteMode) toggleDeleteMode();
                         if (drawMode) toggleDrawMode();
-                        
+
                         // Reset zoom
                         zoom = 1;
                         applyZoom();
-                        
+
                         redraw();
                         alert(`Diagram loaded from ${data.timestamp} ✓`);
                     } catch (err) {
@@ -771,7 +771,7 @@
             connections.forEach(conn => {
                 const fromNode = nodes.find(n => n.id === conn.from);
                 const toNode = nodes.find(n => n.id === conn.to);
-                
+
                 if (!fromNode || !toNode) return;
 
                 const x1 = fromNode.x + nodeWidth / 2 + padding - bbox.x;
