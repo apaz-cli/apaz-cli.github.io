@@ -42,9 +42,9 @@ Day to day though, I'm not thinking so much about this. I'm thinking more about 
 
 ## Keeping GPUs Warm
 
-GPUs sitting idle is bad. I'm very optimization-brained. I don't want to deploy something that isn't within an order of magnitude of as efficient as it can be. But honestly in this 
-case it doesn't matter. GPUs doing something is waaaaay better than GPUs doing nothing. Running your GPU at 1/10th the efficiency is probably still worth it. The hard part is just 
-figuring out how to get them to do useful work over longer periods of time. So. What do you do with them?
+GPUs sitting idle is bad. I'm very optimization-brained. I don't want to deploy something that isn't within an order of magnitude of as efficient as it can be, but honestly in this 
+case it doesn't matter. GPUs doing something is waaaaay better than GPUs doing nothing. Running your GPU at 1/10th the efficiency is probably still worth it, the hard part is figuring 
+out how to get them to do useful work over longer periods of time. So, What do you do with them?
 
 ### Traditional Answers (boring, zzzzzz, honk shuuuu, mimimi...)
 
@@ -130,18 +130,22 @@ I think citation count is probably not the best metric for judging idea quality.
 generalizes better than doing RL on noisy labels. But also, n^2 comparisons is a lot. It would also be nice to find a comparison method that does not require this, where we can set a 
 cap of how many comparisons we want to do, and estimate from there.
 
-As a playground for these ideas, I wrote [archivore](https://github.com/apaz-cli/archivore/). The idea is to download every machine learning paper off of arxiv, and squeeze new research ideas from them. I ran it overnight for a while and it discovered some good stuff, although most of it was slop. Ignore most of it, I've largely moved on.
+As a playground for these ideas, I wrote [archivore](https://github.com/apaz-cli/archivore/). The idea is to download every machine learning paper off of arxiv, and squeeze new 
+research ideas from them. I ran it overnight for a while and it discovered some good stuff. Some of the ideas were nonsensica, but some of them were pretty decent.
 
-But I would like to draw attention to [this file](https://github.com/apaz-cli/archivore/blob/master/archivore_ideate/archivore_ideate/quality.py#L61-L120), particularly the `rank_by_impact()` function. It turns out that there are more efficient ways to rank ideas. In particular, you can set a cap and sample randomly from the n^2 search space to extract a [Borda count](https://arxiv.org/abs/1512.08949). This turns out to be provably optimal, at least in the regime where you can't extract information about where in the space to sample based on previous results.
+I would like to draw attention to [this file](https://github.com/apaz-cli/archivore/blob/master/archivore_ideate/archivore_ideate/quality.py#L61-L120), particularly the 
+`rank_by_impact()` function. It turns out that there are more efficient ways to rank ideas than full round robin. In particular, you can set a cap and sample randomly from the n^2 
+search space to extract a [Borda count](https://arxiv.org/abs/1512.08949). This turns out to be provably optimal, at least in the regime where you can't extract information about 
+where in the space to sample based on previous results. This works well if n^2 is less than your batch size.
 
-But, suppose you can sample based on previous results. Then something that looks more like bayesian search called Bradley-Terry-Luce ranking becomes more optimal. With this you can have 
+But, suppose n^2 is far greater than your search space. you can sample based on previous results. This looks more like bayesian search. The technique for this, I have learned, is called Bradley-Terry-Luce ranking. This becomes more optimal, and is cheaper to compute and handles concurrency better than something like borda score. Which is a different technique.
 
-When I tried it, it did appear to select for the better ideas than estimated citations. I did the filtering with Claude Sonnet 4.6, which already seems to have decent research taste. 
+When I tried this, it did appear to select for the better ideas than estimated citations. I did the filtering with Claude Sonnet 4.6, which already seems to have decent research taste. 
 Haven't tried V4 yet.
 
 The next step here would be to do RL. Replicate their paper with a new metric. I still think that Borda count would result in a cleaner reward than relying on citations. I've not done this experiment yet, but now that I've got V4 I might get around to it eventually. Benchmark it versus the model they released, and see what happens.
 
-Truly an inspiring paper.
+Truly an inspiring paper. I have a lot of ideas on how to scale idea generation.
 
 ## Verification, Verifiers, and Community
 
@@ -169,14 +173,14 @@ I also have a hunch that observability tools are going to be important. The thin
 <div style="text-align: center;">
 <figure>
 <img src="images/guys_with_magnifying_glass.jpg">
-<figcaption aria-hidden="true">How it feels to Autoreserch Autoresearch</figcaption>
+<figcaption aria-hidden="true">How it feels to Autoresearch Autoresearch</figcaption>
 </figure>
 </div>
 <br>
 
 This is for once things work though. Let's not get ahead of ourselves.
 
-## A side note
+## A Side Note
 As a side effect of these capabilities being generalizable, they can absolutely be used for evil in the near future. V4 may not be "Mythos-level," but there's a high likelihood that you can find all sorts of dangerous bugs this way, for incredibly cheap. I think the only reason that existing models have not led to a stream of CVEs is that no suitable harness exists yet. Someone is probably building one. I don't know why more people aren't freaking out right now.
 
 ## Roadmap
