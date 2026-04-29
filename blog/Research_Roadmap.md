@@ -68,7 +68,14 @@ The first version of automation that I built is a very simple queue of prompts. 
 typically a 5 hour window where I miss out on my limits. What do I do? I maintain a folder with prompts I need to run and then `sleep ... && claude -p "Hey go do this thing"` for each 
 of my accounts, after checking when the limits renew.
 
-![](/home/apaz/Downloads/claude_rate_limit.png)
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/claude_rate_limit.png">
+<figcaption aria-hidden="true">In my hour of need, Claude left me. I've never felt so betrayed.</figcaption>
+</figure>
+</div>
+<br>
 
 I still think that this is a decent mode of interaction. Maybe it could be automated a bit more. A human maintaining a list of things that need to be done and making sure they are 
 done to their liking is going to be an important part of the future stack. There is a bandwidth bottleneck between human and model, and we can't forget that expressing intent is an 
