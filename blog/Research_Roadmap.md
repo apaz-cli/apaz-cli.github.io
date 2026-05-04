@@ -131,7 +131,7 @@ generalizes better than doing RL on noisy labels. But also, n^2 comparisons is a
 cap of how many comparisons we want to do, and estimate from there.
 
 As a playground for these ideas, I wrote [archivore](https://github.com/apaz-cli/archivore/). The idea is to download every machine learning paper off of arxiv, and squeeze new 
-research ideas from them. I ran it overnight for a while and it discovered some good stuff. Some of the ideas were nonsensica, but some of them were pretty decent.
+research ideas from them. I ran it overnight for a while and it discovered some good stuff. Some of the ideas were nonsensical, but some of them were pretty decent.
 
 I would like to draw attention to [this file](https://github.com/apaz-cli/archivore/blob/master/archivore_ideate/archivore_ideate/quality.py#L61-L120), particularly the 
 `rank_by_impact()` function. It turns out that there are more efficient ways to rank ideas than full round robin. In particular, you can set a cap and sample randomly from the n^2 
