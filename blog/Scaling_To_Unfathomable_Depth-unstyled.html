@@ -24,8 +24,9 @@ gradients) to optimize the objective. See SGD, SGD with momentum,
 Nesterov, Adam, Muon, etc. All the stuff that we use. A second-order
 optimizer uses the second derivative (the hessian). See Newton's method,
 and a few others. The hessian is intractible, as it's N by N in the
-parameter count. But consider zeroth-order. An optimizer that only uses
-the parameters to optimize the parameters.</p>
+parameter count. So nobody does this.</p>
+<p>But consider zeroth-order. An optimizer that only uses the parameters
+to optimize the parameters.</p>
 <p>As it turns out, you can save a LOT of memory this way. You don't
 have to store intermediate activations or gradients. Essentially, you
 get true pipieline parallelism for free, with no downsides. Besides the
@@ -134,6 +135,8 @@ answering these sorts of basic questions of if it works or not.</p>
 <h3 id="zo-rl">ZO RL</h3>
 <p>Speaking of ZO and RL, I have not seen anybody work on this. But here
 goes an explanation of what I'm thinking.</p>
+<p>Most exploration of Zeroth-Order Optimization has been in the realm
+of next token prediction. But this is not actually a necessity.</p>
 <p>Since we're doing</p>
 <p>Theoretically there's no reason why You can set the loss/rewards
 however you want</p>
@@ -182,14 +185,16 @@ compute spent</p></li>
 haven't been caluclated yet</p></li>
 <li><p>There is an arch search space here and the dynamics of the search
 space are obvious</p></li>
+<li><p>Basically just try everything with ZO that's already been tried
+with first order</p></li>
 <li><p>Have to solve pipeline fault tolerance somehow if operating at a
 large scale</p></li>
 <li><p>Stacking layers is terrible for latency, actually.</p></li>
 </ul>
 <h2 id="why-now">Why now?</h2>
 <p>Six months ago, if you would have asked me if any of these ideas had
-a chance, I would have said no. To get an idea as to why, let's take a
-look at <a
+a chance, I would have said no.</p>
+<p>To get an idea as to why, let's take a look at <a
 href="https://github.com/princeton-nlp/MeZO/blob/552cb1b710767f9a6e1dc8f9645d7640376f9941/medium_models/src/trainer.py#L242-L247">this
 method</a> from the <code>Trainer</code> class of the MeZO paper's
 implementation.</p>

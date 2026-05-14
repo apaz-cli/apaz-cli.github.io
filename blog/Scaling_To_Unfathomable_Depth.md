@@ -13,7 +13,9 @@ An interesting research direction I'm thinking about for scaling agents. Potenti
 
 ## Zeroth Order Optimization
 
-A first-order optimizer uses only the first derivative (the gradients) to optimize the objective. See SGD, SGD with momentum, Nesterov, Adam, Muon, etc. All the stuff that we use. A second-order optimizer uses the second derivative (the hessian). See Newton's method, and a few others. The hessian is intractible, as it's N by N in the parameter count. But consider zeroth-order. An optimizer that only uses the parameters to optimize the parameters.
+A first-order optimizer uses only the first derivative (the gradients) to optimize the objective. See SGD, SGD with momentum, Nesterov, Adam, Muon, etc. All the stuff that we use. A second-order optimizer uses the second derivative (the hessian). See Newton's method, and a few others. The hessian is intractible, as it's N by N in the parameter count. So nobody does this.
+
+But consider zeroth-order. An optimizer that only uses the parameters to optimize the parameters.
 
 As it turns out, you can save a LOT of memory this way. You don't have to store intermediate activations or gradients. Essentially, you get true pipieline parallelism for free, with no downsides. Besides the fact that zeroth-order optimization kinda sucks, anyway.
 
@@ -59,6 +61,8 @@ ZO has never really been scaled to the extent that is necessary for answering th
 
 Speaking of ZO and RL, I have not seen anybody work on this. But here goes an explanation of what I'm thinking.
 
+Most exploration of Zeroth-Order Optimization has been in the realm of next token prediction. But this is not actually a necessity.
+
 Since we're doing 
 
 Theoretically there's no reason why 
@@ -95,12 +99,17 @@ Yeah, [this totally exists](https://arxiv.org/abs/2602.17155) and it also works.
 * Why do that just stack more layers
 * Up to a point. An optimal balance exists, the scaling laws just haven't been caluclated yet
 * There is an arch search space here and the dynamics of the search space are obvious
+* Basically just try everything with ZO that's already been tried with first order
 * Have to solve pipeline fault tolerance somehow if operating at a large scale
 * Stacking layers is terrible for latency, actually.
 
 ## Why now?
 
-Six months ago, if you would have asked me if any of these ideas had a chance, I would have said no. To get an idea as to why, let's take a look at [this method](https://github.com/princeton-nlp/MeZO/blob/552cb1b710767f9a6e1dc8f9645d7640376f9941/medium_models/src/trainer.py#L242-L247) from the `Trainer` class of the MeZO paper's implementation.
+Six months ago, if you would have asked me if any of these ideas had a chance, I would have said no.
+
+To get an idea as to why, let's take a look at
+[this method](https://github.com/princeton-nlp/MeZO/blob/552cb1b710767f9a6e1dc8f9645d7640376f9941/medium_models/src/trainer.py#L242-L247)
+from the `Trainer` class of the MeZO paper's implementation.
 
 ```py
     def efficient_perturb_parameters(self, model: nn.Module, random_seed: int, scaling_factor=1):
