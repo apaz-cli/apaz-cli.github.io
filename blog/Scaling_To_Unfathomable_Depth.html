@@ -4,10 +4,11 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="og:title" content="Scaling Agents to Unfatomable Depth With Zeroth-Order Optimization">
+  <meta name="og:title" content="Scaling Agents to Unfatomable Depth and Context With Zeroth-Order Optimization">
   <meta name="og:description" content="An interesting research direction I'm thinking about for scaling
-agents">
-  <meta name="og:image" content="images/94149009_p0.jpg">
+agents. Potentially a bad one. A lot of things could go wrong along the
+way. But also it could work.">
+  <meta name="og:image" content="images/cirno_hop.jpg">
   <title>Scaling To Unfathomable Depth</title>
   <style>
     html {
@@ -355,31 +356,16 @@ agents">
 </head>
 <body>
 <h1
-id="scaling-agents-to-unfatomable-depth-with-zeroth-order-optimization">Scaling
-Agents to Unfatomable Depth With Zeroth-Order Optimization</h1>
+id="scaling-agents-to-unfatomable-depth-and-context-with-zeroth-order-optimization">Scaling
+Agents to Unfatomable Depth and Context With Zeroth-Order
+Optimization</h1>
 <p><br></p>
-<p><img src="images/94149009_p0.jpg" /></p>
+<p><img src="images/cirno_hop.jpg" /></p>
 <p><br></p>
 <p>An interesting research direction I'm thinking about for scaling
-agents</p>
+agents. Potentially a bad one. A lot of things could go wrong along the
+way. But also it could work.</p>
 <p><br></p>
-<h2 id="why-would-we-want-to-scale-depth-over-width">Why would we want
-to scale depth over width?</h2>
-<ul>
-<li>Better sequential reasoning (Better on hard problems, better
-benchmark perf)</li>
-<li>Smaller kvcache</li>
-<li>Faster</li>
-</ul>
-<h2 id="why-is-this-hard">Why is this hard</h2>
-<ul>
-<li>Stability issues (vanishing/exploding gradients) in backprop
-<ul>
-<li>This gets worse for RNNs the longer your sequence length, hence
-Truncated Backpropagation Through Time (TBTT)</li>
-</ul></li>
-<li>Residual connections exist to solve this to an extent</li>
-</ul>
 <h2 id="zeroth-order-optimization">Zeroth Order Optimization</h2>
 <p>A first-order optimizer uses only the first derivative (the
 gradients) to optimize the objective. See SGD, SGD with momentum,
@@ -405,22 +391,23 @@ evaluating the model once with a nudge to each parameter, or you sample
 a bunch randomly. By sampling enough times in enough different random
 directions until you get a decent estimate, you can take a step in that
 direction.</p>
-<p>In any case, as I said before, this sucks. The fact that it suck is
+<p>In any case, as I said before, this sucks. The fact that it sucks is
 probably why nobody uses it. It is much better just to compute the
-gradient. Then you have the gradient. You would think this would be the
-end of the story for ZO-Optimization. But not quite.</p>
+gradient like a normal person. Then you have the gradient. You would
+think this would be the end of the story for ZO-Optimization. But not
+quite.</p>
 <h2 id="zo-tricks">ZO Tricks</h2>
-<p>There are, a number of interesting things that you can do. I think
+<p>There are a number of interesting things that you can do. I think
 they make this class of techniques worth not completely counting out
 yet.</p>
 <h3 id="mezo">MeZO</h3>
 <p>The <a href="https://arxiv.org/abs/2305.17333">MeZO paper</a>, also
 known as "Fine-Tuning Language Models with Just Forward Passes" is why I
-think any of this is even tractible or interesting at all. The core idea
-is that you don't have to actually <em>store</em> each perturbation to
-the model. If you write your kernels very carefully, all you have to
-store is a prng seed for each item in your batch and the activations of
-your current layer.</p>
+think any of this is even tractible or interesting at all.</p>
+<p>The core idea is that you don't have to actually <em>store</em> each
+perturbation to the model. If you write your kernels very carefully, all
+you have to store is a prng seed for each item in your batch and the
+activations of your current layer.</p>
 <p>Consider a single layer. Since ZO-optimization is
 perfectly-decomposable layerwise, we don't have to worry about anything
 else. The input to the kernel is the parameters associated with the
@@ -444,7 +431,8 @@ limit you run into is raw FLOPs. And with successive hardware
 generations, FLOPs and memory capacity for storing activations are
 scaling faster than memory bandwidth.</p>
 <p>That is to say, with each hardware generation, this method becomes
-more feasible from a hardware standpoint.</p>
+more feasible from a hardware standpoint. The ideal would be something
+like Cerebras probably, but there's no reason why this can't be</p>
 <h3 id="lora">LoRA</h3>
 <p>The main reason ZO sucks is that, since you are estimating the
 gradients, it performs exponentially worse the more parameters you have.
@@ -484,38 +472,67 @@ but for harder stuff it's unclear if rank-r updates are enough to reach
 the best-generalizing solution.</p>
 <p>I think more research needs to be done here. Nobody has studied this
 to the degree that it needs to be. I would be interested to see a model
-trained with ZO on, for example, PleIAs/SYNTH data. See how much your
-choice of r for your weights and for z matters for standard language
-modeling.</p>
+trained with ZO on, for example, <a
+href="https://huggingface.co/datasets/PleIAs/SYNTH">PleIAs/SYNTH</a> or
+<a href="https://arxiv.org/abs/2510.04871">TRM</a> data. See how much
+your choice of <code>r</code> for parameters and for <code>z</code>
+matters for standard language modeling and RL tasks.</p>
+<p>ZO has never really been scaled to the extent that is necessary for
+answering these sorts of basic questions of if it works or not.</p>
+<h3 id="zo-rl">ZO RL</h3>
+<p>Speaking of ZO and RL, I have not seen anybody work on this. But here
+goes an explanation of what I'm thinking.</p>
+<p>Since we're doing</p>
+<p>Theoretically there's no reason why You can set the loss/rewards
+however you want</p>
 <h3 id="zo-muon">ZO-Muon</h3>
 <p>Yeah, <a href="https://arxiv.org/abs/2602.17155">this totally
 exists</a> and it also works. I think that's really cool. Nesterov
 momentum also works the way you want it to, as it does not depend on
 anything but your gradient update, which is to say the pseudograd. You
-can just polar-orthogonalize your pseudograd, and it works.</p>
-<h3 id="optimal-architecture">Optimal Architecture</h3>
+can just polar-orthogonalize your pseudograd, it turns out.</p>
+<h2 id="optimal-architecture">Optimal Architecture</h2>
+<h3 id="why-would-we-want-to-scale-depth-over-width">Why would we want
+to scale depth over width?</h3>
 <ul>
-<li>Attention or recurrence?
+<li>Better sequential reasoning (Better on hard problems, better
+benchmark perf)
+<ul>
+<li>Recurrence-completeness?</li>
+</ul></li>
+<li>Smaller kvcache</li>
+<li>Faster</li>
+</ul>
+<h3 id="why-is-this-hard">Why is this hard</h3>
+<ul>
+<li><p>Stability issues (vanishing/exploding gradients) in backprop</p>
+<ul>
+<li>This gets worse for RNNs the longer your sequence length, hence
+Truncated Backpropagation Through Time (TBTT)</li>
+</ul></li>
+<li><p>Residual connections exist to solve this to an extent</p></li>
+<li><p>Attention or recurrence?</p>
 <ul>
 <li>Efficient attention vs RNN state space blowup still reasonable
 scaling limit</li>
 </ul></li>
-<li>ZO has the ability to scale depth and recurrence without having to
-do TBTT</li>
-<li>Pseudograds don't have the vanishing/exploding problems of real
-grads</li>
-<li>Skip connections kill you because they blow up the activation mem
-requirements and group layers</li>
-<li>Thin models are better because smaller activations and less compute
-spent</li>
-<li>Truly massive LoRA matrices are possible</li>
-<li>Why do that just stack more layers</li>
-<li>Up to a point. An optimal balance exists, the scaling laws just
-haven't been caluclated yet</li>
-<li>There is an arch search space here and the dynamics of the search
-space are obvious</li>
-<li>Have to solve pipeline fault tolerance somehow if operating at a
-large scale</li>
+<li><p>ZO has the ability to scale depth and recurrence without having
+to do TBTT</p></li>
+<li><p>Pseudograds don't have the vanishing/exploding problems of real
+grads</p></li>
+<li><p>Skip connections kill you because they blow up the activation mem
+requirements and group layers</p></li>
+<li><p>Thin models are better because smaller activations and less
+compute spent</p></li>
+<li><p>Truly massive LoRA matrices are possible</p></li>
+<li><p>Why do that just stack more layers</p></li>
+<li><p>Up to a point. An optimal balance exists, the scaling laws just
+haven't been caluclated yet</p></li>
+<li><p>There is an arch search space here and the dynamics of the search
+space are obvious</p></li>
+<li><p>Have to solve pipeline fault tolerance somehow if operating at a
+large scale</p></li>
+<li><p>Stacking layers is terrible for latency, actually.</p></li>
 </ul>
 <h2 id="why-now">Why now?</h2>
 <p>Six months ago, if you would have asked me if any of these ideas had
@@ -536,7 +553,9 @@ name is a misnomer, because they literally call
 And then they multiply it into the model parameters.</p>
 <p>But the entire point of MeZO is that you DON'T have to materialize
 the perturbations. Why would they do this?</p>
-<p>It's hard. To write this the right way you need to write kernels.</p>
+<p>They do it because implementing it the right way is hard. So hard
+that they didn't even bother to implement their own key optimization.
+Researching this stuff is a massive pain, for a lot of reasons.</p>
 <h2 id="autoresearch">Autoresearch</h2>
 <p>I don't think that this is a tractible research area. To implement ZO
 properly you need to write and optimize all your own custom kernels.

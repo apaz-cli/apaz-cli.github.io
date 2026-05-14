@@ -1,27 +1,15 @@
 
-# Scaling Agents to Unfatomable Depth With Zeroth-Order Optimization
+# Scaling Agents to Unfatomable Depth and Context With Zeroth-Order Optimization
 
 <br>
 
-![](images/94149009_p0.jpg)
+![](images/cirno_hop.jpg)
 
 <br>
 
-An interesting research direction I'm thinking about for scaling agents
+An interesting research direction I'm thinking about for scaling agents. Potentially a bad one. A lot of things could go wrong along the way. But also it could work.
 
 <br>
-
-## Why would we want to scale depth over width?
-
-* Better sequential reasoning (Better on hard problems, better benchmark perf)
-* Smaller kvcache
-* Faster
-
-## Why is this hard
-
-* Stability issues (vanishing/exploding gradients) in backprop
-  * This gets worse for RNNs the longer your sequence length, hence Truncated Backpropagation Through Time (TBTT)
-* Residual connections exist to solve this to an extent
 
 ## Zeroth Order Optimization
 
@@ -33,22 +21,23 @@ The approach is basaically an evolutionary one. Much like RL, we can choose any 
 
 Although we get to save a lot of memory, it doesn't seem to work all that well. In particular, to minimize the loss by tweaking model weights, you need directional information. The gradient. Which you don't have, so you have to estimate. There are two approaches to this. Either you fall back to the analytical definition of a gradient, which involves evaluating the model once with a nudge to each parameter, or you sample a bunch randomly. By sampling enough times in enough different random directions until you get a decent estimate, you can take a step in that direction.
 
-In any case, as I said before, this sucks. The fact that it suck is probably why nobody uses it. It is much better just to compute the gradient. Then you have the gradient. You would think this would be the end of the story for ZO-Optimization. But not quite.
+In any case, as I said before, this sucks. The fact that it sucks is probably why nobody uses it. It is much better just to compute the gradient like a normal person. Then you have the gradient. You would think this would be the end of the story for ZO-Optimization. But not quite.
 
 ## ZO Tricks
 
-There are, a number of interesting things that you can do. I think they make this class of techniques worth not completely counting out yet.
+There are a number of interesting things that you can do. I think they make this class of techniques worth not completely counting out yet.
 
 ### MeZO
 
 The [MeZO paper](https://arxiv.org/abs/2305.17333), also known as "Fine-Tuning Language Models with Just Forward Passes" is why I think any of this is even tractible or interesting at all.
+
 The core idea is that you don't have to actually *store* each perturbation to the model. If you write your kernels very carefully, all you have to store is a prng seed for each item in your batch and the activations of your current layer.
 
 Consider a single layer. Since ZO-optimization is perfectly-decomposable layerwise, we don't have to worry about anything else. The input to the kernel is the parameters associated with the layer, along with a batch of activations from the previous layer and associated prng state. The output is a batch of activations for the next layer. You can load a parameter or set of parameters, sample from each prng stream to perturb it, and then compute all the different things you need to with the perturbed params. This can be done in registers, there is no need to materialize a full tensor of parameters for each tensor in your batch. Once the losses are computed, you can reset the prng stream and, for each layer, stream through the parameters again to produce a sum of the random perturbations, weighted by the loss/rewards. This is your pseudogradient. Then you take a step.
 
 So, you evaluate the model batch-size-many times. But you only load the parameters twice, once during forward() and once during the update. You don't have to load batch-size many perturbations, but you do need to run the model that many times and store that many copies of the activations. You're probably not memory bandwidth bound, assuming you wrote and overlapped the PRNG part of the kernels well, the scaling limit you run into is raw FLOPs. And with successive hardware generations, FLOPs and memory capacity for storing activations are scaling faster than memory bandwidth.
 
-That is to say, with each hardware generation, this method becomes more feasible from a hardware standpoint.
+That is to say, with each hardware generation, this method becomes more feasible from a hardware standpoint. The ideal would be something like Cerebras probably, but there's no reason why this can't be 
 
 ### LoRA
 
@@ -62,13 +51,39 @@ See the [ReLoRA](https://arxiv.org/abs/2509.12960) paper for more details on thi
 
 There's also another paper to look into called [LOZO](https://arxiv.org/abs/2410.07698) which takes this idea further. Essentially you can also LoRA your perturbations. Initially, this seems like a strange things to do. But the LOZO paper justifies it by saying that, since gradients tend to be low rank anyway, maybe you actually *want* low rank perturbations. If the update is supposed to be low rank, if it isn't (if it's a gaussian like in MeZO) then the parts that aren't low rank are probably along flat directions, and you would get a better update on average and reduce your variance with a lower rank update. I'm not sure I'm sold on the justification. My intuition is that sparse updates are fine for narrow finetuing tasks, but for harder stuff it's unclear if rank-r updates are enough to reach the best-generalizing solution.
 
-I think more research needs to be done here. Nobody has studied this to the degree that it needs to be. I would be interested to see a model trained with ZO on, for example, PleIAs/SYNTH data. See how much your choice of r for your weights and for z matters for standard language modeling.
+I think more research needs to be done here. Nobody has studied this to the degree that it needs to be. I would be interested to see a model trained with ZO on, for example, [PleIAs/SYNTH](https://huggingface.co/datasets/PleIAs/SYNTH) or [TRM](https://arxiv.org/abs/2510.04871) data. See how much your choice of `r` for parameters and for `z` matters for standard language modeling and RL tasks.
+
+ZO has never really been scaled to the extent that is necessary for answering these sorts of basic questions of if it works or not.
+
+### ZO RL
+
+Speaking of ZO and RL, I have not seen anybody work on this. But here goes an explanation of what I'm thinking.
+
+Since we're doing 
+
+Theoretically there's no reason why 
+You can set the loss/rewards however you want
 
 ### ZO-Muon
 
-Yeah, [this totally exists](https://arxiv.org/abs/2602.17155) and it also works. I think that's really cool. Nesterov momentum also works the way you want it to, as it does not depend on anything but your gradient update, which is to say the pseudograd. You can just polar-orthogonalize your pseudograd, and it works.
+Yeah, [this totally exists](https://arxiv.org/abs/2602.17155) and it also works. I think that's really cool. Nesterov momentum also works the way you want it to, as it does not depend on anything but your gradient update, which is to say the pseudograd. You can just polar-orthogonalize your pseudograd, it turns out.
 
-### Optimal Architecture
+## Optimal Architecture
+
+
+### Why would we want to scale depth over width?
+
+* Better sequential reasoning (Better on hard problems, better benchmark perf)
+  * Recurrence-completeness?
+* Smaller kvcache
+* Faster
+
+### Why is this hard
+
+* Stability issues (vanishing/exploding gradients) in backprop
+  * This gets worse for RNNs the longer your sequence length, hence Truncated Backpropagation Through Time (TBTT)
+* Residual connections exist to solve this to an extent
+
 
 * Attention or recurrence?
   * Efficient attention vs RNN state space blowup still reasonable scaling limit
@@ -81,6 +96,7 @@ Yeah, [this totally exists](https://arxiv.org/abs/2602.17155) and it also works.
 * Up to a point. An optimal balance exists, the scaling laws just haven't been caluclated yet
 * There is an arch search space here and the dynamics of the search space are obvious
 * Have to solve pipeline fault tolerance somehow if operating at a large scale
+* Stacking layers is terrible for latency, actually.
 
 ## Why now?
 
@@ -99,7 +115,8 @@ That's right. They actually materialize the perturbations. The method name is a 
 
 But the entire point of MeZO is that you DON'T have to materialize the perturbations. Why would they do this?
 
-It's hard. To write this the right way you need to write kernels.
+They do it because implementing it the right way is hard. So hard that they didn't even bother to implement their own key optimization. Researching this stuff is a massive pain, for a lot of reasons.
+
 
 ## Autoresearch
 
