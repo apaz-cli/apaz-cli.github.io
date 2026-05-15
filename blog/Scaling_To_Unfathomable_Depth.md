@@ -17,11 +17,11 @@ Transformers are not the optimal architecture. They are a locally optimal archit
 
 There are a number of constraints placed on architecture. The most important constraint is that you are limited to architectures which you can actually train. And of course, if you cannot train a model, you cannot evaluate it. Better architectures undoubtedly exist, we just can't train them.
 
-Stability is the main concern. Transformers are exceptionally stable. You can backpropagate through them very easily, they train fast and are parallelizable with dense rewards. Most importantly, they scale. But it's also true that attention has a lot wrong with it. Most famously it's `O(n^2)` in context length, transformers are not [recurrence-complete](https://arxiv.org/pdf/2510.06828). That is to say, the forward pass of a transformer cannot actually express *any* function, as it has a finite amount of layers. This seems not to be such a big problem in practice, but may be causing us difficulties in scaling context. We have no real way of knowing, because we cannot investigate the counterfactual.
+Stability is the main concern. Transformers are exceptionally stable. You can backpropagate through them very easily, they train fast and are parallelizable with dense rewards. Most importantly, they scale. But it's also true that attention has a lot wrong with it. Most famously it's `O(n^2)` in context length, transformers are not [recurrence-complete](https://arxiv.org/pdf/2510.06828). That is to say, the forward pass of a transformer cannot actually express any function, as it has a finite amount of layers. This seems not to be such a big problem in practice, but may be causing us difficulties in scaling context. We have no real way of knowing, because we cannot investigate the counterfactual.
 
 Using first-order optimizers, we must always make a tradeoff between optimal architecture for inference and how practical it is to actually train. Transformers currently make the best tradeoff. But if we could actually train RNNs, I think there's a solid chance that they'd be the winner, since they're so great to do inference on.
 
-So what if there were a way to train these architectures that don't exist yet? Then maybe it could win.
+So what if there were a way to train these architectures that don't exist yet? Maybe it could win.
 
 ### Depth over Width
 
@@ -41,12 +41,15 @@ In any case, scaling depth seems to be [very important for long-context in-conte
 
 ### Why's It So Hard?
 
+Language modeling architectures are a spectrum. On one end you've got RNNs, and the other you have transformers. RNNs have exploding grads (you must backprop through essentially infinite depth) and are thus impossible to train, but would scale efficiently to extreme context lengths in theory, if you can train one. Whereas on the other side you have transformers, which have stable grads of fixed depth, but scale poorly to long context lengths, which we have been finding increasingly efficient monkeypatches for ever since.
 
-Language modeling architectures are a spectrum. On one end you've got RNNs, and the other you have transformers. RNNs have exploding grads (you must backprop through essentially infinite depth) and are thus impossible to train, but would scale efficiently to extreme context lengths in theory, if you can train one. Whereas on the other side you have transformers, which have stable grads of fixed depth, but scale poorly to long context lengths, which we have been finding monkeypatches to fix ever since.
+I suppose that there are also weird things like diffusion transformers. I've not given as much thought to this, or to whatever other weird architectures you could come up with. Maybe there's something there, I haven't been thinking about it.
 
-I don't think such a thing as free lunch exists. If it did, someone would have found it by now. In any case, I think the efficient sparse attention techniques we already have are close to as good as they're going to get. This is not to say that they're not worth working on, there are very practical gains to be had here. But we're not going to get an order of magnitude improvement over what we already have.
+But, regarding the RNN vs Transformer spectrum, I don't think such a thing as free lunch exists. If it did, someone would have found it by now. In any case, I think the efficient sparse attention techniques we already have are close to as good as they're going to get. This is not to say that they're not worth working on, there are very practical gains to be had there. But we're not going to get an order of magnitude improvement over what we already have.
 
-I'm also not bullish on fixing RNNs. After all, it is intractible. You cannot backprop through infinite depth. Truncated Backpropagation Through Time is the standard for training RNNs in practice, but it poses many real problems and is not a viable way forward either.
+I'm also not bullish on fixing RNNs. After all, it is intractible. You cannot backprop through infinite depth. Truncated Backpropagation Through Time is the standard for training RNNs in practice, but it poses many real problems and is not a viable way forward either. I do not see it as mathematically sound, and as far as I know neither does anyone else.
+
+But I do think that the "untrainable" architectures closer to RNN side of the spectrum are worth exploring. Zeroth-Order Optimization could make this possible.
 
 ## Zeroth Order Optimization
 
@@ -84,15 +87,21 @@ The main reason ZO sucks is that, since you are estimating the gradients, it per
 
 This is intractible and needs to be fixed. LoRA adapters do truly fix this problem, and are the default way to do ZO optimization. There are downsides to this. You would think that low-rank updates are not preferable to the more full-rank updates you'd get if you actually had the gradient. Although, more on that later. It's not clear that this is preferable.
 
-But it may not be so bad? At least, [in RL it is not so bad](https://x.com/kalomaze/status/1964455970517753878). By continually merging these LoRA adapters you can keep the base model shifting, causing the next lora adapter to retarget new low rank changes. Across many updates, these low-rank changes sum to high-rank changes. So it is at least somewhat questionable how much this matters in practice. Anecdotally, it does not seem to matter that much for training speed.
+But it may not be so bad? At least, [in RL it is not so bad](https://x.com/kalomaze/status/1964455970517753878). By continually merging these LoRA adapters ([ReLoRA](https://arxiv.org/abs/2307.05695))  you can keep the base model shifting, causing the next lora adapter to retarget new low rank changes. Across many updates, these low-rank changes sum to high-rank changes. So it is at least somewhat questionable how much this matters in practice. Anecdotally, it does not seem to matter that much for training speed.
 
-See the [ReLoRA](https://arxiv.org/abs/2509.12960) paper for more details on this. But, it goes without saying that MeZo + LoRA (plus other stuff) is totally doable.
+But also note that it seems [not to work as well for smaller models](https://arxiv.org/abs/2509.12960), and also not as well at the beginning of training. Hence Why the ReLORA paper actualy doesn't use adapters at the start of training, instead opting for full-rank updates. This is also consistent with the findings of the other paper.
 
-There's also another paper to look into called [LOZO](https://arxiv.org/abs/2410.07698) which takes this idea further. Essentially you can also LoRA your perturbations. Initially, this seems like a strange things to do. But the LOZO paper justifies it by saying that, since gradients tend to be low rank anyway, maybe you actually *want* low rank perturbations. If the update is supposed to be low rank, if it isn't (if it's a gaussian like in MeZO) then the parts that aren't low rank are probably along flat directions, and you would get a better update on average and reduce your variance with a lower rank update. I'm not sure I'm sold on the justification. My intuition is that sparse updates are fine for narrow finetuing tasks, but for harder stuff it's unclear if rank-r updates are enough to reach the best-generalizing solution.
+![TODO FIGURE from RELORA]()
 
-I think more research needs to be done here. Nobody has studied this to the degree that it needs to be. I would be interested to see a model trained with ZO on, for example, [PleIAs/SYNTH](https://huggingface.co/datasets/PleIAs/SYNTH) or [TRM](https://arxiv.org/abs/2510.04871) data. See how much your choice of `r` for parameters and for `z` matters for standard language modeling and RL tasks.
+But, it goes without saying that MeZo + LoRA (plus other stuff) is totally doable. All of these techniques I'm talking about can be combined.
 
-ZO has never really been scaled to the extent that is necessary for answering these sorts of basic questions of if it works or not.
+There's also another paper to look into called [LOZO](https://arxiv.org/abs/2410.07698) which takes the "MeZO + LoRA" idea further. Essentially you can also LoRA your perturbations. Initially, this seems like a strange things to do. But the LOZO paper justifies it by saying that, since gradient updates tend to be low rank anyway, maybe you actually *want* low rank perturbations. If the update is supposed to be low rank, if it isn't (if each param follows a gaussian like in MeZO) then the parts that aren't low rank are probably along flat directions, and you would get a better update on average and reduce your variance with a lower rank update. I'm not sure I'm sold on the justification. My intuition is that sparse updates are fine for narrow finetuing tasks, but for harder stuff it's unclear if rank-r updates are enough to reach the best-generalizing solution.
+
+I'd want to investigate this hypothesis in combination with the techniques from the [Accelerating LLM Pre-Training through Flat-Direction Dynamics Enhancement](https://arxiv.org/abs/2602.22681) paper.
+
+I think more research needs to be done here in general. Nobody has studied this to the degree that it needs to be. I would be interested to see a model trained with ZO on, for example, [PleIAs/SYNTH](https://huggingface.co/datasets/PleIAs/SYNTH) or [TRM](https://arxiv.org/abs/2510.04871) data. See how much your choice of `r` for parameters and for `z` matters for standard language modeling and RL tasks.
+
+ZO has never really been scaled to the extent that is necessary for answering these sorts of basic questions of if it works or not. So really, the only way to find out is to try, and I don't think anyone is trying.
 
 ### ZO RL
 
