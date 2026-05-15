@@ -18,6 +18,92 @@ Optimization</h1>
 agents. Potentially a bad one. A lot of things could go wrong along the
 way. But also it could work.</p>
 <p><br></p>
+<h2 id="optimal-architecture">Optimal Architecture</h2>
+<p>Transformers are not the optimal architecture. They are a locally
+optimal architecture that works really well given the constraints of
+first-order optimizers like SGD or Adam or Muon. I think this is
+important to understand.</p>
+<p>There are a number of constraints placed on architecture. The most
+important constraint is that you are limited to architectures which you
+can actually train. And of course, if you cannot train a model, you
+cannot evaluate it. Better architectures undoubtedly exist, we just
+can't train them.</p>
+<p>Stability is the main concern. Transformers are exceptionally stable.
+You can backpropagate through them very easily, they train fast and are
+parallelizable with dense rewards. Most importantly, they scale. But
+it's also true that attention has a lot wrong with it. Most famously
+it's <code>O(n^2)</code> in context length, transformers are not <a
+href="https://arxiv.org/pdf/2510.06828">recurrence-complete</a>. That is
+to say, the forward pass of a transformer cannot actually express
+<em>any</em> function, as it has a finite amount of layers. This seems
+not to be such a big problem in practice, but may be causing us
+difficulties in scaling context. We have no real way of knowing, because
+we cannot investigate the counterfactual.</p>
+<p>Using first-order optimizers, we must always make a tradeoff between
+optimal architecture for inference and how practical it is to actually
+train. Transformers currently make the best tradeoff. But if we could
+actually train RNNs, I think there's a solid chance that they'd be the
+winner, since they're so great to do inference on.</p>
+<p>So what if there were a way to train these architectures that don't
+exist yet? Then maybe it could win.</p>
+<h3 id="depth-over-width">Depth over Width</h3>
+<p>There is a very good paper called <a
+href="https://arxiv.org/html/2310.19956">The Impact of Depth on
+Compositional Generalization in Transformer Language Models</a>. They
+find that:</p>
+<ol type="1">
+<li>Depth helps compositional generalization, but with sharp diminishing
+returns.</li>
+<li>Depth also helps language modeling loss, again with diminishing
+returns.</li>
+<li>Deeper models generalize better, even after controlling for
+perplexity.</li>
+</ol>
+<p>This would suggest that there's some sort of sweet spot in the number
+of layers. That makes a lot of sense. You need to have enough layers to
+do the task. This is essentially the recurrence-completeness argument in
+the paper above.</p>
+<p>You also can't have too many layers, or the training dynamics get
+wacky. Even if vanishing or exploding gradients don't cause the run to
+diverge, numerical issues add noise to the grad update, slowing the
+training down. There is an exponential effect here as well. So there's a
+sweet spot, a cutoff in the depth of model it makes sense to train.</p>
+<p>All of this is sorta handwavey. These two things explain the behavior
+we see in scaling layers. Training taller and thinner models is good,
+until it isn't anymore. But it's hard to say, causally, what is going
+on. We don't really know. Are we hitting a wall because scaling depth is
+no longer useful for the specific problem we're evaluating? Or is it
+because of training dynamics? To verify these two limitations are the
+problem, we would need to train a model that doesn't have these
+limitations.</p>
+<p>In any case, scaling depth seems to be <a
+href="https://arxiv.org/pdf/2510.01098">very important for long-context
+in-context learning</a>. Which is what agentic coding is dependent on,
+and the thing that we're trying to maximize as an industry. If we could
+train deeper models it would mean that agents can solve new problems
+that they weren't able to before, with higher reliability. So I would
+guess, despite the fact that scaling transformers with first-order
+optimizers continues to lead to improvements, that this is in fact a
+very prescient issue.</p>
+<h3 id="whys-it-so-hard">Why's It So Hard?</h3>
+<p>Language modeling architectures are a spectrum. On one end you've got
+RNNs, and the other you have transformers. RNNs have exploding grads
+(you must backprop through essentially infinite depth) and are thus
+impossible to train, but would scale efficiently to extreme context
+lengths in theory, if you can train one. Whereas on the other side you
+have transformers, which have stable grads of fixed depth, but scale
+poorly to long context lengths, which we have been finding monkeypatches
+to fix ever since.</p>
+<p>I don't think such a thing as free lunch exists. If it did, someone
+would have found it by now. In any case, I think the efficient sparse
+attention techniques we already have are close to as good as they're
+going to get. This is not to say that they're not worth working on,
+there are very practical gains to be had here. But we're not going to
+get an order of magnitude improvement over what we already have.</p>
+<p>I'm also not bullish on fixing RNNs. After all, it is intractible.
+You cannot backprop through infinite depth. Truncated Backpropagation
+Through Time is the standard for training RNNs in practice, but it poses
+many real problems and is not a viable way forward either.</p>
 <h2 id="zeroth-order-optimization">Zeroth Order Optimization</h2>
 <p>A first-order optimizer uses only the first derivative (the
 gradients) to optimize the objective. See SGD, SGD with momentum,
@@ -85,7 +171,7 @@ generations, FLOPs and memory capacity for storing activations are
 scaling faster than memory bandwidth.</p>
 <p>That is to say, with each hardware generation, this method becomes
 more feasible from a hardware standpoint. The ideal would be something
-like Cerebras probably, but there's no reason why this can't be</p>
+like Cerebras probably.</p>
 <h3 id="lora">LoRA</h3>
 <p>The main reason ZO sucks is that, since you are estimating the
 gradients, it performs exponentially worse the more parameters you have.
@@ -140,56 +226,35 @@ of next token prediction. But this is not actually a necessity.</p>
 <p>Since we're doing</p>
 <p>Theoretically there's no reason why You can set the loss/rewards
 however you want</p>
+<h3 id="zo-context-extension">ZO Context Extension</h3>
+<p>TODO</p>
 <h3 id="zo-muon">ZO-Muon</h3>
 <p>Yeah, <a href="https://arxiv.org/abs/2602.17155">this totally
 exists</a> and it also works. I think that's really cool. Nesterov
 momentum also works the way you want it to, as it does not depend on
 anything but your gradient update, which is to say the pseudograd. You
-can just polar-orthogonalize your pseudograd, it turns out.</p>
-<h2 id="optimal-architecture">Optimal Architecture</h2>
-<h3 id="why-would-we-want-to-scale-depth-over-width">Why would we want
-to scale depth over width?</h3>
+can just polar-orthogonalize your pseudograd, it turns out</p>
+<h2 id="research-proposals">Research Proposals</h2>
 <ul>
-<li>Better sequential reasoning (Better on hard problems, better
-benchmark perf)
-<ul>
-<li>Recurrence-completeness?</li>
-</ul></li>
-<li>Smaller kvcache</li>
-<li>Faster</li>
-</ul>
-<h3 id="why-is-this-hard">Why is this hard</h3>
-<ul>
-<li><p>Stability issues (vanishing/exploding gradients) in backprop</p>
-<ul>
-<li>This gets worse for RNNs the longer your sequence length, hence
-Truncated Backpropagation Through Time (TBTT)</li>
-</ul></li>
-<li><p>Residual connections exist to solve this to an extent</p></li>
-<li><p>Attention or recurrence?</p>
-<ul>
-<li>Efficient attention vs RNN state space blowup still reasonable
-scaling limit</li>
-</ul></li>
-<li><p>ZO has the ability to scale depth and recurrence without having
-to do TBTT</p></li>
-<li><p>Pseudograds don't have the vanishing/exploding problems of real
-grads</p></li>
-<li><p>Skip connections kill you because they blow up the activation mem
-requirements and group layers</p></li>
-<li><p>Thin models are better because smaller activations and less
-compute spent</p></li>
-<li><p>Truly massive LoRA matrices are possible</p></li>
-<li><p>Why do that just stack more layers</p></li>
-<li><p>Up to a point. An optimal balance exists, the scaling laws just
-haven't been caluclated yet</p></li>
-<li><p>There is an arch search space here and the dynamics of the search
-space are obvious</p></li>
-<li><p>Basically just try everything with ZO that's already been tried
-with first order</p></li>
-<li><p>Have to solve pipeline fault tolerance somehow if operating at a
-large scale</p></li>
-<li><p>Stacking layers is terrible for latency, actually.</p></li>
+<li>ZO has the ability to scale depth and recurrence without having to
+do TBTT</li>
+<li>Pseudograds don't have the vanishing/exploding problems of real
+grads</li>
+<li>Skip connections kill you because they blow up the activation mem
+requirements and group layers</li>
+<li>Thin models are better because smaller activations and less compute
+spent</li>
+<li>Truly massive LoRA matrices are possible</li>
+<li>Why do that just stack more layers</li>
+<li>Up to a point. An optimal balance exists, the scaling laws just
+haven't been caluclated yet</li>
+<li>There is an arch search space here and the dynamics of the search
+space are obvious</li>
+<li>Basically just try everything with ZO that's already been tried with
+first order</li>
+<li>Have to solve pipeline fault tolerance somehow if operating at a
+large scale</li>
+<li>Stacking layers is terrible for latency, actually.</li>
 </ul>
 <h2 id="why-now">Why now?</h2>
 <p>Six months ago, if you would have asked me if any of these ideas had

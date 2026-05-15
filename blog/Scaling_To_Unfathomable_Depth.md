@@ -11,6 +11,43 @@ An interesting research direction I'm thinking about for scaling agents. Potenti
 
 <br>
 
+## Optimal Architecture
+
+Transformers are not the optimal architecture. They are a locally optimal architecture that works really well given the constraints of first-order optimizers like SGD or Adam or Muon. I think this is important to understand.
+
+There are a number of constraints placed on architecture. The most important constraint is that you are limited to architectures which you can actually train. And of course, if you cannot train a model, you cannot evaluate it. Better architectures undoubtedly exist, we just can't train them.
+
+Stability is the main concern. Transformers are exceptionally stable. You can backpropagate through them very easily, they train fast and are parallelizable with dense rewards. Most importantly, they scale. But it's also true that attention has a lot wrong with it. Most famously it's `O(n^2)` in context length, transformers are not [recurrence-complete](https://arxiv.org/pdf/2510.06828). That is to say, the forward pass of a transformer cannot actually express *any* function, as it has a finite amount of layers. This seems not to be such a big problem in practice, but may be causing us difficulties in scaling context. We have no real way of knowing, because we cannot investigate the counterfactual.
+
+Using first-order optimizers, we must always make a tradeoff between optimal architecture for inference and how practical it is to actually train. Transformers currently make the best tradeoff. But if we could actually train RNNs, I think there's a solid chance that they'd be the winner, since they're so great to do inference on.
+
+So what if there were a way to train these architectures that don't exist yet? Then maybe it could win.
+
+### Depth over Width
+
+There is a very good paper called [The Impact of Depth on Compositional Generalization in Transformer Language Models](https://arxiv.org/html/2310.19956). They find that:
+
+1. Depth helps compositional generalization, but with sharp diminishing returns.
+2. Depth also helps language modeling loss, again with diminishing returns.
+3. Deeper models generalize better, even after controlling for perplexity.
+
+This would suggest that there's some sort of sweet spot in the number of layers. That makes a lot of sense. You need to have enough layers to do the task. This is essentially the recurrence-completeness argument in the paper above.
+
+You also can't have too many layers, or the training dynamics get wacky. Even if vanishing or exploding gradients don't cause the run to diverge, numerical issues add noise to the grad update, slowing the training down. There is an exponential effect here as well. So there's a sweet spot, a cutoff in the depth of model it makes sense to train.
+
+All of this is sorta handwavey. These two things explain the behavior we see in scaling layers. Training taller and thinner models is good, until it isn't anymore. But it's hard to say, causally, what is going on. We don't really know. Are we hitting a wall because scaling depth is no longer useful for the specific problem we're evaluating? Or is it because of training dynamics? To verify these two limitations are the problem, we would need to train a model that doesn't have these limitations.
+
+In any case, scaling depth seems to be [very important for long-context in-context learning](https://arxiv.org/pdf/2510.01098). Which is what agentic coding is dependent on, and the thing that we're trying to maximize as an industry. If we could train deeper models it would mean that agents can solve new problems that they weren't able to before, with higher reliability. So I would guess, despite the fact that scaling transformers with first-order optimizers continues to lead to improvements, that this is in fact a very prescient issue.
+
+### Why's It So Hard?
+
+
+Language modeling architectures are a spectrum. On one end you've got RNNs, and the other you have transformers. RNNs have exploding grads (you must backprop through essentially infinite depth) and are thus impossible to train, but would scale efficiently to extreme context lengths in theory, if you can train one. Whereas on the other side you have transformers, which have stable grads of fixed depth, but scale poorly to long context lengths, which we have been finding monkeypatches to fix ever since.
+
+I don't think such a thing as free lunch exists. If it did, someone would have found it by now. In any case, I think the efficient sparse attention techniques we already have are close to as good as they're going to get. This is not to say that they're not worth working on, there are very practical gains to be had here. But we're not going to get an order of magnitude improvement over what we already have.
+
+I'm also not bullish on fixing RNNs. After all, it is intractible. You cannot backprop through infinite depth. Truncated Backpropagation Through Time is the standard for training RNNs in practice, but it poses many real problems and is not a viable way forward either.
+
 ## Zeroth Order Optimization
 
 A first-order optimizer uses only the first derivative (the gradients) to optimize the objective. See SGD, SGD with momentum, Nesterov, Adam, Muon, etc. All the stuff that we use. A second-order optimizer uses the second derivative (the hessian). See Newton's method, and a few others. The hessian is intractible, as it's N by N in the parameter count. So nobody does this.
@@ -39,7 +76,7 @@ Consider a single layer. Since ZO-optimization is perfectly-decomposable layerwi
 
 So, you evaluate the model batch-size-many times. But you only load the parameters twice, once during forward() and once during the update. You don't have to load batch-size many perturbations, but you do need to run the model that many times and store that many copies of the activations. You're probably not memory bandwidth bound, assuming you wrote and overlapped the PRNG part of the kernels well, the scaling limit you run into is raw FLOPs. And with successive hardware generations, FLOPs and memory capacity for storing activations are scaling faster than memory bandwidth.
 
-That is to say, with each hardware generation, this method becomes more feasible from a hardware standpoint. The ideal would be something like Cerebras probably, but there's no reason why this can't be 
+That is to say, with each hardware generation, this method becomes more feasible from a hardware standpoint. The ideal would be something like Cerebras probably.
 
 ### LoRA
 
@@ -68,29 +105,17 @@ Since we're doing
 Theoretically there's no reason why 
 You can set the loss/rewards however you want
 
+### ZO Context Extension
+
+TODO
+
 ### ZO-Muon
 
-Yeah, [this totally exists](https://arxiv.org/abs/2602.17155) and it also works. I think that's really cool. Nesterov momentum also works the way you want it to, as it does not depend on anything but your gradient update, which is to say the pseudograd. You can just polar-orthogonalize your pseudograd, it turns out.
-
-## Optimal Architecture
+Yeah, [this totally exists](https://arxiv.org/abs/2602.17155) and it also works. I think that's really cool. Nesterov momentum also works the way you want it to, as it does not depend on anything but your gradient update, which is to say the pseudograd. You can just polar-orthogonalize your pseudograd, it turns out
 
 
-### Why would we want to scale depth over width?
+## Research Proposals
 
-* Better sequential reasoning (Better on hard problems, better benchmark perf)
-  * Recurrence-completeness?
-* Smaller kvcache
-* Faster
-
-### Why is this hard
-
-* Stability issues (vanishing/exploding gradients) in backprop
-  * This gets worse for RNNs the longer your sequence length, hence Truncated Backpropagation Through Time (TBTT)
-* Residual connections exist to solve this to an extent
-
-
-* Attention or recurrence?
-  * Efficient attention vs RNN state space blowup still reasonable scaling limit
 * ZO has the ability to scale depth and recurrence without having to do TBTT
 * Pseudograds don't have the vanishing/exploding problems of real grads
 * Skip connections kill you because they blow up the activation mem requirements and group layers
@@ -102,6 +127,7 @@ Yeah, [this totally exists](https://arxiv.org/abs/2602.17155) and it also works.
 * Basically just try everything with ZO that's already been tried with first order
 * Have to solve pipeline fault tolerance somehow if operating at a large scale
 * Stacking layers is terrible for latency, actually.
+
 
 ## Why now?
 

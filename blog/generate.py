@@ -39,7 +39,7 @@ def escape_xml(text):
     """Escape special characters for XML/HTML content."""
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
-replace = "\s+.sourceCode {\s+background-color: transparent;\s+overflow: visible;\s+}"
+replace = r"\s+.sourceCode {\s+background-color: transparent;\s+overflow: visible;\s+}"
 repwith = "\n    .sourceCode {\n      font-size: 20px;\n    }"
 
 # Categories: list of (name, articles)
@@ -409,7 +409,7 @@ def generate_article(i, md_file):
     # Process unstyled version (skip for protected articles)
     if not is_protected:
         with open(unstyled_path) as file:
-            unstyled_html = re.sub("\s+<style>.*</style>", "", file.read(), flags=re.DOTALL, count=1)
+            unstyled_html = re.sub(r"\s+<style>.*</style>", "", file.read(), flags=re.DOTALL, count=1)
 
         with open(unstyled_file, "w") as file:
             file.write(unstyled_html)
