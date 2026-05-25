@@ -304,48 +304,6 @@ the current model weights 𝜽,
 a batch of inputs b,
 a gaussian distribution z (sampled every step)
 and small scalar hparam ε (usually 1e^-3).</code></pre>
-<p>But this doesn't get you an estimate that actually uses your model.
-It uses a perturbed, maybe-better-maybe-worse version of your model. You
-don't know if it's better or not.</p>
-<p>From my experiments, there are often big discontinuities in the loss.
-So it's frequently a bad direction, and the result of using it would be
-catastophic. It's not super clear to me if this problem is solvable from
-a theoretical standpoint. It could be. It might be that it doesn't
-really matter that you're using a maybe-worse model, especially if your
-ε is tiny. This isn't a problem that's well-studied.</p>
-<p>But I think there's another approach that's potentially
-interesting.</p>
-<p>So, I propose the following. Evaluate at three points,
-<code>+ε</code>, <code>-ε</code>, and <code>±0</code>. You can use the
-information gained from the <code>±0</code> case to improve your
-gradient update.</p>
-<p>But also you can do inference as you train, without having to worry
-about that epsilon. Continual learning. Inference is training, and
-training is inference. Specifically, training is 3x inference plus a TON
-of noise, which grows quadratically with model size (solved by LoRA as
-discussed before).</p>
-<p>Using the information from sampling <code>±0</code> you can also
-approximate the second derivative of the projected gradient
-<code>p</code> (<code>proj_grad</code>) from <code>z</code>, call the
-second derivative (the hessian) <code>q</code>. The ratio
-<code>p/q</code> gives the step size that minimizes the quadratic
-approximation of <code>L(Φ(𝜽, b))</code> along <code>z</code>.</p>
-<p>The formula for <code>q</code> under three-point evaluation
-becomes:</p>
-<pre><code>q = (L(Φ(𝜽 + εz, b)) -
-     L(Φ(𝜽, b)) * 2 + 
-     L(Φ(𝜽 - εz, b)))
-   / ε²</code></pre>
-<p>Then the theoretically optimal step size across your update
-becomes</p>
-<pre><code>𝜽 = 𝜽 - (p/q) * z</code></pre>
-<p>This is independent of learning rate but in practice would be very
-unstable, so instead we do:</p>
-<pre><code>𝜽 = 𝜽 - lr * (p / (q + 1e-8)) * z</code></pre>
-<p>Another problem is noise. The big problem in MeZO derivatives. Let's
-now look at the theoretical variance of the projected gradient
-<code>p</code> and of the diagonal of the hessian <code>q</code> under
-MeZO.</p>
 <p>Assume for small <code>ε</code> (as MeZO does) that:</p>
 <pre><code>L(Φ(𝜽 + εz, b)) ≈ L(Φ(𝜽,b)) + ∇L(Φ(𝜽,b)) * εz
 L(Φ(𝜽 - εz, b)) ≈ L(Φ(𝜽,b)) - ∇L(Φ(𝜽,b)) * εz</code></pre>
@@ -457,13 +415,12 @@ a chance, I would have said no.</p>
 href="https://github.com/princeton-nlp/MeZO/blob/552cb1b710767f9a6e1dc8f9645d7640376f9941/medium_models/src/trainer.py#L242-L247">this
 method</a> from the <code>Trainer</code> class of the MeZO paper's
 implementation.</p>
-<div class="sourceCode" id="cb11"><pre
-class="sourceCode py"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> efficient_perturb_parameters(<span class="va">self</span>, model: nn.Module, random_seed: <span class="bu">int</span>, scaling_factor<span class="op">=</span><span class="dv">1</span>):</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>        torch.manual_seed(random_seed)</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> name, param <span class="kw">in</span> <span class="va">self</span>.named_parameters_to_optim:</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>            z <span class="op">=</span> torch.normal(mean<span class="op">=</span><span class="dv">0</span>, std<span class="op">=</span><span class="dv">1</span>, size<span class="op">=</span>param.data.size(), device<span class="op">=</span>param.data.device, dtype<span class="op">=</span>param.data.dtype)</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>            param.data <span class="op">=</span> param.data <span class="op">+</span> scaling_factor <span class="op">*</span> z <span class="op">*</span> <span class="va">self</span>.args.zero_order_eps</span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> model</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> efficient_perturb_parameters(<span class="va">self</span>, model: nn.Module, random_seed: <span class="bu">int</span>, scaling_factor<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>        torch.manual_seed(random_seed)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> name, param <span class="kw">in</span> <span class="va">self</span>.named_parameters_to_optim:</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>            z <span class="op">=</span> torch.normal(mean<span class="op">=</span><span class="dv">0</span>, std<span class="op">=</span><span class="dv">1</span>, size<span class="op">=</span>param.data.size(), device<span class="op">=</span>param.data.device, dtype<span class="op">=</span>param.data.dtype)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>            param.data <span class="op">=</span> param.data <span class="op">+</span> scaling_factor <span class="op">*</span> z <span class="op">*</span> <span class="va">self</span>.args.zero_order_eps</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> model</span></code></pre></div>
 <p>That's right. They actually materialize the perturbations. The method
 name is a misnomer, because they literally call
 <code>torch.normal()</code> with <code>size=param.data.size()</code>.
@@ -498,5 +455,47 @@ like a year or two.</p>
 </div>
 <br>
 -->
+<p>&lt;-- But this doesn't get you an estimate that actually uses your
+model. It uses a perturbed, maybe-better-maybe-worse version of your
+model. You don't know if it's better or not.</p>
+<p>From my experiments, there are often big discontinuities in the loss.
+So it's frequently a bad direction, and the result of using it would be
+catastophic. It's not super clear to me if this problem is solvable from
+a theoretical standpoint. It could be. It might be that it doesn't
+really matter that you're using a maybe-worse model, especially if your
+ε is tiny. This isn't a problem that's well-studied.</p>
+<p>But I think there's another approach that's potentially
+interesting.</p>
+<p>So, I propose the following. Evaluate at three points,
+<code>+ε</code>, <code>-ε</code>, and <code>±0</code>. You can use the
+information gained from the <code>±0</code> case to improve your
+gradient update.</p>
+<p>But also you can do inference as you train, without having to worry
+about that epsilon. Continual learning. Inference is training, and
+training is inference. Specifically, training is 3x inference plus a TON
+of noise, which grows quadratically with model size (solved by LoRA as
+discussed before).</p>
+<p>Using the information from sampling <code>±0</code> you can also
+approximate the second derivative of the projected gradient
+<code>p</code> (<code>proj_grad</code>) from <code>z</code>, call the
+second derivative (the hessian) <code>q</code>. The ratio
+<code>p/q</code> gives the step size that minimizes the quadratic
+approximation of <code>L(Φ(𝜽, b))</code> along <code>z</code>.</p>
+<p>The formula for <code>q</code> under three-point evaluation
+becomes:</p>
+<pre><code>q = (L(Φ(𝜽 + εz, b)) -
+     L(Φ(𝜽, b)) * 2 + 
+     L(Φ(𝜽 - εz, b)))
+   / ε²</code></pre>
+<p>Then the theoretically optimal step size across your update
+becomes</p>
+<pre><code>𝜽 = 𝜽 - (p/q) * z</code></pre>
+<p>This is independent of learning rate but in practice would be very
+unstable, so instead we do:</p>
+<pre><code>𝜽 = 𝜽 - lr * (p / (q + 1e-8)) * z</code></pre>
+<p>Another problem is noise. The big problem in MeZO derivatives. Let's
+now look at the theoretical variance of the projected gradient
+<code>p</code> and of the diagonal of the hessian <code>q</code> under
+MeZO. --&gt;</p>
 </body>
 </html>

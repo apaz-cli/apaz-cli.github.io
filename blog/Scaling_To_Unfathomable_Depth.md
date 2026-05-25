@@ -153,39 +153,6 @@ a gaussian distribution z (sampled every step)
 and small scalar hparam ε (usually 1e^-3).
 ```
 
-But this doesn't get you an estimate that actually uses your model. It uses a perturbed, maybe-better-maybe-worse version of your model. You don't know if it's better or not.
-
-From my experiments, there are often big discontinuities in the loss. So it's frequently a bad direction, and the result of using it would be catastophic. It's not super clear to me if this problem is solvable from a theoretical standpoint. It could be. It might be that it doesn't really matter that you're using a maybe-worse model, especially if your ε is tiny. This isn't a problem that's well-studied.
-
-But I think there's another approach that's potentially interesting.
-
-So, I propose the following. Evaluate at three points, `+ε`, `-ε`, and `±0`. You can use the information gained from the `±0` case to improve your gradient update.
-
-But also you can do inference as you train, without having to worry about that epsilon. Continual learning. Inference is training, and training is inference. Specifically, training is 3x inference plus a TON of noise, which grows quadratically with model size (solved by LoRA as discussed before).
-
-Using the information from sampling `±0` you can also approximate the second derivative of the projected gradient `p` (`proj_grad`) from `z`, call the second derivative (the hessian) `q`. The ratio `p/q` gives the step size that minimizes the quadratic approximation of `L(Φ(𝜽, b))` along `z`.
-
-The formula for `q` under three-point evaluation becomes:
-```
-q = (L(Φ(𝜽 + εz, b)) -
-     L(Φ(𝜽, b)) * 2 + 
-     L(Φ(𝜽 - εz, b)))
-   / ε²
-```
-
-Then the theoretically optimal step size across your update becomes
-```
-𝜽 = 𝜽 - (p/q) * z
-```
-
-This is independent of learning rate but in practice would be very unstable, so instead we do:
-```
-𝜽 = 𝜽 - lr * (p / (q + 1e-8)) * z
-```
-
-Another problem is noise. The big problem in MeZO derivatives.
-Let's now look at the theoretical variance of the projected gradient `p` and of the diagonal of the hessian `q` under MeZO.
-
 Assume for small `ε` (as MeZO does) that:
 ```
 L(Φ(𝜽 + εz, b)) ≈ L(Φ(𝜽,b)) + ∇L(Φ(𝜽,b)) * εz
@@ -331,4 +298,39 @@ So basically just go work on kernel autoresearch and come back in like a year or
 </figure>
 </div>
 <br>
+-->
+
+<--
+But this doesn't get you an estimate that actually uses your model. It uses a perturbed, maybe-better-maybe-worse version of your model. You don't know if it's better or not.
+
+From my experiments, there are often big discontinuities in the loss. So it's frequently a bad direction, and the result of using it would be catastophic. It's not super clear to me if this problem is solvable from a theoretical standpoint. It could be. It might be that it doesn't really matter that you're using a maybe-worse model, especially if your ε is tiny. This isn't a problem that's well-studied.
+
+But I think there's another approach that's potentially interesting.
+
+So, I propose the following. Evaluate at three points, `+ε`, `-ε`, and `±0`. You can use the information gained from the `±0` case to improve your gradient update.
+
+But also you can do inference as you train, without having to worry about that epsilon. Continual learning. Inference is training, and training is inference. Specifically, training is 3x inference plus a TON of noise, which grows quadratically with model size (solved by LoRA as discussed before).
+
+Using the information from sampling `±0` you can also approximate the second derivative of the projected gradient `p` (`proj_grad`) from `z`, call the second derivative (the hessian) `q`. The ratio `p/q` gives the step size that minimizes the quadratic approximation of `L(Φ(𝜽, b))` along `z`.
+
+The formula for `q` under three-point evaluation becomes:
+```
+q = (L(Φ(𝜽 + εz, b)) -
+     L(Φ(𝜽, b)) * 2 + 
+     L(Φ(𝜽 - εz, b)))
+   / ε²
+```
+
+Then the theoretically optimal step size across your update becomes
+```
+𝜽 = 𝜽 - (p/q) * z
+```
+
+This is independent of learning rate but in practice would be very unstable, so instead we do:
+```
+𝜽 = 𝜽 - lr * (p / (q + 1e-8)) * z
+```
+
+Another problem is noise. The big problem in MeZO derivatives.
+Let's now look at the theoretical variance of the projected gradient `p` and of the diagonal of the hessian `q` under MeZO.
 -->
