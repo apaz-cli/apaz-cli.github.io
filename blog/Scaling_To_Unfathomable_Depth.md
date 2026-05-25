@@ -7,7 +7,9 @@
 
 <br>
 
-An interesting research direction I'm thinking about for scaling agents. Potentially a bad one. A lot of things could go wrong along the way. But also it could work.
+An interesting research direction I'm thinking about for scaling agents. A lot of things could go wrong along the way. But also it could work.
+
+This is half blog post, and half research notes dump.
 
 <br>
 
@@ -17,13 +19,15 @@ Transformers are not the optimal architecture. They are a locally optimal archit
 
 There are a number of constraints placed on architecture. The most important constraint is that you are limited to architectures which you can actually train. And of course, if you cannot train a model, you cannot evaluate it. Better architectures undoubtedly exist, we just can't train them.
 
-Stability is the main concern. Transformers are exceptionally stable. You can backpropagate through them very easily, they train fast and are parallelizable with dense rewards. Most importantly, they scale. But it's also true that attention has a lot wrong with it. Most famously it's `O(n^2)` in context length, transformers are not [recurrence-complete](https://arxiv.org/pdf/2510.06828). That is to say, the forward pass of a transformer cannot actually express any function, as it has a finite amount of layers. This seems not to be such a big problem in practice, but may be causing us difficulties in scaling context. We have no real way of knowing, because we cannot investigate the counterfactual.
+Stability is the main concern. Transformers are rather stable. You can backpropagate through them very easily, they train fast and are parallelizable with dense rewards. Most importantly, they scale. But it's also true that attention has a lot wrong with it. Most famously it's `O(n^2)` in context length, transformers are not [recurrence-complete](https://arxiv.org/pdf/2510.06828). That is to say, the forward pass of a transformer cannot actually express any function, as it has a finite amount of layers. This seems not to be such a big problem in practice. But we may be in the early stages of hitting context scaling limits we're not aware of. It's not obvious that attention variants can scale cleanly to truly massive contexts in the limit, it might be that you just run out of depth. We have no real way of knowing, because we cannot investigate the counterfactual.
 
-Using first-order optimizers, we must always make a tradeoff between optimal architecture for inference and how practical it is to actually train. Transformers currently make the best tradeoff. But if we could actually train RNNs, I think there's a solid chance that they'd be the winner, since they're so great to do inference on.
+Using first-order optimizers, we must always make a tradeoff between optimal architecture for inference and how practical it is to actually train. Transformers currently make the best tradeoff. So that's why we use them.
 
-So what if there were a way to train these architectures that don't exist yet? Maybe it could win.
+But what if there were a way to train these architectures that don't exist yet? Maybe there's an architecture out there that's better for long context in the limit. It's certainly possible. In fact I think it's almost certain. Maybe it looks like a transformer, more it looks more like an RNN, maybe it's sparse, maybe an MoE, maybe it's a weird diffusion thing, maybe it's something nobody has come up with yet. But I figure it's gotta exist. Every time deepseek releases a model they seem to prove that better architectures do exist.
 
 ### Depth over Width
+
+In any case, regardless of what a block looks like, I think there's one axis that it makes sense to scale on, and that's depth.
 
 There is a very good paper called [The Impact of Depth on Compositional Generalization in Transformer Language Models](https://arxiv.org/html/2310.19956). They find that:
 
@@ -33,21 +37,27 @@ There is a very good paper called [The Impact of Depth on Compositional Generali
 
 This would suggest that there's some sort of sweet spot in the number of layers. That makes a lot of sense. You need to have enough layers to do the task. This is essentially the recurrence-completeness argument in the paper above.
 
-You also can't have too many layers, or the training dynamics get wacky. Even if vanishing or exploding gradients don't cause the run to diverge, numerical issues add noise to the grad update, slowing the training down. There is an exponential effect here as well. So there's a sweet spot, a cutoff in the depth of model it makes sense to train.
+There's another reason you can't have too many layers, the training dynamics get wacky. Even if vanishing or exploding gradients don't cause the run to diverge, numerical issues add noise to the grad update, slowing the training down. Worse, the noise might be biased. Yuck. Also the error compounds exponentially. So this causes it to saturate as well.
+
+So there's a sweet spot, a cutoff in the depth of model it makes sense to train.
 
 All of this is sorta handwavey. These two things explain the behavior we see in scaling layers. Training taller and thinner models is good, until it isn't anymore. But it's hard to say, causally, what is going on. We don't really know. Are we hitting a wall because scaling depth is no longer useful for the specific problem we're evaluating? Or is it because of training dynamics? To verify these two limitations are the problem, we would need to train a model that doesn't have these limitations.
 
 In any case, scaling depth seems to be [very important for long-context in-context learning](https://arxiv.org/pdf/2510.01098). Which is what agentic coding is dependent on, and the thing that we're trying to maximize as an industry. If we could train deeper models it would mean that agents can solve new problems that they weren't able to before, with higher reliability. So I would guess, despite the fact that scaling transformers with first-order optimizers continues to lead to improvements, that this is in fact a very prescient issue.
 
+So disregard the first (task-dependent) reason depth saturates. We will always have harder tasks that require deeper models. Agentic coding demands deeper models.
+
+So what if we could train deeper models?
+
 ### Why's It So Hard?
 
-Language modeling architectures are a spectrum. On one end you've got RNNs, and the other you have transformers. RNNs have exploding grads (you must backprop through essentially infinite depth) and are thus impossible to train, but would scale efficiently to extreme context lengths in theory, if you can train one. Whereas on the other side you have transformers, which have stable grads of fixed depth, but scale poorly to long context lengths, which we have been finding increasingly efficient monkeypatches for ever since.
+### TODO: Add info from conversation with aria
 
-I suppose that there are also weird things like diffusion transformers. I've not given as much thought to this, or to whatever other weird architectures you could come up with. Maybe there's something there, I haven't been thinking about it.
+Language modeling architectures are sort of a spectrum. On one end you've got RNNs, and the other you have transformers. RNNs have exploding grads (you must backprop through essentially infinite depth) and are thus impossible to train, but would scale efficiently to extreme context lengths in theory, if you can train one. Whereas on the other side you have transformers, which have stable grads of fixed depth, but scale poorly to long context lengths, which we have been finding increasingly efficient monkeypatches for ever since.
 
-But, regarding the RNN vs Transformer spectrum, I don't think such a thing as free lunch exists. If it did, someone would have found it by now. In any case, I think the efficient sparse attention techniques we already have are close to as good as they're going to get. This is not to say that they're not worth working on, there are very practical gains to be had there. But we're not going to get an order of magnitude improvement over what we already have.
+But, regarding the RNN vs Transformer spectrum, I don't think such a thing as free lunch exists with normal optimizers. If it did, someone would have found it by now. In any case, I think the efficient sparse attention techniques we already have are close to as good as they're going to get. This is not to say that they're not worth working on, there are very practical gains to be had. I'd expect we'll get like a single order of magnitude improvement over what we already have.
 
-I'm also not bullish on fixing RNNs. After all, it is intractible. You cannot backprop through infinite depth. Truncated Backpropagation Through Time is the standard for training RNNs in practice, but it poses many real problems and is not a viable way forward either. I do not see it as mathematically sound, and as far as I know neither does anyone else.
+I'm also not bullish on fixing RNNs. After all, infinite depth under first order optimizers is intractible. You cannot backprop through infinite depth. Truncated Backpropagation Through Time is the standard for training RNNs in practice, but it defeats the entire point, poses many problems in practice, and I do not see it as a viable way forward. I don't think it's mathematically sound, and as far as I know neither does anyone else.
 
 But I do think that the "untrainable" architectures closer to RNN side of the spectrum are worth exploring. Zeroth-Order Optimization could make this possible.
 
@@ -57,25 +67,47 @@ A first-order optimizer uses only the first derivative (the gradients) to optimi
 
 But consider zeroth-order. An optimizer that only uses the parameters to optimize the parameters.
 
-As it turns out, you can save a LOT of memory this way. You don't have to store intermediate activations or gradients. Essentially, you get true pipieline parallelism for free, with no downsides. Besides the fact that zeroth-order optimization kinda sucks, anyway.
+As it turns out, you can save a LOT of memory this way. You don't have to store intermediate activations or gradients. Essentially, you get true pipieline parallelism for free, with no downsides. It's amazing. It's super easy to scale. Genuinely fantastic.
 
-The approach is basaically an evolutionary one. Much like RL, we can choose any loss function we want, because we're guessing and checking. This is pretty cool, and makes it pretty unique as a finetuning method.
+But another thing that's cool is, much like RL, we can choose any loss function we want, because we're guessing and checking. This makes it pretty unique as a finetuning method.
 
-Although we get to save a lot of memory, it doesn't seem to work all that well. In particular, to minimize the loss by tweaking model weights, you need directional information. The gradient. Which you don't have, so you have to estimate. There are two approaches to this. Either you fall back to the analytical definition of a gradient, which involves evaluating the model once with a nudge to each parameter, or you sample a bunch randomly. By sampling enough times in enough different random directions until you get a decent estimate, you can take a step in that direction.
+So, let's explain how it works. To minimize the loss by tweaking model weights, you need direction information and magnitude information. You need the gradient. Which you don't have, so you have to find a way to estimate. There are a bunch of ways to do this, but the most popular is MeZO and algorithms that derive from MeZO. More on that next soon.
 
-In any case, as I said before, this sucks. The fact that it sucks is probably why nobody uses it. It is much better just to compute the gradient like a normal person. Then you have the gradient. You would think this would be the end of the story for ZO-Optimization. But not quite.
+Broadly, There are two approaches to this. Either you fall back to the analytical definition of a gradient, which involves evaluating the model once with a nudge to each parameter, or you use an evolutionary approach.
+
+The common thing about every ZO approach though is that it sucks. And that's probably why nobody uses Zeroth-Order optimizers.
+
+The specific reason why it sucks is that the only way to can get information about the gradient is by sampling, and sampling doesn't do a whole lot for you. You have to sample a ton, but sampling doesn't give you a lot of information about the grads, and even the information it does give you is noisy. Worse, it's noisy the way your batch is noisy. Getting a bad batch is a problem even under first-order optimization.
+
+But wait, it gets worse. To get a gradient update with the same convergence as you get by doing backprop a single time, you need to average over p perturbations, where p is your parameter count. That's the analytical definition of a gradient.
+
+In summary, the ZO gradient noise is so, so, so bad.
+
+It's better just to calculate grads if you have the option. Calculating the gradient directly is better than trying to estimate it with smoke and mirrors.
+
+It does save you a ton of memory though. And it works on loss functions that are not differentiable, as long as they are finely-grained enough.
+
+But why bother. Clearly nobody bothers. I'm bothering. Dangit. I got nerdsniped so fucking hard.
+
+You would think this would be the end of the story for ZO-Optimization. But not quite. Unfortunately I think ZO has a lot of potential.
 
 ## ZO Tricks
 
 There are a number of interesting things that you can do. I think they make this class of techniques worth not completely counting out yet.
 
+Some of these tricks exist in the literature. Many of them do not exist in the literature and I do not think anyone else has thought about them. They're original thoughts by me. Perhaps obvious ones, but original regardless.
+
 ### MeZO
 
-The [MeZO paper](https://arxiv.org/abs/2305.17333), also known as "Fine-Tuning Language Models with Just Forward Passes" is why I think any of this is even tractible or interesting at all.
+### TODO THIS IS WRONG I DID NOT KNOW WTF I WAS TALKING ABOUT
 
-The core idea is that you don't have to actually *store* each perturbation to the model. If you write your kernels very carefully, all you have to store is a prng seed for each item in your batch and the activations of your current layer.
+The [MeZO paper](https://arxiv.org/abs/2305.17333), also known as "Fine-Tuning Language Models with Just Forward Passes" is why I think any of this is even tractible or interesting at all. The paper describes a way to implement ZO that's extremely efficient and scalable.
 
-Consider a single layer. Since ZO-optimization is perfectly-decomposable layerwise, we don't have to worry about anything else. The input to the kernel is the parameters associated with the layer, along with a batch of activations from the previous layer and associated prng state. The output is a batch of activations for the next layer. You can load a parameter or set of parameters, sample from each prng stream to perturb it, and then compute all the different things you need to with the perturbed params. This can be done in registers, there is no need to materialize a full tensor of parameters for each tensor in your batch. Once the losses are computed, you can reset the prng stream and, for each layer, stream through the parameters again to produce a sum of the random perturbations, weighted by the loss/rewards. This is your pseudogradient. Then you take a step.
+The core idea is that you don't have to actually *store* each perturbation to the model. If you write your kernels very carefully, all you have to store is the prng seed to generate a model perturbation, and the activations of ONLY your current layer. But you have to write your own kernels.
+
+Consider a single layer. Since ZO-optimization is perfectly-decomposable layerwise, we don't have to worry about anything else. The input to the kernel is the parameters associated with the layer, along with a batch of activations from the previous layer and associated prng state. The output is a batch of activations for the next layer. That's it. That's all the memory you need.
+
+In this kernel you can load a parameter or set of parameters, sample from each prng stream to perturb it, and then compute all the different things you need to with the perturbed params. This can be done in registers, there is no need to materialize a full tensor of parameters for each tensor in your batch. Once the losses are computed, you can reset the prng stream and, for each layer, stream through the parameters again to produce a sum of the random perturbations, weighted by the loss/rewards. This is your pseudogradient. Then you take a step.
 
 So, you evaluate the model batch-size-many times. But you only load the parameters twice, once during forward() and once during the update. You don't have to load batch-size many perturbations, but you do need to run the model that many times and store that many copies of the activations. You're probably not memory bandwidth bound, assuming you wrote and overlapped the PRNG part of the kernels well, the scaling limit you run into is raw FLOPs. And with successive hardware generations, FLOPs and memory capacity for storing activations are scaling faster than memory bandwidth.
 
@@ -89,7 +121,7 @@ This is intractible and needs to be fixed. LoRA adapters do truly fix this probl
 
 But it may not be so bad? At least, [in RL it is not so bad](https://x.com/kalomaze/status/1964455970517753878). By continually merging these LoRA adapters ([ReLoRA](https://arxiv.org/abs/2307.05695))  you can keep the base model shifting, causing the next lora adapter to retarget new low rank changes. Across many updates, these low-rank changes sum to high-rank changes. So it is at least somewhat questionable how much this matters in practice. Anecdotally, it does not seem to matter that much for training speed.
 
-But also note that it seems [not to work as well for smaller models](https://arxiv.org/abs/2509.12960), and also not as well at the beginning of training. Hence Why the ReLORA paper actualy doesn't use adapters at the start of training, instead opting for full-rank updates. This is also consistent with the findings of the other paper.
+But also note that it seems [not to work as well for smaller models](https://arxiv.org/abs/2509.12960), and also not as well at the beginning of training. Hence Why the ReLORA paper actualy doesn't use adapters at the start of training, instead opting for full-rank updates at the start.
 
 ![TODO FIGURE from RELORA]()
 
@@ -102,6 +134,129 @@ I'd want to investigate this hypothesis in combination with the techniques from 
 I think more research needs to be done here in general. Nobody has studied this to the degree that it needs to be. I would be interested to see a model trained with ZO on, for example, [PleIAs/SYNTH](https://huggingface.co/datasets/PleIAs/SYNTH) or [TRM](https://arxiv.org/abs/2510.04871) data. See how much your choice of `r` for parameters and for `z` matters for standard language modeling and RL tasks.
 
 ZO has never really been scaled to the extent that is necessary for answering these sorts of basic questions of if it works or not. So really, the only way to find out is to try, and I don't think anyone is trying.
+
+### MeZO Math
+
+Here's a bunch of math. I've tried to make it readable, but if your eyes glaze over you can skip it if you like.
+
+In MeZO, the update rule is based on:
+```
+proj_grad = (L(Φ(𝜽 + εz, b)) - 
+             L(Φ(𝜽 - εz, b))) 
+             / 2ε
+
+For some scalar loss function L,
+some model architecture Φ,
+the current model weights 𝜽,
+a batch of inputs b,
+a gaussian distribution z (sampled every step)
+and small scalar hparam ε (usually 1e^-3).
+```
+
+But this doesn't get you an estimate that actually uses your model. It uses a perturbed, maybe-better-maybe-worse version of your model. You don't know if it's better or not.
+
+From my experiments, there are often big discontinuities in the loss. So it's frequently a bad direction, and the result of using it would be catastophic. It's not super clear to me if this problem is solvable from a theoretical standpoint. It could be. It might be that it doesn't really matter that you're using a maybe-worse model, especially if your ε is tiny. This isn't a problem that's well-studied.
+
+But I think there's another approach that's potentially interesting.
+
+So, I propose the following. Evaluate at three points, `+ε`, `-ε`, and `±0`. You can use the information gained from the `±0` case to improve your gradient update.
+
+But also you can do inference as you train, without having to worry about that epsilon. Continual learning. Inference is training, and training is inference. Specifically, training is 3x inference plus a TON of noise, which grows quadratically with model size (solved by LoRA as discussed before).
+
+Using the information from sampling `±0` you can also approximate the second derivative of the projected gradient `p` (`proj_grad`) from `z`, call the second derivative (the hessian) `q`. The ratio `p/q` gives the step size that minimizes the quadratic approximation of `L(Φ(𝜽, b))` along `z`.
+
+The formula for `q` under three-point evaluation becomes:
+```
+q = (L(Φ(𝜽 + εz, b)) -
+     L(Φ(𝜽, b)) * 2 + 
+     L(Φ(𝜽 - εz, b)))
+   / ε²
+```
+
+Then the theoretically optimal step size across your update becomes
+```
+𝜽 = 𝜽 - (p/q) * z
+```
+
+This is independent of learning rate but in practice would be very unstable, so instead we do:
+```
+𝜽 = 𝜽 - lr * (p / (q + 1e-8)) * z
+```
+
+Another problem is noise. The big problem in MeZO derivatives.
+Let's now look at the theoretical variance of the projected gradient `p` and of the diagonal of the hessian `q` under MeZO.
+
+Assume for small `ε` (as MeZO does) that:
+```
+L(Φ(𝜽 + εz, b)) ≈ L(Φ(𝜽,b)) + ∇L(Φ(𝜽,b)) * εz
+L(Φ(𝜽 - εz, b)) ≈ L(Φ(𝜽,b)) - ∇L(Φ(𝜽,b)) * εz
+```
+
+Plugging these into the update rule, we see that the losses and directions cancel out, leaving an expectation of the step size.
+```
+proj_grad = (L(Φ(𝜽 + εz, b)) - L(Φ(𝜽 - εz, b))) / 2ε
+          ≈ ((L(Φ(𝜽,b)) + ∇L(Φ(𝜽,b)) * εz) - (L(Φ(𝜽,b)) - ∇L(Φ(𝜽,b)) * εz)) / 2ε
+          = (L(Φ(𝜽,b)) + ∇L(Φ(𝜽,b)) * εz - L(Φ(𝜽,b)) + ∇L(Φ(𝜽,b)) * εz) / 2ε
+          = (2 * ∇L(Φ(𝜽,b)) * εz) / 2ε
+          = ∇L(Φ(𝜽,b)) * z
+```
+
+Now `proj_grad = ∇L(Φ(𝜽,b)) * z` is a function of the random variable b (the batch). To get the variance, how much does the projected gradient vary as `b` varies?
+
+Well, `z` is a gaussian random variable, so apply the law of total variance:
+```
+Var(X) = E[Var(X|Y)] + Var(E[X|Y])
+
+Var(proj_grad) = E[Var(proj_grad | b)] + Var(E[proj_grad | b])
+where E[] means "in expectation over infinite random samples."
+
+But Var(E[proj_grad | b]) = 0, since E[∇L(Φ(𝜽,b)) * z] = 0.
+Substitute in known gaussian variance for the remaining term:
+
+Var(proj_grad) = E[||∇L(Φ(𝜽,b))||²]
+Var(proj_grad) = ∇L(Φ(𝜽,b))²
+```
+
+That is to say, it depends on your network, your loss function, and the contents of your batch. And then you square it. The formula for first-order happens to be the same:
+```
+Var(grad) = ∇L(Φ(𝜽,b))²
+```
+
+But there's a catch. Our math up until this point assumes that `b` is one inseperable item. Note though that `b` is a batch made of `B` entries. Then we have the identity:
+```
+∇L(Φ(𝜽,b)) = (1/B) Σᵢ ∇L(Φ(𝜽,xᵢ))
+where xᵢ is the ith entry in the batch
+```
+
+For the variance of FO, we can simply divide by B. But the ZO case is much worse.
+```
+Recall Var(proj_grad) = ∇L(Φ(𝜽,b))² = E[||∇L(Φ(𝜽,b))||²].
+
+Taking expectation over b, use the vector identity E[||v||²] = ||E[v]||² + E[||v -E[v]||²].
+
+Var(proj_grad)     =
+E[||∇L(Φ(𝜽,b))||²] = ||E[∇L(Φ(𝜽,b))]||² + E[||∇L(Φ(𝜽,b)) - E[∇L(Φ(𝜽,b))]||²]
+                   = ∇L(Φ(𝜽))² + Var(∇L(Φ(𝜽,b))) (Where I denote the true gradient without expectation over b as Φ(𝜽))
+
+Then split up the batch by variance
+Var(proj_grad)     = ∇L(Φ(𝜽))² + Var(∇L(Φ(𝜽,b)))
+                   = ∇L(Φ(𝜽))² + Var((1/B) Σᵢ ∇L(Φ(𝜽,xᵢ))))     (by definition of batch gradient and i.i.d.)
+                   = ∇L(Φ(𝜽))² + (1/B²) Σᵢ Var(∇L(Φ(𝜽,xᵢ))))    (because Var(c * X) = c² * Var(X) for any scalar constant c)
+                   = ∇L(Φ(𝜽))² + (1/B²) * B * ∇L(Φ(𝜽,xᵢ)))²     (because xᵢ are i.i.d.)
+                   = ∇L(Φ(𝜽))² + ∇L(Φ(𝜽,xᵢ))² / B
+```
+
+In other words, the variance of our projected gradient has two components to it. There is direction sampling variance `∇L(Φ(𝜽))²`, and data variance, `∇L(Φ(𝜽,xᵢ))² / B`. The batch variance is reducible, whereas the projection variance is not. Every time we sample a gaussian `z`, it points in a direction. This direction is truly uncorrelated with the direction of the true gradient, it's literally a random gaussian.
+
+If you want to fix this, you can't just increase the batch size. You've gotta get creative.
+
+### ZO-Muon
+
+Yeah, [this totally exists](https://arxiv.org/abs/2602.17155) and it also works. I think that's really cool. Nesterov momentum also works the way you want it to, as it does not depend on anything but your gradient update, which is to say the pseudograd. You can just polar-orthogonalize your `proj_grad`, it turns out. It's great.
+
+I'm still working on the variance math here. I'll update the article later. As I understand it, mitigating the variance tradeoff is the main thing holding ZO back.
+
+So, ZO-Muon is good if it moves the needle on that.
 
 ### ZO RL
 
@@ -118,12 +273,9 @@ You can set the loss/rewards however you want
 
 TODO
 
-### ZO-Muon
-
-Yeah, [this totally exists](https://arxiv.org/abs/2602.17155) and it also works. I think that's really cool. Nesterov momentum also works the way you want it to, as it does not depend on anything but your gradient update, which is to say the pseudograd. You can just polar-orthogonalize your pseudograd, it turns out
 
 
-## Research Proposals
+## Practical Research Proposals
 
 * ZO has the ability to scale depth and recurrence without having to do TBTT
 * Pseudograds don't have the vanishing/exploding problems of real grads
