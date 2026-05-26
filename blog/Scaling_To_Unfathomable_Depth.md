@@ -1,5 +1,5 @@
 
-# Scaling Agents to Unfatomable Depth and Context With Zeroth-Order Optimization
+# Scaling Agents to Unfathomable Depth and Context With Zeroth-Order Optimization
 
 <br>
 
@@ -23,7 +23,7 @@ Stability is the main concern. Transformers are rather stable. You can backpropa
 
 Using first-order optimizers, we must always make a tradeoff between optimal architecture for inference and how practical it is to actually train. Transformers currently make the best tradeoff. So that's why we use them.
 
-But what if there were a way to train these architectures that don't exist yet? Maybe there's an architecture out there that's better for long context in the limit. It's certainly possible. In fact I think it's almost certain. Maybe it looks like a transformer, more it looks more like an RNN, maybe it's sparse, maybe an MoE, maybe it's a weird diffusion thing, maybe it's something nobody has come up with yet. But I figure it's gotta exist. Every time deepseek releases a model they seem to prove that better architectures do exist.
+But what if there were a way to train these architectures that don't exist yet? Maybe there's an architecture out there that's better for long context in the limit. It's certainly possible. In fact I think it's almost certain. Maybe it looks like a transformer, maybe it looks more like an RNN, maybe it's sparse, maybe an MoE, maybe it's a weird diffusion thing, maybe it's something nobody has come up with yet. But I figure it's gotta exist. Every time deepseek releases a model they seem to prove that better architectures do exist.
 
 ### Depth over Width
 
@@ -57,27 +57,27 @@ Language modeling architectures are sort of a spectrum. On one end you've got RN
 
 But, regarding the RNN vs Transformer spectrum, I don't think such a thing as free lunch exists with normal optimizers. If it did, someone would have found it by now. In any case, I think the efficient sparse attention techniques we already have are close to as good as they're going to get. This is not to say that they're not worth working on, there are very practical gains to be had. I'd expect we'll get like a single order of magnitude improvement over what we already have.
 
-I'm also not bullish on fixing RNNs. After all, infinite depth under first order optimizers is intractible. You cannot backprop through infinite depth. Truncated Backpropagation Through Time is the standard for training RNNs in practice, but it defeats the entire point, poses many problems in practice, and I do not see it as a viable way forward. I don't think it's mathematically sound, and as far as I know neither does anyone else. A mistake made earlier in the context can and will affect things later on, and the model should recieve gradient signal about that.
+I'm also not bullish on fixing RNNs. After all, infinite depth under first order optimizers is intractable. You cannot backprop through infinite depth. Truncated Backpropagation Through Time is the standard for training RNNs in practice, but it defeats the entire point, poses many problems in practice, and I do not see it as a viable way forward. I don't think it's mathematically sound, and as far as I know neither does anyone else. A mistake made earlier in the context can and will affect things later on, and the model should receive gradient signal about that.
 
 But I do think that the "untrainable" architectures closer to RNN side of the spectrum are worth exploring. Zeroth-Order Optimization could make this possible.
 
 ## Zeroth Order Optimization
 
-A first-order optimizer uses only the first derivative (the gradients) to optimize the objective. See SGD, SGD with momentum, Nesterov, Adam, Muon, etc. All the stuff that we use. A second-order optimizer uses the second derivative (the hessian). See Newton's method, and a few others. The hessian is intractible, as it's N by N in the parameter count. So nobody does this.
+A first-order optimizer uses only the first derivative (the gradients) to optimize the objective. See SGD, SGD with momentum, Nesterov, Adam, Muon, etc. All the stuff that we use. A second-order optimizer uses the second derivative (the hessian). See Newton's method, and a few others. The hessian is intractable, as it's N by N in the parameter count. So nobody does this.
 
 But consider zeroth-order. An optimizer that only uses the parameters to optimize the parameters.
 
-As it turns out, you can save a LOT of memory this way. You don't have to store intermediate activations or gradients. Essentially, you get true pipieline parallelism for free, with no downsides. It's amazing. It's super easy to scale. Genuinely fantastic.
+As it turns out, you can save a LOT of memory this way. You don't have to store intermediate activations or gradients. Essentially, you get true pipeline parallelism for free, with no downsides. It's amazing. It's super easy to scale. Genuinely fantastic.
 
 But another thing that's cool is, much like RL, we can choose any loss function we want, because we're guessing and checking. This makes it pretty unique as a finetuning method.
 
-So, let's explain how it works. To minimize the loss by tweaking model weights, you need direction information and magnitude information. You need the gradient. Which you don't have, so you have to find a way to estimate. There are a bunch of ways to do this, but the most popular is MeZO and algorithms that derive from MeZO. More on that next soon.
+So, let's explain how it works. To minimize the loss by tweaking model weights, you need direction information and magnitude information. You need the gradient. Which you don't have, so you have to find a way to estimate. There are a bunch of ways to do this, but the most popular is MeZO and algorithms that derive from MeZO. More on that soon.
 
-Broadly, There are two approaches to this. Either you fall back to the analytical definition of a gradient, which involves evaluating the model once with a nudge to each parameter, or you use an evolutionary approach.
+Broadly, there are two approaches to this. Either you fall back to the analytical definition of a gradient, which involves evaluating the model once with a nudge to each parameter, or you use an evolutionary approach.
 
 The common thing about every ZO approach though is that it sucks. And that's probably why nobody uses Zeroth-Order optimizers.
 
-The specific reason why it sucks is that the only way to can get information about the gradient is by sampling, and sampling doesn't do a whole lot for you. You have to sample a ton, but sampling doesn't give you a lot of information about the grads, and even the information it does give you is noisy. Worse, it's noisy the way your batch is noisy. Getting a bad batch is a problem even under first-order optimization.
+The specific reason why it sucks is that the only way to get information about the gradient is by sampling, and sampling doesn't do a whole lot for you. You have to sample a ton, but sampling doesn't give you a lot of information about the grads, and even the information it does give you is noisy. Worse, it's noisy the way your batch is noisy. Getting a bad batch is a problem even under first-order optimization.
 
 But wait, it gets worse. To get a gradient update with the same convergence as you get by doing backprop a single time, you need to average over p perturbations, where p is your parameter count. That's the analytical definition of a gradient.
 
@@ -99,7 +99,7 @@ Some of these tricks exist in the literature. Many of them do not exist in the l
 
 ### MeZO
 
-The [MeZO paper](https://arxiv.org/abs/2305.17333), also known as "Fine-Tuning Language Models with Just Forward Passes" is why I think any of this is even tractible or interesting at all. The paper describes a way to implement ZO that's extremely efficient and scalable.
+The [MeZO paper](https://arxiv.org/abs/2305.17333), also known as "Fine-Tuning Language Models with Just Forward Passes" is why I think any of this is even tractable or interesting at all. The paper describes a way to implement ZO that's extremely efficient and scalable.
 
 The core idea is that you don't have to actually *store* each perturbation to the model. If you write your kernels very carefully, all you have to store is the prng seed to generate a model perturbation, and the activations of ONLY your current layer. But you have to write your own kernels.
 
@@ -117,17 +117,17 @@ That is to say, with each hardware generation, this method becomes more feasible
 
 The main reason ZO sucks is that, since you are estimating the gradients, it performs exponentially worse the more parameters you have. Specifically, as you expand the number of parameters, to gain the same amount of certainty about the direction of the gradient for a higher dimensional model, it takes a linearly larger amount of sampling. More sampling times more compute is quadratic in terms of compute cost. And that's bad.
 
-This is intractible and needs to be fixed. LoRA adapters do truly fix this problem, and are the default way to do ZO optimization. There are downsides to this. You would think that low-rank updates are not preferable to the more full-rank updates you'd get if you actually had the gradient. Although, more on that later. It's not clear that this is preferable.
+This is intractable and needs to be fixed. LoRA adapters do truly fix this problem, and are the default way to do ZO optimization. There are downsides to this. You would think that low-rank updates are not preferable to the more full-rank updates you'd get if you actually had the gradient. Although, more on that later. It's not clear that this is preferable.
 
-But it may not be so bad? At least, [in RL it is not so bad](https://x.com/kalomaze/status/1964455970517753878). By continually merging these LoRA adapters ([ReLoRA](https://arxiv.org/abs/2307.05695))  you can keep the base model shifting, causing the next lora adapter to retarget new low rank changes. Across many updates, these low-rank changes sum to high-rank changes. So it is at least somewhat questionable how much this matters in practice. Anecdotally, it does not seem to matter that much for training speed.
+But it may not be so bad? At least, [in RL it is not so bad](https://x.com/kalomaze/status/1964455970517753878). By continually merging these LoRA adapters ([ReLoRA](https://arxiv.org/abs/2307.05695)) you can keep the base model shifting, causing the next lora adapter to retarget new low rank changes. Across many updates, these low-rank changes sum to high-rank changes. So it is at least somewhat questionable how much this matters in practice. Anecdotally, it does not seem to matter that much for training speed.
 
-But also note that it seems [not to work as well for smaller models](https://arxiv.org/abs/2509.12960), and also not as well at the beginning of training. Hence Why the ReLORA paper actualy doesn't use adapters at the start of training, instead opting for full-rank updates at the start.
+But also note that it seems [not to work as well for smaller models](https://arxiv.org/abs/2509.12960), and also not as well at the beginning of training. Hence why the ReLORA paper actually doesn't use adapters at the start of training, instead opting for full-rank updates at the start.
 
 ![TODO FIGURE from RELORA]()
 
-But, it goes without saying that MeZo + LoRA (plus other stuff) is totally doable. All of these techniques I'm talking about can be combined.
+But, it goes without saying that MeZO + LoRA (plus other stuff) is totally doable. All of these techniques I'm talking about can be combined.
 
-There's also another paper to look into called [LOZO](https://arxiv.org/abs/2410.07698) which takes the "MeZO + LoRA" idea further. Essentially you can also LoRA your perturbations. Initially, this seems like a strange things to do. But the LOZO paper justifies it by saying that, since gradient updates tend to be low rank anyway, maybe you actually *want* low rank perturbations. If the update is supposed to be low rank, if it isn't (if each param follows a gaussian like in MeZO) then the parts that aren't are actually noise. Or, if they're not, the high-rank parts are probably along flat directions, and you would get a better update on average and reduce your variance with a lower rank update.
+There's also another paper to look into called [LOZO](https://arxiv.org/abs/2410.07698) which takes the "MeZO + LoRA" idea further. Essentially you can also LoRA your perturbations. Initially, this seems like a strange thing to do. But the LOZO paper justifies it by saying that, since gradient updates tend to be low rank anyway, maybe you actually *want* low rank perturbations. If the update is supposed to be low rank, if it isn't (if each param follows a gaussian like in MeZO) then the parts that aren't are actually noise. Or, if they're not, the high-rank parts are probably along flat directions, and you would get a better update on average and reduce your variance with a lower rank update.
 
 I'm both sold and not sold on the justification. My intuition is that sparse updates are fine for narrow finetuning tasks, but for harder stuff it's unclear if rank-r updates are enough to reach the best-generalizing solution. But also, anything we can possibly do to reduce noise is good.
 
@@ -147,13 +147,13 @@ LoRA helps, but gradients is not the place where all the memory is going. The ma
 
 Zeroth-order optimization typically operates in the realm of LoRA, and does not require you to store these activations. Seems like a match made in heaven. You can also do this context extension finetuning on actual tasks you care about while you're at it. Make sure it's not just effective in terms of perplexity loss, but also in practice on tasks.
 
-#### ZO-ing Your Model
+### Converting an Existing Model for ZO
 
 This has also never been done before, or at least I cannot find any references to it.
 
 Skip connections. Pretrained off-the-shelf transformers have skip connections.
 
-These present a problem for ZO. You'll want to run massive batch sizes for noise reduction purposs. The only think you really need to store in memory is intermediate activations. Each skip connection doubles the size of your intermediate activations. In FO they're not a problem, because you're storing all of those activations permanently anyway. Just store an extra reference to a tensor. There's no extra cost.
+These present a problem for ZO. You'll want to run massive batch sizes for noise reduction purposes. The only thing you really need to store in memory is intermediate activations. Each skip connection doubles the size of your intermediate activations. In FO they're not a problem, because you're storing all of those activations permanently anyway. Just store an extra reference to a tensor. There's no extra cost.
 
 In ZO there is an extra cost, adding a skip connection around a block halves the batch size you can fit. So it would be nice to find a way to remove them.
 
@@ -183,9 +183,9 @@ Theoretically there's no reason why
 You can set the loss/rewards however you want
 
 
-## MeZO Math (Why did I write this)
+## MeZO Math (I regret writing this)
 
-Here's a bunch of math. I've tried to make it readable, but if your eyes glaze over you can skip it if you like.
+Here's a bunch of math. I've tried to make it readable, but if your eyes glaze over you can skip it if you like. It should be skimmable if you just read the parts that aren't in code blocks.
 
 In MeZO, the update rule is based on:
 ```
@@ -232,12 +232,12 @@ Var(proj_grad) = E[||∇L(Φ(𝜽,b))||²]
 Var(proj_grad) = ∇L(Φ(𝜽,b))²
 ```
 
-That is to say, it depends on your network, your loss function, and the contents of your batch. And then you square it. The formula for first-order happens to be the same:
+That is to say, it depends on your network, your loss function, and the contents of your batch. The formula for first-order happens to be the same:
 ```
 Var(grad) = ∇L(Φ(𝜽,b))²
 ```
 
-But there's a catch. Our math up until this point assumes that `b` is one inseperable item. Note though that `b` is a batch made of `B` entries. Then we have the identity:
+But there's a catch. Our math up until this point assumes that the batch `b` is one inseperable item. But `b` is made of `B` entries. Then we have the identity:
 ```
 ∇L(Φ(𝜽,b)) = (1/B) Σᵢ ∇L(Φ(𝜽,xᵢ))
 where xᵢ is the ith entry in the batch
@@ -265,7 +265,7 @@ In other words, the variance of our projected gradient has two components to it.
 
 If you want to fix this, you can't just increase the batch size. You've gotta get creative.
 
-I think [MeZO-SVRG](https://arxiv.org/abs/2404.08080) is very interesting in this regard, although I haven't gotten around yet to reading the paper or trying to combine it with other methods that work.
+I think [MeZO-SVRG](https://arxiv.org/abs/2404.08080) is very interesting in this regard, although I haven't gotten around yet to reading the paper or trying to combine it with other methods that work. There is another promising direction, ZO-Muon.
 
 ### ZO-Muon
 
@@ -279,15 +279,29 @@ Random thing that I've noticed as I'm doing experiments here. Both Muon and LOZO
 
 But, I feel like there's something here. Building higher-rank updates out of low-rank spectral subspaces directly has an interesting set of tradeoffs.
 
+### ZO and Momentum
+
+In first-order optimizers, one frequently utilized technique is momentum. All the best optimizers have some concept of momentum. This has two beneficial properties. It accelerates convergence, and it also has the effect of smoothing over variance/noise.
+
+That sounds really really good right about now. And many ZO papers would agree with this. "Let's add momentum to ZO" is not an original idea. To my knowledge though, nobody has implemented it the way I'm thinking of.
+
+If you recall, the strategy for implementing MeZO "the right way" is to never materialize `z`. And all our updates are  What if you never had to materialize the?
+
+Simply 
+
+Now, 
+
+It requires storing a 
+
 ## Practical Research Proposals
 
-* ZO has the ability to scale depth and recurrence without having to do TBTT
+* ZO has the ability to scale depth and recurrence without having to do TBPTT
 * Pseudograds don't have the vanishing/exploding problems of real grads
 * Skip connections kill you because they blow up the activation mem requirements and group layers
 * Thin models are better because smaller activations and less compute spent
 * Truly massive LoRA matrices are possible
 * Why do that just stack more layers
-* Up to a point. An optimal balance exists, the scaling laws just haven't been caluclated yet
+* Up to a point. An optimal balance exists, the scaling laws just haven't been calculated yet
 * There is an arch search space here and the dynamics of the search space are obvious
 * Basically just try everything with ZO that's already been tried with first order
 * Have to solve pipeline fault tolerance somehow if operating at a large scale
@@ -319,12 +333,12 @@ They do it because implementing it the right way is hard. So hard that they didn
 
 ## Autoresearch
 
-I've sort of dived headfirst into ZO. Despite that, I don't think that this is a tractible research area.
+I've sort of dived headfirst into ZO. Despite that, I don't think that this is a tractable research area.
 
 To implement ZO properly you need to write and optimize all your own custom kernels. With first-order methods being way easier and already working way better, and with so much low-hanging fruit to pick, there's no way this tree of research is going to take off on its own.
 
 I think autoresearch is the only way. This is not a research path for humans. If it's to be taken, it needs to be taken by machines. The arch search space and its dynamics are obvious, what experiments to run are obvious, and not all of it requires large amounts of compute, we just don't have the human capital to run the experiments and interpret the results fast enough.
-The other problem is that implementing this "the right way" requires writing an optimizing an absolutely insane number of rather exotic kernels. Kernel autoresearch needs to be solved before this is a tractible research area.
+The other problem is that implementing this "the right way" requires writing an optimizing an absolutely insane number of rather exotic kernels. Kernel autoresearch needs to be solved before this is a tractable research area.
 
 
 <!--
@@ -372,3 +386,15 @@ This is independent of learning rate but in practice would be very unstable, so 
 Another problem is noise. The big problem in MeZO derivatives.
 Let's now look at the theoretical variance of the projected gradient `p` and of the diagonal of the hessian `q` under MeZO.
 -->
+
+
+#### Bibtex Citation
+
+```bibtex
+@misc{pazdera2026scaling,
+  author = {Pazdera, Aaron},
+  title  = {Scaling Agents to Unfathomable Depth and Context With Zeroth-Order Optimization},
+  year   = {2026},
+  url    = {https://apaz-cli.github.io/blog/Scaling_To_Unfathomable_Depth.html}
+}
+```

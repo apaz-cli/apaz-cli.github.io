@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="og:title" content="Scaling Agents to Unfatomable Depth and Context With Zeroth-Order Optimization">
+  <meta name="og:title" content="Scaling Agents to Unfathomable Depth and Context With Zeroth-Order Optimization">
   <meta name="og:description" content="An interesting research direction I'm thinking about for scaling
 agents. A lot of things could go wrong along the way. But also it could
 work. This is half blog post, and half research notes dump.">
@@ -356,8 +356,8 @@ work. This is half blog post, and half research notes dump.">
 </head>
 <body>
 <h1
-id="scaling-agents-to-unfatomable-depth-and-context-with-zeroth-order-optimization">Scaling
-Agents to Unfatomable Depth and Context With Zeroth-Order
+id="scaling-agents-to-unfathomable-depth-and-context-with-zeroth-order-optimization">Scaling
+Agents to Unfathomable Depth and Context With Zeroth-Order
 Optimization</h1>
 <p><br></p>
 <p><img src="images/cirno_hop.jpg" /></p>
@@ -397,7 +397,7 @@ use them.</p>
 <p>But what if there were a way to train these architectures that don't
 exist yet? Maybe there's an architecture out there that's better for
 long context in the limit. It's certainly possible. In fact I think it's
-almost certain. Maybe it looks like a transformer, more it looks more
+almost certain. Maybe it looks like a transformer, maybe it looks more
 like an RNN, maybe it's sparse, maybe an MoE, maybe it's a weird
 diffusion thing, maybe it's something nobody has come up with yet. But I
 figure it's gotta exist. Every time deepseek releases a model they seem
@@ -469,13 +469,13 @@ going to get. This is not to say that they're not worth working on,
 there are very practical gains to be had. I'd expect we'll get like a
 single order of magnitude improvement over what we already have.</p>
 <p>I'm also not bullish on fixing RNNs. After all, infinite depth under
-first order optimizers is intractible. You cannot backprop through
+first order optimizers is intractable. You cannot backprop through
 infinite depth. Truncated Backpropagation Through Time is the standard
 for training RNNs in practice, but it defeats the entire point, poses
 many problems in practice, and I do not see it as a viable way forward.
 I don't think it's mathematically sound, and as far as I know neither
 does anyone else. A mistake made earlier in the context can and will
-affect things later on, and the model should recieve gradient signal
+affect things later on, and the model should receive gradient signal
 about that.</p>
 <p>But I do think that the "untrainable" architectures closer to RNN
 side of the spectrum are worth exploring. Zeroth-Order Optimization
@@ -485,14 +485,14 @@ could make this possible.</p>
 gradients) to optimize the objective. See SGD, SGD with momentum,
 Nesterov, Adam, Muon, etc. All the stuff that we use. A second-order
 optimizer uses the second derivative (the hessian). See Newton's method,
-and a few others. The hessian is intractible, as it's N by N in the
+and a few others. The hessian is intractable, as it's N by N in the
 parameter count. So nobody does this.</p>
 <p>But consider zeroth-order. An optimizer that only uses the parameters
 to optimize the parameters.</p>
 <p>As it turns out, you can save a LOT of memory this way. You don't
 have to store intermediate activations or gradients. Essentially, you
-get true pipieline parallelism for free, with no downsides. It's
-amazing. It's super easy to scale. Genuinely fantastic.</p>
+get true pipeline parallelism for free, with no downsides. It's amazing.
+It's super easy to scale. Genuinely fantastic.</p>
 <p>But another thing that's cool is, much like RL, we can choose any
 loss function we want, because we're guessing and checking. This makes
 it pretty unique as a finetuning method.</p>
@@ -500,15 +500,14 @@ it pretty unique as a finetuning method.</p>
 model weights, you need direction information and magnitude information.
 You need the gradient. Which you don't have, so you have to find a way
 to estimate. There are a bunch of ways to do this, but the most popular
-is MeZO and algorithms that derive from MeZO. More on that next
-soon.</p>
-<p>Broadly, There are two approaches to this. Either you fall back to
+is MeZO and algorithms that derive from MeZO. More on that soon.</p>
+<p>Broadly, there are two approaches to this. Either you fall back to
 the analytical definition of a gradient, which involves evaluating the
 model once with a nudge to each parameter, or you use an evolutionary
 approach.</p>
 <p>The common thing about every ZO approach though is that it sucks. And
 that's probably why nobody uses Zeroth-Order optimizers.</p>
-<p>The specific reason why it sucks is that the only way to can get
+<p>The specific reason why it sucks is that the only way to get
 information about the gradient is by sampling, and sampling doesn't do a
 whole lot for you. You have to sample a ton, but sampling doesn't give
 you a lot of information about the grads, and even the information it
@@ -542,7 +541,7 @@ original regardless.</p>
 <h3 id="mezo">MeZO</h3>
 <p>The <a href="https://arxiv.org/abs/2305.17333">MeZO paper</a>, also
 known as "Fine-Tuning Language Models with Just Forward Passes" is why I
-think any of this is even tractible or interesting at all. The paper
+think any of this is even tractable or interesting at all. The paper
 describes a way to implement ZO that's extremely efficient and
 scalable.</p>
 <p>The core idea is that you don't have to actually <em>store</em> each
@@ -593,7 +592,7 @@ amount of certainty about the direction of the gradient for a higher
 dimensional model, it takes a linearly larger amount of sampling. More
 sampling times more compute is quadratic in terms of compute cost. And
 that's bad.</p>
-<p>This is intractible and needs to be fixed. LoRA adapters do truly fix
+<p>This is intractable and needs to be fixed. LoRA adapters do truly fix
 this problem, and are the default way to do ZO optimization. There are
 downsides to this. You would think that low-rank updates are not
 preferable to the more full-rank updates you'd get if you actually had
@@ -610,20 +609,20 @@ matters in practice. Anecdotally, it does not seem to matter that much
 for training speed.</p>
 <p>But also note that it seems <a
 href="https://arxiv.org/abs/2509.12960">not to work as well for smaller
-models</a>, and also not as well at the beginning of training. Hence Why
-the ReLORA paper actualy doesn't use adapters at the start of training,
+models</a>, and also not as well at the beginning of training. Hence why
+the ReLORA paper actually doesn't use adapters at the start of training,
 instead opting for full-rank updates at the start.</p>
 <figure>
 <img src="" alt="TODO FIGURE from RELORA" />
 <figcaption aria-hidden="true">TODO FIGURE from RELORA</figcaption>
 </figure>
-<p>But, it goes without saying that MeZo + LoRA (plus other stuff) is
+<p>But, it goes without saying that MeZO + LoRA (plus other stuff) is
 totally doable. All of these techniques I'm talking about can be
 combined.</p>
 <p>There's also another paper to look into called <a
 href="https://arxiv.org/abs/2410.07698">LOZO</a> which takes the "MeZO +
 LoRA" idea further. Essentially you can also LoRA your perturbations.
-Initially, this seems like a strange things to do. But the LOZO paper
+Initially, this seems like a strange thing to do. But the LOZO paper
 justifies it by saying that, since gradient updates tend to be low rank
 anyway, maybe you actually <em>want</em> low rank perturbations. If the
 update is supposed to be low rank, if it isn't (if each param follows a
@@ -671,13 +670,14 @@ made in heaven. You can also do this context extension finetuning on
 actual tasks you care about while you're at it. Make sure it's not just
 effective in terms of perplexity loss, but also in practice on
 tasks.</p>
-<h4 id="zo-ing-your-model">ZO-ing Your Model</h4>
+<h3 id="converting-an-existing-model-for-zo">Converting an Existing
+Model for ZO</h3>
 <p>This has also never been done before, or at least I cannot find any
 references to it.</p>
 <p>Skip connections. Pretrained off-the-shelf transformers have skip
 connections.</p>
 <p>These present a problem for ZO. You'll want to run massive batch
-sizes for noise reduction purposs. The only think you really need to
+sizes for noise reduction purposes. The only thing you really need to
 store in memory is intermediate activations. Each skip connection
 doubles the size of your intermediate activations. In FO they're not a
 problem, because you're storing all of those activations permanently
@@ -723,10 +723,11 @@ as long as it's conditioned on the model weights.</p>
 <p>Since we're doing</p>
 <p>Theoretically there's no reason why You can set the loss/rewards
 however you want</p>
-<h2 id="mezo-math-why-did-i-write-this">MeZO Math (Why did I write
+<h2 id="mezo-math-i-regret-writing-this">MeZO Math (I regret writing
 this)</h2>
 <p>Here's a bunch of math. I've tried to make it readable, but if your
-eyes glaze over you can skip it if you like.</p>
+eyes glaze over you can skip it if you like. It should be skimmable if
+you just read the parts that aren't in code blocks.</p>
 <p>In MeZO, the update rule is based on:</p>
 <pre><code>proj_grad = (L(Φ(𝜽 + εz, b)) - 
              L(Φ(𝜽 - εz, b))) 
@@ -764,13 +765,12 @@ Substitute in known gaussian variance for the remaining term:
 Var(proj_grad) = E[||∇L(Φ(𝜽,b))||²]
 Var(proj_grad) = ∇L(Φ(𝜽,b))²</code></pre>
 <p>That is to say, it depends on your network, your loss function, and
-the contents of your batch. And then you square it. The formula for
-first-order happens to be the same:</p>
+the contents of your batch. The formula for first-order happens to be
+the same:</p>
 <pre><code>Var(grad) = ∇L(Φ(𝜽,b))²</code></pre>
-<p>But there's a catch. Our math up until this point assumes that
-<code>b</code> is one inseperable item. Note though that <code>b</code>
-is a batch made of <code>B</code> entries. Then we have the
-identity:</p>
+<p>But there's a catch. Our math up until this point assumes that the
+batch <code>b</code> is one inseperable item. But <code>b</code> is made
+of <code>B</code> entries. Then we have the identity:</p>
 <pre><code>∇L(Φ(𝜽,b)) = (1/B) Σᵢ ∇L(Φ(𝜽,xᵢ))
 where xᵢ is the ith entry in the batch</code></pre>
 <p>For the variance of FO, we can simply divide by B. But the ZO case is
@@ -801,8 +801,8 @@ random gaussian.</p>
 You've gotta get creative.</p>
 <p>I think <a href="https://arxiv.org/abs/2404.08080">MeZO-SVRG</a> is
 very interesting in this regard, although I haven't gotten around yet to
-reading the paper or trying to combine it with other methods that
-work.</p>
+reading the paper or trying to combine it with other methods that work.
+There is another promising direction, ZO-Muon.</p>
 <h3 id="zo-muon">ZO-Muon</h3>
 <p>Yeah, <a href="https://arxiv.org/abs/2602.17155">this totally
 exists</a> and it also works. I think that's really cool. Nesterov
@@ -831,10 +831,25 @@ with Frobenius norm <code>‖z‖²_F = r</code>, LOZO gives
 <p>But, I feel like there's something here. Building higher-rank updates
 out of low-rank spectral subspaces directly has an interesting set of
 tradeoffs.</p>
+<h3 id="zo-and-momentum">ZO and Momentum</h3>
+<p>In first-order optimizers, one frequently utilized technique is
+momentum. All the best optimizers have some concept of momentum. This
+has two beneficial properties. It accelerates convergence, and it also
+has the effect of smoothing over variance/noise.</p>
+<p>That sounds really really good right about now. And many ZO papers
+would agree with this. "Let's add momentum to ZO" is not an original
+idea. To my knowledge though, nobody has implemented it the way I'm
+thinking of.</p>
+<p>If you recall, the strategy for implementing MeZO "the right way" is
+to never materialize <code>z</code>. And all our updates are What if you
+never had to materialize the?</p>
+<p>Simply</p>
+<p>Now,</p>
+<p>It requires storing a</p>
 <h2 id="practical-research-proposals">Practical Research Proposals</h2>
 <ul>
 <li>ZO has the ability to scale depth and recurrence without having to
-do TBTT</li>
+do TBPTT</li>
 <li>Pseudograds don't have the vanishing/exploding problems of real
 grads</li>
 <li>Skip connections kill you because they blow up the activation mem
@@ -844,7 +859,7 @@ spent</li>
 <li>Truly massive LoRA matrices are possible</li>
 <li>Why do that just stack more layers</li>
 <li>Up to a point. An optimal balance exists, the scaling laws just
-haven't been caluclated yet</li>
+haven't been calculated yet</li>
 <li>There is an arch search space here and the dynamics of the search
 space are obvious</li>
 <li>Basically just try everything with ZO that's already been tried with
@@ -877,7 +892,7 @@ that they didn't even bother to implement their own key optimization.
 Researching this stuff is a massive pain, for a lot of reasons.</p>
 <h2 id="autoresearch">Autoresearch</h2>
 <p>I've sort of dived headfirst into ZO. Despite that, I don't think
-that this is a tractible research area.</p>
+that this is a tractable research area.</p>
 <p>To implement ZO properly you need to write and optimize all your own
 custom kernels. With first-order methods being way easier and already
 working way better, and with so much low-hanging fruit to pick, there's
@@ -890,7 +905,7 @@ don't have the human capital to run the experiments and interpret the
 results fast enough. The other problem is that implementing this "the
 right way" requires writing an optimizing an absolutely insane number of
 rather exotic kernels. Kernel autoresearch needs to be solved before
-this is a tractible research area.</p>
+this is a tractable research area.</p>
 <!--
 <br>
 <div style="text-align: center;">
@@ -935,5 +950,13 @@ This is independent of learning rate but in practice would be very unstable, so 
 Another problem is noise. The big problem in MeZO derivatives.
 Let's now look at the theoretical variance of the projected gradient `p` and of the diagonal of the hessian `q` under MeZO.
 -->
+<h4 id="bibtex-citation">Bibtex Citation</h4>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="va">@misc</span>{<span class="ot">pazdera2026scaling</span>,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">author</span> = {Pazdera, Aaron},</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span>  = {Scaling Agents to Unfathomable Depth and Context With Zeroth-Order Optimization},</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">year</span>   = {2026},</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">url</span>    = {https://apaz-cli.github.io/blog/Scaling_To_Unfathomable_Depth.html}</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 </body>
 </html>
