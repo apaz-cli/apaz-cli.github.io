@@ -290,7 +290,18 @@ matters for standard language modeling and RL tasks.</p>
 answering these sorts of basic questions of if it works or not. So
 really, the only way to find out is to try, and I don't think anyone is
 trying.</p>
-<h3 id="mezo-math">MeZO Math</h3>
+<h3 id="zo-rl">ZO RL</h3>
+<p>Speaking of ZO and RL, I have not seen anybody work on this. But here
+goes an explanation of what I'm thinking.</p>
+<p>Most exploration of Zeroth-Order Optimization has been in the realm
+of next token prediction. But this is not actually a necessity.</p>
+<p>Since we're doing</p>
+<p>Theoretically there's no reason why You can set the loss/rewards
+however you want</p>
+<h3 id="zo-context-extension">ZO Context Extension</h3>
+<p>TODO</p>
+<h2 id="mezo-math-why-did-i-write-this">MeZO Math (Why did I write
+this)</h2>
 <p>Here's a bunch of math. I've tried to make it readable, but if your
 eyes glaze over you can skip it if you like.</p>
 <p>In MeZO, the update rule is based on:</p>
@@ -372,20 +383,23 @@ momentum also works the way you want it to, as it does not depend on
 anything but your gradient update, which is to say the pseudograd. You
 can just polar-orthogonalize your <code>proj_grad</code>, it turns out.
 It's great.</p>
-<p>I'm still working on the variance math here. I'll update the article
-later. As I understand it, mitigating the variance tradeoff is the main
-thing holding ZO back.</p>
-<p>So, ZO-Muon is good if it moves the needle on that.</p>
-<h3 id="zo-rl">ZO RL</h3>
-<p>Speaking of ZO and RL, I have not seen anybody work on this. But here
-goes an explanation of what I'm thinking.</p>
-<p>Most exploration of Zeroth-Order Optimization has been in the realm
-of next token prediction. But this is not actually a necessity.</p>
-<p>Since we're doing</p>
-<p>Theoretically there's no reason why You can set the loss/rewards
-however you want</p>
-<h3 id="zo-context-extension">ZO Context Extension</h3>
-<p>TODO</p>
+<p>I'm still working on the variance math here. ZO-Muon is significantly
+different from MeZO, it builds an approximation of the gradient out of
+spectral components. So, it samples many <code>z</code>s. Which
+coincidentally could be helpful, as it could mitigate some of those
+issues with projection direction variance which cannot be solved by
+batch size.</p>
+<p>So, ZO-Muon is good if it moves the needle on that. The "Muon" thing
+is kinda just a bonus.</p>
+<p>One thing that I've noticed as I'm doing experiments here. Both Muon
+and LOZO sample <code>z</code> differently, and create a <code>z</code>
+with different expected variance. If you don't normalize, your choice of
+<code>z</code> distribution will inadvertently affect your choice of
+<code>ε</code>, potentially screwing your results. Polar
+orthogonalization gives you parameter perturbations with Frobenius norm
+<code>‖z‖²_F = r</code>, LOZO gives <code>mnr</code>, and standard
+Gaussian gives <code>mn</code>. Where <code>m</code> and <code>n</code>
+are the dimensions of the matrix, and <code>r</code> is the rank.</p>
 <h2 id="practical-research-proposals">Practical Research Proposals</h2>
 <ul>
 <li>ZO has the ability to scale depth and recurrence without having to

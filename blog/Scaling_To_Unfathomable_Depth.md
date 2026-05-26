@@ -135,7 +135,23 @@ I think more research needs to be done here in general. Nobody has studied this 
 
 ZO has never really been scaled to the extent that is necessary for answering these sorts of basic questions of if it works or not. So really, the only way to find out is to try, and I don't think anyone is trying.
 
-### MeZO Math
+### ZO RL
+
+Speaking of ZO and RL, I have not seen anybody work on this. But here goes an explanation of what I'm thinking.
+
+Most exploration of Zeroth-Order Optimization has been in the realm of next token prediction. But this is not actually a necessity.
+
+Since we're doing 
+
+Theoretically there's no reason why 
+You can set the loss/rewards however you want
+
+### ZO Context Extension
+
+TODO
+
+
+## MeZO Math (Why did I write this)
 
 Here's a bunch of math. I've tried to make it readable, but if your eyes glaze over you can skip it if you like.
 
@@ -221,25 +237,11 @@ If you want to fix this, you can't just increase the batch size. You've gotta ge
 
 Yeah, [this totally exists](https://arxiv.org/abs/2602.17155) and it also works. I think that's really cool. Nesterov momentum also works the way you want it to, as it does not depend on anything but your gradient update, which is to say the pseudograd. You can just polar-orthogonalize your `proj_grad`, it turns out. It's great.
 
-I'm still working on the variance math here. I'll update the article later. As I understand it, mitigating the variance tradeoff is the main thing holding ZO back.
+I'm still working on the variance math here. ZO-Muon is significantly different from MeZO, it builds an approximation of the gradient out of spectral components. So, it samples many `z`s. Which coincidentally could be helpful, as it could mitigate some of those issues with projection direction variance which cannot be solved by batch size.
 
-So, ZO-Muon is good if it moves the needle on that.
+So, ZO-Muon is good if it moves the needle on that. The "Muon" thing is kinda just a bonus.
 
-### ZO RL
-
-Speaking of ZO and RL, I have not seen anybody work on this. But here goes an explanation of what I'm thinking.
-
-Most exploration of Zeroth-Order Optimization has been in the realm of next token prediction. But this is not actually a necessity.
-
-Since we're doing 
-
-Theoretically there's no reason why 
-You can set the loss/rewards however you want
-
-### ZO Context Extension
-
-TODO
-
+One thing that I've noticed as I'm doing experiments here. Both Muon and LOZO sample `z` differently, and create a `z` with different expected variance. If you don't normalize, your choice of `z` distribution will inadvertently affect your choice of `ε`, potentially screwing your results. Polar orthogonalization gives you parameter perturbations with Frobenius norm `‖z‖²_F = r`, LOZO gives `mnr`, and standard Gaussian gives `mn`. Where `m` and `n` are the dimensions of the matrix, and `r` is the rank.
 
 
 ## Practical Research Proposals
