@@ -328,9 +328,17 @@ backtrace from a signal handler. What am I to do?">
   code span.dt { color: #e4a51e; } /* DataType */
 
   pre {
-      padding: .5rem;
+      padding: 0;
       line-height: 1.25;
-      overflow-x: scroll;
+      overflow-x: visible;
+      background-color: transparent;
+  }
+
+  pre code {
+      display: block;
+      min-width: max-content;
+      padding: .5rem;
+      background-color: #333;
   }
   blockquote {
       border-left: 3px solid #01ff70;
