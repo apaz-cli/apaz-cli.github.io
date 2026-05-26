@@ -330,6 +330,8 @@ But the entire point of MeZO is that you DON'T have to materialize the perturbat
 
 They do it because implementing it the right way is hard. So hard that they didn't even bother to implement their own key optimization. Researching this stuff is a massive pain, for a lot of reasons.
 
+I think they were correct 
+
 
 ## Autoresearch
 

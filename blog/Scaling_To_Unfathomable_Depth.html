@@ -325,6 +325,32 @@ work. This is half blog post, and half research notes dump.">
       font-size: 12;
   }
 
+  .font-toggle { display: none; }
+  div.sourceCode, pre { position: relative; }
+  div.sourceCode > label,
+  pre > label {
+      position: absolute;
+      top: 0.3rem;
+      right: 0.3rem;
+      cursor: pointer;
+      color: #666;
+      padding: 0.1em 0.4em;
+      border: 1px solid #555;
+      font-family: "Menlo", "Monaco", "Courier New", monospace;
+      font-size: 10px;
+      user-select: none;
+      z-index: 1;
+      background: #2a2a2a;
+      line-height: 1.4;
+  }
+  .font-toggle:checked + div.sourceCode > label,
+  .font-toggle:checked + pre > label { color: #01ff70; }
+  .font-toggle:checked + div.sourceCode pre,
+  .font-toggle:checked + div.sourceCode code,
+  .font-toggle:checked + pre code {
+      font-family: "Menlo", "Monaco", "Courier New", monospace;
+  }
+
   code span.dt { color: #e4a51e; } /* DataType */
 
   pre {
@@ -737,7 +763,8 @@ this)</h2>
 eyes glaze over you can skip it if you like. It should be skimmable if
 you just read the parts that aren't in code blocks.</p>
 <p>In MeZO, the update rule is based on:</p>
-<pre><code>proj_grad = (L(Φ(𝜽 + εz, b)) - 
+<input type="checkbox" class="font-toggle" id="font-toggle-3">
+<pre><label for="font-toggle-3">font</label><code>proj_grad = (L(Φ(𝜽 + εz, b)) - 
              L(Φ(𝜽 - εz, b))) 
              / 2ε
 
@@ -748,11 +775,13 @@ a batch of inputs b,
 a gaussian distribution z (sampled every step)
 and small scalar hparam ε (usually 1e^-3).</code></pre>
 <p>Assume for small <code>ε</code> (as MeZO does) that:</p>
-<pre><code>L(Φ(𝜽 + εz, b)) ≈ L(Φ(𝜽,b)) + ∇L(Φ(𝜽,b)) * εz
+<input type="checkbox" class="font-toggle" id="font-toggle-4">
+<pre><label for="font-toggle-4">font</label><code>L(Φ(𝜽 + εz, b)) ≈ L(Φ(𝜽,b)) + ∇L(Φ(𝜽,b)) * εz
 L(Φ(𝜽 - εz, b)) ≈ L(Φ(𝜽,b)) - ∇L(Φ(𝜽,b)) * εz</code></pre>
 <p>Plugging these into the update rule, we see that the losses and
 directions cancel out, leaving an expectation of the step size.</p>
-<pre><code>proj_grad = (L(Φ(𝜽 + εz, b)) - L(Φ(𝜽 - εz, b))) / 2ε
+<input type="checkbox" class="font-toggle" id="font-toggle-5">
+<pre><label for="font-toggle-5">font</label><code>proj_grad = (L(Φ(𝜽 + εz, b)) - L(Φ(𝜽 - εz, b))) / 2ε
           ≈ ((L(Φ(𝜽,b)) + ∇L(Φ(𝜽,b)) * εz) - (L(Φ(𝜽,b)) - ∇L(Φ(𝜽,b)) * εz)) / 2ε
           = (L(Φ(𝜽,b)) + ∇L(Φ(𝜽,b)) * εz - L(Φ(𝜽,b)) + ∇L(Φ(𝜽,b)) * εz) / 2ε
           = (2 * ∇L(Φ(𝜽,b)) * εz) / 2ε
@@ -762,7 +791,8 @@ random variable <code>b</code> (the batch). To get the variance, how
 much does the projected gradient vary as <code>b</code> varies?</p>
 <p>Well, <code>z</code> is a gaussian random variable, so apply the law
 of total variance:</p>
-<pre><code>Var(X) = E[Var(X|Y)] + Var(E[X|Y])
+<input type="checkbox" class="font-toggle" id="font-toggle-6">
+<pre><label for="font-toggle-6">font</label><code>Var(X) = E[Var(X|Y)] + Var(E[X|Y])
 
 Var(proj_grad) = E[Var(proj_grad | b)] + Var(E[proj_grad | b])
 where E[] means &quot;in expectation over infinite random samples.&quot;
@@ -775,15 +805,18 @@ Var(proj_grad) = ∇L(Φ(𝜽,b))²</code></pre>
 <p>That is to say, it depends on your network, your loss function, and
 the contents of your batch. The formula for first-order happens to be
 the same:</p>
-<pre><code>Var(grad) = ∇L(Φ(𝜽,b))²</code></pre>
+<input type="checkbox" class="font-toggle" id="font-toggle-7">
+<pre><label for="font-toggle-7">font</label><code>Var(grad) = ∇L(Φ(𝜽,b))²</code></pre>
 <p>But there's a catch. Our math up until this point assumes that the
 batch <code>b</code> is one inseperable item. But <code>b</code> is made
 of <code>B</code> entries. Then we have the identity:</p>
-<pre><code>∇L(Φ(𝜽,b)) = (1/B) Σᵢ ∇L(Φ(𝜽,xᵢ))
+<input type="checkbox" class="font-toggle" id="font-toggle-8">
+<pre><label for="font-toggle-8">font</label><code>∇L(Φ(𝜽,b)) = (1/B) Σᵢ ∇L(Φ(𝜽,xᵢ))
 where xᵢ is the ith entry in the batch</code></pre>
 <p>For the variance of FO, we can simply divide by B. But the ZO case is
 much worse.</p>
-<pre><code>Recall Var(proj_grad) = ∇L(Φ(𝜽,b))² = E[||∇L(Φ(𝜽,b))||²].
+<input type="checkbox" class="font-toggle" id="font-toggle-9">
+<pre><label for="font-toggle-9">font</label><code>Recall Var(proj_grad) = ∇L(Φ(𝜽,b))² = E[||∇L(Φ(𝜽,b))||²].
 
 Taking expectation over b, use the vector identity E[||v||²] = ||E[v]||² + E[||v -E[v]||²].
 
@@ -883,7 +916,9 @@ a chance, I would have said no.</p>
 href="https://github.com/princeton-nlp/MeZO/blob/552cb1b710767f9a6e1dc8f9645d7640376f9941/medium_models/src/trainer.py#L242-L247">this
 method</a> from the <code>Trainer</code> class of the MeZO paper's
 implementation.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> efficient_perturb_parameters(<span class="va">self</span>, model: nn.Module, random_seed: <span class="bu">int</span>, scaling_factor<span class="op">=</span><span class="dv">1</span>):</span>
+<input type="checkbox" class="font-toggle" id="font-toggle-1">
+<div class="sourceCode" id="cb8"><label for="font-toggle-1">font</label>
+<pre class="sourceCode py"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> efficient_perturb_parameters(<span class="va">self</span>, model: nn.Module, random_seed: <span class="bu">int</span>, scaling_factor<span class="op">=</span><span class="dv">1</span>):</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>        torch.manual_seed(random_seed)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> name, param <span class="kw">in</span> <span class="va">self</span>.named_parameters_to_optim:</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>            z <span class="op">=</span> torch.normal(mean<span class="op">=</span><span class="dv">0</span>, std<span class="op">=</span><span class="dv">1</span>, size<span class="op">=</span>param.data.size(), device<span class="op">=</span>param.data.device, dtype<span class="op">=</span>param.data.dtype)</span>
@@ -898,6 +933,7 @@ the perturbations. Why would they do this?</p>
 <p>They do it because implementing it the right way is hard. So hard
 that they didn't even bother to implement their own key optimization.
 Researching this stuff is a massive pain, for a lot of reasons.</p>
+<p>I think they were correct</p>
 <h2 id="autoresearch">Autoresearch</h2>
 <p>I've sort of dived headfirst into ZO. Despite that, I don't think
 that this is a tractable research area.</p>
@@ -959,7 +995,9 @@ Another problem is noise. The big problem in MeZO derivatives.
 Let's now look at the theoretical variance of the projected gradient `p` and of the diagonal of the hessian `q` under MeZO.
 -->
 <h4 id="bibtex-citation">Bibtex Citation</h4>
-<div class="sourceCode" id="cb9"><pre
+<input type="checkbox" class="font-toggle" id="font-toggle-2">
+<div class="sourceCode" id="cb9"><label for="font-toggle-2">font</label>
+<pre
 class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="va">@misc</span>{<span class="ot">pazdera2026scaling</span>,</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">author</span> = {Pazdera, Aaron},</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span>  = {Scaling Agents to Unfathomable Depth and Context With Zeroth-Order Optimization},</span>
