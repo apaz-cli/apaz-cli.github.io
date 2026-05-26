@@ -53,11 +53,11 @@ So what if we could train deeper models?
 
 ### TODO: Add info from conversation with aria
 
-Language modeling architectures are sort of a spectrum. On one end you've got RNNs, and the other you have transformers. RNNs have exploding grads (you must backprop through essentially infinite depth) and are thus impossible to train, but would scale efficiently to extreme context lengths in theory, if you can train one. Whereas on the other side you have transformers, which have stable grads of fixed depth, but scale poorly to long context lengths, which we have been finding increasingly efficient monkeypatches for ever since.
+Language modeling architectures are sort of a spectrum. On one end you've got RNNs, and the other you have transformers. RNNs have vanishing/exploding grads (you must backprop through essentially infinite depth) and are thus impossible to train, but would scale efficiently to extreme context lengths in theory, if you can train one. Whereas on the other side you have transformers, which have stable grads of fixed depth, but scale poorly to long context lengths, which we have been finding increasingly efficient monkeypatches for ever since.
 
 But, regarding the RNN vs Transformer spectrum, I don't think such a thing as free lunch exists with normal optimizers. If it did, someone would have found it by now. In any case, I think the efficient sparse attention techniques we already have are close to as good as they're going to get. This is not to say that they're not worth working on, there are very practical gains to be had. I'd expect we'll get like a single order of magnitude improvement over what we already have.
 
-I'm also not bullish on fixing RNNs. After all, infinite depth under first order optimizers is intractible. You cannot backprop through infinite depth. Truncated Backpropagation Through Time is the standard for training RNNs in practice, but it defeats the entire point, poses many problems in practice, and I do not see it as a viable way forward. I don't think it's mathematically sound, and as far as I know neither does anyone else.
+I'm also not bullish on fixing RNNs. After all, infinite depth under first order optimizers is intractible. You cannot backprop through infinite depth. Truncated Backpropagation Through Time is the standard for training RNNs in practice, but it defeats the entire point, poses many problems in practice, and I do not see it as a viable way forward. I don't think it's mathematically sound, and as far as I know neither does anyone else. A mistake made earlier in the context can and will affect things later on, and the model should recieve gradient signal about that.
 
 But I do think that the "untrainable" architectures closer to RNN side of the spectrum are worth exploring. Zeroth-Order Optimization could make this possible.
 
@@ -99,23 +99,23 @@ Some of these tricks exist in the literature. Many of them do not exist in the l
 
 ### MeZO
 
-### TODO THIS IS WRONG I DID NOT KNOW WTF I WAS TALKING ABOUT
-
 The [MeZO paper](https://arxiv.org/abs/2305.17333), also known as "Fine-Tuning Language Models with Just Forward Passes" is why I think any of this is even tractible or interesting at all. The paper describes a way to implement ZO that's extremely efficient and scalable.
 
 The core idea is that you don't have to actually *store* each perturbation to the model. If you write your kernels very carefully, all you have to store is the prng seed to generate a model perturbation, and the activations of ONLY your current layer. But you have to write your own kernels.
 
-Consider a single layer. Since ZO-optimization is perfectly-decomposable layerwise, we don't have to worry about anything else. The input to the kernel is the parameters associated with the layer, along with a batch of activations from the previous layer and associated prng state. The output is a batch of activations for the next layer. That's it. That's all the memory you need.
+Consider a single layer. Since ZO-optimization is perfectly-decomposable layerwise, we don't have to worry about anything else. We need space for the activations flowing into the layer. Depending on the layer we might need space to put the output, if we can't reuse the input buffer. We'll also need to store the model parameters. We'll also need the PRNG seed to generate perturbations to the model on the fly as we load the params.
 
-In this kernel you can load a parameter or set of parameters, sample from each prng stream to perturb it, and then compute all the different things you need to with the perturbed params. This can be done in registers, there is no need to materialize a full tensor of parameters for each tensor in your batch. Once the losses are computed, you can reset the prng stream and, for each layer, stream through the parameters again to produce a sum of the random perturbations, weighted by the loss/rewards. This is your pseudogradient. Then you take a step.
+But that's it. That's all the memory you need.
 
-So, you evaluate the model batch-size-many times. But you only load the parameters twice, once during forward() and once during the update. You don't have to load batch-size many perturbations, but you do need to run the model that many times and store that many copies of the activations. You're probably not memory bandwidth bound, assuming you wrote and overlapped the PRNG part of the kernels well, the scaling limit you run into is raw FLOPs. And with successive hardware generations, FLOPs and memory capacity for storing activations are scaling faster than memory bandwidth.
+Some PRNGs are stateful, for example xorshift. To generate the one millionth number in the sequence you start from your seed and sample one million random numbers. But a Counter-based pseudo-random number generator ([CBPRNG](https://en.wikipedia.org/wiki/Counter-based_random_number_generator)) does not have this problem. To get the one-millionth number you pass in your seed and one million, and get your number. Good examples of this are [Philox](https://www.thesalmons.org/john/random123/papers/random123sc11.pdf) and [Squares](https://arxiv.org/abs/2004.06278). You want a CBPRNG that's parallelizable and fusable, and these are both.
 
-That is to say, with each hardware generation, this method becomes more feasible from a hardware standpoint. The ideal would be something like Cerebras probably.
+One benefit of these insane memory savings (not having to store grads or activations or weights from other layers) is that you can crank up your batch size and make your activations/model width gigantic. And with perfect pipeline parallel scaling there's basically no limit on how big you can make your model. You're probably not memory bandwidth bound, assuming you wrote and overlapped the PRNG part of the kernels well, the scaling limit you run into is raw FLOPs. And with successive hardware generations, FLOPs and memory capacity for storing activations are scaling faster than memory bandwidth.
+
+That is to say, with each hardware generation, this method becomes more feasible from a hardware standpoint. The ideal would be something like Cerebras probably. Something like the tinygrad [exabox](https://tinycorp.myshopify.com/products/exabox-preorder) is also looking appealing. You don't need good interconnects. You can probably just physically connect your GPUs together in a line. Most likely, that's your bottleneck. A very good one to have, although it would have an effect on your tokens/second.
 
 ### LoRA
 
-The main reason ZO sucks is that, since you are estimating the gradients, it performs exponentially worse the more parameters you have. Specifically, as you expand the number of parameters, to gain the same amount of certainty about the direction of the gradient for a higher dimensional model, it takes a linearly larger amount of sampling. More sampling times more compute is quadratic. And that's bad.
+The main reason ZO sucks is that, since you are estimating the gradients, it performs exponentially worse the more parameters you have. Specifically, as you expand the number of parameters, to gain the same amount of certainty about the direction of the gradient for a higher dimensional model, it takes a linearly larger amount of sampling. More sampling times more compute is quadratic in terms of compute cost. And that's bad.
 
 This is intractible and needs to be fixed. LoRA adapters do truly fix this problem, and are the default way to do ZO optimization. There are downsides to this. You would think that low-rank updates are not preferable to the more full-rank updates you'd get if you actually had the gradient. Although, more on that later. It's not clear that this is preferable.
 
@@ -135,6 +135,10 @@ I think more research needs to be done here in general. Nobody has studied this 
 
 ZO has never really been scaled to the extent that is necessary for answering these sorts of basic questions of if it works or not. So really, the only way to find out is to try, and I don't think anyone is trying.
 
+### ZO Context Extension
+
+For a while, the most popular 
+
 ### ZO RL
 
 Speaking of ZO and RL, I have not seen anybody work on this. But here goes an explanation of what I'm thinking.
@@ -146,9 +150,6 @@ Since we're doing
 Theoretically there's no reason why 
 You can set the loss/rewards however you want
 
-### ZO Context Extension
-
-TODO
 
 
 ## MeZO Math (Why did I write this)
@@ -239,10 +240,11 @@ Yeah, [this totally exists](https://arxiv.org/abs/2602.17155) and it also works.
 
 I'm still working on the variance math here. ZO-Muon is significantly different from MeZO, it builds an approximation of the gradient out of spectral components. So, it samples many `z`s. Which coincidentally could be helpful, as it could mitigate some of those issues with projection direction variance which cannot be solved by batch size.
 
-So, ZO-Muon is good if it moves the needle on that. The "Muon" thing is kinda just a bonus.
+So, ZO-Muon is good if it moves the needle on that. The "Muon" part is kinda just a bonus.
 
-One thing that I've noticed as I'm doing experiments here. Both Muon and LOZO sample `z` differently, and create a `z` with different expected variance. If you don't normalize, your choice of `z` distribution will inadvertently affect your choice of `ε`, potentially screwing your results. Polar orthogonalization gives you parameter perturbations with Frobenius norm `‖z‖²_F = r`, LOZO gives `mnr`, and standard Gaussian gives `mn`. Where `m` and `n` are the dimensions of the matrix, and `r` is the rank.
+One thing that I've noticed as I'm doing experiments here. Both Muon and LOZO sample `z` differently, and create a `z` with different expected variance. If you don't renormalize, your choice of `z` distribution will inadvertently affect your choice of `ε`, potentially screwing your results. Polar orthogonalization gives you parameter perturbations with Frobenius norm `‖z‖²_F = r`, LOZO gives `mnr`, and standard Gaussian gives `mn`. Where `m` and `n` are the dimensions of the matrix, and `r` is the LoRA rank.
 
+But, I feel like there's something here. An interesting set of tradeoffs.
 
 ## Practical Research Proposals
 
