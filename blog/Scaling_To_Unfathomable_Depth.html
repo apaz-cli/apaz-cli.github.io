@@ -580,12 +580,11 @@ generations, FLOPs and memory capacity for storing activations are
 scaling faster than memory bandwidth.</p>
 <p>That is to say, with each hardware generation, this method becomes
 more feasible from a hardware standpoint. The ideal would be something
-like Cerebras probably. Something like the tinygrad <a
-href="https://tinycorp.myshopify.com/products/exabox-preorder">exabox</a>
-is also looking appealing. You don't need good interconnects. You can
-probably just physically connect your GPUs together in a line. Most
-likely, that's your bottleneck. A very good one to have, although it
-would have an effect on your tokens/second.</p>
+like Cerebras probably. Something like the tinygrad exabox is also
+looking appealing. You don't need good interconnects. You can probably
+just physically connect your GPUs together in a line. Most likely,
+that's your bottleneck. A very good one to have, although it would have
+an effect on your tokens/second.</p>
 <h3 id="lora">LoRA</h3>
 <p>The main reason ZO sucks is that, since you are estimating the
 gradients, it performs exponentially worse the more parameters you have.
@@ -628,34 +627,99 @@ Initially, this seems like a strange things to do. But the LOZO paper
 justifies it by saying that, since gradient updates tend to be low rank
 anyway, maybe you actually <em>want</em> low rank perturbations. If the
 update is supposed to be low rank, if it isn't (if each param follows a
-gaussian like in MeZO) then the parts that aren't low rank are probably
-along flat directions, and you would get a better update on average and
-reduce your variance with a lower rank update. I'm not sure I'm sold on
-the justification. My intuition is that sparse updates are fine for
-narrow finetuing tasks, but for harder stuff it's unclear if rank-r
-updates are enough to reach the best-generalizing solution.</p>
-<p>I'd want to investigate this hypothesis in combination with the
-techniques from the <a
+gaussian like in MeZO) then the parts that aren't are actually noise.
+Or, if they're not, the high-rank parts are probably along flat
+directions, and you would get a better update on average and reduce your
+variance with a lower rank update.</p>
+<p>I'm both sold and not sold on the justification. My intuition is that
+sparse updates are fine for narrow finetuning tasks, but for harder
+stuff it's unclear if rank-r updates are enough to reach the
+best-generalizing solution. But also, anything we can possibly do to
+reduce noise is good.</p>
+<p>To isolate this effect I'd want to investigate this hypothesis in
+combination with the techniques from the <a
 href="https://arxiv.org/abs/2602.22681">Accelerating LLM Pre-Training
-through Flat-Direction Dynamics Enhancement</a> paper.</p>
-<p>I think more research needs to be done here in general. Nobody has
-studied this to the degree that it needs to be. I would be interested to
-see a model trained with ZO on, for example, <a
-href="https://huggingface.co/datasets/PleIAs/SYNTH">PleIAs/SYNTH</a> or
-<a href="https://arxiv.org/abs/2510.04871">TRM</a> data. See how much
-your choice of <code>r</code> for parameters and for <code>z</code>
-matters for standard language modeling and RL tasks.</p>
-<p>ZO has never really been scaled to the extent that is necessary for
-answering these sorts of basic questions of if it works or not. So
-really, the only way to find out is to try, and I don't think anyone is
-trying.</p>
+through Flat-Direction Dynamics Enhancement</a> paper. If "no, you
+should go in flat directions MORE" ends up working in practice, then
+this is not a reasonable justification for why it works.</p>
+<p>I think more research needs to be done here in general. ZO has never
+really been scaled to the extent that is necessary for answering these
+sorts of basic questions about what works or not and why.</p>
 <h3 id="zo-context-extension">ZO Context Extension</h3>
-<p>For a while, the most popular</p>
+<p>These are my thoughts, this has never been done.</p>
+<p>Right now the most popular way to do Transformer context length
+extension is through RoPE scaling. You could also use YaRN, or NoPE, or
+any manner of other things. I don't really have any opinions about the
+particular strategy.</p>
+<p>Whatever the strategy, people also frequently use LoRA to do this
+memory-efficiently. It can be hard to fit long context lengths to the
+hardware otherwise. You gotta save memory somewhere. Importantly though,
+it still works. Low-rank adaptations are sufficient for context length
+extension.</p>
+<p>LoRA helps, but gradients is not the place where all the memory is
+going. The main problem is that in first-order optimization, the size of
+your activations grows with the size of your context length, and you
+have to hold onto all of them until it's time to do backprop. On any
+given hardware there's a limit to the context length you can actually
+fit. This assumes full attention, but it's also true of sparse attention
+techniques to varying degrees. There is, in any case, an effective
+context size, which uses a lot of activation memory, and we are trying
+to improve it.</p>
+<p>Zeroth-order optimization typically operates in the realm of LoRA,
+and does not require you to store these activations. Seems like a match
+made in heaven. You can also do this context extension finetuning on
+actual tasks you care about while you're at it. Make sure it's not just
+effective in terms of perplexity loss, but also in practice on
+tasks.</p>
+<h4 id="zo-ing-your-model">ZO-ing Your Model</h4>
+<p>This has also never been done before, or at least I cannot find any
+references to it.</p>
+<p>Skip connections. Pretrained off-the-shelf transformers have skip
+connections.</p>
+<p>These present a problem for ZO. You'll want to run massive batch
+sizes for noise reduction purposs. The only think you really need to
+store in memory is intermediate activations. Each skip connection
+doubles the size of your intermediate activations. In FO they're not a
+problem, because you're storing all of those activations permanently
+anyway. Just store an extra reference to a tensor. There's no extra
+cost.</p>
+<p>In ZO there is an extra cost, adding a skip connection around a block
+halves the batch size you can fit. So it would be nice to find a way to
+remove them.</p>
+<p>The first thing I tried was just ripping them out and re-training.
+Don't do this, it doesn't work. It catastrophically destroys the model,
+and it's equivalent to retraining from scratch.</p>
+<p>I have two much better ideas now. Haven't gotten around to
+implementing them yet.</p>
+<p>The first idea is just to do continued pretraining (or SFT to your
+task domain), possibly with LoRA, freeze the residual weights, and decay
+them to zero according to a schedule. Probably you want to do a bit of
+warmup before touching them. Then the brain damage you're doing to the
+model by decaying the residuals gets healed over the course of
+training.</p>
+<p>The second idea is probably better. You can just add the sum of the
+residuals to your loss function, scaled by some factor. That factor can
+be how you can control the decay schedule. Maybe the brain damage is a
+bit more controlled this way, because the rates of decay individually
+are directionally correlated with the gradient. I suspect this to be
+important.</p>
+<p>I've downloaded every paper off arxiv and done a search over them,
+and neither of these strategies have been written about. Skipless
+transformers are pretty niche (why other than ZO would anyone care?),
+and most papers about skipless transformers, for example <a
+href="https://arxiv.org/pdf/2510.00345">this one</a> are about training
+from scratch. To my knowledge nobody has ripped the residuals out of an
+existing pretrained model.</p>
+<p>But it's cool that there's a way to do it. It may require a little
+bit of finagling to get right, but it's almost certainly very
+doable.</p>
 <h3 id="zo-rl">ZO RL</h3>
-<p>Speaking of ZO and RL, I have not seen anybody work on this. But here
-goes an explanation of what I'm thinking.</p>
+<p>Yet again, I have not seen anybody do this.</p>
 <p>Most exploration of Zeroth-Order Optimization has been in the realm
-of next token prediction. But this is not actually a necessity.</p>
+of next token prediction. But this is not actually a necessity. You can
+technically make both the model and the loss function whatever you want,
+as long as it's conditioned on the model weights.</p>
+<p>RL is long context.</p>
 <p>Since we're doing</p>
 <p>Theoretically there's no reason why You can set the loss/rewards
 however you want</p>
@@ -685,8 +749,8 @@ directions cancel out, leaving an expectation of the step size.</p>
           = (2 * ∇L(Φ(𝜽,b)) * εz) / 2ε
           = ∇L(Φ(𝜽,b)) * z</code></pre>
 <p>Now <code>proj_grad = ∇L(Φ(𝜽,b)) * z</code> is a function of the
-random variable b (the batch). To get the variance, how much does the
-projected gradient vary as <code>b</code> varies?</p>
+random variable <code>b</code> (the batch). To get the variance, how
+much does the projected gradient vary as <code>b</code> varies?</p>
 <p>Well, <code>z</code> is a gaussian random variable, so apply the law
 of total variance:</p>
 <pre><code>Var(X) = E[Var(X|Y)] + Var(E[X|Y])
@@ -735,6 +799,10 @@ uncorrelated with the direction of the true gradient, it's literally a
 random gaussian.</p>
 <p>If you want to fix this, you can't just increase the batch size.
 You've gotta get creative.</p>
+<p>I think <a href="https://arxiv.org/abs/2404.08080">MeZO-SVRG</a> is
+very interesting in this regard, although I haven't gotten around yet to
+reading the paper or trying to combine it with other methods that
+work.</p>
 <h3 id="zo-muon">ZO-Muon</h3>
 <p>Yeah, <a href="https://arxiv.org/abs/2602.17155">this totally
 exists</a> and it also works. I think that's really cool. Nesterov
@@ -750,17 +818,18 @@ issues with projection direction variance which cannot be solved by
 batch size.</p>
 <p>So, ZO-Muon is good if it moves the needle on that. The "Muon" part
 is kinda just a bonus.</p>
-<p>One thing that I've noticed as I'm doing experiments here. Both Muon
-and LOZO sample <code>z</code> differently, and create a <code>z</code>
-with different expected variance. If you don't renormalize, your choice
-of <code>z</code> distribution will inadvertently affect your choice of
-<code>ε</code>, potentially screwing your results. Polar
-orthogonalization gives you parameter perturbations with Frobenius norm
-<code>‖z‖²_F = r</code>, LOZO gives <code>mnr</code>, and standard
-Gaussian gives <code>mn</code>. Where <code>m</code> and <code>n</code>
-are the dimensions of the matrix, and <code>r</code> is the LoRA
-rank.</p>
-<p>But, I feel like there's something here. An interesting set of
+<p>Random thing that I've noticed as I'm doing experiments here. Both
+Muon and LOZO sample <code>z</code> differently, and create a
+<code>z</code> with different expected variance. If you don't
+renormalize, your choice of <code>z</code> distribution will
+inadvertently affect your choice of <code>ε</code>, potentially screwing
+your results. Polar orthogonalization gives you parameter perturbations
+with Frobenius norm <code>‖z‖²_F = r</code>, LOZO gives
+<code>mnr</code>, and standard Gaussian gives <code>mn</code>. Where
+<code>m</code> and <code>n</code> are the dimensions of the matrix, and
+<code>r</code> is the LoRA rank.</p>
+<p>But, I feel like there's something here. Building higher-rank updates
+out of low-rank spectral subspaces directly has an interesting set of
 tradeoffs.</p>
 <h2 id="practical-research-proposals">Practical Research Proposals</h2>
 <ul>
@@ -807,20 +876,21 @@ the perturbations. Why would they do this?</p>
 that they didn't even bother to implement their own key optimization.
 Researching this stuff is a massive pain, for a lot of reasons.</p>
 <h2 id="autoresearch">Autoresearch</h2>
-<p>I don't think that this is a tractible research area. To implement ZO
-properly you need to write and optimize all your own custom kernels.
-With first-order methods being way easier and already working way
-better, and with so much low-hanging fruit to pick, there's no way this
-tree of research is going to take off on its own.</p>
+<p>I've sort of dived headfirst into ZO. Despite that, I don't think
+that this is a tractible research area.</p>
+<p>To implement ZO properly you need to write and optimize all your own
+custom kernels. With first-order methods being way easier and already
+working way better, and with so much low-hanging fruit to pick, there's
+no way this tree of research is going to take off on its own.</p>
 <p>I think autoresearch is the only way. This is not a research path for
 humans. If it's to be taken, it needs to be taken by machines. The arch
 search space and its dynamics are obvious, what experiments to run are
 obvious, and not all of it requires large amounts of compute, we just
-don't have the human capital to run them. We do have to write an
-optimize an absolutely insane number of rather exotic kernels though.
-Kernel autoresearch needs to be solved first.</p>
-<p>So basically just go work on kernel autoresearch and come back in
-like a year or two.</p>
+don't have the human capital to run the experiments and interpret the
+results fast enough. The other problem is that implementing this "the
+right way" requires writing an optimizing an absolutely insane number of
+rather exotic kernels. Kernel autoresearch needs to be solved before
+this is a tractible research area.</p>
 <!--
 <br>
 <div style="text-align: center;">
@@ -831,47 +901,39 @@ like a year or two.</p>
 </div>
 <br>
 -->
-<p>&lt;-- But this doesn't get you an estimate that actually uses your
-model. It uses a perturbed, maybe-better-maybe-worse version of your
-model. You don't know if it's better or not.</p>
-<p>From my experiments, there are often big discontinuities in the loss.
-So it's frequently a bad direction, and the result of using it would be
-catastophic. It's not super clear to me if this problem is solvable from
-a theoretical standpoint. It could be. It might be that it doesn't
-really matter that you're using a maybe-worse model, especially if your
-ε is tiny. This isn't a problem that's well-studied.</p>
-<p>But I think there's another approach that's potentially
-interesting.</p>
-<p>So, I propose the following. Evaluate at three points,
-<code>+ε</code>, <code>-ε</code>, and <code>±0</code>. You can use the
-information gained from the <code>±0</code> case to improve your
-gradient update.</p>
-<p>But also you can do inference as you train, without having to worry
-about that epsilon. Continual learning. Inference is training, and
-training is inference. Specifically, training is 3x inference plus a TON
-of noise, which grows quadratically with model size (solved by LoRA as
-discussed before).</p>
-<p>Using the information from sampling <code>±0</code> you can also
-approximate the second derivative of the projected gradient
-<code>p</code> (<code>proj_grad</code>) from <code>z</code>, call the
-second derivative (the hessian) <code>q</code>. The ratio
-<code>p/q</code> gives the step size that minimizes the quadratic
-approximation of <code>L(Φ(𝜽, b))</code> along <code>z</code>.</p>
-<p>The formula for <code>q</code> under three-point evaluation
-becomes:</p>
-<pre><code>q = (L(Φ(𝜽 + εz, b)) -
+<!--
+But this doesn't get you an estimate that actually uses your model. It uses a perturbed, maybe-better-maybe-worse version of your model. You don't know if it's better or not.
+
+From my experiments, there are often big discontinuities in the loss. So it's frequently a bad direction, and the result of using it would be catastophic. It's not super clear to me if this problem is solvable from a theoretical standpoint. It could be. It might be that it doesn't really matter that you're using a maybe-worse model, especially if your ε is tiny. This isn't a problem that's well-studied.
+
+But I think there's another approach that's potentially interesting.
+
+So, I propose the following. Evaluate at three points, `+ε`, `-ε`, and `±0`. You can use the information gained from the `±0` case to improve your gradient update.
+
+But also you can do inference as you train, without having to worry about that epsilon. Continual learning. Inference is training, and training is inference. Specifically, training is 3x inference plus a TON of noise, which grows quadratically with model size (solved by LoRA as discussed before).
+
+Using the information from sampling `±0` you can also approximate the second derivative of the projected gradient `p` (`proj_grad`) from `z`, call the second derivative (the hessian) `q`. The ratio `p/q` gives the step size that minimizes the quadratic approximation of `L(Φ(𝜽, b))` along `z`.
+
+The formula for `q` under three-point evaluation becomes:
+```
+q = (L(Φ(𝜽 + εz, b)) -
      L(Φ(𝜽, b)) * 2 + 
      L(Φ(𝜽 - εz, b)))
-   / ε²</code></pre>
-<p>Then the theoretically optimal step size across your update
-becomes</p>
-<pre><code>𝜽 = 𝜽 - (p/q) * z</code></pre>
-<p>This is independent of learning rate but in practice would be very
-unstable, so instead we do:</p>
-<pre><code>𝜽 = 𝜽 - lr * (p / (q + 1e-8)) * z</code></pre>
-<p>Another problem is noise. The big problem in MeZO derivatives. Let's
-now look at the theoretical variance of the projected gradient
-<code>p</code> and of the diagonal of the hessian <code>q</code> under
-MeZO. --&gt;</p>
+   / ε²
+```
+
+Then the theoretically optimal step size across your update becomes
+```
+𝜽 = 𝜽 - (p/q) * z
+```
+
+This is independent of learning rate but in practice would be very unstable, so instead we do:
+```
+𝜽 = 𝜽 - lr * (p / (q + 1e-8)) * z
+```
+
+Another problem is noise. The big problem in MeZO derivatives.
+Let's now look at the theoretical variance of the projected gradient `p` and of the diagonal of the hessian `q` under MeZO.
+-->
 </body>
 </html>
