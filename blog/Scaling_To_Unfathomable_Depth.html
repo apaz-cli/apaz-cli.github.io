@@ -648,10 +648,6 @@ href="https://arxiv.org/abs/2509.12960">not to work as well for smaller
 models</a>, and also not as well at the beginning of training. Hence why
 the ReLORA paper actually doesn't use adapters at the start of training,
 instead opting for full-rank updates at the start.</p>
-<figure>
-<img src="" alt="TODO FIGURE from RELORA" />
-<figcaption aria-hidden="true">TODO FIGURE from RELORA</figcaption>
-</figure>
 <p>But, it goes without saying that MeZO + LoRA (plus other stuff) is
 totally doable. All of these techniques I'm talking about can be
 combined.</p>
@@ -785,6 +781,8 @@ directions cancel out, leaving an expectation of the step size.</p>
           = (L(Φ(θ,b)) + ∇L(Φ(θ,b)) * εz - L(Φ(θ,b)) + ∇L(Φ(θ,b)) * εz) / 2ε
           = (2 * ∇L(Φ(θ,b)) * εz) / 2ε
           = ∇L(Φ(θ,b)) * z</code></pre>
+<p>This is good. This is what we wanted to see. MeZO wouldn't work if
+this wasn't true.</p>
 <p>Now <code>proj_grad = ∇L(Φ(θ,b)) * z</code> is a function of the
 random variable <code>b</code> (the batch). To get the variance, how
 much does the projected gradient vary as <code>b</code> varies?</p>
@@ -821,9 +819,9 @@ E[||∇L(Φ(θ,b))||²] = ||E[∇L(Φ(θ,b))]||² + E[||∇L(Φ(θ,b)) - E[∇L(
 
 Then split up the batch by variance
 Var(proj_grad)     = ∇L(Φ(θ))² + Var(∇L(Φ(θ,b)))
-                   = ∇L(Φ(θ))² + Var((1/B) Σᵢ ∇L(Φ(θ,xᵢ))))     (by definition of batch gradient and i.i.d.)
-                   = ∇L(Φ(θ))² + (1/B²) Σᵢ Var(∇L(Φ(θ,xᵢ))))    (because Var(c * X) = c² * Var(X) for any scalar constant c)
-                   = ∇L(Φ(θ))² + (1/B²) * B * ∇L(Φ(θ,xᵢ)))²     (because xᵢ are i.i.d.)
+                   = ∇L(Φ(θ))² + Var((1/B) Σᵢ ∇L(Φ(θ,xᵢ)))     (by definition of batch gradient and i.i.d.)
+                   = ∇L(Φ(θ))² + (1/B²) Σᵢ Var(∇L(Φ(θ,xᵢ)))    (because Var(c * X) = c² * Var(X) for any scalar constant c)
+                   = ∇L(Φ(θ))² + (1/B²) * B * ∇L(Φ(θ,xᵢ))²     (because xᵢ are i.i.d.)
                    = ∇L(Φ(θ))² + ∇L(Φ(θ,xᵢ))² / B</code></pre>
 <p>In other words, the variance of our projected gradient has two
 components to it. There is direction sampling variance
@@ -867,43 +865,58 @@ with Frobenius norm <code>‖z‖²_F = r</code>, LOZO gives
 <p>But, I feel like there's something here. Building higher-rank updates
 out of low-rank spectral subspaces directly has an interesting set of
 tradeoffs.</p>
+<h3 id="multi-mezo">Multi-MeZO</h3>
+<p>Nobody has ever done this yet, but it's an obvious thing (to me) that
+falls out of the math.</p>
+<p>We just derived that the variance of the projected gradient under
+MeZO is:</p>
+<pre><label for="font-toggle">font</label><code>Var(proj_grad) = ∇L(Φ(θ))² + ∇L(Φ(θ,xᵢ))² / B</code></pre>
+<p>This is because we are sampling one <code>z</code> direction. What if
+we sampled multiple <code>z</code> directions? Suppose we sample
+<code>Z</code> independent <code>z</code> gaussians, with batch size
+<code>B</code> each.</p>
+<p>Then the expectation of proj_grad would be:</p>
+<pre><label for="font-toggle">font</label><code>proj_grad = (1/Z) Σⱼ ∇L(Φ(θ,bⱼ)) * zⱼ</code></pre>
+<p>Then calculate the new <code>Var(proj_grad)</code>:</p>
+<pre><label for="font-toggle">font</label><code>Var(proj_grad) = Var((1/Z) Σⱼ ∇L(Φ(θ,bⱼ)) * zⱼ)
+               = (1/Z²) * Z * Var(∇L(Φ(θ,b)) * z)        (By Bienaymé&#39;s identity because terms i.i.d. in j)
+               = (1/Z) * Var(∇L(Φ(θ,b)) * z)
+               = (1/Z) * E[||∇L(Φ(θ,b))||²]              (from single-z proof)
+               = (1/Z) * (∇L(Φ(θ))² + ∇L(Φ(θ,xᵢ))² / B)  (from single-z proof)
+               = ∇L(Φ(θ))² / Z + ∇L(Φ(θ,xᵢ))² / ZB</code></pre>
+<p>This is great news. Generating a new <code>z</code> for every batch
+improves the noise estimate linearly. If we are not storing
+<code>z</code> but regenerating it on the fly (because it's cheaper)
+then this is a better axis to scale on. Technically, increasing
+<code>B</code> is pointless. Somehow nobody (to my knowledge) has done
+this experimentally, so I'm not sure. But it should work.</p>
+<p>I think the reason why this is unexplored is that it absolutely sucks
+to do in pytorch. You have to do it "the right way" and write a
+kernel.</p>
+<p>This should give us better control over how to spend our samples to
+reduce noise. If this works, it might be a big deal.</p>
 <h3 id="zo-and-momentum">ZO and Momentum</h3>
 <p>In first-order optimizers, one frequently utilized technique is
 momentum. All the best optimizers have some concept of momentum. This
 has two beneficial properties. It accelerates convergence, and it also
-has the effect of smoothing over variance/noise.</p>
-<p>That sounds really really good right about now. And many ZO papers
-would agree with this. "Let's add momentum to ZO" is not an original
-idea. To my knowledge though, nobody has implemented it the way I'm
-thinking of.</p>
-<p>If you recall, the strategy for implementing MeZO "the right way" is
-to never materialize <code>z</code>. And all our updates are What if you
-never had to materialize the?</p>
-<p>Simply</p>
-<p>Now,</p>
-<p>It requires storing a</p>
-<h2 id="practical-research-proposals">Practical Research Proposals</h2>
-<ul>
-<li>ZO has the ability to scale depth and recurrence without having to
-do TBPTT</li>
-<li>Pseudograds don't have the vanishing/exploding problems of real
-grads</li>
-<li>Skip connections kill you because they blow up the activation mem
-requirements and group layers</li>
-<li>Thin models are better because smaller activations and less compute
-spent</li>
-<li>Truly massive LoRA matrices are possible</li>
-<li>Why do that just stack more layers</li>
-<li>Up to a point. An optimal balance exists, the scaling laws just
-haven't been calculated yet</li>
-<li>There is an arch search space here and the dynamics of the search
-space are obvious</li>
-<li>Basically just try everything with ZO that's already been tried with
-first order</li>
-<li>Have to solve pipeline fault tolerance somehow if operating at a
-large scale</li>
-<li>Stacking layers is terrible for latency, actually.</li>
-</ul>
+has the effect of smoothing over variance/noise. That sounds really
+really good right about now, seeing as we are spending so much time
+thinking about how to reduce noise.</p>
+<p>"Let's add momentum to ZO" is not an original idea. Indeed, many
+papers have done this. Basically all of them, actually. That's not so
+interesting.</p>
+<p>The strategy for implementing MeZO "the right way" is to never
+materialize <code>z</code>. This got me thinking. What if there's a way
+to do momentum without storing a momentum buffer?</p>
+<p>Well... why not just save the seeds so you can reproduce
+<code>z</code>? There are a bunch of seeds laying around. Why don't we
+just use them to reconstruct the momentum buffer every step? If we're
+cranking up the batch size, isn't this actually pretty cheap? An
+optimizer update is basically load+store. May as well do some math at
+the same time.</p>
+<p>It's also already pretty cheap in terms of memory because we're
+probably optimizing LoRA parameters anyway. But it's worth noting that
+this is possible.</p>
 <h2 id="why-now">Why now?</h2>
 <p>Six months ago, if you would have asked me if any of these ideas had
 a chance, I would have said no.</p>
@@ -911,13 +924,14 @@ a chance, I would have said no.</p>
 href="https://github.com/princeton-nlp/MeZO/blob/552cb1b710767f9a6e1dc8f9645d7640376f9941/medium_models/src/trainer.py#L242-L247">this
 method</a> from the <code>Trainer</code> class of the MeZO paper's
 implementation.</p>
-<div class="sourceCode" id="cb8"><label for="font-toggle">font</label>
-<pre class="sourceCode py"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> efficient_perturb_parameters(<span class="va">self</span>, model: nn.Module, random_seed: <span class="bu">int</span>, scaling_factor<span class="op">=</span><span class="dv">1</span>):</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>        torch.manual_seed(random_seed)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> name, param <span class="kw">in</span> <span class="va">self</span>.named_parameters_to_optim:</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>            z <span class="op">=</span> torch.normal(mean<span class="op">=</span><span class="dv">0</span>, std<span class="op">=</span><span class="dv">1</span>, size<span class="op">=</span>param.data.size(), device<span class="op">=</span>param.data.device, dtype<span class="op">=</span>param.data.dtype)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>            param.data <span class="op">=</span> param.data <span class="op">+</span> scaling_factor <span class="op">*</span> z <span class="op">*</span> <span class="va">self</span>.args.zero_order_eps</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> model</span></code></pre></div>
+<div class="sourceCode" id="cb11"><label for="font-toggle">font</label>
+<pre
+class="sourceCode py"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> efficient_perturb_parameters(<span class="va">self</span>, model: nn.Module, random_seed: <span class="bu">int</span>, scaling_factor<span class="op">=</span><span class="dv">1</span>):</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>        torch.manual_seed(random_seed)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> name, param <span class="kw">in</span> <span class="va">self</span>.named_parameters_to_optim:</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>            z <span class="op">=</span> torch.normal(mean<span class="op">=</span><span class="dv">0</span>, std<span class="op">=</span><span class="dv">1</span>, size<span class="op">=</span>param.data.size(), device<span class="op">=</span>param.data.device, dtype<span class="op">=</span>param.data.dtype)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>            param.data <span class="op">=</span> param.data <span class="op">+</span> scaling_factor <span class="op">*</span> z <span class="op">*</span> <span class="va">self</span>.args.zero_order_eps</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> model</span></code></pre></div>
 <p>That's right. They actually materialize the perturbations. The method
 name is a misnomer, because they literally call
 <code>torch.normal()</code> with <code>size=param.data.size()</code>.
@@ -926,7 +940,8 @@ And then they multiply it into the model parameters.</p>
 the perturbations. Why would they do this?</p>
 <p>They do it because implementing it the right way is hard. So hard
 that they didn't even bother to implement their own key optimization.
-Researching this stuff is a massive pain, for a lot of reasons.</p>
+Researching this stuff is a massive pain, for a lot of reasons. It's an
+even bigger pain when you have to write kernels.</p>
 <p>I think they were correct</p>
 <h2 id="autoresearch">Autoresearch</h2>
 <p>I've sort of dived headfirst into ZO. Despite that, I don't think
@@ -944,6 +959,10 @@ results fast enough. The other problem is that implementing this "the
 right way" requires writing an optimizing an absolutely insane number of
 rather exotic kernels. Kernel autoresearch needs to be solved before
 this is a tractable research area.</p>
+<ul>
+<li>Basically just try everything with ZO that's already been tried with
+first order</li>
+</ul>
 <!--
 <br>
 <div style="text-align: center;">
@@ -988,14 +1007,21 @@ This is independent of learning rate but in practice would be very unstable, so 
 Another problem is noise. The big problem in MeZO derivatives.
 Let's now look at the theoretical variance of the projected gradient `p` and of the diagonal of the hessian `q` under MeZO.
 -->
+<h2 id="conclusion">Conclusion</h2>
+<p>Hopefully you found this interesting. I think Zeroth-Order
+Optimization is very underexplored.</p>
+<p>If you want to talk about it or collaborate, send me a DM on <a
+href="https://x.com/apaz_cli">x/twitter</a>, on Discord at <span
+class="citation" data-cites="apaz">@apaz</span>, or send me an email
+using the link on the homepage.</p>
 <h4 id="bibtex-citation">Bibtex Citation</h4>
-<div class="sourceCode" id="cb9"><label for="font-toggle">font</label>
+<div class="sourceCode" id="cb12"><label for="font-toggle">font</label>
 <pre
-class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="va">@misc</span>{<span class="ot">pazdera2026scaling</span>,</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">author</span> = {Pazdera, Aaron},</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span>  = {Scaling Agents to Unfathomable Depth and Context With Zeroth-Order Optimization},</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">year</span>   = {2026},</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">url</span>    = {https://apaz-cli.github.io/blog/Scaling_To_Unfathomable_Depth.html}</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="va">@misc</span>{<span class="ot">pazdera2026scaling</span>,</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">author</span> = {Pazdera, Aaron},</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span>  = {Scaling Agents to Unfathomable Depth and Context With Zeroth-Order Optimization},</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">year</span>   = {2026},</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">url</span>    = {https://apaz-cli.github.io/blog/Scaling_To_Unfathomable_Depth.html}</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 </body>
 </html>

@@ -123,8 +123,6 @@ But it may not be so bad? At least, [in RL it is not so bad](https://x.com/kalom
 
 But also note that it seems [not to work as well for smaller models](https://arxiv.org/abs/2509.12960), and also not as well at the beginning of training. Hence why the ReLORA paper actually doesn't use adapters at the start of training, instead opting for full-rank updates at the start.
 
-![TODO FIGURE from RELORA]()
-
 But, it goes without saying that MeZO + LoRA (plus other stuff) is totally doable. All of these techniques I'm talking about can be combined.
 
 There's also another paper to look into called [LOZO](https://arxiv.org/abs/2410.07698) which takes the "MeZO + LoRA" idea further. Essentially you can also LoRA your perturbations. Initially, this seems like a strange thing to do. But the LOZO paper justifies it by saying that, since gradient updates tend to be low rank anyway, maybe you actually *want* low rank perturbations. If the update is supposed to be low rank, if it isn't (if each param follows a gaussian like in MeZO) then the parts that aren't are actually noise. Or, if they're not, the high-rank parts are probably along flat directions, and you would get a better update on average and reduce your variance with a lower rank update.
@@ -216,6 +214,8 @@ proj_grad = (L(Φ(θ + εz, b)) - L(Φ(θ - εz, b))) / 2ε
           = ∇L(Φ(θ,b)) * z
 ```
 
+This is good. This is what we wanted to see. MeZO wouldn't work if this wasn't true.
+
 Now `proj_grad = ∇L(Φ(θ,b)) * z` is a function of the random variable `b` (the batch). To get the variance, how much does the projected gradient vary as `b` varies?
 
 Well, `z` is a gaussian random variable, so apply the law of total variance:
@@ -255,9 +255,9 @@ E[||∇L(Φ(θ,b))||²] = ||E[∇L(Φ(θ,b))]||² + E[||∇L(Φ(θ,b)) - E[∇L(
 
 Then split up the batch by variance
 Var(proj_grad)     = ∇L(Φ(θ))² + Var(∇L(Φ(θ,b)))
-                   = ∇L(Φ(θ))² + Var((1/B) Σᵢ ∇L(Φ(θ,xᵢ))))     (by definition of batch gradient and i.i.d.)
-                   = ∇L(Φ(θ))² + (1/B²) Σᵢ Var(∇L(Φ(θ,xᵢ))))    (because Var(c * X) = c² * Var(X) for any scalar constant c)
-                   = ∇L(Φ(θ))² + (1/B²) * B * ∇L(Φ(θ,xᵢ)))²     (because xᵢ are i.i.d.)
+                   = ∇L(Φ(θ))² + Var((1/B) Σᵢ ∇L(Φ(θ,xᵢ)))     (by definition of batch gradient and i.i.d.)
+                   = ∇L(Φ(θ))² + (1/B²) Σᵢ Var(∇L(Φ(θ,xᵢ)))    (because Var(c * X) = c² * Var(X) for any scalar constant c)
+                   = ∇L(Φ(θ))² + (1/B²) * B * ∇L(Φ(θ,xᵢ))²     (because xᵢ are i.i.d.)
                    = ∇L(Φ(θ))² + ∇L(Φ(θ,xᵢ))² / B
 ```
 
@@ -279,33 +279,49 @@ Random thing that I've noticed as I'm doing experiments here. Both Muon and LOZO
 
 But, I feel like there's something here. Building higher-rank updates out of low-rank spectral subspaces directly has an interesting set of tradeoffs.
 
+### Multi-MeZO
+
+Nobody has ever done this yet, but it's an obvious thing (to me) that falls out of the math.
+
+We just derived that the variance of the projected gradient under MeZO is:
+```
+Var(proj_grad) = ∇L(Φ(θ))² + ∇L(Φ(θ,xᵢ))² / B
+```
+
+This is because we are sampling one `z` direction. What if we sampled multiple `z` directions? Suppose we sample `Z` independent `z` gaussians, with batch size `B` each.
+
+Then the expectation of proj_grad would be:
+```
+proj_grad = (1/Z) Σⱼ ∇L(Φ(θ,bⱼ)) * zⱼ
+```
+
+Then calculate the new `Var(proj_grad)`:
+```
+Var(proj_grad) = Var((1/Z) Σⱼ ∇L(Φ(θ,bⱼ)) * zⱼ)
+               = (1/Z²) * Z * Var(∇L(Φ(θ,b)) * z)        (By Bienaymé's identity because terms i.i.d. in j)
+               = (1/Z) * Var(∇L(Φ(θ,b)) * z)
+               = (1/Z) * E[||∇L(Φ(θ,b))||²]              (from single-z proof)
+               = (1/Z) * (∇L(Φ(θ))² + ∇L(Φ(θ,xᵢ))² / B)  (from single-z proof)
+               = ∇L(Φ(θ))² / Z + ∇L(Φ(θ,xᵢ))² / ZB
+```
+
+This is great news. Generating a new `z` for every batch improves the noise estimate linearly. If we are not storing `z` but regenerating it on the fly (because it's cheaper) then this is a better axis to scale on. Technically, increasing `B` is pointless. Somehow nobody (to my knowledge) has done this experimentally, so I'm not sure. But it should work.
+
+I think the reason why this is unexplored is that it absolutely sucks to do in pytorch. You have to do it "the right way" and write a kernel.
+
+This should give us better control over how to spend our samples to reduce noise. If this works, it might be a big deal.
+
 ### ZO and Momentum
 
-In first-order optimizers, one frequently utilized technique is momentum. All the best optimizers have some concept of momentum. This has two beneficial properties. It accelerates convergence, and it also has the effect of smoothing over variance/noise.
+In first-order optimizers, one frequently utilized technique is momentum. All the best optimizers have some concept of momentum. This has two beneficial properties. It accelerates convergence, and it also has the effect of smoothing over variance/noise. That sounds really really good right about now, seeing as we are spending so much time thinking about how to reduce noise.
 
-That sounds really really good right about now. And many ZO papers would agree with this. "Let's add momentum to ZO" is not an original idea. To my knowledge though, nobody has implemented it the way I'm thinking of.
+"Let's add momentum to ZO" is not an original idea. Indeed, many papers have done this. Basically all of them, actually. That's not so interesting.
 
-If you recall, the strategy for implementing MeZO "the right way" is to never materialize `z`. And all our updates are  What if you never had to materialize the?
+The strategy for implementing MeZO "the right way" is to never materialize `z`. This got me thinking. What if there's a way to do momentum without storing a momentum buffer?
 
-Simply 
+Well... why not just save the seeds so you can reproduce `z`? There are a bunch of seeds laying around. Why don't we just use them to reconstruct the momentum buffer every step? If we're cranking up the batch size, isn't this actually pretty cheap? An optimizer update is basically load+store. May as well do some math at the same time.
 
-Now, 
-
-It requires storing a 
-
-## Practical Research Proposals
-
-* ZO has the ability to scale depth and recurrence without having to do TBPTT
-* Pseudograds don't have the vanishing/exploding problems of real grads
-* Skip connections kill you because they blow up the activation mem requirements and group layers
-* Thin models are better because smaller activations and less compute spent
-* Truly massive LoRA matrices are possible
-* Why do that just stack more layers
-* Up to a point. An optimal balance exists, the scaling laws just haven't been calculated yet
-* There is an arch search space here and the dynamics of the search space are obvious
-* Basically just try everything with ZO that's already been tried with first order
-* Have to solve pipeline fault tolerance somehow if operating at a large scale
-* Stacking layers is terrible for latency, actually.
+It's also already pretty cheap in terms of memory because we're probably optimizing LoRA parameters anyway. But it's worth noting that this is possible.
 
 ## Why now?
 
@@ -328,7 +344,7 @@ That's right. They actually materialize the perturbations. The method name is a 
 
 But the entire point of MeZO is that you DON'T have to materialize the perturbations. Why would they do this?
 
-They do it because implementing it the right way is hard. So hard that they didn't even bother to implement their own key optimization. Researching this stuff is a massive pain, for a lot of reasons.
+They do it because implementing it the right way is hard. So hard that they didn't even bother to implement their own key optimization. Researching this stuff is a massive pain, for a lot of reasons. It's an even bigger pain when you have to write kernels.
 
 I think they were correct 
 
@@ -342,6 +358,7 @@ To implement ZO properly you need to write and optimize all your own custom kern
 I think autoresearch is the only way. This is not a research path for humans. If it's to be taken, it needs to be taken by machines. The arch search space and its dynamics are obvious, what experiments to run are obvious, and not all of it requires large amounts of compute, we just don't have the human capital to run the experiments and interpret the results fast enough.
 The other problem is that implementing this "the right way" requires writing an optimizing an absolutely insane number of rather exotic kernels. Kernel autoresearch needs to be solved before this is a tractable research area.
 
+* Basically just try everything with ZO that's already been tried with first order
 
 <!--
 <br>
@@ -389,6 +406,12 @@ Another problem is noise. The big problem in MeZO derivatives.
 Let's now look at the theoretical variance of the projected gradient `p` and of the diagonal of the hessian `q` under MeZO.
 -->
 
+
+## Conclusion
+
+Hopefully you found this interesting. I think Zeroth-Order Optimization is very underexplored.
+
+If you want to talk about it or collaborate, send me a DM on [x/twitter](https://x.com/apaz_cli), on Discord at @apaz, or send me an email using the link on the homepage.
 
 #### Bibtex Citation
 
