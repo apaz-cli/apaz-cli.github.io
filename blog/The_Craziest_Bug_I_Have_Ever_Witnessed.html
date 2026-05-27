@@ -330,7 +330,7 @@ detailed) ar...">
       font-size: 12;
   }
 
-  .font-toggle { display: none; }
+  #font-toggle { display: none; }
   div.sourceCode, pre { position: relative; }
   div.sourceCode > label,
   pre > label {
@@ -341,18 +341,19 @@ detailed) ar...">
       color: #666;
       padding: 0.1em 0.4em;
       border: 1px solid #555;
-      font-family: "Menlo", "Monaco", "Courier New", monospace;
+      font-family: "lemon", "Menlo", "Monaco", "Courier New";
       font-size: 10px;
       user-select: none;
       z-index: 1;
       background: #2a2a2a;
       line-height: 1.4;
   }
-  .font-toggle:checked + div.sourceCode > label,
-  .font-toggle:checked + pre > label { color: #01ff70; }
-  .font-toggle:checked + div.sourceCode pre,
-  .font-toggle:checked + div.sourceCode code,
-  .font-toggle:checked + pre code {
+  html:has(#font-toggle:checked) div.sourceCode > label,
+  html:has(#font-toggle:checked) pre > label {
+      font-family: "Menlo", "Monaco", "Courier New", monospace;
+  }
+  html:has(#font-toggle:checked) pre,
+  html:has(#font-toggle:checked) code {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
 
@@ -394,6 +395,7 @@ detailed) ar...">
   </style>
 </head>
 <body>
+<input type="checkbox" id="font-toggle">
 <div style="text-align: center;">
 <p><img src="images/Lain_Kernel_Panic.png" /></p>
 </div>
@@ -542,8 +544,7 @@ In this moment, I felt nothing. I was numb.
 id="how-many-c-programmers-do-you-know-that-know-all-of-the-following-facts-about-the-c-runtime-and-can-piece-together-they-mean-in-aggregate">How
 many C programmers do you know that know all of the following facts
 about the C runtime and can piece together they mean in aggregate?</h4>
-<input type="checkbox" class="font-toggle" id="font-toggle-1">
-<div class="sourceCode" id="cb1"><label for="font-toggle-1">font</label>
+<div class="sourceCode" id="cb1"><label for="font-toggle">font</label>
 <pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Linkers have the option to do &quot;lazy loading&quot;, replacing calls to external</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>   libraries with trampolines that load the library if its symbol cannot be</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>   found in the Global Offset Table (GOT). This library loading and stashing</span>
@@ -593,8 +594,7 @@ there. So, in practice, we still have to understand the rules.</p>
 simplicity's sake suppose that it's implemented something like this. It
 isn't implemented anything like this, but for the sake of argument,
 pretend that it is.</p>
-<input type="checkbox" class="font-toggle" id="font-toggle-2">
-<div class="sourceCode" id="cb2"><label for="font-toggle-2">font</label>
+<div class="sourceCode" id="cb2"><label for="font-toggle">font</label>
 <pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span><span class="op">*</span> freelist<span class="op">[</span>FREELIST_SIZE<span class="op">];</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">size_t</span> freelist_size <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>

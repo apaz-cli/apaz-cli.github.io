@@ -265,7 +265,7 @@ you embed, etc. It all influences the response you get.">
       font-size: 12;
   }
 
-  .font-toggle { display: none; }
+  #font-toggle { display: none; }
   div.sourceCode, pre { position: relative; }
   div.sourceCode > label,
   pre > label {
@@ -276,18 +276,19 @@ you embed, etc. It all influences the response you get.">
       color: #666;
       padding: 0.1em 0.4em;
       border: 1px solid #555;
-      font-family: "Menlo", "Monaco", "Courier New", monospace;
+      font-family: "lemon", "Menlo", "Monaco", "Courier New";
       font-size: 10px;
       user-select: none;
       z-index: 1;
       background: #2a2a2a;
       line-height: 1.4;
   }
-  .font-toggle:checked + div.sourceCode > label,
-  .font-toggle:checked + pre > label { color: #01ff70; }
-  .font-toggle:checked + div.sourceCode pre,
-  .font-toggle:checked + div.sourceCode code,
-  .font-toggle:checked + pre code {
+  html:has(#font-toggle:checked) div.sourceCode > label,
+  html:has(#font-toggle:checked) pre > label {
+      font-family: "Menlo", "Monaco", "Courier New", monospace;
+  }
+  html:has(#font-toggle:checked) pre,
+  html:has(#font-toggle:checked) code {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
 
@@ -329,6 +330,7 @@ you embed, etc. It all influences the response you get.">
   </style>
 </head>
 <body>
+<input type="checkbox" id="font-toggle">
 <div style="text-align: center;">
 <p><img src="images/4f506c1ba9ca36e864efbbff4ac63ec4.jpg" /></p>
 </div>

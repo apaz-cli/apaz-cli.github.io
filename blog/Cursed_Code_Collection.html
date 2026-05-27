@@ -323,7 +323,7 @@ I'm putting them here. The shebang for C is just a little bit longer than one li
       font-size: 12;
   }
 
-  .font-toggle { display: none; }
+  #font-toggle { display: none; }
   div.sourceCode, pre { position: relative; }
   div.sourceCode > label,
   pre > label {
@@ -334,18 +334,19 @@ I'm putting them here. The shebang for C is just a little bit longer than one li
       color: #666;
       padding: 0.1em 0.4em;
       border: 1px solid #555;
-      font-family: "Menlo", "Monaco", "Courier New", monospace;
+      font-family: "lemon", "Menlo", "Monaco", "Courier New";
       font-size: 10px;
       user-select: none;
       z-index: 1;
       background: #2a2a2a;
       line-height: 1.4;
   }
-  .font-toggle:checked + div.sourceCode > label,
-  .font-toggle:checked + pre > label { color: #01ff70; }
-  .font-toggle:checked + div.sourceCode pre,
-  .font-toggle:checked + div.sourceCode code,
-  .font-toggle:checked + pre code {
+  html:has(#font-toggle:checked) div.sourceCode > label,
+  html:has(#font-toggle:checked) pre > label {
+      font-family: "Menlo", "Monaco", "Courier New", monospace;
+  }
+  html:has(#font-toggle:checked) pre,
+  html:has(#font-toggle:checked) code {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
 
@@ -387,13 +388,13 @@ I'm putting them here. The shebang for C is just a little bit longer than one li
   </style>
 </head>
 <body>
+<input type="checkbox" id="font-toggle">
 <h1 id="cursed-code-collection">Cursed Code Collection</h1>
 <p>I have a pile of interesting programs, and nowhere to put them. So
 I'm putting them here.</p>
 <hr>
 <p>The shebang for C is just a little bit longer than one line.</p>
-<input type="checkbox" class="font-toggle" id="font-toggle-1">
-<div class="sourceCode" id="cb1"><label for="font-toggle-1">font</label>
+<div class="sourceCode" id="cb1"><label for="font-toggle">font</label>
 <pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#if 0</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">TMP=</span><span class="st">&quot;$(mktemp -d)&quot;</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">cc -o </span><span class="st">&quot;$TMP/a.out&quot;</span><span class="co"> -x c </span><span class="st">&quot;$0&quot;</span><span class="co"> &amp;&amp; </span><span class="st">&quot;$TMP/a.out&quot;</span><span class="co"> $@</span></span>
@@ -410,8 +411,7 @@ I'm putting them here.</p>
 <p>Open a file, swap the nibbles of every byte, and write it back. I'm
 not sure if this error handling macro is big brain or small brain. For
 sure it wouldn't pass code review.</p>
-<input type="checkbox" class="font-toggle" id="font-toggle-2">
-<div class="sourceCode" id="cb2"><label for="font-toggle-2">font</label>
+<div class="sourceCode" id="cb2"><label for="font-toggle">font</label>
 <pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;unistd.h&gt;</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;fcntl.h&gt;</span></span>
@@ -440,8 +440,7 @@ sure it wouldn't pass code review.</p>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <hr>
 <p>Annihilate your python runtime.</p>
-<input type="checkbox" class="font-toggle" id="font-toggle-3">
-<div class="sourceCode" id="cb3"><label for="font-toggle-3">font</label>
+<div class="sourceCode" id="cb3"><label for="font-toggle">font</label>
 <pre class="sourceCode py"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>da, di <span class="op">=</span> <span class="bu">delattr</span>, <span class="bu">dir</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>shred_runtime <span class="op">=</span> <span class="kw">lambda</span>: [da(__builtins__, a) <span class="cf">for</span> a <span class="kw">in</span> di(__builtins__)]</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>shred_runtime()</span>
@@ -456,8 +455,7 @@ quite the way you think they do. For a more complete explanation, see:
 <a
 href="https://utcc.utoronto.ca/~cks/space/blog/python/UnderstandingClosureOddity">Understanding
 a Python closure oddity</a>.</p>
-<input type="checkbox" class="font-toggle" id="font-toggle-4">
-<div class="sourceCode" id="cb4"><label for="font-toggle-4">font</label>
+<div class="sourceCode" id="cb4"><label for="font-toggle">font</label>
 <pre class="sourceCode py"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> loop():</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> number <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> closure():</span>
@@ -475,8 +473,7 @@ you have. This is less cursed code, and more just the most sane way of
 doing things. But the fact that <code>_Generic</code> is actually the
 best solution to any problem is baffling, and cursed in its own
 right.</p>
-<input type="checkbox" class="font-toggle" id="font-toggle-5">
-<div class="sourceCode" id="cb5"><label for="font-toggle-5">font</label>
+<div class="sourceCode" id="cb5"><label for="font-toggle">font</label>
 <pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -494,8 +491,7 @@ href="https://twitter.com/Morwenn_Ed">Morwenn</a>. This was originally a
 meme, but somehow it made it onto <a
 href="https://en.wikipedia.org/wiki/Digraphs_and_trigraphs_(programming)">the
 wikipedia page</a>!</p>
-<input type="checkbox" class="font-toggle" id="font-toggle-6">
-<div class="sourceCode" id="cb6"><label for="font-toggle-6">font</label>
+<div class="sourceCode" id="cb6"><label for="font-toggle">font</label>
 <pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> trigraphsavailable<span class="op">()</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// are trigraphs available??/</span></span>
@@ -505,8 +501,7 @@ wikipedia page</a>!</p>
 <hr>
 <h2 id="hello-world-programs">Hello World Programs</h2>
 <p>Why write C when you can just write out an ELF file directly?</p>
-<input type="checkbox" class="font-toggle" id="font-toggle-7">
-<div class="sourceCode" id="cb7"><label for="font-toggle-7">font</label>
+<div class="sourceCode" id="cb7"><label for="font-toggle">font</label>
 <pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define </span><span class="ot">_GNU_SOURCE</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;sys/mman.h&gt;</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;unistd.h&gt;</span></span>
@@ -532,8 +527,7 @@ string and runs it. The function exists in many dynamic programming
 languages, like Javascript, Python, Perl, Ruby, and Lisp. Not in C
 though, because C is a statically compiled language. But what if I told
 you it existed in C as well?</p>
-<input type="checkbox" class="font-toggle" id="font-toggle-8">
-<div class="sourceCode" id="cb8"><label for="font-toggle-8">font</label>
+<div class="sourceCode" id="cb8"><label for="font-toggle">font</label>
 <pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;dlfcn.h&gt;</span></span>
@@ -560,8 +554,7 @@ with a call to <code>memset()</code>, and it calls our memset rather
 than the one from the stdlib, because that one hasn't been included. To
 disable this behavior, you can use the compiler flag
 <code>-fno-builtin</code>.</p>
-<input type="checkbox" class="font-toggle" id="font-toggle-9">
-<div class="sourceCode" id="cb9"><label for="font-toggle-9">font</label>
+<div class="sourceCode" id="cb9"><label for="font-toggle">font</label>
 <pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span><span class="op">*</span> memset<span class="op">(</span><span class="dt">void</span><span class="op">*</span> s<span class="op">,</span> <span class="dt">int</span> c<span class="op">,</span> <span class="dt">size_t</span> n<span class="op">)</span> <span class="op">{</span></span>
@@ -576,8 +569,7 @@ disable this behavior, you can use the compiler flag
 <code>/dev/urandom</code> forever. For some reason Clang does not,
 doesn't even error, and compiles a functional hello world program.
 Absolutely wild.</p>
-<input type="checkbox" class="font-toggle" id="font-toggle-10">
-<div class="sourceCode" id="cb10"><label for="font-toggle-10">font</label>
+<div class="sourceCode" id="cb10"><label for="font-toggle">font</label>
 <pre class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;/dev/urandom&gt;</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>

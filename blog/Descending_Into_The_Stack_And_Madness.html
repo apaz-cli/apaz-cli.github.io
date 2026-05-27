@@ -325,7 +325,7 @@ backtrace from a signal handler. What am I to do?">
       font-size: 12;
   }
 
-  .font-toggle { display: none; }
+  #font-toggle { display: none; }
   div.sourceCode, pre { position: relative; }
   div.sourceCode > label,
   pre > label {
@@ -336,18 +336,19 @@ backtrace from a signal handler. What am I to do?">
       color: #666;
       padding: 0.1em 0.4em;
       border: 1px solid #555;
-      font-family: "Menlo", "Monaco", "Courier New", monospace;
+      font-family: "lemon", "Menlo", "Monaco", "Courier New";
       font-size: 10px;
       user-select: none;
       z-index: 1;
       background: #2a2a2a;
       line-height: 1.4;
   }
-  .font-toggle:checked + div.sourceCode > label,
-  .font-toggle:checked + pre > label { color: #01ff70; }
-  .font-toggle:checked + div.sourceCode pre,
-  .font-toggle:checked + div.sourceCode code,
-  .font-toggle:checked + pre code {
+  html:has(#font-toggle:checked) div.sourceCode > label,
+  html:has(#font-toggle:checked) pre > label {
+      font-family: "Menlo", "Monaco", "Courier New", monospace;
+  }
+  html:has(#font-toggle:checked) pre,
+  html:has(#font-toggle:checked) code {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
 
@@ -389,6 +390,7 @@ backtrace from a signal handler. What am I to do?">
   </style>
 </head>
 <body>
+<input type="checkbox" id="font-toggle">
 <h1 id="descending-into-the-stack-and-madness">Descending Into the Stack
 and Madness</h1>
 <p>AS-Safe glibc stack traces. A descent into madness. A death by a
@@ -400,8 +402,7 @@ backtrace from a signal handler.</p>
 <h1 id="background">Background</h1>
 <h3 id="what-is-a-signal-handler">What is a signal handler?</h3>
 <p>Here's an example.</p>
-<input type="checkbox" class="font-toggle" id="font-toggle-1">
-<div class="sourceCode" id="cb1"><label for="font-toggle-1">font</label>
+<div class="sourceCode" id="cb1"><label for="font-toggle">font</label>
 <pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;signal.h&gt;</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -436,8 +437,7 @@ leaves a lot to be desired. What's actually more important than what's
 written there is what isn't. It also explains what you aren't allowed to
 do, but doesn't explain why. Let's explain why.</p>
 <p>The man page says:</p>
-<input type="checkbox" class="font-toggle" id="font-toggle-3">
-<pre><label for="font-toggle-3">font</label><code>If, at that moment, the program is interrupted by a signal handler
+<pre><label for="font-toggle">font</label><code>If, at that moment, the program is interrupted by a signal handler
 that also calls printf(3), then the second call to printf(3) will
 operate on inconsistent data, with unpredictable results.</code></pre>
 <p>Why is this? I thought that <code>printf()</code> was threadsafe?</p>
@@ -598,8 +598,7 @@ signal handlers hijack the execution of a running thread. If
 a system call outside the signal hander has failed, or
 vice-versa.</p></li>
 </ol>
-<input type="checkbox" class="font-toggle" id="font-toggle-2">
-<div class="sourceCode" id="cb3"><label for="font-toggle-2">font</label>
+<div class="sourceCode" id="cb3"><label for="font-toggle">font</label>
 <pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;errno.h&gt;</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> signal_handler<span class="op">(</span><span class="dt">int</span> sig<span class="op">)</span> <span class="op">{</span></span>

@@ -189,13 +189,13 @@ Here's a bunch of math. I've tried to make it readable, but if your eyes glaze o
 
 In MeZO, the update rule is based on:
 ```
-proj_grad = (L(Φ(𝜽 + εz, b)) - 
-             L(Φ(𝜽 - εz, b))) 
+proj_grad = (L(Φ(θ + εz, b)) - 
+             L(Φ(θ - εz, b))) 
              / 2ε
 
 For some scalar loss function L,
 some model architecture Φ,
-the current model weights 𝜽,
+the current model weights θ,
 a batch of inputs b,
 a gaussian distribution z (sampled every step)
 and small scalar hparam ε (usually 1e^-3).
@@ -203,20 +203,20 @@ and small scalar hparam ε (usually 1e^-3).
 
 Assume for small `ε` (as MeZO does) that:
 ```
-L(Φ(𝜽 + εz, b)) ≈ L(Φ(𝜽,b)) + ∇L(Φ(𝜽,b)) * εz
-L(Φ(𝜽 - εz, b)) ≈ L(Φ(𝜽,b)) - ∇L(Φ(𝜽,b)) * εz
+L(Φ(θ + εz, b)) ≈ L(Φ(θ,b)) + ∇L(Φ(θ,b)) * εz
+L(Φ(θ - εz, b)) ≈ L(Φ(θ,b)) - ∇L(Φ(θ,b)) * εz
 ```
 
 Plugging these into the update rule, we see that the losses and directions cancel out, leaving an expectation of the step size.
 ```
-proj_grad = (L(Φ(𝜽 + εz, b)) - L(Φ(𝜽 - εz, b))) / 2ε
-          ≈ ((L(Φ(𝜽,b)) + ∇L(Φ(𝜽,b)) * εz) - (L(Φ(𝜽,b)) - ∇L(Φ(𝜽,b)) * εz)) / 2ε
-          = (L(Φ(𝜽,b)) + ∇L(Φ(𝜽,b)) * εz - L(Φ(𝜽,b)) + ∇L(Φ(𝜽,b)) * εz) / 2ε
-          = (2 * ∇L(Φ(𝜽,b)) * εz) / 2ε
-          = ∇L(Φ(𝜽,b)) * z
+proj_grad = (L(Φ(θ + εz, b)) - L(Φ(θ - εz, b))) / 2ε
+          ≈ ((L(Φ(θ,b)) + ∇L(Φ(θ,b)) * εz) - (L(Φ(θ,b)) - ∇L(Φ(θ,b)) * εz)) / 2ε
+          = (L(Φ(θ,b)) + ∇L(Φ(θ,b)) * εz - L(Φ(θ,b)) + ∇L(Φ(θ,b)) * εz) / 2ε
+          = (2 * ∇L(Φ(θ,b)) * εz) / 2ε
+          = ∇L(Φ(θ,b)) * z
 ```
 
-Now `proj_grad = ∇L(Φ(𝜽,b)) * z` is a function of the random variable `b` (the batch). To get the variance, how much does the projected gradient vary as `b` varies?
+Now `proj_grad = ∇L(Φ(θ,b)) * z` is a function of the random variable `b` (the batch). To get the variance, how much does the projected gradient vary as `b` varies?
 
 Well, `z` is a gaussian random variable, so apply the law of total variance:
 ```
@@ -225,43 +225,43 @@ Var(X) = E[Var(X|Y)] + Var(E[X|Y])
 Var(proj_grad) = E[Var(proj_grad | b)] + Var(E[proj_grad | b])
 where E[] means "in expectation over infinite random samples."
 
-But Var(E[proj_grad | b]) = 0, since E[∇L(Φ(𝜽,b)) * z] = 0.
+But Var(E[proj_grad | b]) = 0, since E[∇L(Φ(θ,b)) * z] = 0.
 Substitute in known gaussian variance for the remaining term:
 
-Var(proj_grad) = E[||∇L(Φ(𝜽,b))||²]
-Var(proj_grad) = ∇L(Φ(𝜽,b))²
+Var(proj_grad) = E[||∇L(Φ(θ,b))||²]
+Var(proj_grad) = ∇L(Φ(θ,b))²
 ```
 
 That is to say, it depends on your network, your loss function, and the contents of your batch. The formula for first-order happens to be the same:
 ```
-Var(grad) = ∇L(Φ(𝜽,b))²
+Var(grad) = ∇L(Φ(θ,b))²
 ```
 
 But there's a catch. Our math up until this point assumes that the batch `b` is one inseperable item. But `b` is made of `B` entries. Then we have the identity:
 ```
-∇L(Φ(𝜽,b)) = (1/B) Σᵢ ∇L(Φ(𝜽,xᵢ))
+∇L(Φ(θ,b)) = (1/B) Σᵢ ∇L(Φ(θ,xᵢ))
 where xᵢ is the ith entry in the batch
 ```
 
 For the variance of FO, we can simply divide by B. But the ZO case is much worse.
 ```
-Recall Var(proj_grad) = ∇L(Φ(𝜽,b))² = E[||∇L(Φ(𝜽,b))||²].
+Recall Var(proj_grad) = ∇L(Φ(θ,b))² = E[||∇L(Φ(θ,b))||²].
 
 Taking expectation over b, use the vector identity E[||v||²] = ||E[v]||² + E[||v -E[v]||²].
 
 Var(proj_grad)     =
-E[||∇L(Φ(𝜽,b))||²] = ||E[∇L(Φ(𝜽,b))]||² + E[||∇L(Φ(𝜽,b)) - E[∇L(Φ(𝜽,b))]||²]
-                   = ∇L(Φ(𝜽))² + Var(∇L(Φ(𝜽,b))) (Where I denote the true gradient without expectation over b as Φ(𝜽))
+E[||∇L(Φ(θ,b))||²] = ||E[∇L(Φ(θ,b))]||² + E[||∇L(Φ(θ,b)) - E[∇L(Φ(θ,b))]||²]
+                   = ∇L(Φ(θ))² + Var(∇L(Φ(θ,b))) (Where I denote the true gradient without expectation over b as Φ(θ))
 
 Then split up the batch by variance
-Var(proj_grad)     = ∇L(Φ(𝜽))² + Var(∇L(Φ(𝜽,b)))
-                   = ∇L(Φ(𝜽))² + Var((1/B) Σᵢ ∇L(Φ(𝜽,xᵢ))))     (by definition of batch gradient and i.i.d.)
-                   = ∇L(Φ(𝜽))² + (1/B²) Σᵢ Var(∇L(Φ(𝜽,xᵢ))))    (because Var(c * X) = c² * Var(X) for any scalar constant c)
-                   = ∇L(Φ(𝜽))² + (1/B²) * B * ∇L(Φ(𝜽,xᵢ)))²     (because xᵢ are i.i.d.)
-                   = ∇L(Φ(𝜽))² + ∇L(Φ(𝜽,xᵢ))² / B
+Var(proj_grad)     = ∇L(Φ(θ))² + Var(∇L(Φ(θ,b)))
+                   = ∇L(Φ(θ))² + Var((1/B) Σᵢ ∇L(Φ(θ,xᵢ))))     (by definition of batch gradient and i.i.d.)
+                   = ∇L(Φ(θ))² + (1/B²) Σᵢ Var(∇L(Φ(θ,xᵢ))))    (because Var(c * X) = c² * Var(X) for any scalar constant c)
+                   = ∇L(Φ(θ))² + (1/B²) * B * ∇L(Φ(θ,xᵢ)))²     (because xᵢ are i.i.d.)
+                   = ∇L(Φ(θ))² + ∇L(Φ(θ,xᵢ))² / B
 ```
 
-In other words, the variance of our projected gradient has two components to it. There is direction sampling variance `∇L(Φ(𝜽))²`, and data variance, `∇L(Φ(𝜽,xᵢ))² / B`. The batch variance is reducible, whereas the projection variance is not. Every time we sample a gaussian `z`, it points in a direction. This direction is truly uncorrelated with the direction of the true gradient, it's literally a random gaussian.
+In other words, the variance of our projected gradient has two components to it. There is direction sampling variance `∇L(Φ(θ))²`, and data variance, `∇L(Φ(θ,xᵢ))² / B`. The batch variance is reducible, whereas the projection variance is not. Every time we sample a gaussian `z`, it points in a direction. This direction is truly uncorrelated with the direction of the true gradient, it's literally a random gaussian.
 
 If you want to fix this, you can't just increase the batch size. You've gotta get creative.
 
@@ -365,24 +365,24 @@ So, I propose the following. Evaluate at three points, `+ε`, `-ε`, and `±0`. 
 
 But also you can do inference as you train, without having to worry about that epsilon. Continual learning. Inference is training, and training is inference. Specifically, training is 3x inference plus a TON of noise, which grows quadratically with model size (solved by LoRA as discussed before).
 
-Using the information from sampling `±0` you can also approximate the second derivative of the projected gradient `p` (`proj_grad`) from `z`, call the second derivative (the hessian) `q`. The ratio `p/q` gives the step size that minimizes the quadratic approximation of `L(Φ(𝜽, b))` along `z`.
+Using the information from sampling `±0` you can also approximate the second derivative of the projected gradient `p` (`proj_grad`) from `z`, call the second derivative (the hessian) `q`. The ratio `p/q` gives the step size that minimizes the quadratic approximation of `L(Φ(θ, b))` along `z`.
 
 The formula for `q` under three-point evaluation becomes:
 ```
-q = (L(Φ(𝜽 + εz, b)) -
-     L(Φ(𝜽, b)) * 2 + 
-     L(Φ(𝜽 - εz, b)))
+q = (L(Φ(θ + εz, b)) -
+     L(Φ(θ, b)) * 2 + 
+     L(Φ(θ - εz, b)))
    / ε²
 ```
 
 Then the theoretically optimal step size across your update becomes
 ```
-𝜽 = 𝜽 - (p/q) * z
+θ = θ - (p/q) * z
 ```
 
 This is independent of learning rate but in practice would be very unstable, so instead we do:
 ```
-𝜽 = 𝜽 - lr * (p / (q + 1e-8)) * z
+θ = θ - lr * (p / (q + 1e-8)) * z
 ```
 
 Another problem is noise. The big problem in MeZO derivatives.

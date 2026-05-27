@@ -399,16 +399,11 @@ def generate_article(i, md_file):
         html = file.read()
         html = re.sub(replace, repwith, html, flags=re.DOTALL, count=1)
         html = replace_meta_with_opengraph(html, styled_path)
-        _n = [0]
-        def _inject_toggle(m):
-            _n[0] += 1
-            return (f'<input type="checkbox" class="font-toggle" id="font-toggle-{_n[0]}">\n'
-                    f'{m.group()}<label for="font-toggle-{_n[0]}">font</label>\n')
-        html = re.sub(r'<div class="sourceCode"[^>]*>', _inject_toggle, html)
-        def _inject_plain(m):
-            _n[0] += 1
-            return f'<input type="checkbox" class="font-toggle" id="font-toggle-{_n[0]}">\n<pre><label for="font-toggle-{_n[0]}">font</label>{m.group(1)}'
-        html = re.sub(r'<pre>(<code>)', _inject_plain, html)
+        html = html.replace('<body>', '<body>\n<input type="checkbox" id="font-toggle">', 1)
+        html = re.sub(r'<div class="sourceCode"[^>]*>',
+                      lambda m: m.group() + '<label for="font-toggle">font</label>\n', html)
+        html = re.sub(r'<pre>(<code>)',
+                      r'<pre><label for="font-toggle">font</label>\1', html)
 
     if is_protected:
         html = create_encrypted_html(html, protected_articles[title], display_title)
