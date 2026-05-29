@@ -51,9 +51,9 @@ There's a sweet spot, a cutoff in the depth of model it makes sense to train. Bu
 
 In any case, scaling depth seems to be [very important for long-context in-context learning](https://arxiv.org/pdf/2510.01098). Which is what agentic coding is dependent on, and the thing that we're trying to maximize as an industry. If we could train deeper models it might mean that agents can solve new problems that they weren't able to before, with higher reliability. So I would guess, despite the fact that scaling transformers with first-order optimizers continues to lead to improvements, that this is in fact a very prescient issue.
 
-It seems to me that both of the reasons to not scale deeper are invalid. Not being able to backprop through infinite depth is a skill issue, just don't use backprop. Come up with some other way to train the model. Yes, scaling depth saturates on easy problems, and the gains are task-dependent. But I conjecture that task-dependence isn't a real reason not to scale either, because context length scaling naturally presents harder and harder tasks that will require keeping track of more and more information and making more and more decisions based on that information.
+I think both reasons not to scale deeper are invalid. Training dynamics and infinite depth? That's a skill issue, just don't use backprop. Task saturation? Yes, scaling depth saturates on easy problems. But we don't care about easy problems, because they're already solved. We want to solve hard problems, and scaling context length naturally presents harder and harder tasks that require tracking more information and making more decisions in the process of producing each token.
 
-So, let's find a way to scale deeper models to longer contexts. Zeroth Order Optimization, and in particular the MeZO branch of research, seems to me a practical approach to this. If we can get it to scale.
+So, let's find a way to scale deeper models to longer contexts. Zeroth Order Optimization, and in particular the branch of research derived from [MeZO](https://arxiv.org/abs/2305.17333) and [SPSA](https://www.jhuapl.edu/spsa/PDF-SPSA/Spall_TAC92.pdf) seems to me a practical approach to this because it does not require backprop and should work with any architecture, even non-differentiable ones. If we can get it to scale, which has of course never really been attempted.
 
 ## Zeroth Order Optimization
 
@@ -63,21 +63,19 @@ But consider zeroth-order. An optimizer that only uses the parameters to optimiz
 
 As it turns out, you can save a LOT of memory this way. You don't have to store intermediate activations or gradients. And since there's no backwards pass you get almost perfect pipeline parallelism for free. It's amazing. Super easy to scale. Genuinely fantastic.
 
-But another thing that's cool is, much like RL, we can choose any loss function we want, because we're guessing and checking. This makes it pretty unique as a finetuning method.
+But another thing that's cool is, much like RL, we can choose any loss function we want, because we're guessing and checking. This makes it pretty unique.
 
-So, let's explain how it works. To minimize the loss by tweaking model weights, you need direction information and magnitude information. You need the gradient. Which you don't have, so you have to find a way to estimate. There are a bunch of ways to do this, but the most popular is MeZO and algorithms that derive from MeZO. More on that soon.
+Yet another cool thing, perhaps the coolest. Since there's no backawrds pass training and inference are the same thing. You can extract useful work from the model as you're training it, so long as you have metrics to measure your work by.
 
-Broadly, there are two approaches to this. Either you fall back to the analytical definition of a gradient, which involves evaluating the model once with a nudge to each parameter, or you use an evolutionary approach.
+Let's explain how it works. To minimize the loss by tweaking model weights, you need direction information and magnitude information. You need the gradient. Which you don't have, so you have to find a way to estimate. There are a bunch of ways to do this. Of particular interest to me are the algorithms that derive from [MeZO](https://arxiv.org/abs/2305.17333), [SPSA](https://www.jhuapl.edu/spsa/PDF-SPSA/Spall_TAC92.pdf), and [Evolution Strategies](https://arxiv.org/abs/1703.03864).
 
 The common thing about every ZO approach though is that it sucks. And that's probably why nobody uses Zeroth-Order optimizers.
 
-The specific reason why it sucks is that the only way to get information about the true gradient is by sampling, and sampling doesn't do a whole lot for you. You have to sample a ton, but sampling doesn't give you a lot of information about the true grad, and even the information it does give you is noisy. Worse, it's not noisy in the way your batch is noisy, it's noisy in a deeper, more fundamental way. And getting a bad batch is a problem even under first-order optimization.
+The specific reason why it sucks is that the only way to get information about the true gradient is by sampling, and sampling doesn't do a whole lot for you. You have to sample a ton, but sampling doesn't give you a lot of information about the true grad, and even the information it does give you is noisy. The signal-to-noise ratio is awful. Worse, it's not noisy in the way your batch is noisy, it's noisy in a deeper, more fundamental way. And getting a bad batch is a problem even under first-order optimization.
 
-But wait, it gets worse. To get a gradient update with the same convergence as you get by doing backprop a single time, you need to average over p perturbations, where p is your parameter count. That's the analytical definition of a gradient.
+To get a gradient update with the same convergence as you get by doing backprop a single time, you need to average over `p` perturbations, where `p` is your parameter count. That's the analytical definition of a gradient. 
 
-In summary, the ZO gradient noise is so, so, so bad.
-
-It's better just to calculate grads if you have the option. Calculating the gradient directly is better than trying to estimate it with smoke and mirrors.
+In summary, the ZO gradient noise is so, so, so bad. It's better just to calculate grads if you have the option. Calculating the gradient directly is better than trying to estimate it with smoke and mirrors.
 
 It does save you a ton of memory though. And it works on loss functions that are not differentiable, as long as they are finely-grained enough.
 
@@ -95,7 +93,9 @@ Some of these tricks exist in the literature. Many of them do not exist in the l
 
 The [MeZO paper](https://arxiv.org/abs/2305.17333), also known as "Fine-Tuning Language Models with Just Forward Passes" is why I think any of this is even tractable or interesting at all. The paper describes a way to implement ZO that's extremely efficient and scalable.
 
-The core idea is that you don't have to actually *store* each perturbation to the model. If you write your kernels very carefully, all you have to store is the prng seed to generate a model perturbation, and the activations of ONLY your current layer. But you have to write your own kernels.
+For a description of the method, you can skip down to the "MeZO Math" section. But I want to talk first about why it's efficient.
+
+The core idea behind why it's efficient is that you don't have to actually *store* each perturbation to the model. If you write your kernels very carefully, all you have to store is the PRNG seed to generate a model perturbation, and the activations of ONLY your current layer. But you have to write your own kernels.
 
 Consider a single layer. Since ZO-optimization is perfectly-decomposable layerwise, we don't have to worry about anything else. We need space for the activations flowing into the layer. Depending on the layer we might need space to put the output, if we can't reuse the input buffer. We'll also need to store the model parameters. We'll also need the PRNG seed to generate perturbations to the model on the fly as we load the params.
 
@@ -107,31 +107,11 @@ One benefit of these insane memory savings (not having to store grads or activat
 
 That is to say, with each hardware generation, this method becomes more feasible from a hardware standpoint. The ideal would be something like Cerebras probably. Something like the tinygrad exabox is also looking appealing. You don't need good interconnects. You can probably just physically connect your GPUs together in a line. Most likely, that's your bottleneck. A very good one to have, although it would have an effect on your tokens/second.
 
-### MeZO Kernel Example
-
-I wrote a fused CUDA example kernel for:
-```
-out_pos = layernorm(silu(input @ W + εz)))
-out_neg = layernorm(silu(input @ W - εz)))
-```
-
-It takes a seed as input and fuses a Philox CBPRNG to generate a gaussian `z` on the fly, scales by `±ε`, and adds it into the loaded weights in two simultaneous matrix multiplications, where the weight and input tiles are loaded only once. This kernel also fuses the silu and layernorm reductions and final result write into an epilogue. Although perhaps the epilogue could be its own separate kernel.
-
-This is not meant to be fast. I may write a fast tcgen05 example kernel in the future, but this ain't it. It's meant to showcase how you WOULD write such a kernel. Each generation of Nvidia chips has its own way of writing a matmul, and I tried to write it in such a way as to make it obvious how to port it to whatever hardware generation you desire.
-
-The more sane thing may have been to write it in Triton, but meh. The other kernel that should be written is a flash attention kernel that does the same.
-
-Here's the [repo](https://github.com/apaz-cli/MeZOKernelExample/tree/master). Compile with `./build.sh`, run with `./fused_example` and `./fused_zo_example`.
-
-It also contains an example MeZO optimizer update kernel, without any of the fancy modifications we've been talking about.
-
-I look forward to tossing something like this into an autoresearch loop to make it fast. Unfortunately I remain a better kernel engineer than GPT and Claude for time being.
-
 ### LoRA
 
 The main reason MeZO sucks is that, since you are estimating the gradients, it performs quadratically worse the more parameters you have. Specifically, as you expand the number of parameters, to gain the same amount of certainty about the direction of the gradient for a higher dimensional model, it takes a linearly larger amount of sampling. More sampling times more compute is quadratic in terms of compute cost. And that's bad.
 
-This is intractable and needs to be fixed. LoRA adapters do truly fix this problem, and are the default way to do ZO optimization. There are downsides to this. You would think that low-rank updates are not preferable to the more full-rank updates you'd get if you actually had the gradient. Although, more on that later. It's not clear that this is preferable.
+This is intractable and needs to be fixed. LoRA adapters do truly fix this problem, and are almost a default way to do ZO optimization. There are downsides to this. You would think that low-rank updates are not preferable to the more full-rank updates you'd get if you actually had the gradient. Although, more on that later. It's not clear that this is preferable.
 
 But it may not be so bad? At least, [in RL it is not so bad](https://x.com/kalomaze/status/1964455970517753878). By continually merging these LoRA adapters ([ReLoRA](https://arxiv.org/abs/2307.05695)) you can keep the base model shifting, causing the next lora adapter to retarget new low rank changes. Across many updates, these low-rank changes sum to high-rank changes. So it is at least somewhat questionable how much this matters in practice. Anecdotally, it does not seem to matter that much for training speed.
 
@@ -149,7 +129,7 @@ I think more research needs to be done here in general. ZO has never really been
 
 ### ZO Context Extension
 
-These are my thoughts, this has never been done.
+These are my thoughts, to my knowledge this has never been done.
 
 Right now the most popular way to do Transformer context length extension is through RoPE scaling. You could also use YaRN, or NoPE, or any manner of other things. I don't really have any opinions about the particular strategy.
 
@@ -183,17 +163,9 @@ But it's cool that there's a way to do it. It may require a little bit of finagl
 
 ### ZO RL
 
-Yet again, I have not seen anybody do this.
+You can make both the model and the loss function whatever you want, as long as it's conditioned on the model weights. That means you can just optimize an objective directly. No tricks are required to get RL to work like in [REINFORCE](https://people.cs.umass.edu/~barto/courses/cs687/williams92simple.pdf) with the log-derivative trick. Not that the log-derivative trick is a problem. It's just cool that this works by default, without modification.
 
-Most exploration of Zeroth-Order Optimization has been in the realm of next token prediction. But this is not actually a necessity. You can technically make both the model and the loss function whatever you want, as long as it's conditioned on the model weights.
-
-RL is long context.
-
-Since we're doing 
-
-Theoretically there's no reason why 
-You can set the loss/rewards however you want
-
+Multiple papers have been published where people do this, for example ["ES at Scale"](https://arxiv.org/pdf/2509.24372), but it would be nice to use this to actually try to push capabilities of models that people actually use. To actually push the envelope and do something that FO optimizers can't.
 
 ## MeZO Math (Very verbose but trust)
 
@@ -215,22 +187,68 @@ and small scalar hparam ε (usually 1e^-3).
 
 Assume for small `ε` (as MeZO does) that:
 ```
-L(Φ(θ + εz, b)) ≈ L(Φ(θ,b)) + ∇L(Φ(θ,b)) * εz
-L(Φ(θ - εz, b)) ≈ L(Φ(θ,b)) - ∇L(Φ(θ,b)) * εz
+L(Φ(θ + εz, b)) ≈ L(Φ(θ,b)) + ∇L(Φ(θ,b)) · εz
+L(Φ(θ - εz, b)) ≈ L(Φ(θ,b)) - ∇L(Φ(θ,b)) · εz
 ```
 
 Plugging these into the update rule, we see that the losses and directions cancel out, leaving an expectation of the step size.
 ```
 proj_grad = (L(Φ(θ + εz, b)) - L(Φ(θ - εz, b))) / 2ε
-          ≈ ((L(Φ(θ,b)) + ∇L(Φ(θ,b)) * εz) - (L(Φ(θ,b)) - ∇L(Φ(θ,b)) * εz)) / 2ε
-          = (L(Φ(θ,b)) + ∇L(Φ(θ,b)) * εz - L(Φ(θ,b)) + ∇L(Φ(θ,b)) * εz) / 2ε
-          = (2 * ∇L(Φ(θ,b)) * εz) / 2ε
-          = ∇L(Φ(θ,b)) * z
+          ≈ ((L(Φ(θ,b)) + ∇L(Φ(θ,b)) · εz) - (L(Φ(θ,b)) - ∇L(Φ(θ,b)) · εz)) / 2ε
+          = (L(Φ(θ,b)) + ∇L(Φ(θ,b)) · εz - L(Φ(θ,b)) + ∇L(Φ(θ,b)) · εz) / 2ε
+          = (2 * ∇L(Φ(θ,b)) · εz) / 2ε
+          = ∇L(Φ(θ,b)) · z
 ```
 
-This is good. This is what we wanted to see. MeZO wouldn't work if this wasn't true.
+But when we take the step, we can see the problem. The `proj_grad` is a scalar dictation the direction to travel in `z`, let's look at the update vector.
+```
+grad_est  = proj_grad * z
+grad_est  = (∇L(Φ(θ,b)) · z) * z
+```
 
-Now `proj_grad = ∇L(Φ(θ,b)) * z` is a function of the random variable `b` (the batch). To get the variance, how much does the projected gradient vary as `b` varies?
+This does NOT bode well for the signal-to-noise ratio. It's not gaussian distributed, there are two gaussians in that answer.
+
+But this does let us determine whether the gradient estimate is unbiased, which it is.
+```
+E[grad_est] = E[(∇L(Φ(θ,b)) · z) * z]
+            = E[(z zᵀ) ∇L(Φ(θ,b))]      (since (∇L · z) * z = (z zᵀ) ∇L)
+            = E[z zᵀ] * ∇L(Φ(θ,b))      (∇L is constant over z, pull it out)
+            = I * ∇L(Φ(θ,b))            (E[z zᵀ] = I for z ~ N(0,I))
+            = ∇L(Φ(θ,b))
+```
+
+Now let's derive the signal to noise ratio (SNR).
+```
+Recall that:
+grad_est = (∇L(Φ(θ,b)) · z) * z
+so
+||grad_est||² = (∇L(Φ(θ,b)) · z)² * ||z||²
+
+Take expectation over z
+E[||grad_est||²] ≈ E[(∇L(Φ(θ,b)) · z)²] * E[||z||²]
+                 = ||∇L(Φ(θ,b))||² * E[||z||²]
+
+So,
+E[||grad_est||²] = ||∇L(Φ(θ,b))||² * p
+where p is the dimensionality of z, because z is a unit gaussian.
+
+Our signal is:
+E[grad_est] = ∇L(Φ(θ,b)), so
+||E[grad_est]||² = ||∇L(Φ(θ,b))||²
+
+Our noise is:
+E[||grad_est||²] ≈ p * ||∇L(Φ(θ,b))||²
+
+Therefore, our signal-to-noise ratio is:
+
+SNR ≈ ||E[grad_est]||² / E[||grad_est||²]
+    = ||∇L(Φ(θ,b))||² / (p * ||∇L(Φ(θ,b))||²)
+    = 1/p
+```
+
+So yeah a SNR of `1/p` is not ideal. Pretty terrible actually. But whatever. Where we're going, we don't need backprop.
+
+Now, let's decompose the variance of the projected gradient. The `proj_grad = ∇L(Φ(θ,b)) · z` is a function of the random variable `b` (the batch). To get the variance, how much does the projected gradient vary as `b` varies?
 
 Well, `z` is a gaussian random variable, so apply the law of total variance:
 ```
@@ -239,7 +257,7 @@ Var(X) = E[Var(X|Y)] + Var(E[X|Y])
 Var(proj_grad) = E[Var(proj_grad | b)] + Var(E[proj_grad | b])
 where E[] means "in expectation over infinite random samples."
 
-But Var(E[proj_grad | b]) = 0, since E[∇L(Φ(θ,b)) * z] = 0.
+But Var(E[proj_grad | b]) = 0, since E[∇L(Φ(θ,b)) · z] = 0.
 Substitute in known gaussian variance for the remaining term:
 
 Var(proj_grad) = E[||∇L(Φ(θ,b))||²]
@@ -263,16 +281,16 @@ Recall Var(proj_grad) = ∇L(Φ(θ,b))² = E[||∇L(Φ(θ,b))||²].
 
 Taking expectation over b, use the vector identity E[||v||²] = ||E[v]||² + E[||v -E[v]||²].
 
-Var(proj_grad)     =
-E[||∇L(Φ(θ,b))||²] = ||E[∇L(Φ(θ,b))]||² + E[||∇L(Φ(θ,b)) - E[∇L(Φ(θ,b))]||²]
-                   = ∇L(Φ(θ))² + Var(∇L(Φ(θ,b))) (Where I denote the true gradient without expectation over b as Φ(θ))
+Var(proj_grad)       =
+E[||∇L(Φ(θ,b))||²]   = ||E[∇L(Φ(θ,b))]||² + E[||∇L(Φ(θ,b)) - E[∇L(Φ(θ,b))]||²]
+                     = ∇L(Φ(θ))² + Var(∇L(Φ(θ,b))) (Where I denote the true gradient without expectation over b as Φ(θ))
 
 Then split up the batch by variance
-Var(proj_grad)     = ∇L(Φ(θ))² + Var(∇L(Φ(θ,b)))
-                   = ∇L(Φ(θ))² + Var((1/B) Σᵢ ∇L(Φ(θ,xᵢ)))     (by definition of batch gradient and i.i.d.)
-                   = ∇L(Φ(θ))² + (1/B²) Σᵢ Var(∇L(Φ(θ,xᵢ)))    (because Var(c * X) = c² * Var(X) for any scalar constant c)
-                   = ∇L(Φ(θ))² + (1/B²) * B * ∇L(Φ(θ,xᵢ))²     (because xᵢ are i.i.d.)
-                   = ∇L(Φ(θ))² + ∇L(Φ(θ,xᵢ))² / B
+Var(proj_grad)       = ∇L(Φ(θ))² + Var(∇L(Φ(θ,b)))
+                     = ∇L(Φ(θ))² + Var((1/B) Σᵢ ∇L(Φ(θ,xᵢ)))     (by definition of batch gradient and i.i.d.)
+                     = ∇L(Φ(θ))² + (1/B²) Σᵢ Var(∇L(Φ(θ,xᵢ)))    (because Var(c * X) = c² * Var(X) for any scalar constant c)
+                     = ∇L(Φ(θ))² + (1/B²) * B * ∇L(Φ(θ,xᵢ))²     (because xᵢ are i.i.d.)
+                     = ∇L(Φ(θ))² + ∇L(Φ(θ,xᵢ))² / B
 ```
 
 In other words, the variance of our projected gradient has two components to it. There is direction sampling variance `∇L(Φ(θ))²`, and data variance, `∇L(Φ(θ,xᵢ))² / B`. The batch variance is reducible, whereas the projection variance is not. Every time we sample a gaussian `z`, it points in a direction. This direction is truly uncorrelated with the direction of the true gradient, it's literally a random gaussian.
@@ -291,45 +309,53 @@ A random thing that I've noticed as I'm doing experiments here. Both Muon and LO
 
 But, I feel like there's something here. Building higher-rank updates out of low-rank spectral subspaces directly has an interesting set of tradeoffs.
 
-### Multi-z MeZO
+### Multi-z MeZO, SPSA, and ES
 
-I have not seen this mentioned anywhere by anybody, but it's an obvious thing (to me) that falls out of the math, and worth talking about.
-
-We just derived that the variance of the projected gradient under MeZO is:
+We just derived that the variance of the projected gradient under MeZO as:
 ```
 Var(proj_grad) = ∇L(Φ(θ))² + ∇L(Φ(θ,xᵢ))² / B
 ```
 
-This is because we are sampling one `z` direction. What if we sampled multiple `z` directions? Suppose we sample `Z` independent `z` gaussians, with batch size `B` each.
+The `∇L(Φ(θ))²` is not divided by `B` because we are sampling only one `z` direction. It's a projected gradient, not a gradient.
 
-Then the expectation of proj_grad would be:
+What if we sampled multiple `z` directions? Suppose we sample `Z` independent `z` gaussians, with batch size `B` each. Then the expectation of proj_grad (rename to `est_grad` as it is now an average of multiple directions and not just one projection) would be:
 ```
-proj_grad = (1/Z) Σⱼ ∇L(Φ(θ,bⱼ)) * zⱼ
-```
-
-Then calculate the new `Var(proj_grad)`:
-```
-Var(proj_grad) = Var((1/Z) Σⱼ ∇L(Φ(θ,bⱼ)) * zⱼ)
-               = (1/Z²) * Z * Var(∇L(Φ(θ,b)) * z)        (By Bienaymé's identity because terms i.i.d. in j)
-               = (1/Z) * Var(∇L(Φ(θ,b)) * z)
-               = (1/Z) * E[||∇L(Φ(θ,b))||²]              (from single-z proof)
-               = (1/Z) * (∇L(Φ(θ))² + ∇L(Φ(θ,xᵢ))² / B)  (from single-z proof)
-               = ∇L(Φ(θ))² / Z + ∇L(Φ(θ,xᵢ))² / ZB
+est_grad = (1/Z) Σⱼ ∇L(Φ(θ,bⱼ)) · zⱼ
 ```
 
-This is great news. Generating a new `z` for every batch improves the noise estimate linearly. If we are not storing `z` but regenerating it on the fly (because it's cheaper) then this is a better axis to scale on. Technically, increasing `B` is pointless because you could always just scale `Z` instead. Somehow nobody (to my knowledge) has done this experimentally, so I'm not sure. But it should work.
+Then calculate the new `Var(est_grad)`:
+```
+Var(est_grad) = Var((1/Z) Σⱼ ∇L(Φ(θ,bⱼ)) · zⱼ)
+              = (1/Z²) * Z * Var(∇L(Φ(θ,b)) · z)        (By Bienaymé's identity because terms i.i.d. in j)
+              = (1/Z) * Var(∇L(Φ(θ,b)) · z)
+              = (1/Z) * E[||∇L(Φ(θ,b))||²]              (from single-z proof)
+              = (1/Z) * (∇L(Φ(θ))² + ∇L(Φ(θ,xᵢ))² / B)  (from single-z proof)
+              = ∇L(Φ(θ))² / Z + ∇L(Φ(θ,xᵢ))² / ZB
+```
 
-I think the reason why this is unexplored is that it absolutely sucks to do in pytorch. You have to do it "the right way" and write a kernel.
+This is great news. Generating a new `z` for every batch improves the noise estimate linearly. Technically, increasing `B` is pointless because you could always just scale `Z` instead. If we are not storing `z` but regenerating it on the fly, then there is no added cost. This is a better axis to scale on.
 
-This should give us better control over how to spend our samples to reduce noise. If this works, it might be a big deal.
+It turns out that this algorithm is just the z-sample Gaussian-smoothing (RDSA-style) central-difference gradient estimator of n-SPSA. Here is a [textbook](https://assets.thalia.media/doc/artikel/762/bf5/762bf551d714bbfc9041b4f84ac786ae6e4e8af4.pdf) to explain, which I found helpful. Or ask Claude. Claude knows all this stuff.
+
+The variance math for [Evolution Strategies](https://arxiv.org/abs/1703.03864) works out similar here too. The Multi-z MeZO above omits fitness shaping and search-distribution adaptation, but not the estimator, the estimator is the same.
+
+So basically, there are better, more scalable ways to do zeroth-order optimization. And indeed, some people [have scaled this](https://arxiv.org/abs/2509.24372) recently, and found good results. They finetuned 8B Lllama3.1 and Qwen2.5 models, and managed to beat PPO and GRPO on a basic RL task. The task now is to scale this up further.
+
+I think the reason why ES and SPSA are underexplored is that it absolutely sucks to do in pytorch "the right way". They are way more expensive to compute if you actually have to materialize all those `z` vectors. So it's better to do it "the right way" and write kernels.
+
+An interesting finding from the MeZO paper though is that somehow it doesn't matter so much if you don't do SPSA. One direction is mostly enough, because the gradient is low rank anyway, and there's a solid chance your projected `z` intersects it in some way and extracts signal.
+
+If fairly vanilla MeZO, SPSA, ES, or similar works to optimize neural networks, this might be a big deal. In any case I've not seen SPSA-Adam or SPSA-Muon tried, and certainly not scaled. Seems worth trying and deriving scaling laws for. More exploration needed.
 
 ### ZO and Momentum
 
 In first-order optimizers, one frequently utilized technique is momentum. All the best optimizers have some concept of momentum. This has two beneficial properties. It accelerates convergence, and it also has the effect of smoothing over variance/noise. That sounds really really good right about now, seeing as we are spending so much time thinking about how to reduce noise.
 
-"Let's add momentum to ZO" is not an original idea. Indeed, many papers have done this. Basically all of them, actually. That's not so interesting.
+"Let's add momentum to ZO" is not an original idea. Indeed, many papers have done this. Basically all of them actually, MeZO included. That's not so interesting. What's interesting is that you can do it without memory.
 
-The strategy for implementing MeZO "the right way" is to never materialize `z`. This got me thinking. What if there's a way to do momentum without storing a momentum buffer?
+The strategy for implementing MeZO "the right way" is to never materialize `z`. As a side effect of this, you don't actually have to store the 
+
+This got me thinking. What if there's a way to do momentum without storing a momentum buffer?
 
 Well... why not just save the seeds so you can reproduce `z`? There are a bunch of seeds laying around. Why don't we just use them to reconstruct the momentum buffer every step? If we're cranking up the batch size, isn't this actually pretty cheap? An optimizer update is basically load+store. May as well do some math at the same time.
 
@@ -339,30 +365,52 @@ It's also probably possible to do super-low communication distributed training t
 
 ### Async Pipeline Parallelism Without Bubbles
 
-PP has bubbles because of backprop, we do not do backprop.
+Pipeline Parallelism has bubbles because of backprop. We do not do backprop, so we can saturate the interconnects with activations. Since layers can be updated independently, we can asynchronously send back seeds and projected gradient magnitudes to use to update the model everywhere all at once.
 
-Async works when the policy does not change so much with each step. We probably want to set the LR super low.
-
-TODO
+I'd like to drop a hint though that [MeZO-SVRG](https://arxiv.org/abs/2404.08080) probably has some interesting interplay with async pipeline parallelism and also distributed data parallelism methods like [DiLoCo](https://arxiv.org/abs/2311.08105). Plenty of ideas for scaling here which have never been explored.
 
 ### ZO MoE
 
 I don't have any great ideas for this yet. It's worth noting that:
 
-1. ZO eliminates the need for differentiable routing
-2. Reducing the number of trainable parameters improves the noise estimate
-3. Reducing the number of samples that flow through a part of the model increases 
+1. ZO eliminates the need for differentiable routing (although it's unclear how much this matters)
+2. Reducing the number of trainable parameters improves the noise estimate due to MeZO's gradient projection per sample
+3. Reducing the number of samples that flow through a part of the model increases the noise estimate by dividing it by a smaller effective batch size.
 
-This seems like a problem for later. If anyone has any good non-differentiable routing ideas let me know, but the router being trainable is a feature rather than a bug IMO.
+Some kind of sparsity is probably optimal. This seems like a problem for later though. After other problems are solved. If anyone has any good non-differentiable routing ideas let me know, but the router being trainable is a feature rather than a bug IMO.
 
-Some kind of sparsity is probably optimal. Writing the kernels for this has gotta SUCK though. Normal MoE kernels are hard enough.
+Writing the kernels for this has gotta SUCK. Normal MoE kernels are hard enough. Other than writing kernels though, I think ZO MoE is probably about as hard as MoE is generally. With MoE becoming more of a solved problem, most of those solutions probably transfer.
 
+## Codebase for Experiments
 
-### Codebase
+I want to test some of these theories I have, and figure out how to train these things. Ideas are worthless if you don't test them.
 
+I've noticed though that there is not a good codebase for testing these things. Most papers have code attached, but the code is always garbage. Correct, but truly terrible and not efficient. I'm used to working in [prime-rl](https://github.com/PrimeIntellect-ai/prime-rl) and [torchtitan](https://github.com/pytorch/torchtitan). Nothing like this exists for Zeroth-Order Optimization.
 
+That's fine. Just gotta make it exist. Introducing [ZOTitan](https://github.com/apaz-cli/ZOTitan), my sandbox for these ideas.
 
-## Why now?
+So far I have implemented:
+
+1. First-Order training (as baseline)
+2. [LoRA](https://arxiv.org/abs/2106.09685)/[ReLoRA](https://arxiv.org/html/2307.05695v4)/Continual Merging
+3. Multi-z MeZO ([MeZO](https://arxiv.org/abs/2305.17333), [SPSA](https://www.jhuapl.edu/spsa/PDF-SPSA/Spall_TAC92.pdf), and [ES](https://arxiv.org/abs/1703.03864))
+4. [mlsweep](https://github.com/apaz-cli/mlsweep) for logging
+5. [z_loss](https://arxiv.org/abs/2204.02311) (From PaLM, not ZO-related)
+6. [ZO-Muon](https://arxiv.org/abs/2602.17155) optimizer
+7. [ZO-AdaMU](https://arxiv.org/abs/2312.15184) optimizer
+
+Planned Additions:
+
+1. [ZO-SVRG](https://arxiv.org/abs/1805.10367)
+2. Skip Removal
+3. Context Length Extension
+4. Async PP/DP
+5. ZO-RL
+6. Optimized Kernels
+
+The idea is that you can plug in any HF model you want, and it works. Abstracting away the architecture completely in this way is very useful, I think. Eventually I will create an interface to exend this to implementing models "properly" with optimized kernels. For now though, to figure out the training dynamics, it's fine to spend more compute to do it inefficiently.
+
+### Why now?
 
 Six months ago, if you would have asked me if any of these ideas had a chance, I would have said no.
 
@@ -379,16 +427,33 @@ from the `Trainer` class of the MeZO paper's implementation.
         return model
 ```
 
-That's right. They actually materialize the perturbations. The method name is a misnomer, because they literally call `torch.normal()` with `size=param.data.size()`. And then they multiply it into the model parameters.
+That's right. They actually materialize the perturbations. The method name is a misnomer, because they literally call `torch.normal()` with `size=param.data.size()`. And then they multiply it into the model parameters. The "efficient" part is that they later add it to the model inplace to avoid materializing even more memory than that. Which doesn't sound very efficient to me.
 
-But the entire point of MeZO is that you DON'T have to materialize the perturbations. Why would they do this?
+The entire point of MeZO is that you DON'T have to materialize the perturbations. Why would they do this?
 
 They do it because implementing it the right way is hard. So hard that they didn't even bother to implement their own key optimization. Researching this stuff is a massive pain, for a lot of reasons. It's an even bigger pain when you have to write kernels.
 
-I think they were correct 
+### MeZO Kernel Example
 
+I wrote a fused CUDA example kernel for:
+```
+out_pos = layernorm(silu(input @ W + εz)))
+out_neg = layernorm(silu(input @ W - εz)))
+```
 
-## Autoresearch
+It takes a seed as input and fuses a Philox CBPRNG to generate a gaussian `z` on the fly, scales by `±ε`, and adds it into the loaded weights in two simultaneous matrix multiplications, where the weight and input tiles are loaded only once. This kernel also fuses the silu and layernorm reductions and final result write into an epilogue. Although perhaps the epilogue could be its own separate kernel.
+
+This is not meant to be fast. I may write a fast tcgen05 example kernel in the future, but this ain't it. It's meant to showcase how you WOULD write such a kernel. Each generation of Nvidia chips has its own way of writing a matmul, and I tried to write it in such a way as to make it obvious how to port it to whatever hardware generation you desire.
+
+The more sane thing may have been to write it in Triton, but meh. The other kernel that should be written is a flash attention kernel that does the same.
+
+Here's the [repo](https://github.com/apaz-cli/MeZOKernelExample/tree/master). Compile with `./build.sh`, run with `./fused_example` and `./fused_zo_example`.
+
+It also contains an example MeZO optimizer update kernel, without any of the fancy modifications we've been talking about.
+
+I look forward to tossing something like this into an autoresearch loop to make it fast. Unfortunately I remain a better kernel engineer than GPT and Claude for time being.
+
+### Autoresearch
 
 I've sort of dived headfirst into ZO. Despite that, I don't think that this is a tractable research area.
 
@@ -413,9 +478,13 @@ The other problem is that implementing this "the right way" requires writing an 
 
 ## Conclusion
 
-Hopefully you found this interesting. I think Zeroth-Order Optimization is very underexplored.
+Hopefully you found this interesting. I think Zeroth-Order Optimization is very underexplored. I feel like I'm going insane writing this.
+
+Thanks to [@antferdom](https://x.com/antferdom) and [Verda Cloud](https://verda.com/) for the compute. Thanks to [@ariaurelium](https://x.com/ariaurelium) and [@snowclipsed](https://x.com/snowclipsed) for proofreading.
 
 If you want to talk about it or collaborate, send me a DM on [x/twitter](https://x.com/apaz_cli), on Discord at @apaz, or send me an email using the link on the homepage.
+
+Hack the planet.
 
 #### Bibtex Citation
 
