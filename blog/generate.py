@@ -400,10 +400,15 @@ def generate_article(i, md_file):
         html = re.sub(replace, repwith, html, flags=re.DOTALL, count=1)
         html = replace_meta_with_opengraph(html, styled_path)
         html = html.replace('<body>', '<body>\n<input type="checkbox" id="font-toggle">', 1)
-        html = re.sub(r'<div class="sourceCode"[^>]*>',
-                      lambda m: m.group() + '<label for="font-toggle">font</label>\n', html)
-        html = re.sub(r'<pre>(<code>)',
-                      r'<pre><label for="font-toggle">font</label>\1', html)
+        # Wrap each code block in a non-scrolling .code-wrap and put the "font"
+        # label there (a sibling of the scroll container), so the button stays
+        # fixed in the corner while the code scrolls behind it.
+        html = re.sub(r'<div class="sourceCode"[^>]*>.*?</div>',
+                      lambda m: '<div class="code-wrap"><label for="font-toggle">font</label>\n' + m.group() + '</div>',
+                      html, flags=re.DOTALL)
+        html = re.sub(r'<pre><code>.*?</code></pre>',
+                      lambda m: '<div class="code-wrap"><label for="font-toggle">font</label>\n' + m.group() + '</div>',
+                      html, flags=re.DOTALL)
 
     if is_protected:
         html = create_encrypted_html(html, protected_articles[title], display_title)

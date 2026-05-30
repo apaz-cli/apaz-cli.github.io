@@ -326,9 +326,11 @@ nobody really seems to be able to define what that means.">
   }
 
   #font-toggle { display: none; }
-  div.sourceCode, pre { position: relative; }
-  div.sourceCode > label,
-  pre > label {
+  /* The label is anchored to .code-wrap, which does NOT scroll, while the
+     scroll container (div.sourceCode/pre) inside it does — so the "font"
+     button stays fixed in the corner as the code scrolls behind it. */
+  .code-wrap { position: relative; }
+  .code-wrap > label {
       position: absolute;
       top: 0.3rem;
       right: 0.3rem;
@@ -343,8 +345,7 @@ nobody really seems to be able to define what that means.">
       background: #2a2a2a;
       line-height: 1.4;
   }
-  html:has(#font-toggle:checked) div.sourceCode > label,
-  html:has(#font-toggle:checked) pre > label {
+  html:has(#font-toggle:checked) .code-wrap > label {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
   html:has(#font-toggle:checked) pre,
@@ -514,8 +515,8 @@ programs?</h2>
 <p>Undefined Behavior introduces silent preconditions that are difficult
 to detect and reason about. Is the following code safe? Stare at it for
 a while.</p>
-<div class="sourceCode" id="cb1"><label for="font-toggle">font</label>
-<pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> strDeref<span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>str<span class="op">,</span> <span class="dt">int</span> idx1<span class="op">,</span> <span class="dt">int</span> idx2<span class="op">)</span> <span class="op">{</span></span>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> strDeref<span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>str<span class="op">,</span> <span class="dt">int</span> idx1<span class="op">,</span> <span class="dt">int</span> idx2<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>str <span class="op">==</span> NULL<span class="op">)</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ch">&#39;</span><span class="sc">\0</span><span class="ch">&#39;</span><span class="op">;</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -526,7 +527,7 @@ a while.</p>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ch">&#39;</span><span class="sc">\0</span><span class="ch">&#39;</span><span class="op">;</span></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> str<span class="op">[</span>idx1 <span class="op">+</span> idx2<span class="op">];</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
 <p>I would say that it sure looks right. But is it safe for any
 inputs?</p>
 <p>Even if you think you're covering all of your bases by checking the
@@ -541,8 +542,8 @@ well, just by checking before the operation that would trigger them.
 Oversize shift amounts and pointer alignment fall into this
 category.</p>
 <p>Let's fix the above example.</p>
-<div class="sourceCode" id="cb2"><label for="font-toggle">font</label>
-<pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> strDeref<span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>str<span class="op">,</span> <span class="dt">int</span> idx1<span class="op">,</span> <span class="dt">int</span> idx2<span class="op">)</span> <span class="op">{</span></span>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">char</span> strDeref<span class="op">(</span><span class="dt">const</span> <span class="dt">char</span> <span class="op">*</span>str<span class="op">,</span> <span class="dt">int</span> idx1<span class="op">,</span> <span class="dt">int</span> idx2<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">((</span>idx1 <span class="op">&gt;</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> idx2 <span class="op">&gt;</span> INT_MAX <span class="op">-</span> idx1<span class="op">)</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>   <span class="op">||</span> <span class="op">(</span>idx1 <span class="op">&lt;</span> <span class="dv">0</span> <span class="op">&amp;&amp;</span> idx2 <span class="op">&lt;</span> INT_MIN <span class="op">-</span> idx1<span class="op">))</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ch">&#39;</span><span class="sc">\0</span><span class="ch">&#39;</span><span class="op">;</span></span>
@@ -559,11 +560,11 @@ category.</p>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="ch">&#39;</span><span class="sc">\0</span><span class="ch">&#39;</span><span class="op">;</span></span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> str<span class="op">[</span>idx1 <span class="op">+</span> idx2<span class="op">];</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
 <p>Surely now it's safe for any possible preconditions, right? I raise
 you the following.</p>
-<div class="sourceCode" id="cb3"><label for="font-toggle">font</label>
-<pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>strDeref<span class="op">((</span><span class="dt">char</span> <span class="op">*)(</span><span class="dt">void</span> <span class="op">*)(</span><span class="dt">intptr_t</span><span class="op">)</span><span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span></code></pre></div>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>strDeref<span class="op">((</span><span class="dt">char</span> <span class="op">*)(</span><span class="dt">void</span> <span class="op">*)(</span><span class="dt">intptr_t</span><span class="op">)</span><span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span></code></pre></div></div>
 <p>Checking whether a memory region is valid is very difficult. It seems
 at this point that we're out of luck. We can't (reasonably) fix this.
 It's doable theoretically, but would require so much instrumentation
@@ -660,8 +661,8 @@ division by zero is a significant step in the right direction.</p>
 <h2 id="the-fix-to-undefined-behavior">The Fix to Undefined
 Behavior:</h2>
 <p>Let's write a header to fix our favorite arithmetic operations.</p>
-<div class="sourceCode" id="cb4"><label for="font-toggle">font</label>
-<pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">/* WrapOverflow.h */</span></span>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">/* WrapOverflow.h */</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#ifndef WRAP_OVERFLOW_INCLUDED</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#define WRAP_OVERFLOW_INCLUDED</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -711,7 +712,7 @@ Behavior:</h2>
 <span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">/</span> b<span class="op">;</span></span>
 <span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
 <span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif </span><span class="co">/* WRAP_OVERFLOW_INCLUDED */</span></span></code></pre></div>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a><span class="pp">#endif </span><span class="co">/* WRAP_OVERFLOW_INCLUDED */</span></span></code></pre></div></div>
 <p>Obviously, with <code>WRAP_OVERFLOW</code> on, this will slow the
 code down. However, it will potentially save you hours of debugging.</p>
 <h2 id="going-a-little-further">Going a little further:</h2>
@@ -732,8 +733,8 @@ undefined unsigned wrapping semantics have their own attribute,
 <code>nuw</code> (no unsigned wrap). The LLVM IR emitted by clang for
 the following function returns such a value, and optimizes away the
 checks.</p>
-<div class="sourceCode" id="cb5"><label for="font-toggle">font</label>
-<pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;limits.h&gt;</span></span>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;limits.h&gt;</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#define PANIC</span><span class="op">()</span><span class="pp"> __builtin_unreachable</span><span class="op">()</span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
@@ -759,7 +760,7 @@ checks.</p>
 <span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>divide_unsigned<span class="op">(</span><span class="dt">unsigned</span> <span class="dt">int</span> a<span class="op">,</span> <span class="dt">unsigned</span> <span class="dt">int</span> b<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(!</span>b<span class="op">)</span> PANIC<span class="op">();</span> <span class="co">// Division by zero</span></span>
 <span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">/</span> b<span class="op">;</span></span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
 <p>The Daisho compiler generates something similar to the above at
 <code>--insane</code> optimization level. Otherwise it takes the same
 approach as the header above for signed integers. However, it provides
@@ -768,8 +769,8 @@ letting you know exactly where the precondition was violated, with what
 values, on what line, in what file.</p>
 <p>The same approach is being taken to wrap every dereference and every
 bit shift.</p>
-<div class="sourceCode" id="cb6"><label for="font-toggle">font</label>
-<pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">inline</span> <span class="dt">int</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>is_aligned<span class="op">(</span><span class="dt">const</span> <span class="dt">void</span><span class="op">*</span> pointer<span class="op">,</span> <span class="dt">size_t</span> to<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">(</span><span class="dt">uintptr_t</span><span class="op">)</span>pointer <span class="op">%</span> to <span class="op">==</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
@@ -793,7 +794,7 @@ bit shift.</p>
 <span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>by <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> PANIC<span class="op">();</span> <span class="co">// Negative shift</span></span>
 <span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>by <span class="op">&gt;</span> <span class="op">(</span>CHAR_BIT <span class="op">*</span> <span class="kw">sizeof</span><span class="op">(</span><span class="dt">int</span><span class="op">)))</span> PANIC<span class="op">();</span> <span class="co">// Oversize shift</span></span>
 <span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> to_shift <span class="op">&lt;&lt;</span> by<span class="op">;</span></span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
 <p>The conversion of every pointer type to <code>void*</code> is
 intentional and important. On some platforms that might not be a no-op,
 and <code>uintptr_t</code> is only technically guaranteed to be
@@ -806,9 +807,9 @@ they don't.</p>
 you is write unambiguous code. Another sharp corner of the standard is
 that a variable should not be updated more than once between sequence
 points.</p>
-<div class="sourceCode" id="cb7"><label for="font-toggle">font</label>
-<pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> x <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="op">++</span>x<span class="op">;</span> <span class="co">// Undefined behavior.</span></span></code></pre></div>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> x <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="op">++</span>x<span class="op">;</span> <span class="co">// Undefined behavior.</span></span></code></pre></div></div>
 <p>It's fairly easy for a human to accidentally write this, especially
 when they don't know about this quirk. However, the Daisho compiler will
 not. It orders every operation (including the unspecified behavior of
@@ -821,12 +822,12 @@ report.</p>
 <h2 id="going-above-and-beyond">Going above and beyond:</h2>
 <p>Here's a list of extreme things that tooling could do to improve the
 safety and correctness of C code.</p>
-<div class="sourceCode" id="cb8"><label for="font-toggle">font</label>
-<pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Memory boundary tracking analysis (like address sanitizer)</span>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="sourceCode" id="cb8"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Memory boundary tracking analysis (like address sanitizer)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Stack unwinding backtraces (already implemented in Daisho)</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Data race detection (like thread sanitizer)</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Automatic fuzzing and testing framework</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Syntax for enforcing preconditions and postconditions</span></code></pre></div>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="ss">* </span>Syntax for enforcing preconditions and postconditions</span></code></pre></div></div>
 <p>I plan on eventually implementing every item in this list but the
 last one. However, they are not a priority. The first priority is going
 to be having a working compiler.</p>
@@ -848,8 +849,8 @@ runtime range checks. In the safety critical software space, we know the
 benefits of Ada well. Throwing runtime checks at everything protects
 both against memory corruption caused by cosmic radiation and programmer
 error.</p>
-<div class="sourceCode" id="cb9"><label for="font-toggle">font</label>
-<pre
+<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="sourceCode" id="cb9"><pre
 class="sourceCode ada"><code class="sourceCode ada"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">procedure</span> Main <span class="kw">is</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>   <span class="kw">type</span> Grade <span class="kw">is</span> <span class="kw">range</span> <span class="dv">0</span> <span class="op">..</span> <span class="dv">100</span>;</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -862,14 +863,14 @@ class="sourceCode ada"><code class="sourceCode ada"><span id="cb9-1"><a href="#c
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>   G1 <span class="op">:=</span> Grade <span class="op">(</span>N<span class="op">)</span>;   <span class="co">-- Legal, run-time range check</span></span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>   G2 <span class="op">:=</span> G1 <span class="op">+</span> <span class="dv">10</span>;     <span class="co">-- Legal, run-time range check</span></span>
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>   G1 <span class="op">:=</span> <span class="op">(</span>G1 <span class="op">+</span> G2<span class="op">)/</span><span class="dv">2</span>; <span class="co">-- Legal, run-time range check</span></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span> Main;</span></code></pre></div>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="kw">end</span> Main;</span></code></pre></div></div>
 <p>For safety's sake, the <code>Grade</code> type does what we want it
 to. It's protected against overflow and underflow. It's "safe."</p>
 <p>That's still unsatisfactory for me. I think we could do more. What if
 we could ensure that it's correct? Imagine a type system sort of like
 the following.</p>
-<div class="sourceCode" id="cb10"><label for="font-toggle">font</label>
-<pre
+<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="sourceCode" id="cb10"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">typename</span> T<span class="op">,</span> T min<span class="op">,</span> T max<span class="op">&gt;</span> <span class="kw">struct</span> range <span class="op">{</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  T val<span class="op">;</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">operator</span> T<span class="op">()</span> <span class="at">const</span> <span class="op">{</span> <span class="cf">return</span> val<span class="op">;</span> <span class="op">}</span></span>
@@ -883,27 +884,27 @@ class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    ret<span class="op">.</span>val <span class="op">=</span> lhs<span class="op">.</span>val <span class="op">+</span> rhs<span class="op">.</span>val<span class="op">;</span></span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> ret<span class="op">;</span></span>
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div></div>
 <p>This is a mess of C++ concept nonsense, but the important thing to
 note here is that the result of arithmetic with two ranges is a range
 with automatically deduced size. Now, let the compiler automatically
 deduce it.</p>
-<div class="sourceCode" id="cb11"><label for="font-toggle">font</label>
-<pre
+<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="sourceCode" id="cb11"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> range_add<span class="op">(</span><span class="kw">auto</span> a<span class="op">,</span> <span class="kw">auto</span> b<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> a <span class="op">+</span> b<span class="op">;</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
 <p>Now, disallow any sort of operation that could potentially break.
 Make them check for it and coerce the ranges back.</p>
-<div class="sourceCode" id="cb12"><label for="font-toggle">font</label>
-<pre
+<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="sourceCode" id="cb12"><pre
 class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> a <span class="op">=</span> INT_MAX <span class="op">+</span> <span class="dv">1</span> <span class="co">// Compile error, return type would overflow</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>range<span class="op">&lt;</span><span class="dt">int</span><span class="op">,</span> <span class="dv">0</span><span class="op">,</span> <span class="dv">50</span><span class="op">&gt;</span> b <span class="op">=</span> <span class="dv">5</span><span class="op">;</span></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> x <span class="op">=</span> <span class="dv">20</span> <span class="op">/</span> b<span class="op">;</span> <span class="co">// Compile error, b could be 0.</span></span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>range<span class="op">&lt;</span><span class="dt">int</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">50</span><span class="op">&gt;</span> c <span class="op">=</span> coerce<span class="op">(</span>b <span class="op">!=</span> <span class="dv">0</span><span class="op">);</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> y <span class="op">=</span> <span class="dv">20</span> <span class="op">/</span> c<span class="op">;</span> <span class="co">// Works, c cannot be 0.</span></span></code></pre></div>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> y <span class="op">=</span> <span class="dv">20</span> <span class="op">/</span> c<span class="op">;</span> <span class="co">// Works, c cannot be 0.</span></span></code></pre></div></div>
 <p>This is of course a difficult to implement mess of dependently typed
 nonsense. It's also not exactly a great time to use. I think the
 approach has a lot of potential in the safety-critical software domain.

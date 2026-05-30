@@ -331,9 +331,11 @@ detailed) ar...">
   }
 
   #font-toggle { display: none; }
-  div.sourceCode, pre { position: relative; }
-  div.sourceCode > label,
-  pre > label {
+  /* The label is anchored to .code-wrap, which does NOT scroll, while the
+     scroll container (div.sourceCode/pre) inside it does — so the "font"
+     button stays fixed in the corner as the code scrolls behind it. */
+  .code-wrap { position: relative; }
+  .code-wrap > label {
       position: absolute;
       top: 0.3rem;
       right: 0.3rem;
@@ -348,8 +350,7 @@ detailed) ar...">
       background: #2a2a2a;
       line-height: 1.4;
   }
-  html:has(#font-toggle:checked) div.sourceCode > label,
-  html:has(#font-toggle:checked) pre > label {
+  html:has(#font-toggle:checked) .code-wrap > label {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
   html:has(#font-toggle:checked) pre,
@@ -544,8 +545,8 @@ In this moment, I felt nothing. I was numb.
 id="how-many-c-programmers-do-you-know-that-know-all-of-the-following-facts-about-the-c-runtime-and-can-piece-together-they-mean-in-aggregate">How
 many C programmers do you know that know all of the following facts
 about the C runtime and can piece together they mean in aggregate?</h4>
-<div class="sourceCode" id="cb1"><label for="font-toggle">font</label>
-<pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Linkers have the option to do &quot;lazy loading&quot;, replacing calls to external</span>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="sourceCode" id="cb1"><pre class="sourceCode md"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>Linkers have the option to do &quot;lazy loading&quot;, replacing calls to external</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>   libraries with trampolines that load the library if its symbol cannot be</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>   found in the Global Offset Table (GOT). This library loading and stashing</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>   the symbol and offset in the GOT is roughly equivalent to a call to</span>
@@ -565,7 +566,7 @@ about the C runtime and can piece together they mean in aggregate?</h4>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span><span class="in">`malloc()`</span> is not listed in <span class="in">`man signal-safety`</span> as being <span class="in">`AS-Safe`</span>.</span>
 <span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Signal handlers can interrupt the current thread wherever it is, whenever</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>   they want.</span></code></pre></div>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>   they want.</span></code></pre></div></div>
 <p><br></p>
 <p>    Most C programmers understand that the linker can do dynamic
 linking for you. Fewer understand lazy binding, and fewer have delved
@@ -594,8 +595,8 @@ there. So, in practice, we still have to understand the rules.</p>
 simplicity's sake suppose that it's implemented something like this. It
 isn't implemented anything like this, but for the sake of argument,
 pretend that it is.</p>
-<div class="sourceCode" id="cb2"><label for="font-toggle">font</label>
-<pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span><span class="op">*</span> freelist<span class="op">[</span>FREELIST_SIZE<span class="op">];</span></span>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span><span class="op">*</span> freelist<span class="op">[</span>FREELIST_SIZE<span class="op">];</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="dt">size_t</span> freelist_size <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> free<span class="op">(</span><span class="dt">void</span><span class="op">*</span> p<span class="op">)</span> <span class="op">{</span></span>
@@ -611,7 +612,7 @@ pretend that it is.</p>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">--</span>freelist_size<span class="op">;</span></span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> ret<span class="op">;</span></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
 <p>    Suppose the thread pauses for the signal handler where I've left
 the comment. In that circumstance, when the return value is decided and
 the thread is paused before bookkeeping completes, you can see how

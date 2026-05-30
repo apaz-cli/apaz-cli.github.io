@@ -265,9 +265,11 @@ are optimal, and if you guess wrong, you're out a cool 100m.">
   }
 
   #font-toggle { display: none; }
-  div.sourceCode, pre { position: relative; }
-  div.sourceCode > label,
-  pre > label {
+  /* The label is anchored to .code-wrap, which does NOT scroll, while the
+     scroll container (div.sourceCode/pre) inside it does — so the "font"
+     button stays fixed in the corner as the code scrolls behind it. */
+  .code-wrap { position: relative; }
+  .code-wrap > label {
       position: absolute;
       top: 0.3rem;
       right: 0.3rem;
@@ -282,8 +284,7 @@ are optimal, and if you guess wrong, you're out a cool 100m.">
       background: #2a2a2a;
       line-height: 1.4;
   }
-  html:has(#font-toggle:checked) div.sourceCode > label,
-  html:has(#font-toggle:checked) pre > label {
+  html:has(#font-toggle:checked) .code-wrap > label {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
   html:has(#font-toggle:checked) pre,
