@@ -5,9 +5,11 @@
 
 An interesting research direction I'm thinking about for scaling agents.
 
-This is a long one. It's written so you can skip around a bit. Part blog post, part research notes dump, and I'm also releasing multiple repos. 
+This is a long one. It's written so you can skip around a bit. Part blog post, part research notes dump, and I'm also releasing a training codebase called ZOTitan and some example kernels.
 
 Includes many original ideas that could/should probably be papers.
+
+Please forgive me for my lack of knowledge on traditional optimizers, I WILL mess it up again.
 
 <br>
 
@@ -116,7 +118,7 @@ Some PRNGs are stateful, for example [xorshift](https://en.wikipedia.org/wiki/Xo
 
 One benefit of these insane memory savings (not having to store grads or activations or weights from other layers) is that you can crank up your batch size and make your activations/model width gigantic. And with perfect pipeline parallel scaling there's basically no limit on how big you can make your model. You're probably not very memory bandwidth bound. Assuming you wrote and overlapped the PRNG part of the kernels well, the scaling limit you run into is raw FLOPs. And with successive hardware generations, FLOPs and memory capacity for storing activations are scaling faster than memory bandwidth.
 
-That is to say, with each hardware generation, this method becomes more suited to that hardware. The ideal would be something like Cerebras probably. Something like the tinygrad exabox is also looking appealing. You don't need good interconnects. You can probably just physically connect your GPUs together in a line. Most likely, that's your bottleneck. A very good one to have.
+That is to say, with each hardware generation, this method becomes more suited to that hardware. The ideal would be something like Cerebras probably. Something like the tinygrad exabox is also looking appealing. You don't need good interconnects. You can probably just physically connect your GPUs together in a line. Most likely, that's your bottleneck. A very good one to have
 
 ### LoRA
 
@@ -310,7 +312,7 @@ In other words, the variance of our projected gradient has two components to it.
 
 If you want to fix this, you can't just increase the batch size. You've gotta get creative. Or use SPSA, which we'll get to.
 
-I think [MeZO-SVRG](https://arxiv.org/abs/2404.08080) is very interesting in this regard, although I haven't gotten around yet to reading the paper or trying to combine it with other methods that work. There is also another promising direction, ZO-Muon.
+I think [MeZO-SVRG](https://arxiv.org/abs/2404.08080) is very interesting in this regard too, although I haven't gotten around yet to reading the paper or trying to combine it with other methods.
 
 ### ZO-Muon
 
@@ -322,7 +324,7 @@ A random thing that I've noticed as I've been doing experiments here. Both Muon 
 
 ### Multi-z MeZO, SPSA, and ES
 
-We just derived that the variance of the projected gradient under MeZO is:
+Speaking of multiple `z`s. Let's look into what that means for the variance math. We just derived that the variance of the projected gradient under MeZO is:
 ```
 Var(proj_grad) = ∇L(Φ(θ))² + ∇L(Φ(θ,xᵢ))² / B
 ```
@@ -344,19 +346,17 @@ Var(grad_est) = Var((1/Z) Σⱼ ∇L(Φ(θ,bⱼ)) · zⱼ)
               = ∇L(Φ(θ))² / Z + ∇L(Φ(θ,xᵢ))² / ZB
 ```
 
-This is great news. Generating a new `z` for every batch improves the noise estimate linearly. Technically, increasing `B` is pointless because you could always just scale `Z` instead. If we are not storing `z` but regenerating it on the fly, then there is no added cost. This is a better axis to scale on.
+This is great news. Generating a new `z` for every batch improves the noise estimate linearly. In fact, increasing `B` is pointless because you could always just scale `Z` instead. If we are not storing `z` but regenerating it on the fly, then there is no added cost. This is a better axis to scale on.
 
-It turns out that this algorithm is just the central-difference gradient estimator of n-SPSA. That's a word salad, which I will not be explaining. Here is a [textbook](https://assets.thalia.media/doc/artikel/762/bf5/762bf551d714bbfc9041b4f84ac786ae6e4e8af4.pdf) which I found helpful. Or ask Claude. Claude knows all this stuff.
+It turns out that this algorithm is just a more general case of n-SPSA. It is also connected to [Evolution Strategies](https://arxiv.org/abs/1703.03864). The math for both of these work out similarly. Scaling the number of `z`s you're sampling from divides the variance.
 
-The variance math for [Evolution Strategies](https://arxiv.org/abs/1703.03864) works out similar here too. The Multi-z MeZO above is simplistic and omits fitness shaping and search-distribution to make the math easier. But it works out basically the same.
-
-So basically, there are better, more scalable ways to do zeroth-order optimization. And indeed, some people [have scaled this](https://arxiv.org/abs/2509.24372) recently, and found good results. They finetuned 8B Lllama3.1 and Qwen2.5 models, and managed to beat PPO and GRPO on a basic RL task. The task now is to scale this up further.
+So basically, there are better, more scalable ways to do zeroth-order optimization. And indeed, some people [have scaled this](https://arxiv.org/abs/2509.24372) recently, and found good results. They finetuned 8B Lllama3.1 and Qwen2.5 models, and managed to beat PPO and GRPO on a basic RL task. I find this very exciting. The task now is to scale this up further.
 
 I think the reason why ES and SPSA are underexplored is that it absolutely sucks to do in pytorch "the right way". They are way more expensive to compute if you actually have to materialize all those `z` vectors. So it's better to do it "the right way" and write kernels.
 
 An interesting finding from the MeZO paper though is that somehow it doesn't matter so much if you don't do SPSA. One direction is mostly enough, because the gradient is low rank anyway, and there's a solid chance your projected `z` intersects it in some way and extracts signal.
 
-If fairly vanilla MeZO, SPSA, ES, or similar works to optimize neural networks, this might be a big deal. In any case I've not seen SPSA-Adam or SPSA-Muon tried, and certainly not scaled. Seems worth trying and deriving scaling laws for. More exploration needed.
+If fairly vanilla MeZO, SPSA, ES, or similar works at the scales we care about, this might be a big deal. In any case I've not seen SPSA-Adam or SPSA-Muon tried, and certainly not scaled. Seems worth trying and deriving scaling laws for. More exploration needed.
 
 ### ZO and Momentum
 
@@ -378,7 +378,7 @@ It's also probably possible to do super-low communication distributed training t
 
 Pipeline Parallelism has bubbles because of backprop. We do not do backprop, so we can saturate the interconnects with activations. Since layers can be updated independently, we can asynchronously send back seeds and projected gradient magnitudes to use to update the model everywhere all at once.
 
-I'd like to drop a hint though that [MeZO-SVRG](https://arxiv.org/abs/2404.08080) probably has some interesting interplay with async pipeline parallelism and also distributed data parallelism methods like [DiLoCo](https://arxiv.org/abs/2311.08105). Plenty of ideas for scaling here which have never been explored.
+I'd like to drop a hint though that [MeZO-SVRG](https://arxiv.org/abs/2404.08080) probably has some interesting interplay with async pipeline parallelism and also distributed data parallelism methods like [DiLoCo](https://arxiv.org/abs/2311.08105). If you have to store a reference model anyway, you may as well use it to cancel some noise. Plenty of ideas for scaling here which have never been explored.
 
 ### ZO MoE
 
@@ -394,7 +394,7 @@ Writing the kernels for this has gotta SUCK. Normal MoE kernels are hard enough.
 
 ## Codebase for Experiments
 
-I want to test some of these theories I have, and figure out how to train these things. Ideas are worthless if you don't test them.
+I want to test some of these theories I have, and figure out how to train these things. Ideas are worthless if you don't test and scale them.
 
 I've noticed though that there is not a good codebase for testing these things. Most papers have code attached, but the code is always garbage. Correct, but truly terrible and not efficient. I'm used to working in [prime-rl](https://github.com/PrimeIntellect-ai/prime-rl) and [torchtitan](https://github.com/pytorch/torchtitan). Nothing like this exists for Zeroth-Order Optimization.
 
@@ -404,26 +404,29 @@ So far I have implemented:
 
 1. First-Order training (as baseline)
 2. [LoRA](https://arxiv.org/abs/2106.09685)/[ReLoRA](https://arxiv.org/html/2307.05695v4)/Continual Merging
-3. Multi-z MeZO ([MeZO](https://arxiv.org/abs/2305.17333), [SPSA](https://www.jhuapl.edu/spsa/PDF-SPSA/Spall_TAC92.pdf), and [ES](https://arxiv.org/abs/1703.03864))
-4. [mlsweep](https://github.com/apaz-cli/mlsweep) for logging
-5. [z_loss](https://arxiv.org/abs/2204.02311) (From PaLM, not ZO-related)
-6. [ZO-Muon](https://arxiv.org/abs/2602.17155) optimizer
-7. [ZO-AdaMU](https://arxiv.org/abs/2312.15184) optimizer
+3. MeZO (MeZO-SGD, MeZO-Adam)
+4. Multi-z MeZO ([MeZO](https://arxiv.org/abs/2305.17333), [SPSA](https://www.jhuapl.edu/spsa/PDF-SPSA/Spall_TAC92.pdf), and [ES](https://arxiv.org/abs/1703.03864))
+5. [mlsweep](https://github.com/apaz-cli/mlsweep) for logging
+6. [z_loss](https://arxiv.org/abs/2204.02311) (From PaLM, not ZO-related)
+7. [ZO-Muon](https://arxiv.org/abs/2602.17155) optimizer
+8. [ZO-AdaMU](https://arxiv.org/abs/2312.15184) optimizer
+9. [Fused liger linear crossentropy loss](https://github.com/linkedin/Liger-Kernel/blob/main/src/liger_kernel/transformers/fused_linear_cross_entropy.py#L9)
 
-Planned Additions:
+Planned Additions and Experiments:
 
 1. [ZO-SVRG](https://arxiv.org/abs/1805.10367)
 2. Skip Removal
 3. Context Length Extension
-4. Async PP/DP
-5. ZO-RL
-6. Optimized Kernels
+4. Looped Language Models
+5. Async PP/DP
+6. ZO-RL
+7. Optimized Kernels
 
-The idea is that you can plug in any HF model you want, and it works. Abstracting away the architecture completely in this way is very useful, I think. Eventually I will create an interface to exend this to implementing models "properly" with optimized kernels. For now though, to figure out the training dynamics, it's fine to spend more compute to do it inefficiently.
+The idea is that you can plug in any HF model you want, and it works. Abstracting away the architecture is very useful, I think, although it comes with some caveats. It's good to have a notion of blocks for Pipeline Parallelism and it's good to be able to do things like fuse the loss to avoid having to materialize the logits if you don't want them, especially because the lm_head makes up such a large proportion of the parameters of small models. Eventually I will create an interface to exend this to implementing models "properly" with optimized kernels. For now though, to figure out the training dynamics it's fine to spend more compute to do it inefficiently.
 
 ### MeZO Kernel Example
 
-ZOTitan is not the only thing I wrote. I also wrote a fused CUDA example kernel for:
+ZOTitan is not the only thing I've been working on. I also wrote a fused CUDA example kernel for:
 ```
 out_pos = layernorm(silu(input @ (W + εz))))
 out_neg = layernorm(silu(input @ (W - εz))))
@@ -445,15 +448,15 @@ Six months ago, if you would have asked me if any of these ideas had a chance, I
 
 To get an idea as to why, let's take a look at [this method](https://github.com/princeton-nlp/MeZO/blob/552cb1b710767f9a6e1dc8f9645d7640376f9941/medium_models/src/trainer.py#L242-L247) from the `Trainer` class of the MeZO paper's implementation. They actually materialize the perturbations. The entire point of MeZO is that you DON'T have to materialize the perturbations. Why would they do this? It's because it's hard. So hard that they didn't even bother to implement their own key optimization.
 
-I don't think that this is a tractable research area. To iterate here you probably want to implement ZO properly. My ZOTitan is not a "proper" implementation. With first-order methods being way easier and already working way better, and now that LLM RL works, you don't need to do ZO. Especially when there are well-trodden paths that work well with FO, with so much low hanging fruit.
+I don't implement it either. ZOTitan does not yet even have the option to do it "the right way."
 
-I think autoresearch is the way. Or at least a very good compiler.
+With first-order methods already working way better, and now that LLM RL works, you don't really "need" to do ZO. I think it's really promising, but it's hard to convince people do to something else. Especially when there are well-trodden paths that work well with FO, with so much low hanging fruit. 
 
+The solution, I think, is to bring autoresearch into the mix. Or at least a very good compiler. Writing these kernels needs to be automated somehow. This is not a research path for humans.
 
-This is not a research path for humans. If it's to be taken, it needs to be taken by machines. The arch search space and its dynamics are obvious, what experiments to run are obvious, and not all of it requires large amounts of compute, we just don't have the human capital to run the experiments and interpret the results fast enough.
-The other problem is that implementing this "the right way" requires writing an optimizing an absolutely insane number of rather exotic kernels. Kernel autoresearch needs to be solved before this is a tractable research area.
+It's a very well defined and fairly simple task to delegate. The architecture search space and its dynamics are obvious, it's obvious what experiments to run (this post is full of them), and not we don't actually need that much compute to tackle these problems. The most obvious scaling bottlenecks at this point are that writing and setting up harnesses takes time, and a human has to interpret the results.
 
-* Basically just try everything with ZO that's already been tried with first order
+I look forward to the near future where we can basically just try everything with ZO that's already been tried with first order. It's not hard to discover new things to autoresearch. I've already been working on this in [this post](Research_Roadmap.html), you can just download Arxiv to your computer. It's like 10 GB once you strip bibliographies and convert to markdown.
 
 <!--
 <br>
@@ -469,13 +472,13 @@ The other problem is that implementing this "the right way" requires writing an 
 
 ## Conclusion
 
-Hopefully you found this interesting. I think Zeroth-Order Optimization is very underexplored.
+Hope you found this useful. I think Zeroth-Order Optimization is very underexplored. A very interesting subfield.
 
-I feel like I'm going insane writing this.
+I feel like I'm going insane writing this. None of these techniques are new. But the implications are crazy.
 
 Thanks to [@antferdom](https://x.com/antferdom) and [Verda Cloud](https://verda.com/) for the compute. Thanks to [@ariaurelium](https://x.com/ariaurelium) and [@snowclipsed](https://x.com/snowclipsed) for proofreading.
 
-If you want to talk about it or collaborate, send me a DM on [x/twitter](https://x.com/apaz_cli), on Discord at @apaz, or send me an email using the link on the homepage.
+If you want to talk about this post, or to collaborate, send me a DM on [x/twitter](https://x.com/apaz_cli), on Discord at [@apaz](https://discord.com/channels/@me), or [send me an email](mailto:aarpazdera@gmail.com).
 
 Hack the planet.
 

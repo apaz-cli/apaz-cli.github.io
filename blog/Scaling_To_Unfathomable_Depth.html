@@ -7,8 +7,8 @@
   <meta name="og:title" content="Scaling Agents to Unfathomable Depth and Context With Zeroth-Order Optimization">
   <meta name="og:description" content="An interesting research direction I'm thinking about for scaling
 agents. This is a long one. It's written so you can skip around a bit. Part
-blog post, part research notes dump, and I'm also releasing multiple
-repos. Includes many original ideas that could/should probably be
+blog post, part research notes dump, and I'm also releasing a training
+codebase called ZOTitan and some example kernels. Includes many original ideas that could/should probably be
 papers.">
   <meta name="og:image" content="images/94149009_p0.jpg">
   <title>Scaling To Unfathomable Depth</title>
@@ -402,10 +402,12 @@ Optimization</h1>
 <p>An interesting research direction I'm thinking about for scaling
 agents.</p>
 <p>This is a long one. It's written so you can skip around a bit. Part
-blog post, part research notes dump, and I'm also releasing multiple
-repos.</p>
+blog post, part research notes dump, and I'm also releasing a training
+codebase called ZOTitan and some example kernels.</p>
 <p>Includes many original ideas that could/should probably be
 papers.</p>
+<p>Please forgive me for my lack of knowledge on traditional optimizers,
+I WILL mess it up again.</p>
 <p><br></p>
 <p><img src="images/94149009_p0.jpg" /></p>
 <p><br></p>
@@ -635,7 +637,7 @@ more suited to that hardware. The ideal would be something like Cerebras
 probably. Something like the tinygrad exabox is also looking appealing.
 You don't need good interconnects. You can probably just physically
 connect your GPUs together in a line. Most likely, that's your
-bottleneck. A very good one to have.</p>
+bottleneck. A very good one to have</p>
 <h3 id="lora">LoRA</h3>
 <p>The main reason MeZO sucks is that, since you are estimating the
 gradients, it performs quadratically worse the more parameters you have.
@@ -899,9 +901,8 @@ random gaussian.</p>
 <p>If you want to fix this, you can't just increase the batch size.
 You've gotta get creative. Or use SPSA, which we'll get to.</p>
 <p>I think <a href="https://arxiv.org/abs/2404.08080">MeZO-SVRG</a> is
-very interesting in this regard, although I haven't gotten around yet to
-reading the paper or trying to combine it with other methods that work.
-There is also another promising direction, ZO-Muon.</p>
+very interesting in this regard too, although I haven't gotten around
+yet to reading the paper or trying to combine it with other methods.</p>
 <h3 id="zo-muon">ZO-Muon</h3>
 <p>Yeah, <a href="https://arxiv.org/abs/2602.17155">this totally
 exists</a> and it also works. I think that's really cool. Nesterov
@@ -924,8 +925,9 @@ with Frobenius norm <code>‖z‖²_F = r</code>, LOZO gives
 <code>m</code> and <code>n</code> are the dimensions of the matrix, and
 <code>r</code> is the LoRA rank.</p>
 <h3 id="multi-z-mezo-spsa-and-es">Multi-z MeZO, SPSA, and ES</h3>
-<p>We just derived that the variance of the projected gradient under
-MeZO is:</p>
+<p>Speaking of multiple <code>z</code>s. Let's look into what that means
+for the variance math. We just derived that the variance of the
+projected gradient under MeZO is:</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
 <pre><code>Var(proj_grad) = ∇L(Φ(θ))² + ∇L(Φ(θ,xᵢ))² / B</code></pre></div>
 <p>The <code>∇L(Φ(θ))²</code> is not divided by <code>B</code> because
@@ -947,27 +949,21 @@ directions and not just one projection) would be:</p>
               = (1/Z) * (∇L(Φ(θ))² + ∇L(Φ(θ,xᵢ))² / B)  (from single-z proof)
               = ∇L(Φ(θ))² / Z + ∇L(Φ(θ,xᵢ))² / ZB</code></pre></div>
 <p>This is great news. Generating a new <code>z</code> for every batch
-improves the noise estimate linearly. Technically, increasing
-<code>B</code> is pointless because you could always just scale
-<code>Z</code> instead. If we are not storing <code>z</code> but
-regenerating it on the fly, then there is no added cost. This is a
-better axis to scale on.</p>
-<p>It turns out that this algorithm is just the central-difference
-gradient estimator of n-SPSA. That's a word salad, which I will not be
-explaining. Here is a <a
-href="https://assets.thalia.media/doc/artikel/762/bf5/762bf551d714bbfc9041b4f84ac786ae6e4e8af4.pdf">textbook</a>
-which I found helpful. Or ask Claude. Claude knows all this stuff.</p>
-<p>The variance math for <a
-href="https://arxiv.org/abs/1703.03864">Evolution Strategies</a> works
-out similar here too. The Multi-z MeZO above is simplistic and omits
-fitness shaping and search-distribution to make the math easier. But it
-works out basically the same.</p>
+improves the noise estimate linearly. In fact, increasing <code>B</code>
+is pointless because you could always just scale <code>Z</code> instead.
+If we are not storing <code>z</code> but regenerating it on the fly,
+then there is no added cost. This is a better axis to scale on.</p>
+<p>It turns out that this algorithm is just a more general case of
+n-SPSA. It is also connected to <a
+href="https://arxiv.org/abs/1703.03864">Evolution Strategies</a>. The
+math for both of these work out similarly. Scaling the number of
+<code>z</code>s you're sampling from divides the variance.</p>
 <p>So basically, there are better, more scalable ways to do zeroth-order
 optimization. And indeed, some people <a
 href="https://arxiv.org/abs/2509.24372">have scaled this</a> recently,
 and found good results. They finetuned 8B Lllama3.1 and Qwen2.5 models,
-and managed to beat PPO and GRPO on a basic RL task. The task now is to
-scale this up further.</p>
+and managed to beat PPO and GRPO on a basic RL task. I find this very
+exciting. The task now is to scale this up further.</p>
 <p>I think the reason why ES and SPSA are underexplored is that it
 absolutely sucks to do in pytorch "the right way". They are way more
 expensive to compute if you actually have to materialize all those
@@ -978,10 +974,10 @@ doesn't matter so much if you don't do SPSA. One direction is mostly
 enough, because the gradient is low rank anyway, and there's a solid
 chance your projected <code>z</code> intersects it in some way and
 extracts signal.</p>
-<p>If fairly vanilla MeZO, SPSA, ES, or similar works to optimize neural
-networks, this might be a big deal. In any case I've not seen SPSA-Adam
-or SPSA-Muon tried, and certainly not scaled. Seems worth trying and
-deriving scaling laws for. More exploration needed.</p>
+<p>If fairly vanilla MeZO, SPSA, ES, or similar works at the scales we
+care about, this might be a big deal. In any case I've not seen
+SPSA-Adam or SPSA-Muon tried, and certainly not scaled. Seems worth
+trying and deriving scaling laws for. More exploration needed.</p>
 <h3 id="zo-and-momentum">ZO and Momentum</h3>
 <p>In first-order optimizers, one frequently utilized technique is
 momentum. All the best optimizers have some concept of momentum. This
@@ -1021,8 +1017,9 @@ everywhere all at once.</p>
 href="https://arxiv.org/abs/2404.08080">MeZO-SVRG</a> probably has some
 interesting interplay with async pipeline parallelism and also
 distributed data parallelism methods like <a
-href="https://arxiv.org/abs/2311.08105">DiLoCo</a>. Plenty of ideas for
-scaling here which have never been explored.</p>
+href="https://arxiv.org/abs/2311.08105">DiLoCo</a>. If you have to store
+a reference model anyway, you may as well use it to cancel some noise.
+Plenty of ideas for scaling here which have never been explored.</p>
 <h3 id="zo-moe">ZO MoE</h3>
 <p>I don't have any great ideas for this yet. It's worth noting
 that:</p>
@@ -1045,7 +1042,8 @@ probably about as hard as MoE is generally. With MoE becoming more of a
 solved problem, most of those solutions probably transfer.</p>
 <h2 id="codebase-for-experiments">Codebase for Experiments</h2>
 <p>I want to test some of these theories I have, and figure out how to
-train these things. Ideas are worthless if you don't test them.</p>
+train these things. Ideas are worthless if you don't test and scale
+them.</p>
 <p>I've noticed though that there is not a good codebase for testing
 these things. Most papers have code attached, but the code is always
 garbage. Correct, but truly terrible and not efficient. I'm used to
@@ -1062,6 +1060,7 @@ these ideas.</p>
 <li><a href="https://arxiv.org/abs/2106.09685">LoRA</a>/<a
 href="https://arxiv.org/html/2307.05695v4">ReLoRA</a>/Continual
 Merging</li>
+<li>MeZO (MeZO-SGD, MeZO-Adam)</li>
 <li>Multi-z MeZO (<a href="https://arxiv.org/abs/2305.17333">MeZO</a>,
 <a href="https://www.jhuapl.edu/spsa/PDF-SPSA/Spall_TAC92.pdf">SPSA</a>,
 and <a href="https://arxiv.org/abs/1703.03864">ES</a>)</li>
@@ -1073,25 +1072,33 @@ not ZO-related)</li>
 optimizer</li>
 <li><a href="https://arxiv.org/abs/2312.15184">ZO-AdaMU</a>
 optimizer</li>
+<li><a
+href="https://github.com/linkedin/Liger-Kernel/blob/main/src/liger_kernel/transformers/fused_linear_cross_entropy.py#L9">Fused
+liger linear crossentropy loss</a></li>
 </ol>
-<p>Planned Additions:</p>
+<p>Planned Additions and Experiments:</p>
 <ol type="1">
 <li><a href="https://arxiv.org/abs/1805.10367">ZO-SVRG</a></li>
 <li>Skip Removal</li>
 <li>Context Length Extension</li>
+<li>Looped Language Models</li>
 <li>Async PP/DP</li>
 <li>ZO-RL</li>
 <li>Optimized Kernels</li>
 </ol>
 <p>The idea is that you can plug in any HF model you want, and it works.
-Abstracting away the architecture completely in this way is very useful,
-I think. Eventually I will create an interface to exend this to
-implementing models "properly" with optimized kernels. For now though,
-to figure out the training dynamics, it's fine to spend more compute to
-do it inefficiently.</p>
+Abstracting away the architecture is very useful, I think, although it
+comes with some caveats. It's good to have a notion of blocks for
+Pipeline Parallelism and it's good to be able to do things like fuse the
+loss to avoid having to materialize the logits if you don't want them,
+especially because the lm_head makes up such a large proportion of the
+parameters of small models. Eventually I will create an interface to
+exend this to implementing models "properly" with optimized kernels. For
+now though, to figure out the training dynamics it's fine to spend more
+compute to do it inefficiently.</p>
 <h3 id="mezo-kernel-example">MeZO Kernel Example</h3>
-<p>ZOTitan is not the only thing I wrote. I also wrote a fused CUDA
-example kernel for:</p>
+<p>ZOTitan is not the only thing I've been working on. I also wrote a
+fused CUDA example kernel for:</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
 <pre><code>out_pos = layernorm(silu(input @ (W + εz))))
 out_neg = layernorm(silu(input @ (W - εz))))</code></pre></div>
@@ -1130,27 +1137,28 @@ implementation. They actually materialize the perturbations. The entire
 point of MeZO is that you DON'T have to materialize the perturbations.
 Why would they do this? It's because it's hard. So hard that they didn't
 even bother to implement their own key optimization.</p>
-<p>I don't think that this is a tractable research area. To iterate here
-you probably want to implement ZO properly. My ZOTitan is not a "proper"
-implementation. With first-order methods being way easier and already
-working way better, and now that LLM RL works, you don't need to do ZO.
+<p>I don't implement it either. ZOTitan does not yet even have the
+option to do it "the right way."</p>
+<p>With first-order methods already working way better, and now that LLM
+RL works, you don't really "need" to do ZO. I think it's really
+promising, but it's hard to convince people do to something else.
 Especially when there are well-trodden paths that work well with FO,
 with so much low hanging fruit.</p>
-<p>I think autoresearch is the way. Or at least a very good
-compiler.</p>
-<p>This is not a research path for humans. If it's to be taken, it needs
-to be taken by machines. The arch search space and its dynamics are
-obvious, what experiments to run are obvious, and not all of it requires
-large amounts of compute, we just don't have the human capital to run
-the experiments and interpret the results fast enough. The other problem
-is that implementing this "the right way" requires writing an optimizing
-an absolutely insane number of rather exotic kernels. Kernel
-autoresearch needs to be solved before this is a tractable research
-area.</p>
-<ul>
-<li>Basically just try everything with ZO that's already been tried with
-first order</li>
-</ul>
+<p>The solution, I think, is to bring autoresearch into the mix. Or at
+least a very good compiler. Writing these kernels needs to be automated
+somehow. This is not a research path for humans.</p>
+<p>It's a very well defined and fairly simple task to delegate. The
+architecture search space and its dynamics are obvious, it's obvious
+what experiments to run (this post is full of them), and not we don't
+actually need that much compute to tackle these problems. The most
+obvious scaling bottlenecks at this point are that writing and setting
+up harnesses takes time, and a human has to interpret the results.</p>
+<p>I look forward to the near future where we can basically just try
+everything with ZO that's already been tried with first order. It's not
+hard to discover new things to autoresearch. I've already been working
+on this in <a href="Research_Roadmap.html">this post</a>, you can just
+download Arxiv to your computer. It's like 10 GB once you strip
+bibliographies and convert to markdown.</p>
 <!--
 <br>
 <div style="text-align: center;">
@@ -1162,9 +1170,10 @@ first order</li>
 <br>
 -->
 <h2 id="conclusion">Conclusion</h2>
-<p>Hopefully you found this interesting. I think Zeroth-Order
-Optimization is very underexplored.</p>
-<p>I feel like I'm going insane writing this.</p>
+<p>Hope you found this useful. I think Zeroth-Order Optimization is very
+underexplored. A very interesting subfield.</p>
+<p>I feel like I'm going insane writing this. None of these techniques
+are new. But the implications are crazy.</p>
 <p>Thanks to <a href="https://x.com/antferdom"><span class="citation"
 data-cites="antferdom">@antferdom</span></a> and <a
 href="https://verda.com/">Verda Cloud</a> for the compute. Thanks to <a
@@ -1172,10 +1181,11 @@ href="https://x.com/ariaurelium"><span class="citation"
 data-cites="ariaurelium">@ariaurelium</span></a> and <a
 href="https://x.com/snowclipsed"><span class="citation"
 data-cites="snowclipsed">@snowclipsed</span></a> for proofreading.</p>
-<p>If you want to talk about it or collaborate, send me a DM on <a
-href="https://x.com/apaz_cli">x/twitter</a>, on Discord at <span
-class="citation" data-cites="apaz">@apaz</span>, or send me an email
-using the link on the homepage.</p>
+<p>If you want to talk about this post, or to collaborate, send me a DM
+on <a href="https://x.com/apaz_cli">x/twitter</a>, on Discord at <a
+href="https://discord.com/channels/@me"><span class="citation"
+data-cites="apaz">@apaz</span></a>, or <a
+href="mailto:aarpazdera@gmail.com">send me an email</a>.</p>
 <p>Hack the planet.</p>
 <h4 id="bibtex-citation">Bibtex Citation</h4>
 <div class="code-wrap"><label for="font-toggle">font</label>
