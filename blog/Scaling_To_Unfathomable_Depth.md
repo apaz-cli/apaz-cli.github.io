@@ -182,6 +182,8 @@ You can make both the model and the loss function whatever you want, as long as 
 
 Multiple papers have been published where people do this, for example ["ES at Scale"](https://arxiv.org/pdf/2509.24372), but it would be nice to use this to actually try to push capabilities of models that people actually use. To actually push the envelope and do something that FO optimizers can't.
 
+I also think about the results from ["Optimizers Qualitatively Alter Solutions And We Should Leverage This"](https://arxiv.org/pdf/2507.12224). Is ZO RL more or less suceptible to diversity collapse? I don't know. It might be different though, in some qualitative way, and that makes it interesting.
+
 ## MeZO Math (Very verbose but trust)
 
 Here's a bunch of math. I've tried to make it readable, but if your eyes glaze over you can skip it if you like. It should be skimmable if you just read the parts that aren't in code blocks.
@@ -420,7 +422,8 @@ Planned Additions and Experiments:
 4. Looped Language Models
 5. Async PP/DP
 6. ZO-RL
-7. Optimized Kernels
+7. Fault tolerance/Resumability
+8. Optimized Kernels
 
 The idea is that you can plug in any HF model you want, and it works. Abstracting away the architecture is very useful, I think, although it comes with some caveats. It's good to have a notion of blocks for Pipeline Parallelism and it's good to be able to do things like fuse the loss to avoid having to materialize the logits if you don't want them, especially because the lm_head makes up such a large proportion of the parameters of small models. Eventually I will create an interface to exend this to implementing models "properly" with optimized kernels. For now though, to figure out the training dynamics it's fine to spend more compute to do it inefficiently.
 
@@ -476,7 +479,7 @@ Hope you found this useful. I think Zeroth-Order Optimization is very underexplo
 
 I feel like I'm going insane writing this. None of these techniques are new. But the implications are crazy.
 
-Thanks to [@antferdom](https://x.com/antferdom) and [Verda Cloud](https://verda.com/) for the compute. Thanks to [@ariaurelium](https://x.com/ariaurelium) and [@snowclipsed](https://x.com/snowclipsed) for proofreading.
+Thanks to [@antferdom](https://x.com/antferdom) and [Verda Cloud](https://verda.com/) for the compute. Thanks to [@ariaurelium](https://x.com/ariaurelium) for proofreading the article and [@snowclipsed](https://x.com/snowclipsed) for also proofreading my CUDA kernels.
 
 If you want to talk about this post, or to collaborate, send me a DM on [x/twitter](https://x.com/apaz_cli), on Discord at [@apaz](https://discord.com/channels/@me), or [send me an email](mailto:aarpazdera@gmail.com).
 
