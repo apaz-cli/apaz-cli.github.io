@@ -8,8 +8,8 @@
   <meta name="og:description" content="An interesting research direction I'm thinking about for scaling
 agents. This is a long one. It's written so you can skip around a bit. Part
 blog post, part research notes dump, and I'm also releasing a training
-codebase called ZOTitan and some example kernels. Includes many original ideas that could/should probably be
-papers.">
+codebase called ZOTitan and some example kernels. Includes many original ideas that could/should be papers. At some
+point they might be.">
   <meta name="og:image" content="images/94149009_p0.jpg">
   <title>Scaling To Unfathomable Depth</title>
   <style>
@@ -404,36 +404,34 @@ agents.</p>
 <p>This is a long one. It's written so you can skip around a bit. Part
 blog post, part research notes dump, and I'm also releasing a training
 codebase called ZOTitan and some example kernels.</p>
-<p>Includes many original ideas that could/should probably be
-papers.</p>
-<p>Please forgive me for my lack of knowledge on traditional optimizers,
-I WILL mess it up again.</p>
+<p>Includes many original ideas that could/should be papers. At some
+point they might be.</p>
 <p><br></p>
 <p><img src="images/94149009_p0.jpg" /></p>
 <p><br></p>
 <h2 id="optimal-architecture">Optimal Architecture</h2>
-<p>Transformers are not the optimal architecture. They are a locally
-optimal architecture that works really well given the constraints of
-first-order optimizers like SGD or Adam or Muon. I think this is
-important to understand.</p>
 <p>There is a search space of potential architectures, and from them you
 are limited to architectures which you can actually train. If you cannot
 train a model, you cannot evaluate it. Better architectures undoubtedly
 exist, but how are we to know if we can't train them?</p>
 <p>Transformers are great. They're rather stable. You can backprop
-through them very easy. They train fast, and are parallelizable with
-dense rewards. Most importantly, they scale. But it's also true that
-attention has a lot wrong with it. Most famously, attention is
+through them very easily. They train fast, and prefill is parallelizable
+which allows for computing dense rewards efficiently. Most importantly,
+transformers scale. You dump an amount of data into it, and it soaks it
+up at a predictable rate. This is very practical and great. But it's
+also true that attention is not perfect. Most famously, attention is
 <code>O(n^2)</code> in context length, and transformers are not <a
 href="https://arxiv.org/pdf/2510.06828">recurrence-complete</a>. That is
 to say, the forward pass of a transformer cannot actually express any
-function of its inputs, as it has a finite amount of layers.</p>
+function of its inputs, as it has a finite amount of layers. This is
+potentially a problem because as context accumulates, so does the amount
+of potentially-intermingled state that has to be tracked in a limited
+number of layers.</p>
 <p>This seems not to be such a big problem in practice. But can we
-really say that? Do we really know? We may be in the early stages of
+really say that? How sure are we? We may be in the early stages of
 hitting context scaling limits we're not aware of. It's not clear that
 efficient attention variants can scale cleanly to truly massive contexts
-in the limit, and it might be that you just run out of depth. Eventually
-your context gets so big that maybe you do need depth. Our best
+in the limit. It might be that you just run out of depth. Our best
 transformers place a lower bound on the context scaling limit, but we
 have no real way of knowing the upper bound, as we cannot run evals on
 hypothetical better models that do not exist.</p>
@@ -443,7 +441,9 @@ of expressing a function with more discrete decision points than the sum
 of its layers, a looped transformer actually can because it has
 "infinite layers" through recurrence. The downside is that to train it
 you need a gradient through infinite layers also. This is mathematically
-sound, but numerically unstable to compute via backprop.</p>
+sound, but numerically unstable. Due to the catastrophic accumulation of
+small rounding errors, you cannot backprop through infinite layers and
+get the right answer at the end.</p>
 <p>But what if we didn't do backprop? What if there were way to train
 these architectures that would be otherwise impractical, like RNNs or
 even something non-differentiable? Once you start relaxing enough
@@ -453,13 +453,13 @@ almost certain.</p>
 <p>Maybe it looks like a transformer, maybe it looks more like an RNN,
 maybe it's sparse, maybe an MoE, maybe it's a weird diffusion thing,
 maybe Mamba. Maybe it's something exotic that nobody has come up with
-yet. But it's out there.</p>
+yet. Or a combination of all of the above. But it's out there.</p>
 <p>My concrete fear is that we are barking up the wrong tree.
 Considering how many people have put effort into solving the transformer
 context length scaling problem, I don't think such a thing as free lunch
-exists with normal optimizers. If it did, someone would have found it by
-now. I think the efficient sparse attention techniques we already have
-are close to as good as they're going to get.</p>
+exists if we keep doing what we're doing. If it did, someone would have
+found it by now. I think the efficient sparse attention techniques we
+already have are close to as good as they're going to get.</p>
 <p>This is not to say that scaling context length in transformers is not
 worth working on, there are very practical gains to be had. But I
 suspect that we'll only get like a single order of magnitude improvement
@@ -489,7 +489,7 @@ can't do, until you have enough layers, and then you can do them.</p>
 training dynamics get wacky. Even if vanishing or exploding gradients
 don't cause the run to diverge, numerical issues add noise to the grad
 update, slowing the training down. Worse, the noise might be biased.
-Yuck. Backprop causes error to compound exponentially.</p>
+Yuck. Not good for convergence.</p>
 <p>There's a sweet spot, a cutoff in the depth of the model that it
 makes sense to train. But it's hard to say causally what is going on.
 Are we hitting a wall because scaling depth is no longer useful for any
@@ -532,28 +532,34 @@ moment, for example.</p>
 <p>But consider zeroth-order, an optimizer that only uses the parameters
 to optimize the parameters.</p>
 <p>As it turns out, you can save a LOT of memory this way. You don't
-have to store intermediate activations or gradients. And since there's
-no backwards pass you get almost perfect pipeline parallelism for free.
-It's amazing. Super easy to scale. Genuinely fantastic.</p>
-<p>But another thing that's cool is, much like RL, we can choose any
-loss function we want, because we're guessing and checking. This makes
-it pretty unique.</p>
+have to store intermediate activations or gradients. And much like RL,
+we can choose any loss function we want, because we're guessing and
+checking. It's amazing. Super easy to scale. Optimizes any objective.
+Genuinely fantastic.</p>
 <p>Yet another cool thing, perhaps the coolest. Since there's no
 backwards pass, training and inference are the same thing. You can
 extract useful work from the model as you're training it, so long as you
 have metrics to measure your work by.</p>
 <p>Let's explain how it works. To minimize the loss by tweaking model
 weights, you need direction information and magnitude information. You
-need the gradient. Which you don't have, so you have to find a way to
-estimate. There are a bunch of ways to do this. Of particular interest
-to me are the algorithms that derive from <a
+need the gradient, a vector in <code>p</code>-dimensional space. Which
+you don't have, so you have to find a way to estimate.</p>
+<p>There are a bunch of ways to do this. Of particular interest to me
+are the algorithms that derive from <a
 href="https://arxiv.org/abs/2305.17333">MeZO</a>, <a
 href="https://www.jhuapl.edu/spsa/PDF-SPSA/Spall_TAC92.pdf">SPSA</a>,
-and <a href="https://arxiv.org/abs/1703.03864">Evolution
-Strategies</a>.</p>
-<p>The common thing about to note about every Zeroth Order approach is
-that it sucks. And that's probably why nobody uses Zeroth-Order
-optimizers.</p>
+and <a href="https://arxiv.org/abs/1703.03864">Evolution Strategies</a>,
+a paper written by OpenAI in 2017, coauthered by Ilya Sutskever.</p>
+<p>We all kinda forgot about this research. You may be wondering though.
+Why have I never heard of this?</p>
+<h2 id="it-sucks.">It sucks.</h2>
+<p>The common thing about to note about every Zeroth Order approach in
+this family of algorithms is that it sucks. And that's probably why
+nobody uses Zeroth-Order optimizers. I don't know much about other
+families of Zeroth-Order algorithms. Judging by the fact that I haven't
+heard anybody talking about them, I must conclude that they also suck.
+At least compared to the clean signal that backprop provides. Why mess
+with a good thing?</p>
 <!--
 <br>
 <div style="text-align: center;">
@@ -564,24 +570,31 @@ optimizers.</p>
 </div>
 <br>
 -->
-<p>The specific reason why it sucks is that the only way to get
-information about the true gradient is by sampling, but sampling doesn't
-give you a lot of information about the true grad, and even the
-information it does give you is noisy. The signal-to-noise ratio is
-awful. Worse, it's not noisy in the way your batch is noisy, it's noisy
-in a deeper, more fundamental way. To get a gradient update with the
-same amount of noise as you would get by doing backprop a single time
-with MeZO, you need to average over <code>p</code> perturbations, where
-<code>p</code> is your parameter count.</p>
-<p>We'll get to the math later, but in summary it's better just to
-calculate grads if you have the option. Calculating the gradient
-directly is better than trying to estimate it with smoke and mirrors.
-With that said it works, and still has many other benefits.</p>
+<p>The specific reason why this algorithm family sucks is that the only
+way to get information about the true gradient is by sampling, but
+sampling doesn't give you a lot of information about the true gradient.
+Even the information it does give you is noisy. The signal-to-noise
+ratio is awful. Worse, it's not noisy in the way your batch is noisy,
+it's noisy in a deeper, more fundamental way. To get a gradient update
+with the same amount of noise as you would get by doing backprop a
+single time with MeZO, you need to average over <code>p</code>
+perturbations, where <code>p</code> is your parameter count.</p>
+<p>We'll get to the math in a few sections, but in summary it's better
+just to obtain the true gradient using backprop if you have the option.
+Calculating it directly is much better than trying to estimate it with
+smoke and mirrors. Yet with that said it works, because enough
+randomized projected gradients are an unbiased estimator of the true
+gradient. You don't have to do backprop, if you can tolerate the
+projection noise.</p>
 <p>But why bother? Clearly nobody bothers. I'm bothering. Dangit. I got
 nerdsniped so fucking hard.</p>
 <p>You would think this would be the end of the story for
 ZO-Optimization. But not quite. Unfortunately I think ZO has a lot of
-potential.</p>
+potential. And other people are starting to think so too.</p>
+<h2 id="todo-evolution-strategies-at-scale-eggroll">TODO Evolution
+Strategies at Scale / EGGROLL</h2>
+<p>I actually got nerdsniped by MeZO, not the ES at Scale/EGGROLL
+papers</p>
 <h2 id="zo-tricks">ZO Tricks</h2>
 <p>There are a number of interesting things that you can do. I think
 they make this class of techniques worth not completely counting out
@@ -594,6 +607,8 @@ original regardless.</p>
 <p>The <a href="https://arxiv.org/abs/2305.17333">MeZO paper</a>, also
 known as "Fine-Tuning Language Models with Just Forward Passes" is why I
 think any of this is even tractable or interesting at all. The paper
+does not introduce any particularly new concepts. No new fancy
+algorithmic tricks. In fact, instead of adding they subtract. It
 describes a way to implement ZO that's extremely efficient and
 scalable.</p>
 <p>For a description of the method, you can skip down to the "MeZO Math"
@@ -716,8 +731,13 @@ effective in terms of perplexity loss, but also in practice on tasks.
 You can do simultaneous RL, if you want to.</p>
 <h3 id="converting-an-existing-model-for-zo">Converting an Existing
 Model for ZO</h3>
-<p>This has also never been done before, or at least I cannot find any
-references to it.</p>
+<p>TODO:</p>
+<h4
+id="httpsarxiv.orgabs2408.15237">https://arxiv.org/abs/2408.15237</h4>
+<h4
+id="httpsarxiv.orgabs2006.16236">https://arxiv.org/abs/2006.16236</h4>
+<p>There are two ideas which have been not been connected yet, model
+conversion and ZO.</p>
 <p>Skip connections. Pretrained off-the-shelf transformers have skip
 connections.</p>
 <p>These present a problem for ZO. You'll want to run massive batch
@@ -1075,13 +1095,16 @@ logging</li>
 not ZO-related)</li>
 <li><a href="https://arxiv.org/abs/2602.17155">ZO-Muon</a>
 optimizer</li>
-<li><a href="https://arxiv.org/abs/2312.15184">ZO-AdaMU</a>
-optimizer</li>
 <li><a
 href="https://github.com/linkedin/Liger-Kernel/blob/main/src/liger_kernel/transformers/fused_linear_cross_entropy.py#L9">Fused
 liger linear crossentropy loss</a></li>
 </ol>
-<p>Planned Additions and Experiments:</p>
+<p>I previously implemented the <a
+href="https://arxiv.org/abs/2312.15184">ZO-AdaMU</a> optimizer but
+removed it from the codebase because I wasn't getting good results and
+it complicated the implementation by too much.</p>
+<h4 id="planned-additions-and-experiments">Planned Additions and
+Experiments:</h4>
 <ol type="1">
 <li><a href="https://arxiv.org/abs/1805.10367">ZO-SVRG</a></li>
 <li>Skip Removal</li>
