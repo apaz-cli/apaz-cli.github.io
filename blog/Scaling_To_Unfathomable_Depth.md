@@ -5,7 +5,7 @@
 
 An interesting research direction I'm thinking about for scaling agents.
 
-This is a long one. It's written so you can skip around a bit. Part blog post, part research notes dump, and I'm also releasing a training codebase called ZOTitan and some example kernels.
+This is a long one. It's written so you can skip around. Part blog post, part research note idea vomit, and I'm also releasing a training codebase called ZOTitan and some example kernels. And also a codebase for kernel autoresearch.
 
 Includes many original ideas that could/should be papers. At some point they might be.
 
@@ -111,7 +111,9 @@ Some of these tricks exist in the literature. Many of them do not exist in the l
 
 ### MeZO
 
-The [MeZO paper](https://arxiv.org/abs/2305.17333), also known as "Fine-Tuning Language Models with Just Forward Passes" is why I think any of this is even tractable or interesting at all. The paper does not introduce any particularly new concepts. No new fancy algorithmic tricks. In fact, instead of adding they subtract. It describes a way to implement ZO that's extremely efficient and scalable.
+The [MeZO paper](https://arxiv.org/abs/2305.17333), also known as "Fine-Tuning Language Models with Just Forward Passes" is why I think any of this is even tractable or interesting at all. The paper does not introduce any particularly new concepts. No new algorithmic tricks. It's more of an engineering paper, and yet another paper in a long line of "wait, why does this work?"
+
+There were two core ideas in this paper.
 
 For a description of the method, you can skip down to the "MeZO Math" section. But I want to talk first about why it's efficient.
 
@@ -129,7 +131,7 @@ That is to say, with each hardware generation, this method becomes more suited t
 
 ### LoRA
 
-The main reason MeZO sucks is that, since you are estimating the gradients, it performs quadratically worse the more parameters you have. Specifically, as you expand the number of parameters, to gain the same amount of certainty about the direction of the gradient for a higher dimensional model, it takes a linearly larger amount of sampling. More sampling times more compute is quadratic in terms of both data and compute cost. And that's bad.
+The main reason MeZO sucks is that, since you are estimating the gradients, you get quadratically more projection noise the more parameters you have. Specifically, as you expand the number of parameters, to gain the same amount of certainty about the direction of the gradient for a higher dimensional model, it takes a linearly larger amount of sampling. More sampling times more compute is quadratic in terms of both data and compute cost. And that's bad.
 
 This is intractable and needs to be fixed. [LoRA](https://arxiv.org/abs/2106.09685) adapters do truly fix this problem, as they decrease the number of trainable parameters. They are almost the default way to do Zeroth-Order optimization.
 
@@ -141,49 +143,47 @@ But also note that it seems [not to work as well for smaller models](https://arx
 
 But, it goes without saying that MeZO + LoRA (plus other stuff) is totally doable. All of these techniques I'm talking about can be combined.
 
-There's also another paper to look into called [LOZO](https://arxiv.org/abs/2410.07698) which takes the "MeZO + LoRA" idea further. Essentially you can also LoRA your perturbations. Initially, this seems like a strange thing to do. But the LOZO paper justifies it by saying that, since gradient updates tend to be low rank anyway, maybe you actually *want* low rank perturbations. If the update is supposed to be low rank, if it isn't (if each parameter follows a gaussian like in MeZO) then the parts that aren't are actually noise. Or, if they're not, the high-rank parts are probably along flat directions, and you would get a better update on average and reduce your variance with a lower rank update.
+There's also another paper to look into called [LOZO](https://arxiv.org/abs/2410.07698) which takes the "MeZO + LoRA" idea further. Essentially you can also LoRA your perturbations. Initially, this seems like a strange thing to do. But the LOZO paper justifies it by saying that, since gradient updates tend to be low rank anyway, maybe you actually *want* low rank perturbations. If the update is supposed to be low rank, if it isn't (if each parameter follows a gaussian like in MeZO) then it is poorly conditioned and the parts that aren't are actually noise. Or, if they're not, the high-rank parts are probably along flat directions, and you would get a better update on average and reduce your variance with a lower rank update.
 
-I'm both sold and not sold on this justification. My intuition is that sparse updates are fine for narrow finetuning tasks. For harder stuff it's not clear to me that low rank updates are enough to reach the best-generalizing solution. So maybe ZO pretraining is dead in the water, maybe it isn't. It might work, it might nto.
+I'm both sold and not sold on this justification. My intuition is that sparse updates are fine for narrow finetuning tasks. For harder stuff it's not clear to me that low rank updates are enough to reach the best-generalizing solution. So maybe ZO pretraining is dead in the water, maybe it isn't. It might work, it might not.
 
 I think more research needs to be done here in general. ZO has never really been scaled to the extent that is necessary for answering these sorts of basic questions about what works or not and why. 
 
 ### ZO Context Extension
 
-These are my thoughts, to my knowledge this has never been done.
-
 Right now the most popular way to do Transformer context length extension is through RoPE scaling. You could also use YaRN, or NoPE, or any manner of other things. I don't really have any opinions here.
 
 Whatever the strategy, people also frequently use LoRA to do this memory-efficiently. It can be hard to fit long context lengths to the hardware otherwise. This is our evidence that low-rank adaptations are sufficient for context length extension.
 
-LoRA helps, but gradients is not the place where all the memory is going. The main problem is that in first-order optimization of transformers, the size of your activations grows with the size of your context length, and you have to hold onto all of them until it's time to do backprop. This is also true of sparse attention techniques to varying degrees. There is, in any case, no matter the architecture, an effective context size, which probably needs to save a lot of activation memory.
+LoRA helps, but gradients is not the place where all the memory is going. The main problem is that in first-order optimization of transformers, the size of your activations grows with the size of your context length, and you have to hold onto all of them until it's time to do backprop. This is also true of sparse attention techniques to varying degrees. No matter the architecture, there is an effective context size. And we can train it so we can track more state.
 
 Zeroth-order optimization typically operates in the realm of LoRA, and does not require you to store these activations. Seems like a match made in heaven. You can also do this context extension finetuning on actual tasks you care about while you're at it. Make sure it's not just effective in terms of perplexity loss, but also in practice on tasks. You can do simultaneous RL, if you want to.
 
 ### Converting an Existing Model for ZO
 
-TODO:
+Since first-order optimization already works really well for pretraining, and ZO is useful for training models and tasks that are not differentiable, it makes sense to explore pretraining a model and then converting it to other architectures for cheaper inference and training with ZO.
 
-#### https://arxiv.org/abs/2408.15237
+Papers that stuck out to me along these lines are:
 
-#### https://arxiv.org/abs/2006.16236
+* [The Mamba in the Llama: Distilling and Accelerating Hybrid Models](https://arxiv.org/abs/2408.15237)
+* [Transformers are RNNs: Fast Autoregressive Transformers with Linear Attention](https://arxiv.org/abs/2006.16236)
 
-There are two ideas which have been not been connected yet, model conversion and ZO.
+
+### Removing Skip Connections
 
 Skip connections. Pretrained off-the-shelf transformers have skip connections.
 
-These present a problem for ZO. You'll want to run massive batch sizes for noise reduction and inference efficiency purposes. The only thing you really need to store in memory is intermediate activations.
-
 Each skip connection doubles the size of your intermediate activations. In FO they're not a problem, because you're storing all of those activations permanently anyway. Just store an extra reference to a tensor. There's no extra cost.
 
-In ZO there is an extra cost, adding a skip connection around a block halves the batch size you can fit. So it would be nice to find a way to remove them.
+In ZO there is an extra cost, adding a skip connection means you can't free the previous activations and reclaim the memory. In practice this is not a problem, because in transformers the skip connections appear within blocks, not across blocks, and you're probably sharding per-block. But if for some reason in the future cross-block skips become stylish you would have to deal with this problem.
 
-The first thing I tried was just ripping them out and re-training. Don't do this, it doesn't work. It catastrophically destroys the model, and it's equivalent to retraining from scratch.
+Anyway, I got thinking about this problem, despite it not really being a problem. Still, how can you rip skip connections out?
 
-I have two much better ideas now. Haven't gotten around to implementing them yet.
+The first thing I tried was just ripping them out and re-training. Don't do this, it doesn't work. It catastrophically destroys the model, it's equivalent to retraining from scratch. I have two much better ideas now. Haven't gotten around to implementing them yet.
 
-The first idea is just to do continued pretraining. Freeze the residual weights, and decay them to zero according to a schedule. Probably you want to do a bit of warmup before touching them. Then the brain damage you're doing to the model by decaying the residuals gets healed over the course of training.
+The first new idea is just to do continued pretraining. Freeze the residual weights, and decay them to zero according to a schedule. Probably you want to do a bit of warmup before touching them. Then the brain damage you're doing to the model by decaying the residuals gets healed over the course of training.
 
-The second idea is probably better. You can just add the sum of the residuals to your loss function, scaled by some factor. That factor can be how you can control the decay schedule. Maybe the brain damage is a bit more controlled this way, because the rates of decay individually are directionally correlated with the gradient. I suspect this to be important.
+The second new idea is probably better. You can just add the sum of the residuals to your loss function, scaled by some factor. That factor can be how you can control the decay schedule. Maybe the brain damage is a bit more controlled this way, because the rates of decay individually are directionally correlated with the gradient. I suspect this to be important.
 
 I've downloaded every paper off arxiv and done a search over them, and neither of these strategies have been written about. Skipless transformers are pretty niche (why other than ZO would anyone care?), and most papers about skipless transformers, for example [this one](https://arxiv.org/pdf/2510.00345) are about training from scratch. To my knowledge nobody has ripped the residuals out of an existing pretrained model.
 
@@ -195,7 +195,9 @@ You can make both the model and the loss function whatever you want, as long as 
 
 Multiple papers have been published where people do this, for example ["ES at Scale"](https://arxiv.org/pdf/2509.24372), but it would be nice to use this to actually try to push capabilities of models that people actually use. To actually push the envelope and do something that FO optimizers can't.
 
-I also think about the results from ["Optimizers Qualitatively Alter Solutions And We Should Leverage This"](https://arxiv.org/pdf/2507.12224). Is ZO RL more or less suceptible to diversity collapse? I don't know. It might be different though, in some qualitative way, and that makes it interesting.
+I also think about the results from ["Optimizers Qualitatively Alter Solutions And We Should Leverage This"](https://arxiv.org/pdf/2507.12224). What does using a ZO-posttrained model feel like? Better? Worse? It's worth a try.
+
+Also worth pondering, is ZO RL more or less suceptible to diversity collapse? I would suspect less. The authors of some of these papers have stated in interviews that they suspect less also. In any case it's probably different in some qualitative way, and that makes it interesting.
 
 ## MeZO Math (Very verbose but trust)
 
@@ -331,9 +333,7 @@ I think [MeZO-SVRG](https://arxiv.org/abs/2404.08080) is very interesting in thi
 
 ### ZO-Muon
 
-Yeah, [this totally exists](https://arxiv.org/abs/2602.17155) and it also works. I think that's really cool. Nesterov momentum also works the way you want it to, as it does not depend on anything but your gradient update, which is to say the pseudograd. You can just polar-orthogonalize your `proj_grad`, it turns out. It's great.
-
-I'm still working on the variance math here. ZO-Muon is significantly different from MeZO, it builds an approximation of the gradient out of spectral components. So, it samples many `z`s. Which is probably helpful, as we are about to find out in the next section.
+Yeah, [this totally exists](https://arxiv.org/abs/2602.17155) and it also works. I think that's really cool. Nesterov momentum also works the way you want it to, as it does not depend on anything but your update, which is to say the pseudograd. You can just polar-orthogonalize your `z`, it turns out, and it gets scaled by the `proj_grad` and turns into the update. It's great.
 
 A random thing that I've noticed as I've been doing experiments here. Both Muon and LOZO sample `z` differently, and create a `z` with different expected variance. If you don't renormalize, your choice of `z` distribution will inadvertently affect your choice of `ε`, potentially screwing your results. Polar orthogonalization gives you parameter perturbations with Frobenius norm `‖z‖²_F = r`, LOZO gives `mnr`, and standard Gaussian gives `mn`. Where `m` and `n` are the dimensions of the matrix, and `r` is the LoRA rank.
 
@@ -395,9 +395,11 @@ Pipeline Parallelism has bubbles because of backprop. We do not do backprop, so 
 
 I'd like to drop a hint though that [MeZO-SVRG](https://arxiv.org/abs/2404.08080) probably has some interesting interplay with async pipeline parallelism and also distributed data parallelism methods like [DiLoCo](https://arxiv.org/abs/2311.08105). If you have to store a reference model anyway, you may as well use it to cancel some noise. Plenty of ideas for scaling here which have never been explored.
 
+Also of course there are applications to hiding scoring latency, just like in async RL. Is ZO more or less tolerant to asynchronous updates than first-order async RL? Needs experiments.
+
 ### ZO MoE
 
-I don't have any great ideas for this yet. It's worth noting that:
+I don't have any great ideas for this yet. At least nothing beyond what's present in the DSV4 paper, or any other MoE paper. It's worth noting though that:
 
 1. ZO eliminates the need for differentiable routing (although it's unclear how much this matters)
 2. Reducing the number of trainable parameters improves the noise estimate due to MeZO's gradient projection per sample
@@ -405,7 +407,9 @@ I don't have any great ideas for this yet. It's worth noting that:
 
 Some kind of sparsity is probably optimal. This seems like a problem for later though. After other problems are solved. If anyone has any good non-differentiable routing ideas let me know, but the router being trainable is a feature rather than a bug IMO.
 
-Writing the kernels for this has gotta SUCK. Normal MoE kernels are hard enough. Other than writing kernels though, I think ZO MoE is probably about as hard as MoE is generally. With MoE becoming more of a solved problem, most of those solutions probably transfer.
+I think luckily this is probably a solved problem. But who knows, we'll see. Easy to say that when I haven't spent the requisite time slamming my head against it yet.
+
+Writing the kernels for this is gonna SUCK. Normal MoE kernels are hard enough. Eventually I will have to do what I think everybody else does, which is stare at the [FlashMoE](https://github.com/osayamenja/FlashMoE) source, the [comet](https://arxiv.org/abs/2502.19811) paper, and Deepseek's [DeepEP](https://github.com/deepseek-ai/DeepEP) and [DeepGEMM](https://github.com/deepseek-ai/DeepGEMM) until everything finally starts making sense.
 
 ## Codebase for Experiments
 
@@ -425,9 +429,9 @@ So far I have implemented:
 6. [z_loss](https://arxiv.org/abs/2204.02311) (From PaLM, not ZO-related)
 7. [ZO-Muon](https://arxiv.org/abs/2602.17155) optimizer
 8. [Fused liger linear crossentropy loss](https://github.com/linkedin/Liger-Kernel/blob/main/src/liger_kernel/transformers/fused_linear_cross_entropy.py#L9)
+9. Objectives such as Countdown and expert-forcing classification
 
 I previously implemented the [ZO-AdaMU](https://arxiv.org/abs/2312.15184) optimizer but removed it from the codebase because I wasn't getting good results and it complicated the implementation by too much.
-
 
 #### Planned Additions and Experiments:
 
@@ -442,24 +446,7 @@ I previously implemented the [ZO-AdaMU](https://arxiv.org/abs/2312.15184) optimi
 
 The idea is that you can plug in any HF model you want, and it works. Abstracting away the architecture is very useful, I think, although it comes with some caveats. It's good to have a notion of blocks for Pipeline Parallelism and it's good to be able to do things like fuse the loss to avoid having to materialize the logits if you don't want them, especially because the lm_head makes up such a large proportion of the parameters of small models. Eventually I will create an interface to exend this to implementing models "properly" with optimized kernels. For now though, to figure out the training dynamics it's fine to spend more compute to do it inefficiently.
 
-
-### MeZO Kernel Example
-
-ZOTitan is not the only thing I've been working on. I also wrote a fused CUDA example kernel for:
-```
-out_pos = layernorm(silu(input @ (W + εz))))
-out_neg = layernorm(silu(input @ (W - εz))))
-```
-
-It takes a seed as input and fuses a Philox CBPRNG to generate a gaussian `z` on the fly, scales by `±ε`, and adds it into the loaded weights in two simultaneous matrix multiplications, where the weight and input tiles are loaded only once. This kernel also fuses the silu and layernorm reductions and final result write into an epilogue. Although perhaps the epilogue could be its own separate kernel.
-
-This is not meant to be fast. I may write a fast tcgen05 example kernel in the future, but this ain't it. It's meant to showcase how you WOULD write such a kernel. Each generation of Nvidia chips has its own way of writing a matmul, and I tried to write it in such a way as to make it obvious how to port it to whatever hardware generation you desire.
-
-The more sane thing may have been to write it in Triton, but meh. The other kernel that should be written is a flash attention kernel that does the same.
-
-Here's the [repo](https://github.com/apaz-cli/MeZOKernelExample/tree/master). Compile with `./build.sh`, run with `./fused_example` and `./fused_zo_example`. It also contains an example MeZO optimizer update kernel, without any of the fancy modifications that we've been talking about.
-
-I look forward to tossing something like this into an autoresearch loop to make it fast. Unfortunately I remain a better kernel engineer than GPT and Claude for time being. Hopefully this is solved soon.
+This has been useful for getting my feet wet. I think that writing a codebase for this is somewhat nontrivial due to a number of concerns.
 
 ### Autoresearch
 
@@ -469,13 +456,13 @@ To get an idea as to why, let's take a look at [this method](https://github.com/
 
 I don't implement it either. ZOTitan does not yet even have the option to do it "the right way."
 
-With first-order methods already working way better, and now that LLM RL works, you don't really "need" to do ZO. I think it's really promising, but it's hard to convince people do to something else. Especially when there are well-trodden paths that work well with FO, with so much low hanging fruit. 
+With first-order methods already working way better, and now that LLM RL works, you don't really "need" to do ZO. If you have an objective, you can optimize it with RL. I think ZO is really promising, but it's hard to convince people to move away from paradigms that work, are proven, and which tooling exists for. Especially when there is so much low hanging fruit everywhere.
 
-The solution, I think, is to bring autoresearch into the mix. Or at least a very good compiler. Writing these kernels needs to be automated somehow. This is not a research path for humans.
+The solution, I think, is to bring autoresearch into the mix. Or at least a very good compiler. Hilariously, tinygrad can express ZO kernels just fine. But, writing these kernels needs to be automated somehow. This is not a research path for humans.
 
-It's a very well defined and fairly simple task to delegate. The architecture search space and its dynamics are obvious, it's obvious what experiments to run (this post is full of them), and not we don't actually need that much compute to tackle these problems. The most obvious scaling bottlenecks at this point are that writing and setting up harnesses takes time, and a human has to interpret the results.
+Producing ZO kernels is a very well defined and fairly simple task to delegate. The architecture search space and its dynamics are obvious, it's obvious what experiments to run (this post is full of them), and not we don't actually need that much compute to tackle these problems. The most obvious scaling bottlenecks at this point are that writing and setting up harnesses takes time, and a human has to interpret the results.
 
-I look forward to the near future where we can basically just try everything with ZO that's already been tried with first order. It's not hard to discover new things to autoresearch. I've already been working on this in [this post](Research_Roadmap.html), you can just download Arxiv to your computer. It's like 10 GB once you strip bibliographies and convert to markdown.
+I look forward to the near future where we can basically just try everything with ZO that's already been tried with first order. It's not hard to discover new things to autoresearch. I've already been working on this in [this post](Research_Roadmap.html), you can just download Arxiv to your computer. It's like 10 GB once you strip bibliographies and convert to markdown. Sometime soonish I want to start generating ideas and automatically testing them.
 
 <!--
 <br>
@@ -487,6 +474,185 @@ I look forward to the near future where we can basically just try everything wit
 </div>
 <br>
 -->
+
+### MeZO Kernel Example
+
+So, these ZO kernels. How do you actually write them?
+
+ZOTitan is not the only thing I've been working on. I also wrote a fused CUDA example kernel for:
+```
+out_pos = layernorm(silu(pos_input @ (W + εz))))
+out_neg = layernorm(silu(neg_input @ (W - εz))))
+```
+
+It takes a seed as input and fuses a Philox CBPRNG to generate a gaussian `z` on the fly, scales by `±ε`, and adds it into the loaded weights in two simultaneous matrix multiplications, where the weight and input tiles are loaded only once. This kernel also fuses the silu and layernorm reductions and final result write into an epilogue. Although perhaps the epilogue could be its own separate kernel.
+
+This is not meant to be fast. I may write a fast tcgen05 example kernel in the future, but this ain't it. It's meant to showcase how you WOULD write such a kernel. Each generation of Nvidia chips has its own way of writing a matmul, and I tried to write it in such a way as to make it obvious how to port it to whatever hardware generation you desire.
+
+The more sane thing may have been to write it in Triton, but meh. The other kernel that should be written is a flash attention kernel that does the same.
+
+Here's the [repo](https://github.com/apaz-cli/MeZOKernelExample/tree/master). Compile with `./build.sh`, run with `./fused_example` and `./fused_zo_example`. It also contains an example MeZO optimizer update kernel, without any of the fancy modifications that we've been talking about.
+
+I also tossed it into the autoresearch harness I've been writing, [kernelthing](https://github.com/apaz-cli/kernelthing). The resulting autoresearched kernel is in the example kernel repo also. Four Deepseek V4 agents ran for six hours at a total cost of around five dollars and produced a roughly 5.5x speedup. Frustratingly, they did so without ever discovering that they should use tensor cores, despite the extensive kernel wiki I gave them. I whipped up a quick sm120 mma kernel, and found that I got a ~9.5x speedup versus the original. This made me kinda sad.
+
+I'm out of time for now and need to release this article. Unfortunately for now I am still a better kernel engineer than the LLMs. I look forward to the time when that changes, and autoresearching this problem more in the future.
+
+#### Kernel Notes and Tricks
+
+In doing this autoresearch though, I discovered some interesting tradeoffs.
+
+First, it's worth noting that for ZO you want fp16 over bf16. You only care about the forward pass, and the inputs will essentially always be small because of the normalization layers. Weights are also basically always small. You do not care so much about dynamic range.
+
+MeZO typically uses ε=1e-3, somewhere in that range. But bf16 epsilon is `0.00781250`, about eight times as big. So precision matters, and matters a lot. In fp16/tf32, it's `0.0009765625`. Much better, but still not ideal. So, use fp16.
+
+I would like to figure out a recipe for quantizatized ZO training at some point. I imagine (seeded) stochastic rounding and/or the blockwise hadamard transforms like from the [Quartet](https://arxiv.org/pdf/2505.14669) paper/[qutlass](https://github.com/IST-DASLab/qutlass) may be useful. Or something along those lines, whatever people are doing with blockscaling formats these days. There is possibly some way to reinterpret z as something that works better with quantization.
+
+Now, consider the matmul from before.
+
+```
+pos_mat = pos_input @ (W + εz)
+neg_mat = neg_input @ (W - εz)
+```
+
+This can be decomposed into:
+```
+pos_mat = (pos_input @ W) + (pos_input @ εz)
+neg_mat = (neg_input @ W) - (neg_input @ εz)
+```
+
+This is more math. Why might we want to do this? Again, for numerical precision.
+
+Computing `W ± εz` first would forces the tiny perturbation `εz` to be rounded against the much larger `W`, losing precision before the matmul runs. Instead, we can split it out. That way `input @ εz` is computed at its own scale, keeping relative precision.
+
+This seems minor. But I think it's very important for getting it to work. Yes it's more compute, but that compute is effectively hidden. Matmuls are often compute bound, and we are bound to some extent by the cost of constructing `z` for every tile. So I think you're actually supposed to just issue four tile MMA instructions per set of tiles you load.
+
+#### LoRA Blowup
+
+Now consider if we also did LoRA. Then instead of `(W + εz)` we have `(W + s * ((A ± εz_A) @ (B ± εz_B))`, where `s` is the LoRA scaling factor, `A` and `B` are the adapters, and `z_A` and `z_B` are (distinct) normal perturbation vectors.
+
+```
+# Original formula
+pos_mat = pos_input @ (W + εz)
+neg_mat = neg_input @ (W - εz)
+
+# Apply lora
+pos_mat = pos_input @ (W + s * ((A + εz) @ (B + εz)))
+neg_mat = neg_input @ (W + s * ((A - εz) @ (B - εz)))
+
+# Expand the products
+pos_mat = pos_input @ (W + s * ((A @ B) + ε(z_A @ B + A @ z_B) + ε²(z_A @ z_B)))
+neg_mat = neg_input @ (W + s * ((A @ B) - ε(z_A @ B + A @ z_B) + ε²(z_A @ z_B)))
+
+# Distribute pos/neg input
+pos_mat = (pos_input @ W)
+        + s * (pos_input @ (A @ B))
+        + ε * s * (pos_input @ (z_A @ B + A @ z_B))
+        + ε² * s * (pos_input @ (z_A @ z_B))
+neg_mat = (neg_input @ W)
+        + s * (neg_input @ (A @ B))
+        - ε * s * (neg_input @ (z_A @ B + A @ z_B))
+        + ε² * s * (neg_input @ (z_A @ z_B))
+
+# Keep distributing
+pos_mat = (pos_input @ W)
+        + s * (pos_input @ A @ B)
+        + ε * s * (pos_input @ z_A @ B)
+        + ε * s * (pos_input @ A @ z_B)
+        + ε² * s * (pos_input @ z_A @ z_B)
+neg_mat = (neg_input @ W)
+        + s * (neg_input @ A @ B)
+        - ε * s * (neg_input @ z_A @ B)
+        - ε * s * (neg_input @ A @ z_B)
+        + ε² * s * (neg_input @ z_A @ z_B)
+```
+
+This is disgusting. It's is not efficiently computable. I give up. So maybe the trick of splitting out the perturbation matmul for numerics does not work so well if you're doing LoRA. 
+
+I haven't looked into how to write a grouped GEMM yet, but that's gotta happen at some point. That's gonna suck. Agony beyond reason.
+
+#### Kernel Recipes
+
+So, we've got two recipes, fold and split.
+
+```
+Fold:
+pos_mat = pos_input @ (W + εz)
+neg_mat = neg_input @ (W - εz)
+
+Split:
+pos_mat = (pos_input @ W) + (pos_input @ εz)
+neg_mat = (neg_input @ W) - (neg_input @ εz)
+```
+
+On sm100a, the fold kernel would look something like:
+```
+ACCS = { pos, neg } in TMEM; tmem = alloc(ACCS)
+buf[STAGES] = smem ring { A_pos, A_neg, Wp, Wm }   # consumed by mma
+Wraw[STAGES] = smem scratch                        # TMA landing for W
+
+producer:  setmaxnreg.dec
+    for k in K:
+        s = k % STAGES; wait empty[s]
+        tma.multicast  W           -> cluster Wraw[s]     # raw W shared
+        tma.load       A_pos,A_neg -> buf[s]
+        z  = create()
+        buf[s].Wp = Wraw[s] + eps * z
+        buf[s].Wm = Wraw[s] - eps * z
+        expect_tx; signal full[s]
+
+consumer:  setmaxnreg.inc
+    for k in K:
+        s = k % STAGES; wait full[s]; acc = (k>0)
+        tcgen05.mma(pos, buf[s].A_pos, buf[s].Wp, acc)
+        tcgen05.mma(neg, buf[s].A_neg, buf[s].Wm, acc)
+        signal empty[s]
+
+epilogue:
+    tcgen05.wait
+    out_pos = load(pos)
+    out_neg = load(neg)
+    store; tcgen05.dealloc(tmem)
+```
+
+And the split kernel:
+```
+ACCS = { posW, posZ, negW, negZ } in TMEM; tmem = alloc(ACCS)
+buf[STAGES] = smem ring { A_pos, A_neg, W, z }     # all consumed by mma
+
+producer:  setmaxnreg.dec
+    for k in K:
+        s = k % STAGES; wait empty[s]
+        tma.multicast  W           -> cluster buf[s].W
+        tma.load       A_pos,A_neg -> buf[s]
+        z = create()
+        buf[s].z = eps * z
+        expect_tx; fence(z); signal full[s]
+
+consumer:  setmaxnreg.inc
+    for k in K:
+        s = k % STAGES; wait full[s]; acc = (k>0)
+        tcgen05.mma(posW, buf[s].A_pos, buf[s].W, acc)
+        tcgen05.mma(posZ, buf[s].A_pos, buf[s].z, acc)
+        tcgen05.mma(negW, buf[s].A_neg, buf[s].W, acc)
+        tcgen05.mma(negZ, buf[s].A_neg, buf[s].z, acc)
+        signal empty[s]
+
+epilogue:
+    tcgen05.wait
+    out_pos = load(posW) + load(posZ)
+    out_neg = load(negW) - load(negZ)
+    store; tcgen05.dealloc(tmem)
+```
+
+In the split kernel the `W` tile is loaded directly into tmem via TMA multicast and consumed by the MMA. The prescaled `εz` tiles are simultaneously stored to shared memory.Whereas in the fold kernel we must load W tiles in to the `Wraw` temp buffer, and then produce `(W + εz)` and `(W - εz)` in shared memory rather than in tmem.
+
+It will be interesting to find out which one wins.
+
+### A New Type of Infrastructure
+
+I am rapidly iterating on research, on drastically different architectures. Some of them novel, some of them not. I want to use existing models, and I want to train new models that don't exist. In any case I do not have time to sit here and write kernels.
+
+With ZOTitan I'm running into a problem.
 
 
 ## Conclusion
