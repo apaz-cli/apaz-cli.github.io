@@ -5,7 +5,7 @@
 
 An interesting research direction I'm thinking about for scaling agents.
 
-This is a long one. It's written so you can skip around. Part blog post, part research note idea vomit, and I'm also releasing a training codebase called ZOTitan and some example kernels. And also a codebase for kernel autoresearch.
+This is a long one. It's written so you can skip around. Part blog post, part math dump, part research note idea vomit, and I'm also releasing a training codebase called ZOTitan, a kernel autoresearch codebase, and some example kernels.
 
 Includes many original ideas that could/should be papers. At some point they might be.
 
@@ -28,7 +28,7 @@ On the other side of the spectrum, you have RNNs. Or, architectures with recurre
 
 But what if we didn't do backprop? What if there were way to train these architectures that would be otherwise impractical, like RNNs or even something non-differentiable? Once you start relaxing enough restrictions, maybe there's an architecture out there that's better for long context in the limit. It's certainly possible. In fact I think it's almost certain.
 
-Maybe it looks like a transformer, maybe it looks more like an RNN, maybe it's sparse, maybe an MoE, maybe it's a weird diffusion thing, maybe Mamba. Maybe it's something exotic that nobody has come up with yet. Or a combination of all of the above. But it's out there.
+Maybe it looks like a transformer, maybe it looks more like an RNN, maybe it's sparse, maybe an MoE, maybe it's a weird diffusion thing, maybe [Mamba](https://arxiv.org/abs/2312.00752). Maybe it's something exotic that nobody has come up with yet. Or a combination of all of the above. But it's out there.
 
 My concrete fear is that we are barking up the wrong tree. Considering how many people have put effort into solving the transformer context length scaling problem, I don't think such a thing as free lunch exists if we keep doing what we're doing. If it did, someone would have found it by now. I think the efficient sparse attention techniques we already have are close to as good as they're going to get.
 
@@ -61,7 +61,7 @@ That is, if we can get it to scale, which has of course never really been attemp
 
 ## Zeroth Order Optimization
 
-A first-order optimizer uses the first derivative (the gradients) to optimize the objective. See SGD, SGD with momentum, Nesterov, Adam, Muon, etc. All the stuff we use. A second-order optimizer uses the second derivative (the hessian). See Newton's method, and a few others. The hessian is intractable, as it's N by N in the parameter count. So nobody does this, although many optimizers use approximations of hessian information to do their job better. Adam does this with its second moment, for example.
+A first-order optimizer uses the first derivative (the gradients) to optimize the objective. See SGD, SGD with momentum, Nesterov, Adam, [Muon](https://kellerjordan.github.io/posts/muon/), etc. All the stuff we use. A second-order optimizer uses the second derivative (the hessian). See Newton's method, and a few others. The hessian is intractable, as it's N by N in the parameter count. So nobody does this, although many optimizers use approximations of hessian information to do their job better. Adam does this with its second moment, for example.
 
 But consider zeroth-order, an optimizer that only uses the parameters to optimize the parameters.
 
@@ -98,9 +98,9 @@ But why bother? Clearly nobody bothers. I'm bothering. Dangit. I got nerdsniped 
 
 You would think this would be the end of the story for ZO-Optimization. But not quite. Unfortunately I think ZO has a lot of potential. And other people are starting to think so too.
 
-## TODO Evolution Strategies at Scale / EGGROLL
+## Evolution Strategies at Scale / EGGROLL
 
-I actually got nerdsniped by MeZO, not the ES at Scale/EGGROLL papers
+I actually got nerdsniped originally by [MeZO](https://arxiv.org/abs/2305.17333), not the [ES at Scale](https://arxiv.org/abs/2509.24372)/[EGGROLL](https://arxiv.org/abs/2511.16652) papers.
 
 
 ## ZO Tricks
@@ -151,7 +151,7 @@ I think more research needs to be done here in general. ZO has never really been
 
 ### ZO Context Extension
 
-Right now the most popular way to do Transformer context length extension is through RoPE scaling. You could also use YaRN, or NoPE, or any manner of other things. I don't really have any opinions here.
+Right now the most popular way to do Transformer context length extension is through [RoPE](https://arxiv.org/abs/2104.09864) scaling. You could also use [YaRN](https://arxiv.org/abs/2309.00071), or [NoPE](https://arxiv.org/abs/2305.19466), or any manner of other things. I don't really have any opinions here.
 
 Whatever the strategy, people also frequently use LoRA to do this memory-efficiently. It can be hard to fit long context lengths to the hardware otherwise. This is our evidence that low-rank adaptations are sufficient for context length extension.
 
@@ -327,17 +327,11 @@ Var(proj_grad)       = ∇L(Φ(θ))² + Var(∇L(Φ(θ,b)))
 
 In other words, the variance of our projected gradient has two components to it. There is direction sampling variance `∇L(Φ(θ))²`, and data variance, `∇L(Φ(θ,xᵢ))² / B`. The batch variance is reducible, whereas the projection variance is not. Every time we sample a gaussian `z`, it points in a direction. This direction is truly uncorrelated with the direction of the true gradient, it's literally a random gaussian.
 
-If you want to fix this, you can't just increase the batch size. You've gotta get creative. Or use SPSA, which we'll get to.
+If you want to fix this, you can't just increase the batch size. You have to do something else. Which we'll get to.
 
 I think [MeZO-SVRG](https://arxiv.org/abs/2404.08080) is very interesting in this regard too, although I haven't gotten around yet to reading the paper or trying to combine it with other methods.
 
-### ZO-Muon
-
-Yeah, [this totally exists](https://arxiv.org/abs/2602.17155) and it also works. I think that's really cool. Nesterov momentum also works the way you want it to, as it does not depend on anything but your update, which is to say the pseudograd. You can just polar-orthogonalize your `z`, it turns out, and it gets scaled by the `proj_grad` and turns into the update. It's great.
-
-A random thing that I've noticed as I've been doing experiments here. Both Muon and LOZO sample `z` differently, and create a `z` with different expected variance. If you don't renormalize, your choice of `z` distribution will inadvertently affect your choice of `ε`, potentially screwing your results. Polar orthogonalization gives you parameter perturbations with Frobenius norm `‖z‖²_F = r`, LOZO gives `mnr`, and standard Gaussian gives `mn`. Where `m` and `n` are the dimensions of the matrix, and `r` is the LoRA rank.
-
-### Multi-z MeZO, SPSA, and ES
+### Multi-z MeZO, SPSA
 
 Speaking of multiple `z`s. Let's look into what that means for the variance math. We just derived that the variance of the projected gradient under MeZO is:
 ```
@@ -372,6 +366,107 @@ I think the reason why ES and SPSA are underexplored is that it absolutely sucks
 An interesting finding from the MeZO paper though is that somehow it doesn't matter so much if you don't do SPSA. One direction is mostly enough, because the gradient is low rank anyway, and there's a solid chance your projected `z` intersects it in some way and extracts signal.
 
 If fairly vanilla MeZO, SPSA, ES, or similar works at the scales we care about, this might be a big deal. In any case I've not seen SPSA-Adam or SPSA-Muon tried, and certainly not scaled. Seems worth trying and deriving scaling laws for. More exploration needed.
+
+### Derivations for Evolution Strategies
+
+With all that out of the way we can finally put everything together and start talking about Evolution Strategies.
+
+MeZO approximates a derivative by dividing a small difference by a small `ε`. It must be small because MeZO is based on a Taylor expansion. Evolution Strategies does not do this. Instead of the Taylor expansion, it uses a different heuristic, gaussian smoothing.
+
+Let's define the ES objective `J` by convolving `L` with a normal of width `σ`. This is a hyperparameter like MeZO's `ε`, although we find in the end that the math is more forgiving. Like with MeZO, let `z ~ N(0,I)`. Which is to say, each element corresponding to each parameter is an independent standard normal corresponding to one parameter.
+
+```
+J(θ) = E[L(Φ(θ + σz), b)]
+```
+
+We want `∇J`. But we can't push `∇` through `L` if `L` is nondifferentiable or if we don't want to compute derivatives. But the Gaussian distribution has a property called Stein's Lemma. That is to say, for `z ~ N(0,I)`:
+
+```
+E[g(z) · z] = E[∇g(z)]
+```
+
+This holds for any `g` with polynomial growth. We make this assumption. Although we have no proof, it seems to hold in practice. Now set `g(z) = L(Φ(θ + σz), b)`. Then `∇g(z) = σ · ∇L(Φ(θ + σz), b)` by the chain rule.
+
+```
+E[L(Φ(θ + σz), b) · z] = E[σ·∇L(Φ(θ + σz), b)]
+and
+E[L(Φ(θ + σz), b) · z/σ] = E[∇L(Φ(θ + σz), b)]
+```
+
+We've made the right side `∇J(θ)`, the gradient of the smoothed objective. Therefore, 
+
+```
+∇J(θ) = E[L(Φ(θ + σz), b) · z/σ]
+```
+
+This identity is exact for any `σ` and does not require the same `ε → 0` assumption. Instead, we can think of `σ` as an exploration radius hyperparameter, which is related to the learning rate.
+
+Now let's look at the noise structure. No assumptions on `L` are required, we can assume that `J` is smooth by construction (via convolution).
+
+So far we have derived for a single `z`, but recall that ES is a weighted average over a ton of `z`s.
+```
+grad_est = (1/Z) Σⱼ L(Φ(θ + σzⱼ), bⱼ) · zⱼ / σ
+
+where zⱼ ~ N(0,I) i.i.d. with dimensionality p,
+and each bⱼ is an independent batch of size B.
+```
+
+Since (zⱼ, bⱼ) are i.i.d. across j, Bienaymé's identity gives:
+
+```
+Var(grad_est) = (1/Z) Var(g₁)
+```
+
+where `g₁ = L(Φ(θ + σz), b) · z/σ` is the single-sample vector estimator. Now, let's apply the law of total variance, and derive the `Var(grad_est)` like before.
+
+```
+Var(g₁) = E[Var(g₁ | b)] + Var(E[g₁ | b])
+```
+
+I'm... just going to skip over this part. It's kinda nontrivial, but your LLM will certainly be able to figure it out. 
+
+Our final answer is:
+```
+Var(grad_est) = σ² · E[L(Φ(θ), b)²] / Z
+              + ∇L(Φ(θ))² / Z
+              + ∇L(Φ(θ,xᵢ))² / ZB
+```
+
+This is baseline noise, gradient noise, and data noise.
+
+Let's compare this to the Multi-MeZO above.
+```
+Var(grad_est) = ∇L(Φ(θ))² / Z
+              + ∇L(Φ(θ,xᵢ))² / ZB
+```
+
+You'll see that it's more. This is because base Evolution Strategies does not do [antithetic sampling](https://en.wikipedia.org/wiki/Antithetic_variates). That is to say, it does not evaluate `L` at both `θ + σz` and `θ − σz` for each `z`. But OpenAI do propose it in their paper, so let's consider that case also.
+
+The estimator becomes:
+```
+Var(grad_est) = ∇L(Φ(θ))² / Z
+              + ∇L(Φ(θ,xᵢ))² / ZB
+              + O(σ²)
+```
+
+Where the O(σ²) term is a correction for the gradient smoothing. I have once again skipped over showing a bunch of work. The takeaway is that the smoothing replaces the true loss surface `L(θ)` with a blurred version `J(θ) = E[L(θ + σz)]`. Their gradients differ by the following formula:
+```
+∇J(θ) − ∇L(θ) = (σ²/2) · Δ∇L(Φ(θ)) + O(σ⁴)
+```
+
+Where `Δ∇L` is the componentwise Laplacian.
+
+In this way, we see that the gaussian smoothing introduced by ES has tradeoffs. It biases the gradient updates for what is hopefully a more well behaved loss landscape. It pushes you away from sharp minima and towards flatter basins. Much like other flatness-regularized optimizers such as [SWA](https://arxiv.org/abs/1803.05407). What's cool is that ES gets this as a side effect of the variance reduction technique.
+
+Again, I recommend chatting with an LLM about these things if you want to know more, as I just do not feel like typing it out.
+
+But long story short, ES has the same `Z` vs `B` tradeoffs as MeZO does. The lessons learned from the MeZO math hold for ES.
+
+### ZO-Muon
+
+Yeah, [this totally exists](https://arxiv.org/abs/2602.17155) and it also works. I think that's really cool. Nesterov momentum also works the way you want it to, as it does not depend on anything but your update, which is to say the pseudograd. You can just polar-orthogonalize your `z`, it turns out, and it gets scaled by the `proj_grad` and turns into the update. It's great.
+
+A random thing that I've noticed as I've been doing experiments here. Both Muon and LOZO sample `z` differently, and create a `z` with different expected variance. If you don't renormalize, your choice of `z` distribution will inadvertently affect your choice of `ε`, potentially screwing your results. Polar orthogonalization gives you parameter perturbations with Frobenius norm `‖z‖²_F = r`, LOZO gives `mnr`, and standard Gaussian gives `mn`. Where `m` and `n` are the dimensions of the matrix, and `r` is the LoRA rank.
 
 ### ZO and Momentum
 
@@ -415,7 +510,7 @@ Writing the kernels for this is gonna SUCK. Normal MoE kernels are hard enough. 
 
 I want to test some of these theories I have, and figure out how to train these things. Ideas are worthless if you don't test and scale them.
 
-I've noticed though that there is not a good codebase for testing these things. Most papers have code attached, but the code is always garbage. Correct, but truly terrible and not efficient. I'm used to working in [prime-rl](https://github.com/PrimeIntellect-ai/prime-rl) and [torchtitan](https://github.com/pytorch/torchtitan). Nothing like this exists for Zeroth-Order Optimization.
+I've noticed though that there is not a good codebase for testing these things. There does exist prior art. There is code for the [EGGROLL](https://github.com/ESHyperscale) and [ES at Scale](https://github.com/VsonicV/es-fine-tuning-paper) papers. The code is okay. They don't implement it "the right way," not that I blame them. The main problem I found with using their code is that I couldn't freely compose every single feature. I'm used to working in [prime-rl](https://github.com/PrimeIntellect-ai/prime-rl) and [torchtitan](https://github.com/pytorch/torchtitan). Nothing like this exists for Zeroth-Order Optimization, only paper implementations.
 
 That's fine. Just gotta make it exist. Introducing [ZOTitan](https://github.com/apaz-cli/ZOTitan), my sandbox for these ideas.
 
@@ -424,7 +519,7 @@ So far I have implemented:
 1. First-Order training (as baseline)
 2. [LoRA](https://arxiv.org/abs/2106.09685)/[ReLoRA](https://arxiv.org/html/2307.05695v4)/Continual Merging
 3. MeZO (MeZO-SGD, MeZO-Adam)
-4. Multi-z MeZO ([MeZO](https://arxiv.org/abs/2305.17333), [SPSA](https://www.jhuapl.edu/spsa/PDF-SPSA/Spall_TAC92.pdf), and [ES](https://arxiv.org/abs/1703.03864))
+4. Multi-z MeZO ([MeZO](https://arxiv.org/abs/2305.17333), [SPSA](https://www.jhuapl.edu/spsa/PDF-SPSA/Spall_TAC92.pdf), and [ES](https://arxiv.org/abs/1703.03864) (fitness shaping and smoothing))
 5. [mlsweep](https://github.com/apaz-cli/mlsweep) for logging
 6. [z_loss](https://arxiv.org/abs/2204.02311) (From PaLM, not ZO-related)
 7. [ZO-Muon](https://arxiv.org/abs/2602.17155) optimizer
@@ -489,7 +584,7 @@ It takes a seed as input and fuses a Philox CBPRNG to generate a gaussian `z` on
 
 This is not meant to be fast. I may write a fast tcgen05 example kernel in the future, but this ain't it. It's meant to showcase how you WOULD write such a kernel. Each generation of Nvidia chips has its own way of writing a matmul, and I tried to write it in such a way as to make it obvious how to port it to whatever hardware generation you desire.
 
-The more sane thing may have been to write it in Triton, but meh. The other kernel that should be written is a flash attention kernel that does the same.
+The more sane thing may have been to write it in Triton, but meh. The other kernel that should be written is a [flash attention](https://arxiv.org/abs/2205.14135) kernel that does the same.
 
 Here's the [repo](https://github.com/apaz-cli/MeZOKernelExample/tree/master). Compile with `./build.sh`, run with `./fused_example` and `./fused_zo_example`. It also contains an example MeZO optimizer update kernel, without any of the fancy modifications that we've been talking about.
 
@@ -568,7 +663,7 @@ neg_mat = (neg_input @ W)
 
 This is disgusting. It's is not efficiently computable. I give up. So maybe the trick of splitting out the perturbation matmul for numerics does not work so well if you're doing LoRA. 
 
-I haven't looked into how to write a grouped GEMM yet, but that's gotta happen at some point. That's gonna suck. Agony beyond reason.
+I haven't looked into how to write a good grouped GEMM for this yet, but that's gotta happen at some point. That's gonna suck.
 
 #### Kernel Recipes
 
@@ -646,7 +741,7 @@ epilogue:
 
 In the split kernel the `W` tile is loaded directly into tmem via TMA multicast and consumed by the MMA. The prescaled `εz` tiles are simultaneously stored to shared memory.Whereas in the fold kernel we must load W tiles in to the `Wraw` temp buffer, and then produce `(W + εz)` and `(W - εz)` in shared memory rather than in tmem.
 
-It will be interesting to find out which one wins.
+It will be interesting to find out which one wins. Although this is not so much a problem with Evolution Strategies as it is with MeZO.
 
 ### A New Type of Infrastructure
 
@@ -654,6 +749,11 @@ I am rapidly iterating on research, on drastically different architectures. Some
 
 With ZOTitan I'm running into a problem.
 
+
+## Takeaways
+
+We should be scaling Evolution Strategies and related Zeroth-Order Optimization approaches. It is better to scale `Z`, the number of perturbations, before scaling `B`, the batch size per perturbation. However this presents 
+  * This is possible when you write custom  way to accomplish this is by writing 
 
 ## Conclusion
 
