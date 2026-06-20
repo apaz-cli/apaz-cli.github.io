@@ -14,12 +14,14 @@ Optimization</h1>
 <p><br></p>
 <p>An interesting research direction I'm thinking about for scaling
 agents.</p>
-<p>This is a long one. It's written so you can skip around. Part blog
-post, part math dump, part research note idea vomit, and I'm also
-releasing a training codebase called ZOTitan, a kernel autoresearch
-codebase, and some example kernels.</p>
-<p>Includes many original ideas that could/should be papers. At some
-point they might be.</p>
+<p>This is a long one. I apologize that I did not have time to write a
+shorter article. But it's written so you can skip around a bit. Part
+blog post, part math dump, part research note idea vomit. Includes many
+original ideas that could/should be papers. At some point they might
+be.</p>
+<p>I'm also releasing a training codebase called ZOTitan, a kernel
+autoresearch codebase, and some example kernels and recipes. Hope you
+enjoy.</p>
 <p><br></p>
 <p><img src="images/94149009_p0.jpg" /></p>
 <p><br></p>
@@ -49,15 +51,17 @@ in the limit. It might be that you just run out of depth. Our best
 transformers place a lower bound on the context scaling limit, but we
 have no real way of knowing the upper bound, as we cannot run evals on
 hypothetical better models that do not exist.</p>
-<p>On the other side of the spectrum, you have RNNs. Or, architectures
-with recurrence more generally. While a default transformer is incapable
-of expressing a function with more discrete decision points than the sum
-of its layers, a looped transformer actually can because it has
-"infinite layers" through recurrence. The downside is that to train it
-you need a gradient through infinite layers also. This is mathematically
-sound, but numerically unstable. Due to the catastrophic accumulation of
-small rounding errors, you cannot backprop through infinite layers and
-get the right answer at the end.</p>
+<p>On the other side of the spectrum, you have <a
+href="https://arxiv.org/pdf/1808.03314">RNNs and LSTMs</a>. Or,
+architectures with recurrence more generally. While a default
+transformer is incapable of expressing a function with more discrete
+decision points than the sum of its layers, a <a
+href="https://arxiv.org/abs/2510.25741">looped transformer</a> actually
+can because it has "infinite layers" through recurrence. The downside is
+that to train it you need a gradient through infinite layers also. This
+is mathematically sound, but numerically unstable. Due to the
+catastrophic accumulation of small rounding errors, you cannot backprop
+through infinite layers and get the right answer at the end.</p>
 <p>But what if we didn't do backprop? What if there were way to train
 these architectures that would be otherwise impractical, like RNNs or
 even something non-differentiable? Once you start relaxing enough
@@ -181,7 +185,7 @@ with a good thing?</p>
 <div style="text-align: center;">
 <figure>
 <img src="images/Challenge_Training.png" width=500>
-<figcaption aria-hidden="true">Big Jeff's MeZO Hell</figcaption>
+<figcaption aria-hidden="true">Big Jeff's Zeroth-Order Hell</figcaption>
 </figure>
 </div>
 <br>
@@ -189,30 +193,24 @@ with a good thing?</p>
 <p>The specific reason why this algorithm family sucks is that the only
 way to get information about the true gradient is by sampling, but
 sampling doesn't give you a lot of information about the true gradient.
-Even the information it does give you is noisy. The signal-to-noise
-ratio is awful. Worse, it's not noisy in the way your batch is noisy,
-it's noisy in a deeper, more fundamental way. To get a gradient update
-with the same amount of noise as you would get by doing backprop a
-single time with MeZO, you need to average over <code>p</code>
-perturbations, where <code>p</code> is your parameter count.</p>
+The information it gives you is too noisy. The signal-to-noise ratio is
+awful. Worse, it's not noisy in the way your batch is noisy, it's noisy
+in a deeper, more fundamental way. To get a gradient update with the
+same amount of noise as you would get by doing backprop a single time,
+you need to average over <code>p</code> perturbations, where
+<code>p</code> is your parameter count.</p>
 <p>We'll get to the math in a few sections, but in summary it's better
 just to obtain the true gradient using backprop if you have the option.
 Calculating it directly is much better than trying to estimate it with
 smoke and mirrors. Yet with that said it works, because enough
 randomized projected gradients are an unbiased estimator of the true
-gradient. You don't have to do backprop, if you can tolerate the
+gradient. You don't have to do backprop if you can tolerate the
 projection noise.</p>
 <p>But why bother? Clearly nobody bothers. I'm bothering. Dangit. I got
 nerdsniped so fucking hard.</p>
 <p>You would think this would be the end of the story for
 ZO-Optimization. But not quite. Unfortunately I think ZO has a lot of
 potential. And other people are starting to think so too.</p>
-<h2 id="evolution-strategies-at-scale-eggroll">Evolution Strategies at
-Scale / EGGROLL</h2>
-<p>I actually got nerdsniped originally by <a
-href="https://arxiv.org/abs/2305.17333">MeZO</a>, not the <a
-href="https://arxiv.org/abs/2509.24372">ES at Scale</a>/<a
-href="https://arxiv.org/abs/2511.16652">EGGROLL</a> papers.</p>
 <h2 id="zo-tricks">ZO Tricks</h2>
 <p>There are a number of interesting things that you can do. I think
 they make this class of techniques worth not completely counting out
@@ -221,50 +219,118 @@ yet.</p>
 exist in the literature and I do not think anyone else has thought about
 them. They're original thoughts by me. Perhaps obvious ones, but
 original regardless.</p>
+<h3 id="evolution-strategies-at-scale-eggroll">Evolution Strategies at
+Scale / EGGROLL</h3>
+<p>Semi-recently, some very notable papers came out. They changed
+everything.</p>
+<p>The first one is <a href="https://arxiv.org/abs/2509.24372">Evolution
+Strategies at Scale</a>. It was shocking because it overturned the
+assumption that Evolution Strategies cannot scale to billions of
+parameters. When OpenAI tried it in 2017, they used millions of
+parameters, not billions. They did it on a cluster of CPUs. By 2019,
+there was widespread concensus and a <a
+href="https://arxiv.org/abs/1901.11503">paper</a> saying that, for
+theoretical reasons, it wouldn't work. To be fair, it's easy to see why
+they thought this. The signal-to-noise ratio gets worse the more
+parameters you add, whereas in traditional first-order pretraining and
+RL it does not. That is a mathematical Truth, with a capital T.</p>
+<p>Counterpoint. Just try it. What if it does work?</p>
+<p>OpenAI trained a model with millions of parameters, with a population
+of 30,000 perturbations to the model every step. The <a
+href="https://arxiv.org/abs/2509.24372">ES at Scale</a> paper finetuned
+an 8 billion parameter model using a population size of only 30. And it
+beat PPO and GRPO. They didn't even have to tune it. This is a
+breakthrough.</p>
+<p>Another paper, <a href="https://arxiv.org/abs/2511.16652">Evolution
+Strategies at the Hyperscale</a>, also known as EGGROLL, scaled it up
+and made it more efficient. They decompose the individual weight
+perturbations, which makes it less expensive to compute, and apply some
+other tricks. Then they also trained an 8-bit RNN with it. They too
+recognized that this allows for training architectures that are
+traditionally difficult to train with backprop.</p>
+<p>It is a very exciting time to be alive.</p>
 <h3 id="mezo">MeZO</h3>
 <p>The <a href="https://arxiv.org/abs/2305.17333">MeZO paper</a>, also
-known as "Fine-Tuning Language Models with Just Forward Passes" is why I
-think any of this is even tractable or interesting at all. The paper
-does not introduce any particularly new concepts. No new algorithmic
-tricks. It's more of an engineering paper, and yet another paper in a
-long line of "wait, why does this work?"</p>
-<p>There were two core ideas in this paper.</p>
-<p>For a description of the method, you can skip down to the "MeZO Math"
-section. But I want to talk first about why it's efficient.</p>
-<p>The core idea behind why it's efficient is that you don't have to
-actually <em>store</em> each perturbation to the model. If you write
-your kernels very carefully, all you have to store is the PRNG seed to
-generate a model perturbation, and the activations of ONLY your current
-layer. But you have to write your own kernels.</p>
-<p>Consider a single layer. Since ZO-optimization is
-perfectly-decomposable layerwise, we don't have to worry about anything
-else. This makes the memory cost extremely cheap. We need a buffer for
-the activations flowing into the layer. Depending on the layer we might
-need a buffer for the output if we can't reuse the input buffer. We'll
-also need to store the model parameters.</p>
+known as "Fine-Tuning Language Models with Just Forward Passes"
+pre-dates the ES at Scale and EGGROLL papers by quite a bit. It was
+released in 2023, and I think it should have set off more alarm bells
+than it did. It is amazing to me that so much work has been built on top
+of it, without said alarm bells going off, and without anybody taking a
+really close look at the implications of the math. I will do so in later
+sections.</p>
+<p>The technique described in the MeZO paper are why I think any of this
+is even tractable or interesting at all. In fact, this paper was the
+thing that nerdsniped me in the first place. I did not learn about ES at
+scale or EGGROLL until later. The paper does not introduce any
+particularly new concepts. No new algorithmic tricks. It's more of an
+engineering paper, and yet another paper in a long line of "wait, why
+does this work?"</p>
+<p>In MeZO, the update rule is based on:</p>
+<pre><code>First, calculate a pseudogradient:
+
+proj_grad = (L(Φ(θ + εz, b)) - L(Φ(θ - εz, b))) / 2ε
+
+Then, apply it, with a learning rate:
+
+θₜ₊₁      = θₜ − α · proj_grad · z
+
+For some scalar loss function L,
+some model architecture Φ,
+the current model weights θ,
+a batch of inputs b,
+a gaussian distribution z (sampled every step)
+a small scalar hparam ε (usually 1e^-3),
+and a learning rate α.</code></pre>
+<p>This is essentially a drastically simplified version of Evolution
+Strategies, where the population size is one. ES came first, but I think
+the logical way to learn them is to understand MeZO first, and then add
+the ES tricks on top of it. I will be talking about the math that
+follows from the equations above for much of the rest of this
+article.</p>
+<p>The core idea introduced by MeZO is not that the above works. It's in
+how you compute it. When you're doing this sort of training you don't
+have to actually <em>store</em> each perturbation to the model. That is
+to say, you never have to materialize <code>θ + εz</code> in memory.
+<code>θ</code> is your model, <code>ε</code> is a small scalar, and you
+never have to store <code>z</code>. Implemented naively, you would have
+many copies of your model, or effectively many copies, as <code>z</code>
+is also model-sized. This is what OpenAI did, and it led them to scale
+it across a massive computing cluster, where each CPU would get its own
+copy of <code>z</code>.</p>
+<p>We do not have to do that. For one, because MeZO does not have
+multiple <code>z</code>s. If we write write our kernels very carefully,
+all we have to store is the seed to generate a model perturbation, and
+the activations of ONLY your current layer. Consider a single layer.
+Since ZO-optimization is perfectly-decomposable layerwise, we don't have
+to worry about anything else. This makes the memory cost extremely
+cheap. We need a buffer for the activations flowing into the layer.
+Depending on the layer we might need a buffer for the output if we can't
+reuse the input buffer. We'll also need to store the model
+parameters.</p>
 <p>But that's it. That's all the memory you need, besides the scalar
-seed to generate the perturbation from.</p>
-<p>Some PRNGs are stateful, for example <a
-href="https://en.wikipedia.org/wiki/Xorshift">xorshift</a>. To generate
-the one millionth number in the sequence you start from your seed and
-sample one million random numbers. But a Counter-based pseudo-random
-number generator (<a
+seed required to produce <code>z</code>.</p>
+<p>One benefit of these insane memory savings (not having to store grads
+or activations or weights from other layers) is that you can crank up
+your batch/population size and make your activations/model width
+gigantic. And with perfect pipeline parallel scaling there's basically
+no limit on how big you can make your model. You're probably not very
+memory bandwidth bound. Assuming you wrote and overlapped the PRNG part
+of the kernels well, the scaling limit you run into is raw FLOPs. And
+with successive hardware generations, FLOPs and memory capacity for
+storing activations are scaling faster than memory bandwidth.</p>
+<p>It's also worth making a note about PRNGs. Some are stateful, for
+example <a href="https://en.wikipedia.org/wiki/Xorshift">xorshift</a>.
+Stateful means that to generate the one millionth number in the sequence
+you start from your seed and sample one million random numbers. That is
+not the type we want to use. A Counter-based pseudo-random number
+generator (<a
 href="https://en.wikipedia.org/wiki/Counter-based_random_number_generator">CBPRNG</a>)
 does not have this problem. To get the one-millionth number you pass in
-your seed and one million, and get your number. Good examples of this
-are <a
+your seed and the number one million, and you get your random numbers.
+Good examples of this are <a
 href="https://www.thesalmons.org/john/random123/papers/random123sc11.pdf">Philox</a>
 and <a href="https://arxiv.org/abs/2004.06278">Squares</a>. You want a
 CBPRNG that's parallelizable and fusable, and these are both.</p>
-<p>One benefit of these insane memory savings (not having to store grads
-or activations or weights from other layers) is that you can crank up
-your batch size and make your activations/model width gigantic. And with
-perfect pipeline parallel scaling there's basically no limit on how big
-you can make your model. You're probably not very memory bandwidth
-bound. Assuming you wrote and overlapped the PRNG part of the kernels
-well, the scaling limit you run into is raw FLOPs. And with successive
-hardware generations, FLOPs and memory capacity for storing activations
-are scaling faster than memory bandwidth.</p>
 <p>That is to say, with each hardware generation, this method becomes
 more suited to that hardware. The ideal would be something like Cerebras
 probably. Something like the tinygrad exabox is also looking appealing.
@@ -425,8 +491,7 @@ collapse? I would suspect less. The authors of some of these papers have
 stated in interviews that they suspect less also. In any case it's
 probably different in some qualitative way, and that makes it
 interesting.</p>
-<h2 id="mezo-math-very-verbose-but-trust">MeZO Math (Very verbose but
-trust)</h2>
+<h2 id="mezo-math">MeZO Math</h2>
 <p>Here's a bunch of math. I've tried to make it readable, but if your
 eyes glaze over you can skip it if you like. It should be skimmable if
 you just read the parts that aren't in code blocks.</p>
@@ -830,7 +895,8 @@ Experiments:</h4>
 <li><a href="https://arxiv.org/abs/1805.10367">ZO-SVRG</a></li>
 <li>Skip Removal</li>
 <li>Context Length Extension</li>
-<li>Looped Language Models</li>
+<li><a href="https://arxiv.org/abs/2510.25741">Looped Language
+Models</a></li>
 <li>Async PP/DP</li>
 <li>ZO-RL</li>
 <li>Fault tolerance/Resumability</li>
@@ -1124,12 +1190,12 @@ data-cites="apaz">@apaz</span></a>, or <a
 href="mailto:aarpazdera@gmail.com">send me an email</a>.</p>
 <p>Hack the planet.</p>
 <h4 id="bibtex-citation">Bibtex Citation</h4>
-<div class="sourceCode" id="cb32"><pre
-class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="va">@misc</span>{<span class="ot">pazdera2026scaling</span>,</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">author</span> = {Pazdera, Aaron},</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span>  = {Scaling Agents to Unfathomable Depth and Context With Zeroth-Order Optimization},</span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">year</span>   = {2026},</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">url</span>    = {https://apaz-cli.github.io/blog/Scaling_To_Unfathomable_Depth.html}</span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb33"><pre
+class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="va">@misc</span>{<span class="ot">pazdera2026scaling</span>,</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">author</span> = {Pazdera, Aaron},</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span>  = {Scaling Agents to Unfathomable Depth and Context With Zeroth-Order Optimization},</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">year</span>   = {2026},</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">url</span>    = {https://apaz-cli.github.io/blog/Scaling_To_Unfathomable_Depth.html}</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 </body>
 </html>
