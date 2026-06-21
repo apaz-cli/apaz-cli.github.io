@@ -618,24 +618,31 @@ parameters. When OpenAI tried it in 2017, they used millions of
 parameters, not billions. They did it on a cluster of CPUs. By 2019,
 there was widespread concensus and a <a
 href="https://arxiv.org/abs/1901.11503">paper</a> saying that, for
-theoretical reasons, it wouldn't work. To be fair, it's easy to see why
-they thought this. The signal-to-noise ratio gets worse the more
-parameters you add, whereas in traditional first-order pretraining and
-RL it does not. That is a mathematical Truth, with a capital T.</p>
-<p>Counterpoint. Just try it. What if it does work?</p>
+theoretical reasons, it wouldn't work. When asked, <a
+href="https://youtu.be/9EN_HoEk3KY?si=oD8NFUOsI_GM9AuQ&amp;t=3210">even
+Ilya said it wouldn't work</a>.</p>
+<p>To be fair, it's easy to see why they everyone thought this. The
+signal-to-noise ratio gets worse the more parameters you add, whereas in
+traditional first-order pretraining and RL it does not. This is
+mathematical Truth, with a capital T.</p>
+<p>Counterpoint. Just try it. What if it works?</p>
 <p>OpenAI trained a model with millions of parameters, with a population
 of 30,000 perturbations to the model every step. The <a
 href="https://arxiv.org/abs/2509.24372">ES at Scale</a> paper finetuned
 an 8 billion parameter model using a population size of only 30. And it
 beat PPO and GRPO. They didn't even have to tune it. This is a
-breakthrough.</p>
+breakthrough. One not really adequately explained until the <a
+href="https://arxiv.org/abs/2603.12228">Neural Thickets</a> paper, which
+I have run out of time to explain, but you should definitely read
+because it explains how it's possible.</p>
 <p>Another paper, <a href="https://arxiv.org/abs/2511.16652">Evolution
-Strategies at the Hyperscale</a>, also known as EGGROLL, scaled it up
+Strategies at the Hyperscale</a>, also known as EGGROLL, scaled ES up
 and made it more efficient. They decompose the individual weight
 perturbations, which makes it less expensive to compute, and apply some
-other tricks. Then they also trained an 8-bit RNN with it. They too
-recognized that this allows for training architectures that are
-traditionally difficult to train with backprop.</p>
+other tricks. Then they also trained an 8-bit RNN using Evolution
+Strategies. They too recognize that Zeroth-Order optimization allows for
+training architectures that are traditionally difficult to train with
+backprop.</p>
 <p>It is a very exciting time to be alive.</p>
 <h3 id="mezo">MeZO</h3>
 <p>The <a href="https://arxiv.org/abs/2305.17333">MeZO paper</a>, also
@@ -650,9 +657,8 @@ sections.</p>
 is even tractable or interesting at all. In fact, this paper was the
 thing that nerdsniped me in the first place. I did not learn about ES at
 scale or EGGROLL until later. The paper does not introduce any
-particularly new concepts. No new algorithmic tricks. It's more of an
-engineering paper, and yet another paper in a long line of "wait, why
-does this work?"</p>
+particularly new concepts. It's more of an engineering paper, and yet
+another paper in a long line of "Wait, why does this work?"</p>
 <p>In MeZO, the update rule is based on:</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
 <pre><code>First, calculate a pseudogradient:
@@ -676,16 +682,22 @@ the logical way to learn them is to understand MeZO first, and then add
 the ES tricks on top of it. I will be talking about the math that
 follows from the equations above for much of the rest of this
 article.</p>
-<p>The core idea introduced by MeZO is not that the above works. It's in
-how you compute it. When you're doing this sort of training you don't
-have to actually <em>store</em> each perturbation to the model. That is
-to say, you never have to materialize <code>θ + εz</code> in memory.
-<code>θ</code> is your model, <code>ε</code> is a small scalar, and you
-never have to store <code>z</code>. Implemented naively, you would have
-many copies of your model, or effectively many copies, as <code>z</code>
-is also model-sized. This is what OpenAI did, and it led them to scale
-it across a massive computing cluster, where each CPU would get its own
-copy of <code>z</code>.</p>
+<p>It is sort of shocking that this works. How can a population size of
+one be tractible? It should have set off alarm bells to question the
+assumptions previously made about Evolution Strategies. But in any case,
+it didn't. Nobody really understood the implications, and we all kinda
+just moved on.</p>
+<p>Anyway. The core idea introduced in the MeZO paper is actually not
+that it works. It's in how you compute it. When you're doing this sort
+of training you don't have to actually <em>store</em> each perturbation
+to the model. That is to say, you never have to materialize
+<code>θ + εz</code> in memory. Reminder, <code>θ</code> is your model,
+<code>ε</code> is a small scalar, and you never have to store
+<code>z</code>. Implemented naively, you would have many copies of your
+model, or effectively many copies, as <code>z</code> is also
+model-sized. This is what OpenAI did, and it led them to scale it across
+a massive computing cluster, where each CPU would get its own copy of
+<code>z</code>.</p>
 <p>We do not have to do that. For one, because MeZO does not have
 multiple <code>z</code>s. If we write write our kernels very carefully,
 all we have to store is the seed to generate a model perturbation, and
@@ -707,6 +719,12 @@ memory bandwidth bound. Assuming you wrote and overlapped the PRNG part
 of the kernels well, the scaling limit you run into is raw FLOPs. And
 with successive hardware generations, FLOPs and memory capacity for
 storing activations are scaling faster than memory bandwidth.</p>
+<p>That is to say, with each hardware generation, this method becomes
+more suited to that hardware. The ideal would be something like Cerebras
+probably. Something like the tinygrad exabox is also looking appealing.
+You don't need good interconnects. You can probably just physically
+connect your GPUs together in a line. Most likely, that's your
+bottleneck. A very good one to have</p>
 <p>It's also worth making a note about PRNGs. Some are stateful, for
 example <a href="https://en.wikipedia.org/wiki/Xorshift">xorshift</a>.
 Stateful means that to generate the one millionth number in the sequence
@@ -719,73 +737,67 @@ your seed and the number one million, and you get your random numbers.
 Good examples of this are <a
 href="https://www.thesalmons.org/john/random123/papers/random123sc11.pdf">Philox</a>
 and <a href="https://arxiv.org/abs/2004.06278">Squares</a>. You want a
-CBPRNG that's parallelizable and fusable, and these are both.</p>
-<p>That is to say, with each hardware generation, this method becomes
-more suited to that hardware. The ideal would be something like Cerebras
-probably. Something like the tinygrad exabox is also looking appealing.
-You don't need good interconnects. You can probably just physically
-connect your GPUs together in a line. Most likely, that's your
-bottleneck. A very good one to have</p>
+CBPRNG that's parallelizable and easy to integrate into a kernel, and
+these are both.</p>
 <h3 id="lora">LoRA</h3>
-<p>The main reason MeZO sucks is that, since you are estimating the
-gradients, you get quadratically more projection noise the more
-parameters you have. Specifically, as you expand the number of
-parameters, to gain the same amount of certainty about the direction of
-the gradient for a higher dimensional model, it takes a linearly larger
-amount of sampling. More sampling times more compute is quadratic in
-terms of both data and compute cost. And that's bad.</p>
-<p>This is intractable and needs to be fixed. <a
+<p>As you recall, the main reason ZO sucks is that since you are
+estimating the gradients you get more projection noise the more
+trainable parameters you have. And that's bad. Really bad.</p>
+<p>Suppose, contrary to the findings of the <a
+href="https://arxiv.org/abs/2603.12228">Neural Thickets</a> paper, that
+this is intractable and needs to be fixed. <a
 href="https://arxiv.org/abs/2106.09685">LoRA</a> adapters do truly fix
-this problem, as they decrease the number of trainable parameters. They
-are almost the default way to do Zeroth-Order optimization.</p>
+this problem, as they decrease the number of trainable parameters.</p>
 <p>There are potential downsides to this. You would think that low-rank
 updates are not preferable to the more full-rank updates you'd get if
 you actually trained the whole thing. Although, more on that later. It's
 not clear that this is preferable.</p>
 <p>I think LoRA in Reinforcement Learning is the closest analogue here.
-And in RL, it appears to be <a
+It's different, because it's exploration in policy space, rather than in
+parameter space like ZO. But in RL, it appears to be <a
 href="https://x.com/kalomaze/status/1964455970517753878">not to be so
 bad</a>. By continually merging LoRA adapters (via <a
 href="https://arxiv.org/abs/2307.05695">ReLoRA</a> or similar) you can
 keep the model shifting, causing the next lora adapter to retarget
 different low rank changes. Across many updates, these low-rank changes
 sum to high-rank changes. So it is at least somewhat questionable how
-much this matters in practice. Anecdotally, it does not seem to matter
-that much for training speed. Training speed is greatly improved.</p>
+much this matters in practice.</p>
 <p>But also note that it seems <a
 href="https://arxiv.org/abs/2509.12960">not to work as well for smaller
 models</a>, and also not as well at the beginning of training. Hence the
 ReLORA paper actually doesn't use adapters at the start of training,
-instead opting for full-rank updates at the start.</p>
+instead opting for full-rank updates at the start. This is a paper that
+tests for first-order, but it probably carries over.</p>
 <p>But, it goes without saying that MeZO + LoRA (plus other stuff) is
 totally doable. All of these techniques I'm talking about can be
-combined.</p>
+combined. You can write fast kernels for them.</p>
 <p>There's also another paper to look into called <a
 href="https://arxiv.org/abs/2410.07698">LOZO</a> which takes the "MeZO +
-LoRA" idea further. Essentially you can also LoRA your perturbations.
-Initially, this seems like a strange thing to do. But the LOZO paper
-justifies it by saying that, since gradient updates tend to be low rank
-anyway, maybe you actually <em>want</em> low rank perturbations. If the
-update is supposed to be low rank, if it isn't (if each parameter
-follows a gaussian like in MeZO) then it is poorly conditioned and the
-parts that aren't are actually noise. Or, if they're not, the high-rank
-parts are probably along flat directions, and you would get a better
-update on average and reduce your variance with a lower rank update.</p>
+LoRA" idea further. <a
+href="https://arxiv.org/abs/2511.16652">EGGROLL</a> is very similar.
+Essentially you can also LoRA your perturbations. Initially, this seems
+like a strange thing to do. But the LOZO paper justifies it by saying
+that, since gradient updates tend to be low rank anyway, maybe you
+actually <em>want</em> low rank perturbations. If the update is supposed
+to be low rank, if it isn't (if each parameter follows a gaussian like
+in MeZO) then it is poorly conditioned and the parts that aren't are
+actually noise. Or, if they're not, the high-rank parts are probably
+along flat directions, and you would get a better update on average and
+reduce your variance with a lower rank update.</p>
 <p>I'm both sold and not sold on this justification. My intuition is
 that sparse updates are fine for narrow finetuning tasks. For harder
 stuff it's not clear to me that low rank updates are enough to reach the
 best-generalizing solution. So maybe ZO pretraining is dead in the
 water, maybe it isn't. It might work, it might not.</p>
-<p>I think more research needs to be done here in general. ZO has never
-really been scaled to the extent that is necessary for answering these
-sorts of basic questions about what works or not and why.</p>
+<p>I think more research needs to be done here in general. There are
+still more basic questions to answer about what works and why.</p>
 <h3 id="zo-context-extension">ZO Context Extension</h3>
 <p>Right now the most popular way to do Transformer context length
 extension is through <a href="https://arxiv.org/abs/2104.09864">RoPE</a>
 scaling. You could also use <a
 href="https://arxiv.org/abs/2309.00071">YaRN</a>, or <a
 href="https://arxiv.org/abs/2305.19466">NoPE</a>, or any manner of other
-things. I don't really have any opinions here.</p>
+things. I don't really have many opinions here.</p>
 <p>Whatever the strategy, people also frequently use LoRA to do this
 memory-efficiently. It can be hard to fit long context lengths to the
 hardware otherwise. This is our evidence that low-rank adaptations are
@@ -797,26 +809,50 @@ context length, and you have to hold onto all of them until it's time to
 do backprop. This is also true of sparse attention techniques to varying
 degrees. No matter the architecture, there is an effective context size.
 And we can train it so we can track more state.</p>
-<p>Zeroth-order optimization typically operates in the realm of LoRA,
-and does not require you to store these activations. Seems like a match
-made in heaven. You can also do this context extension finetuning on
-actual tasks you care about while you're at it. Make sure it's not just
-effective in terms of perplexity loss, but also in practice on tasks.
-You can do simultaneous RL, if you want to.</p>
+<p>Zeroth-order optimization can operate in the realm of LoRA, and does
+not require you to store activations like first order. Seems like a
+match made in heaven. You can also do this context extension finetuning
+on actual tasks you care about while you're at it. Make sure it's not
+just effective in terms of perplexity loss, but also in practice on
+tasks. You can do simultaneous RL, if you want to.</p>
 <h3 id="converting-an-existing-model-for-zo">Converting an Existing
 Model for ZO</h3>
 <p>Since first-order optimization already works really well for
 pretraining, and ZO is useful for training models and tasks that are not
 differentiable, it makes sense to explore pretraining a model and then
-converting it to other architectures for cheaper inference and training
-with ZO.</p>
-<p>Papers that stuck out to me along these lines are:</p>
+converting it to other architectures for cheaper inference and
+finetuning with ZO.</p>
+<p>Papers that have stuck out to me along these lines are:</p>
 <ul>
 <li><a href="https://arxiv.org/abs/2408.15237">The Mamba in the Llama:
 Distilling and Accelerating Hybrid Models</a></li>
 <li><a href="https://arxiv.org/abs/2006.16236">Transformers are RNNs:
 Fast Autoregressive Transformers with Linear Attention</a></li>
+<li><a href="https://arxiv.org/abs/2606.06479">Pretraining Recurrent
+Networks without Recurrence</a></li>
 </ul>
+<p>And, most promising of them all, <a
+href="https://arxiv.org/abs/2505.03005">RADLADS</a>. They even released
+<a
+href="https://github.com/SmerkyG/GoldFinch-paper/tree/radlads">training
+code</a>, which is very awesome.</p>
+<p>Optimizing ZO so your runs go fast means optimizing inference. And
+optimizing transformer inference tends to be really hard, ultimately
+because of kvcache management. For the sake of rapid experimentation it
+makes sense to train a model to act as a good base for experiments.</p>
+<p>I don't think such a model exists yet. The closest is <a
+href="https://www.rwkv.com/">RWKV</a>. It would be cool to convert an
+existing large model, one stronger than RWKV, to something like an
+RNN.</p>
+<p>It is my dream to make Deepseek V4 an RNN and finetune it with
+Evolution Strategies. The sooner that day can come the better, because
+it's almost a prerequisite for everything else I want to do. Obtaining a
+strong base to do further experimentation on is probably the highest
+priority.</p>
+<p>This is a pretty hard problem though. I will have to stare at it for
+a long time. My preliminary idea is to try to do something like what I'm
+about to describe for removing skip connections, but I'm not quite sure
+on the details yet.</p>
 <h3 id="removing-skip-connections">Removing Skip Connections</h3>
 <p>Skip connections. Pretrained off-the-shelf transformers have skip
 connections.</p>
@@ -847,6 +883,9 @@ can be how you can control the decay schedule. Maybe the brain damage is
 a bit more controlled this way, because the rates of decay individually
 are directionally correlated with the gradient. I suspect this to be
 important.</p>
+<p>Many models don't have skip weights, they just add. That's fine.
+Pretend they do. Add skip weights, initialized to 1. Then train them
+out.</p>
 <p>I've downloaded every paper off arxiv and done a search over them,
 and neither of these strategies have been written about. Skipless
 transformers are pretty niche (why other than ZO would anyone care?),
@@ -880,10 +919,103 @@ collapse? I would suspect less. The authors of some of these papers have
 stated in interviews that they suspect less also. In any case it's
 probably different in some qualitative way, and that makes it
 interesting.</p>
+<h3 id="zo-and-momentum">ZO and Momentum</h3>
+<p>In first-order optimizers, one frequently utilized technique is
+momentum. All the best optimizers have some concept of momentum. This
+has two beneficial properties. It accelerates convergence, and it also
+has the effect of smoothing over variance/noise. That sounds really
+really good right about now, seeing as we are spending so much time
+thinking about how to reduce noise.</p>
+<p>"Let's add momentum to ZO" is not an original idea. Indeed, many
+papers have done this. Basically all of them actually, MeZO included.
+That's not so interesting. What's interesting is that you can do it
+without memory.</p>
+<p>The strategy for implementing MeZO "the right way" is to never
+materialize <code>z</code>. This got me thinking. What if there's a way
+to do momentum without storing a momentum buffer? I ended up reproducing
+in my head exactly the memory-free momentum scheme proposed by MeZO.
+Since you</p>
+<p>Well... why not just save the seeds so you can reproduce
+<code>z</code>? There are a bunch of seeds laying around. Why don't we
+just use them to reconstruct the momentum buffer every step? If we're
+cranking up the batch size, isn't this actually pretty cheap? An
+optimizer update is basically load+store. May as well do some math at
+the same time.</p>
+<p>It's also already pretty cheap in terms of memory because we're
+probably optimizing LoRA parameters anyway. But it's worth noting that
+this is possible.</p>
+<p>It's also probably possible to do super-low communication distributed
+training this way. Seeing as all that needs to be communicated is seeds
+and projected grads.</p>
+<h3 id="zo-muon">ZO-Muon</h3>
+<p>Yeah, <a href="https://arxiv.org/abs/2602.17155">this totally
+exists</a> and it also works. I think that's really cool. Nesterov
+momentum also works the way you want it to, as it does not depend on
+anything but your update, which is to say the pseudograd. You can just
+polar-orthogonalize your <code>z</code>, it turns out, and it gets
+scaled by the <code>proj_grad</code> and turns into the update. It's
+great.</p>
+<p>A random thing that I've noticed as I've been doing experiments here.
+Both Muon and LOZO sample <code>z</code> differently, and create a
+<code>z</code> with different expected variance. If you don't
+renormalize, your choice of <code>z</code> distribution will
+inadvertently affect your choice of <code>ε</code>, potentially screwing
+your results. Polar orthogonalization gives you parameter perturbations
+with Frobenius norm <code>‖z‖²_F = r</code>, LOZO gives
+<code>mnr</code>, and standard Gaussian gives <code>mn</code>. Where
+<code>m</code> and <code>n</code> are the dimensions of the matrix, and
+<code>r</code> is the LoRA rank.</p>
+<h3 id="async-pipeline-parallelism-without-bubbles">Async Pipeline
+Parallelism Without Bubbles</h3>
+<p>Pipeline Parallelism has bubbles because of backprop. We do not do
+backprop, so we can saturate the interconnects with activations. Since
+layers can be updated independently, we can asynchronously send back
+seeds and projected gradient magnitudes to use to update the model
+everywhere all at once.</p>
+<p>I'd like to drop a hint though that <a
+href="https://arxiv.org/abs/2404.08080">MeZO-SVRG</a> probably has some
+interesting interplay with async pipeline parallelism and also
+distributed data parallelism methods like <a
+href="https://arxiv.org/abs/2311.08105">DiLoCo</a>. If you have to store
+a reference model anyway, you may as well use it to cancel some noise.
+Plenty of ideas for scaling here which have never been explored.</p>
+<p>Also of course there are applications to hiding scoring latency, just
+like in async RL. Is ZO more or less tolerant to asynchronous updates
+than first-order async RL? Needs experiments.</p>
+<h3 id="zo-moe">ZO MoE</h3>
+<p>I don't have any great ideas for this yet. At least nothing beyond
+what's present in the DSV4 paper, or any other MoE paper. It's worth
+noting though that:</p>
+<ol type="1">
+<li>ZO eliminates the need for differentiable routing (although it's
+unclear how much this matters)</li>
+<li>Reducing the number of trainable parameters improves the noise
+estimate due to MeZO's gradient projection per sample</li>
+<li>Reducing the number of samples that flow through a part of the model
+increases the noise estimate by dividing it by a smaller effective batch
+size.</li>
+</ol>
+<p>Some kind of sparsity is probably optimal. This seems like a problem
+for later though. After other problems are solved. If anyone has any
+good non-differentiable routing ideas let me know, but the router being
+trainable is a feature rather than a bug IMO.</p>
+<p>I think luckily this is probably a solved problem. But who knows,
+we'll see. Easy to say that when I haven't spent the requisite time
+slamming my head against it yet.</p>
+<p>Writing the kernels for this is gonna SUCK. Normal MoE kernels are
+hard enough. Eventually I will have to do what I think everybody else
+does, which is stare at the <a
+href="https://github.com/osayamenja/FlashMoE">FlashMoE</a> source, the
+<a href="https://arxiv.org/abs/2502.19811">comet</a> paper, and
+Deepseek's <a href="https://github.com/deepseek-ai/DeepEP">DeepEP</a>
+and <a href="https://github.com/deepseek-ai/DeepGEMM">DeepGEMM</a> until
+everything finally starts making sense.</p>
 <h2 id="mezo-math">MeZO Math</h2>
 <p>Here's a bunch of math. I've tried to make it readable, but if your
 eyes glaze over you can skip it if you like. It should be skimmable if
-you just read the parts that aren't in code blocks.</p>
+you just read the parts that aren't in code blocks. Otherwise you can
+skip all of it or even better ask an LLM to give you the most important
+points.</p>
 <p>In MeZO, the update rule is based on:</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
 <pre><code>proj_grad = (L(Φ(θ + εz, b)) - 
@@ -1167,97 +1299,6 @@ want to know more, as I just do not feel like typing it out.</p>
 <p>But long story short, ES has the same <code>Z</code> vs
 <code>B</code> tradeoffs as MeZO does. The lessons learned from the MeZO
 math hold for ES.</p>
-<h3 id="zo-muon">ZO-Muon</h3>
-<p>Yeah, <a href="https://arxiv.org/abs/2602.17155">this totally
-exists</a> and it also works. I think that's really cool. Nesterov
-momentum also works the way you want it to, as it does not depend on
-anything but your update, which is to say the pseudograd. You can just
-polar-orthogonalize your <code>z</code>, it turns out, and it gets
-scaled by the <code>proj_grad</code> and turns into the update. It's
-great.</p>
-<p>A random thing that I've noticed as I've been doing experiments here.
-Both Muon and LOZO sample <code>z</code> differently, and create a
-<code>z</code> with different expected variance. If you don't
-renormalize, your choice of <code>z</code> distribution will
-inadvertently affect your choice of <code>ε</code>, potentially screwing
-your results. Polar orthogonalization gives you parameter perturbations
-with Frobenius norm <code>‖z‖²_F = r</code>, LOZO gives
-<code>mnr</code>, and standard Gaussian gives <code>mn</code>. Where
-<code>m</code> and <code>n</code> are the dimensions of the matrix, and
-<code>r</code> is the LoRA rank.</p>
-<h3 id="zo-and-momentum">ZO and Momentum</h3>
-<p>In first-order optimizers, one frequently utilized technique is
-momentum. All the best optimizers have some concept of momentum. This
-has two beneficial properties. It accelerates convergence, and it also
-has the effect of smoothing over variance/noise. That sounds really
-really good right about now, seeing as we are spending so much time
-thinking about how to reduce noise.</p>
-<p>"Let's add momentum to ZO" is not an original idea. Indeed, many
-papers have done this. Basically all of them actually, MeZO included.
-That's not so interesting. What's interesting is that you can do it
-without memory.</p>
-<p>The strategy for implementing MeZO "the right way" is to never
-materialize <code>z</code>. As a side effect of this, you don't actually
-have to store the</p>
-<p>This got me thinking. What if there's a way to do momentum without
-storing a momentum buffer?</p>
-<p>Well... why not just save the seeds so you can reproduce
-<code>z</code>? There are a bunch of seeds laying around. Why don't we
-just use them to reconstruct the momentum buffer every step? If we're
-cranking up the batch size, isn't this actually pretty cheap? An
-optimizer update is basically load+store. May as well do some math at
-the same time.</p>
-<p>It's also already pretty cheap in terms of memory because we're
-probably optimizing LoRA parameters anyway. But it's worth noting that
-this is possible.</p>
-<p>It's also probably possible to do super-low communication distributed
-training this way. Seeing as all that needs to be communicated is seeds
-and projected grads.</p>
-<h3 id="async-pipeline-parallelism-without-bubbles">Async Pipeline
-Parallelism Without Bubbles</h3>
-<p>Pipeline Parallelism has bubbles because of backprop. We do not do
-backprop, so we can saturate the interconnects with activations. Since
-layers can be updated independently, we can asynchronously send back
-seeds and projected gradient magnitudes to use to update the model
-everywhere all at once.</p>
-<p>I'd like to drop a hint though that <a
-href="https://arxiv.org/abs/2404.08080">MeZO-SVRG</a> probably has some
-interesting interplay with async pipeline parallelism and also
-distributed data parallelism methods like <a
-href="https://arxiv.org/abs/2311.08105">DiLoCo</a>. If you have to store
-a reference model anyway, you may as well use it to cancel some noise.
-Plenty of ideas for scaling here which have never been explored.</p>
-<p>Also of course there are applications to hiding scoring latency, just
-like in async RL. Is ZO more or less tolerant to asynchronous updates
-than first-order async RL? Needs experiments.</p>
-<h3 id="zo-moe">ZO MoE</h3>
-<p>I don't have any great ideas for this yet. At least nothing beyond
-what's present in the DSV4 paper, or any other MoE paper. It's worth
-noting though that:</p>
-<ol type="1">
-<li>ZO eliminates the need for differentiable routing (although it's
-unclear how much this matters)</li>
-<li>Reducing the number of trainable parameters improves the noise
-estimate due to MeZO's gradient projection per sample</li>
-<li>Reducing the number of samples that flow through a part of the model
-increases the noise estimate by dividing it by a smaller effective batch
-size.</li>
-</ol>
-<p>Some kind of sparsity is probably optimal. This seems like a problem
-for later though. After other problems are solved. If anyone has any
-good non-differentiable routing ideas let me know, but the router being
-trainable is a feature rather than a bug IMO.</p>
-<p>I think luckily this is probably a solved problem. But who knows,
-we'll see. Easy to say that when I haven't spent the requisite time
-slamming my head against it yet.</p>
-<p>Writing the kernels for this is gonna SUCK. Normal MoE kernels are
-hard enough. Eventually I will have to do what I think everybody else
-does, which is stare at the <a
-href="https://github.com/osayamenja/FlashMoE">FlashMoE</a> source, the
-<a href="https://arxiv.org/abs/2502.19811">comet</a> paper, and
-Deepseek's <a href="https://github.com/deepseek-ai/DeepEP">DeepEP</a>
-and <a href="https://github.com/deepseek-ai/DeepGEMM">DeepGEMM</a> until
-everything finally starts making sense.</p>
 <h2 id="codebase-for-experiments">Codebase for Experiments</h2>
 <p>I want to test some of these theories I have, and figure out how to
 train these things. Ideas are worthless if you don't test and scale
@@ -1297,6 +1338,10 @@ optimizer</li>
 href="https://github.com/linkedin/Liger-Kernel/blob/main/src/liger_kernel/transformers/fused_linear_cross_entropy.py#L9">Fused
 liger linear crossentropy loss</a></li>
 <li>Objectives such as Countdown and expert-forcing classification</li>
+<li>GRPO-style group-relative</li>
+<li><a href="https://arxiv.org/abs/2605.30148">Anchored Weight
+Decay</a></li>
+<li>ZO-RL (on the Countdown task used in many ES papers)</li>
 </ol>
 <p>I previously implemented the <a
 href="https://arxiv.org/abs/2312.15184">ZO-AdaMU</a> optimizer but
