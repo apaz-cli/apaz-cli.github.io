@@ -560,7 +560,7 @@ and <a href="https://arxiv.org/abs/1703.03864">Evolution Strategies</a>,
 a paper written by OpenAI in 2017, coauthered by Ilya Sutskever.</p>
 <p>We all kinda forgot about this research. You may be wondering though.
 Why have I never heard of this?</p>
-<h2 id="it-sucks.">It sucks.</h2>
+<h3 id="it-sucks.">It sucks.</h3>
 <p>The common thing about to note about every Zeroth Order approach in
 this family of algorithms is that it sucks. And that's probably why
 nobody uses Zeroth-Order optimizers. I don't know much about other
@@ -836,10 +836,10 @@ href="https://arxiv.org/abs/2505.03005">RADLADS</a>. They even released
 <a
 href="https://github.com/SmerkyG/GoldFinch-paper/tree/radlads">training
 code</a>, which is very awesome.</p>
-<p>Optimizing ZO so your runs go fast means optimizing inference. And
-optimizing transformer inference tends to be really hard, ultimately
-because of kvcache management. For the sake of rapid experimentation it
-makes sense to train a model to act as a good base for experiments.</p>
+<p>Optimizing ZO so your runs means optimizing inference. And optimizing
+transformer inference tends to be really hard, because of kvcache
+management. For the sake of rapid experimentation it makes sense to
+train a model to act as a good base for experiments.</p>
 <p>I don't think such a model exists yet. The closest is <a
 href="https://www.rwkv.com/">RWKV</a>. It would be cool to convert an
 existing large model, one stronger than RWKV, to something like an
@@ -849,10 +849,12 @@ Evolution Strategies. The sooner that day can come the better, because
 it's almost a prerequisite for everything else I want to do. Obtaining a
 strong base to do further experimentation on is probably the highest
 priority.</p>
-<p>This is a pretty hard problem though. I will have to stare at it for
-a long time. My preliminary idea is to try to do something like what I'm
-about to describe for removing skip connections, but I'm not quite sure
-on the details yet.</p>
+<p>This is a pretty hard problem though. Getting ZO to work for
+pretraining may actually be easier than this. I will have to stare at
+the model conversion problem for a long time. My preliminary idea is to
+try to do something like what I'm about to describe for removing skip
+connections, treating kvcache as RNN state and gradually training it
+into a different shape, but I'm not quite sure on the details yet.</p>
 <h3 id="removing-skip-connections">Removing Skip Connections</h3>
 <p>Skip connections. Pretrained off-the-shelf transformers have skip
 connections.</p>
@@ -924,29 +926,24 @@ interesting.</p>
 momentum. All the best optimizers have some concept of momentum. This
 has two beneficial properties. It accelerates convergence, and it also
 has the effect of smoothing over variance/noise. That sounds really
-really good right about now, seeing as we are spending so much time
-thinking about how to reduce noise.</p>
+really good, considering how bad the variance situation is with ZO.</p>
 <p>"Let's add momentum to ZO" is not an original idea. Indeed, many
 papers have done this. Basically all of them actually, MeZO included.
 That's not so interesting. What's interesting is that you can do it
 without memory.</p>
 <p>The strategy for implementing MeZO "the right way" is to never
 materialize <code>z</code>. This got me thinking. What if there's a way
-to do momentum without storing a momentum buffer? I ended up reproducing
-in my head exactly the memory-free momentum scheme proposed by MeZO.
-Since you</p>
-<p>Well... why not just save the seeds so you can reproduce
-<code>z</code>? There are a bunch of seeds laying around. Why don't we
-just use them to reconstruct the momentum buffer every step? If we're
-cranking up the batch size, isn't this actually pretty cheap? An
-optimizer update is basically load+store. May as well do some math at
-the same time.</p>
-<p>It's also already pretty cheap in terms of memory because we're
-probably optimizing LoRA parameters anyway. But it's worth noting that
-this is possible.</p>
-<p>It's also probably possible to do super-low communication distributed
-training this way. Seeing as all that needs to be communicated is seeds
-and projected grads.</p>
+to do momentum without storing a momentum buffer? You could reproduce
+<code>z</code> from a sliding window over seeds, and use it to
+reconstruct the momentum. Well, yeah. It turns out the MeZO paper
+already did this. I ended up reproducing in my head exactly the same
+scheme they proposed. It's almost definitely possible to do super-low
+communication distributed training this way. Still, it's worth noting
+that this is possible.</p>
+<p>I think the optimizer design space here is really interesting. It has
+fundamentally different properties compared to first-order, different
+things are optimal, but basically all the same tricks still work. I find
+it really interesting. We have to completely revisit the literature.</p>
 <h3 id="zo-muon">ZO-Muon</h3>
 <p>Yeah, <a href="https://arxiv.org/abs/2602.17155">this totally
 exists</a> and it also works. I think that's really cool. Nesterov
@@ -1213,7 +1210,7 @@ that the math is more forgiving. Like with MeZO, let
 each parameter is an independent standard normal corresponding to one
 parameter.</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
-<pre><code>J(θ) = E[L(Φ(θ + σz), b)]</code></pre></div>
+<pre><code>J(θ) = E[L(Φ(θ + σz, b))]</code></pre></div>
 <p>We want <code>∇J</code>. But we can't push <code>∇</code> through
 <code>L</code> if <code>L</code> is nondifferentiable or if we don't
 want to compute derivatives. But the Gaussian distribution has a
@@ -1226,13 +1223,13 @@ this assumption. Although we have no proof, it seems to hold in
 practice. Now set <code>g(z) = L(Φ(θ + σz), b)</code>. Then
 <code>∇g(z) = σ · ∇L(Φ(θ + σz), b)</code> by the chain rule.</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
-<pre><code>E[L(Φ(θ + σz), b) · z] = E[σ·∇L(Φ(θ + σz), b)]
+<pre><code>E[L(Φ(θ + σz, b)) · z] = E[σ·∇L(Φ(θ + σz, b))]
 and
-E[L(Φ(θ + σz), b) · z/σ] = E[∇L(Φ(θ + σz), b)]</code></pre></div>
+E[L(Φ(θ + σz, b)) · z/σ] = E[∇L(Φ(θ + σz, b))]</code></pre></div>
 <p>We've made the right side <code>∇J(θ)</code>, the gradient of the
 smoothed objective. Therefore,</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
-<pre><code>∇J(θ) = E[L(Φ(θ + σz), b) · z/σ]</code></pre></div>
+<pre><code>∇J(θ) = E[L(Φ(θ + σz, b)) · z/σ]</code></pre></div>
 <p>This identity is exact for any <code>σ</code> and does not require
 the same <code>ε → 0</code> assumption. Instead, we can think of
 <code>σ</code> as an exploration radius hyperparameter, which is related
@@ -1250,7 +1247,7 @@ and each bⱼ is an independent batch of size B.</code></pre></div>
 <p>Since (zⱼ, bⱼ) are i.i.d. across j, Bienaymé's identity gives:</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
 <pre><code>Var(grad_est) = (1/Z) Var(g₁)</code></pre></div>
-<p>where <code>g₁ = L(Φ(θ + σz), b) · z/σ</code> is the single-sample
+<p>where <code>g₁ = L(Φ(θ + σz, b)) · z/σ</code> is the single-sample
 vector estimator. Now, let's apply the law of total variance, and derive
 the <code>Var(grad_est)</code> like before.</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
@@ -1259,7 +1256,7 @@ the <code>Var(grad_est)</code> like before.</p>
 your LLM will certainly be able to figure it out.</p>
 <p>Our final answer is:</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
-<pre><code>Var(grad_est) = σ² · E[L(Φ(θ), b)²] / Z
+<pre><code>Var(grad_est) = σ² · E[L(Φ(θ, b))²] / Z
               + ∇L(Φ(θ))² / Z
               + ∇L(Φ(θ,xᵢ))² / ZB</code></pre></div>
 <p>This is baseline noise, gradient noise, and data noise.</p>
@@ -1300,12 +1297,12 @@ want to know more, as I just do not feel like typing it out.</p>
 <code>B</code> tradeoffs as MeZO does. The lessons learned from the MeZO
 math hold for ES.</p>
 <h2 id="codebase-for-experiments">Codebase for Experiments</h2>
-<p>I want to test some of these theories I have, and figure out how to
+<p>I wanted to test some of these theories I have, and figure out how to
 train these things. Ideas are worthless if you don't test and scale
 them.</p>
-<p>I've noticed though that there is not a good codebase for testing
-these things. There does exist prior art. There is code for the <a
-href="https://github.com/ESHyperscale">EGGROLL</a> and <a
+<p>I've noticed though that there did not exist a good codebase for
+testing these things. There does exist prior art. There is code for the
+<a href="https://github.com/ESHyperscale">EGGROLL</a> and <a
 href="https://github.com/VsonicV/es-fine-tuning-paper">ES at Scale</a>
 papers. The code is okay. They don't implement it "the right way," not
 that I blame them. The main problem I found with using their code is
@@ -1337,8 +1334,10 @@ optimizer</li>
 <li><a
 href="https://github.com/linkedin/Liger-Kernel/blob/main/src/liger_kernel/transformers/fused_linear_cross_entropy.py#L9">Fused
 liger linear crossentropy loss</a></li>
-<li>Objectives such as Countdown and expert-forcing classification</li>
-<li>GRPO-style group-relative</li>
+<li>Objectives such as Countdown, crossentropy pretraining, and
+expert-forcing classification</li>
+<li><a href="https://arxiv.org/abs/2402.03300">GRPO</a>-style
+group-relative scoring</li>
 <li><a href="https://arxiv.org/abs/2605.30148">Anchored Weight
 Decay</a></li>
 <li>ZO-RL (on the Countdown task used in many ES papers)</li>
@@ -1356,20 +1355,20 @@ Experiments:</h4>
 <li><a href="https://arxiv.org/abs/2510.25741">Looped Language
 Models</a></li>
 <li>Async PP/DP</li>
-<li>ZO-RL</li>
 <li>Fault tolerance/Resumability</li>
 <li>Optimized Kernels</li>
 </ol>
 <p>The idea is that you can plug in any HF model you want, and it works.
 Abstracting away the architecture is very useful, I think, although it
-comes with some caveats. It's good to have a notion of blocks for
-Pipeline Parallelism and it's good to be able to do things like fuse the
-loss to avoid having to materialize the logits if you don't want them,
-especially because the lm_head makes up such a large proportion of the
-parameters of small models. Eventually I will create an interface to
-exend this to implementing models "properly" with optimized kernels. For
-now though, to figure out the training dynamics it's fine to spend more
-compute to do it inefficiently.</p>
+comes with some caveats. It's good to have a notion of blocks for PP,
+and it's good to be able to do things like fuse the loss to avoid having
+to materialize the logits if you don't want them, especially because the
+lm_head makes up such a large proportion of the parameters of small
+models.</p>
+<p>Eventually I will create an interface to exend this to implementing
+models "properly" with optimized kernels. This is a very high priority.
+For now though, to figure out the training dynamics it's fine to spend
+more compute to do it inefficiently.</p>
 <p>This has been useful for getting my feet wet. I think that writing a
 codebase for this is somewhat nontrivial due to a number of
 concerns.</p>
@@ -1384,7 +1383,8 @@ point of MeZO is that you DON'T have to materialize the perturbations.
 Why would they do this? It's because it's hard. So hard that they didn't
 even bother to implement their own key optimization.</p>
 <p>I don't implement it either. ZOTitan does not yet even have the
-option to do it "the right way."</p>
+option to do it "the right way." But it is designed to be extensible so
+you can.</p>
 <p>With first-order methods already working way better, and now that LLM
 RL works, you don't really "need" to do ZO. If you have an objective,
 you can optimize it with RL. I think ZO is really promising, but it's
@@ -1409,16 +1409,18 @@ on this in <a href="Research_Roadmap.html">this post</a>, you can just
 download Arxiv to your computer. It's like 10 GB once you strip
 bibliographies and convert to markdown. Sometime soonish I want to start
 generating ideas and automatically testing them.</p>
-<!--
-<br>
-<div style="text-align: center;">
-<figure>
-<img src="images/draw_the_rest_of_the_owl.jpg" width=500>
-<figcaption aria-hidden="true">Generally easier said than done, but at least it's straightforward.</figcaption>
-</figure>
-</div>
-<br>
--->
+<h3 id="a-new-type-of-infrastructure">A New Type of Infrastructure</h3>
+<p>I am rapidly iterating on research, on drastically different
+architectures. Some of them novel, some of them not. I want to use
+existing models, but I want to train new models that don't exist. I do
+not have time to sit here and write kernels for days every time there's
+a new architecture I want to train. Yet I want it to be fast, and I want
+it to work.</p>
+<p>The obvious thing to do is to apply more autoresearch. I need to
+automate myself. It is not enough that we automate finding good kernels
+for a particular operation. We must discover what operations are
+required, and plug them in and launch them, all automatically.</p>
+<p>I have not fully wired this up yet. I believe that</p>
 <h3 id="mezo-kernel-example">MeZO Kernel Example</h3>
 <p>So, these ZO kernels. How do you actually write them?</p>
 <p>ZOTitan is not the only thing I've been working on. I also wrote a
@@ -1623,23 +1625,15 @@ buffer, and then produce <code>(W + εz)</code> and <code>(W - εz)</code>
 in shared memory rather than in tmem.</p>
 <p>It will be interesting to find out which one wins. Although this is
 not so much a problem with Evolution Strategies as it is with MeZO.</p>
-<h3 id="a-new-type-of-infrastructure">A New Type of Infrastructure</h3>
-<p>I am rapidly iterating on research, on drastically different
-architectures. Some of them novel, some of them not. I want to use
-existing models, and I want to train new models that don't exist. In any
-case I do not have time to sit here and write kernels.</p>
-<p>With ZOTitan I'm running into a problem.</p>
-<h2 id="takeaways">Takeaways</h2>
-<p>We should be scaling Evolution Strategies and related Zeroth-Order
-Optimization approaches. It is better to scale <code>Z</code>, the
-number of perturbations, before scaling <code>B</code>, the batch size
-per perturbation. However this presents * This is possible when you
-write custom way to accomplish this is by writing</p>
-<h2 id="conclusion">Conclusion</h2>
-<p>Hope you found this useful. I think Zeroth-Order Optimization is very
-underexplored. A very interesting subfield.</p>
-<p>I feel like I'm going insane writing this. None of these techniques
-are new. But the implications are crazy.</p>
+<h3 id="conclusion">Conclusion</h3>
+<p>Hope find this and the three attached repos (<a
+href="https://github.com/apaz-cli/ZOTitan">ZOTitan</a>, <a
+href="https://github.com/apaz-cli/MeZOKernelExample/">MeZOKernelExample</a>,
+<a href="https://github.com/apaz-cli/kernelthing">kernelthing</a>)
+useful. I think Zeroth-Order Optimization is very underexplored. A very
+interesting subfield. A good time to be alive. It feels like I'm going
+insane though. None of these techniques are new. But the implications
+are crazy, and nobody is talking about it. I think they should be.</p>
 <p>Thanks to <a href="https://x.com/antferdom"><span class="citation"
 data-cites="antferdom">@antferdom</span></a> and <a
 href="https://verda.com/">Verda Cloud</a> for the compute. Thanks to <a
@@ -1647,9 +1641,15 @@ href="https://x.com/ariaurelium"><span class="citation"
 data-cites="ariaurelium">@ariaurelium</span></a> for proofreading the
 article and <a href="https://x.com/snowclipsed"><span class="citation"
 data-cites="snowclipsed">@snowclipsed</span></a> for also proofreading
-my CUDA kernels.</p>
-<p>If you want to talk about this post, or to collaborate, send me a DM
-on <a href="https://x.com/apaz_cli">x/twitter</a>, on Discord at <a
+my CUDA kernels and recipes.</p>
+<p>I am not quite sure what to work on next. Every direction is a
+promising one. But whatever the case, we need to scale. Get real results
+into people's hands. Faster agents, that are more capable, operate on
+longer contexts, and are easier to serve. This feels within reach in the
+near future.</p>
+<p>If you want to talk about this post, or ask questions, or to
+collaborate, on this or anything else, send me a DM on <a
+href="https://x.com/apaz_cli">x/twitter</a>, on Discord at <a
 href="https://discord.com/channels/@me"><span class="citation"
 data-cites="apaz">@apaz</span></a>, or <a
 href="mailto:aarpazdera@gmail.com">send me an email</a>.</p>

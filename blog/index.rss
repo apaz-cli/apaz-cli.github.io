@@ -90,6 +90,17 @@ There's no existing literature on your methods! Who knows what settings
 are optimal, and if you guess wrong, you're out a cool 100m.</description>
     </item>
     <item>
+      <title>Scaling Agents to Unfathomable Depth and Context With Zeroth-Order Optimization</title>
+      <link>https://apaz-cli.github.io/blog/Scaling_To_Unfathomable_Depth.html</link>
+      <guid>https://apaz-cli.github.io/blog/Scaling_To_Unfathomable_Depth.html</guid>
+      <description>An interesting research direction I'm thinking about for scaling
+agents. This is a long one. I apologize that I did not have time to write a
+shorter article. But it's written so you can skip around a bit. Part
+blog post, part math dump, part research note idea vomit. Includes many
+original ideas that could/should be papers. At some point they might
+be.</description>
+    </item>
+    <item>
       <title>How to Write a Compiler Without Going Insane</title>
       <link>https://apaz-cli.github.io/blog/How_to_Write_a_Compiler_Without_Going_Insane.html</link>
       <guid>https://apaz-cli.github.io/blog/How_to_Write_a_Compiler_Without_Going_Insane.html</guid>

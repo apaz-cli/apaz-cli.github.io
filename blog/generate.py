@@ -58,6 +58,7 @@ categories = [
     "Thoughts_About_LLMs_Data_and_Optimization",
     "Thoughts_About_Entropy_and_Objectives",
     "Research_Roadmap",
+    "Scaling_To_Unfathomable_Depth",
   ]),
   ("SFW", [
     "Grifters",

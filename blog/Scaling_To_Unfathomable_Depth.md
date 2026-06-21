@@ -74,7 +74,7 @@ There are a bunch of ways to do this. Of particular interest to me are the algor
 
 We all kinda forgot about this research. You may be wondering though. Why have I never heard of this?
 
-## It sucks.
+### It sucks.
 
 The common thing about to note about every Zeroth Order approach in this family of algorithms is that it sucks. And that's probably why nobody uses Zeroth-Order optimizers. I don't know much about other families of Zeroth-Order algorithms. Judging by the fact that I haven't heard anybody talking about them, I must conclude that they also suck. At least compared to the clean signal that backprop provides. Why mess with a good thing?
 
@@ -202,13 +202,13 @@ Papers that have stuck out to me along these lines are:
 
 And, most promising of them all, [RADLADS](https://arxiv.org/abs/2505.03005). They even released [training code](https://github.com/SmerkyG/GoldFinch-paper/tree/radlads), which is very awesome.
 
-Optimizing ZO so your runs go fast means optimizing inference. And optimizing transformer inference tends to be really hard, ultimately because of kvcache management. For the sake of rapid experimentation it makes sense to train a model to act as a good base for experiments.
+Optimizing ZO so your runs means optimizing inference. And optimizing transformer inference tends to be really hard, because of kvcache management. For the sake of rapid experimentation it makes sense to train a model to act as a good base for experiments.
 
 I don't think such a model exists yet. The closest is [RWKV](https://www.rwkv.com/). It would be cool to convert an existing large model, one stronger than RWKV, to something like an RNN.
 
 It is my dream to make Deepseek V4 an RNN and finetune it with Evolution Strategies. The sooner that day can come the better, because it's almost a prerequisite for everything else I want to do. Obtaining a strong base to do further experimentation on is probably the highest priority.
 
-This is a pretty hard problem though. I will have to stare at it for a long time. My preliminary idea is to try to do something like what I'm about to describe for removing skip connections, but I'm not quite sure on the details yet.
+This is a pretty hard problem though. Getting ZO to work for pretraining may actually be easier than this. I will have to stare at the model conversion problem for a long time. My preliminary idea is to try to do something like what I'm about to describe for removing skip connections, treating kvcache as RNN state and gradually training it into a different shape, but I'm not quite sure on the details yet.
 
 ### Removing Skip Connections
 
@@ -244,17 +244,13 @@ Also worth pondering, is ZO RL more or less suceptible to diversity collapse? I 
 
 ### ZO and Momentum
 
-In first-order optimizers, one frequently utilized technique is momentum. All the best optimizers have some concept of momentum. This has two beneficial properties. It accelerates convergence, and it also has the effect of smoothing over variance/noise. That sounds really really good right about now, seeing as we are spending so much time thinking about how to reduce noise.
+In first-order optimizers, one frequently utilized technique is momentum. All the best optimizers have some concept of momentum. This has two beneficial properties. It accelerates convergence, and it also has the effect of smoothing over variance/noise. That sounds really really good, considering how bad the variance situation is with ZO.
 
 "Let's add momentum to ZO" is not an original idea. Indeed, many papers have done this. Basically all of them actually, MeZO included. That's not so interesting. What's interesting is that you can do it without memory.
 
-The strategy for implementing MeZO "the right way" is to never materialize `z`. This got me thinking. What if there's a way to do momentum without storing a momentum buffer? I ended up reproducing in my head exactly the memory-free momentum scheme proposed by MeZO. Since you
+The strategy for implementing MeZO "the right way" is to never materialize `z`. This got me thinking. What if there's a way to do momentum without storing a momentum buffer? You could reproduce `z` from a sliding window over seeds, and use it to reconstruct the momentum. Well, yeah. It turns out the MeZO paper already did this. I ended up reproducing in my head exactly the same scheme they proposed. It's almost definitely possible to do super-low communication distributed training this way. Still, it's worth noting that this is possible.
 
-Well... why not just save the seeds so you can reproduce `z`? There are a bunch of seeds laying around. Why don't we just use them to reconstruct the momentum buffer every step? If we're cranking up the batch size, isn't this actually pretty cheap? An optimizer update is basically load+store. May as well do some math at the same time.
-
-It's also already pretty cheap in terms of memory because we're probably optimizing LoRA parameters anyway. But it's worth noting that this is possible.
-
-It's also probably possible to do super-low communication distributed training this way. Seeing as all that needs to be communicated is seeds and projected grads.
+I think the optimizer design space here is really interesting. It has fundamentally different properties compared to first-order, different things are optimal, but basically all the same tricks still work. I find it really interesting. We have to completely revisit the literature.
 
 ### ZO-Muon
 
@@ -461,7 +457,7 @@ MeZO approximates a derivative by dividing a small difference by a small `ε`. I
 Let's define the ES objective `J` by convolving `L` with a normal of width `σ`. This is a hyperparameter like MeZO's `ε`, although we find in the end that the math is more forgiving. Like with MeZO, let `z ~ N(0,I)`. Which is to say, each element corresponding to each parameter is an independent standard normal corresponding to one parameter.
 
 ```
-J(θ) = E[L(Φ(θ + σz), b)]
+J(θ) = E[L(Φ(θ + σz, b))]
 ```
 
 We want `∇J`. But we can't push `∇` through `L` if `L` is nondifferentiable or if we don't want to compute derivatives. But the Gaussian distribution has a property called Stein's Lemma. That is to say, for `z ~ N(0,I)`:
@@ -473,15 +469,15 @@ E[g(z) · z] = E[∇g(z)]
 This holds for any `g` with polynomial growth. We make this assumption. Although we have no proof, it seems to hold in practice. Now set `g(z) = L(Φ(θ + σz), b)`. Then `∇g(z) = σ · ∇L(Φ(θ + σz), b)` by the chain rule.
 
 ```
-E[L(Φ(θ + σz), b) · z] = E[σ·∇L(Φ(θ + σz), b)]
+E[L(Φ(θ + σz, b)) · z] = E[σ·∇L(Φ(θ + σz, b))]
 and
-E[L(Φ(θ + σz), b) · z/σ] = E[∇L(Φ(θ + σz), b)]
+E[L(Φ(θ + σz, b)) · z/σ] = E[∇L(Φ(θ + σz, b))]
 ```
 
 We've made the right side `∇J(θ)`, the gradient of the smoothed objective. Therefore, 
 
 ```
-∇J(θ) = E[L(Φ(θ + σz), b) · z/σ]
+∇J(θ) = E[L(Φ(θ + σz, b)) · z/σ]
 ```
 
 This identity is exact for any `σ` and does not require the same `ε → 0` assumption. Instead, we can think of `σ` as an exploration radius hyperparameter, which is related to the learning rate.
@@ -502,7 +498,7 @@ Since (zⱼ, bⱼ) are i.i.d. across j, Bienaymé's identity gives:
 Var(grad_est) = (1/Z) Var(g₁)
 ```
 
-where `g₁ = L(Φ(θ + σz), b) · z/σ` is the single-sample vector estimator. Now, let's apply the law of total variance, and derive the `Var(grad_est)` like before.
+where `g₁ = L(Φ(θ + σz, b)) · z/σ` is the single-sample vector estimator. Now, let's apply the law of total variance, and derive the `Var(grad_est)` like before.
 
 ```
 Var(g₁) = E[Var(g₁ | b)] + Var(E[g₁ | b])
@@ -512,7 +508,7 @@ I'm... just going to skip over this part. It's kinda nontrivial, but your LLM wi
 
 Our final answer is:
 ```
-Var(grad_est) = σ² · E[L(Φ(θ), b)²] / Z
+Var(grad_est) = σ² · E[L(Φ(θ, b))²] / Z
               + ∇L(Φ(θ))² / Z
               + ∇L(Φ(θ,xᵢ))² / ZB
 ```
@@ -549,9 +545,9 @@ But long story short, ES has the same `Z` vs `B` tradeoffs as MeZO does. The les
 
 ## Codebase for Experiments
 
-I want to test some of these theories I have, and figure out how to train these things. Ideas are worthless if you don't test and scale them.
+I wanted to test some of these theories I have, and figure out how to train these things. Ideas are worthless if you don't test and scale them.
 
-I've noticed though that there is not a good codebase for testing these things. There does exist prior art. There is code for the [EGGROLL](https://github.com/ESHyperscale) and [ES at Scale](https://github.com/VsonicV/es-fine-tuning-paper) papers. The code is okay. They don't implement it "the right way," not that I blame them. The main problem I found with using their code is that I couldn't freely compose every single feature. I'm used to working in [prime-rl](https://github.com/PrimeIntellect-ai/prime-rl) and [torchtitan](https://github.com/pytorch/torchtitan). Nothing like this exists for Zeroth-Order Optimization, only paper implementations.
+I've noticed though that there did not exist a good codebase for testing these things. There does exist prior art. There is code for the [EGGROLL](https://github.com/ESHyperscale) and [ES at Scale](https://github.com/VsonicV/es-fine-tuning-paper) papers. The code is okay. They don't implement it "the right way," not that I blame them. The main problem I found with using their code is that I couldn't freely compose every single feature. I'm used to working in [prime-rl](https://github.com/PrimeIntellect-ai/prime-rl) and [torchtitan](https://github.com/pytorch/torchtitan). Nothing like this exists for Zeroth-Order Optimization, only paper implementations.
 
 That's fine. Just gotta make it exist. Introducing [ZOTitan](https://github.com/apaz-cli/ZOTitan), my sandbox for these ideas.
 
@@ -565,8 +561,8 @@ So far I have implemented:
 6.  [z_loss](https://arxiv.org/abs/2204.02311) (From PaLM, not ZO-related)
 7.  [ZO-Muon](https://arxiv.org/abs/2602.17155) optimizer
 8.  [Fused liger linear crossentropy loss](https://github.com/linkedin/Liger-Kernel/blob/main/src/liger_kernel/transformers/fused_linear_cross_entropy.py#L9)
-9.  Objectives such as Countdown and expert-forcing classification
-10. GRPO-style group-relative
+9.  Objectives such as Countdown, crossentropy pretraining, and expert-forcing classification
+10. [GRPO](https://arxiv.org/abs/2402.03300)-style group-relative scoring
 11. [Anchored Weight Decay](https://arxiv.org/abs/2605.30148)
 12. ZO-RL (on the Countdown task used in many ES papers)
 
@@ -579,11 +575,12 @@ I previously implemented the [ZO-AdaMU](https://arxiv.org/abs/2312.15184) optimi
 3. Context Length Extension
 4. [Looped Language Models](https://arxiv.org/abs/2510.25741)
 5. Async PP/DP
-6. ZO-RL
-7. Fault tolerance/Resumability
-8. Optimized Kernels
+6. Fault tolerance/Resumability
+7. Optimized Kernels
 
-The idea is that you can plug in any HF model you want, and it works. Abstracting away the architecture is very useful, I think, although it comes with some caveats. It's good to have a notion of blocks for Pipeline Parallelism and it's good to be able to do things like fuse the loss to avoid having to materialize the logits if you don't want them, especially because the lm_head makes up such a large proportion of the parameters of small models. Eventually I will create an interface to exend this to implementing models "properly" with optimized kernels. For now though, to figure out the training dynamics it's fine to spend more compute to do it inefficiently.
+The idea is that you can plug in any HF model you want, and it works. Abstracting away the architecture is very useful, I think, although it comes with some caveats. It's good to have a notion of blocks for PP, and it's good to be able to do things like fuse the loss to avoid having to materialize the logits if you don't want them, especially because the lm_head makes up such a large proportion of the parameters of small models.
+
+Eventually I will create an interface to exend this to implementing models "properly" with optimized kernels. This is a very high priority. For now though, to figure out the training dynamics it's fine to spend more compute to do it inefficiently.
 
 This has been useful for getting my feet wet. I think that writing a codebase for this is somewhat nontrivial due to a number of concerns.
 
@@ -593,7 +590,7 @@ Six months ago, if you would have asked me if any of these ideas had a chance, I
 
 To get an idea as to why, let's take a look at [this method](https://github.com/princeton-nlp/MeZO/blob/552cb1b710767f9a6e1dc8f9645d7640376f9941/medium_models/src/trainer.py#L242-L247) from the `Trainer` class of the MeZO paper's implementation. They actually materialize the perturbations. The entire point of MeZO is that you DON'T have to materialize the perturbations. Why would they do this? It's because it's hard. So hard that they didn't even bother to implement their own key optimization.
 
-I don't implement it either. ZOTitan does not yet even have the option to do it "the right way."
+I don't implement it either. ZOTitan does not yet even have the option to do it "the right way." But it is designed to be extensible so you can.
 
 With first-order methods already working way better, and now that LLM RL works, you don't really "need" to do ZO. If you have an objective, you can optimize it with RL. I think ZO is really promising, but it's hard to convince people to move away from paradigms that work, are proven, and which tooling exists for. Especially when there is so much low hanging fruit everywhere.
 
@@ -603,16 +600,15 @@ Producing ZO kernels is a very well defined and fairly simple task to delegate. 
 
 I look forward to the near future where we can basically just try everything with ZO that's already been tried with first order. It's not hard to discover new things to autoresearch. I've already been working on this in [this post](Research_Roadmap.html), you can just download Arxiv to your computer. It's like 10 GB once you strip bibliographies and convert to markdown. Sometime soonish I want to start generating ideas and automatically testing them.
 
-<!--
-<br>
-<div style="text-align: center;">
-<figure>
-<img src="images/draw_the_rest_of_the_owl.jpg" width=500>
-<figcaption aria-hidden="true">Generally easier said than done, but at least it's straightforward.</figcaption>
-</figure>
-</div>
-<br>
--->
+### A New Type of Infrastructure
+
+I am rapidly iterating on research, on drastically different architectures. Some of them novel, some of them not. I want to use existing models, but I want to train new models that don't exist. I do not have time to sit here and write kernels for days every time there's a new architecture I want to train. Yet I want it to be fast, and I want it to work.
+
+The obvious thing to do is to apply more autoresearch. I need to automate myself. It is not enough that we automate finding good kernels for a particular operation. We must discover what operations are required, and plug them in and launch them, all automatically.
+
+I have not fully wired this up yet. I believe that 
+
+
 
 ### MeZO Kernel Example
 
@@ -787,27 +783,15 @@ In the split kernel the `W` tile is loaded directly into tmem via TMA multicast 
 
 It will be interesting to find out which one wins. Although this is not so much a problem with Evolution Strategies as it is with MeZO.
 
-### A New Type of Infrastructure
+### Conclusion
 
-I am rapidly iterating on research, on drastically different architectures. Some of them novel, some of them not. I want to use existing models, and I want to train new models that don't exist. In any case I do not have time to sit here and write kernels.
+Hope find this and the three attached repos ([ZOTitan](https://github.com/apaz-cli/ZOTitan), [MeZOKernelExample](https://github.com/apaz-cli/MeZOKernelExample/), [kernelthing](https://github.com/apaz-cli/kernelthing)) useful. I think Zeroth-Order Optimization is very underexplored. A very interesting subfield. A good time to be alive. It feels like I'm going insane though. None of these techniques are new. But the implications are crazy, and nobody is talking about it. I think they should be.
 
-With ZOTitan I'm running into a problem.
+Thanks to [@antferdom](https://x.com/antferdom) and [Verda Cloud](https://verda.com/) for the compute. Thanks to [@ariaurelium](https://x.com/ariaurelium) for proofreading the article and [@snowclipsed](https://x.com/snowclipsed) for also proofreading my CUDA kernels and recipes.
 
+I am not quite sure what to work on next. Every direction is a promising one. But whatever the case, we need to scale. Get real results into people's hands. Faster agents, that are more capable, operate on longer contexts, and are easier to serve. This feels within reach in the near future.
 
-## Takeaways
-
-We should be scaling Evolution Strategies and related Zeroth-Order Optimization approaches. It is better to scale `Z`, the number of perturbations, before scaling `B`, the batch size per perturbation. However this presents 
-  * This is possible when you write custom  way to accomplish this is by writing 
-
-## Conclusion
-
-Hope you found this useful. I think Zeroth-Order Optimization is very underexplored. A very interesting subfield.
-
-I feel like I'm going insane writing this. None of these techniques are new. But the implications are crazy.
-
-Thanks to [@antferdom](https://x.com/antferdom) and [Verda Cloud](https://verda.com/) for the compute. Thanks to [@ariaurelium](https://x.com/ariaurelium) for proofreading the article and [@snowclipsed](https://x.com/snowclipsed) for also proofreading my CUDA kernels.
-
-If you want to talk about this post, or to collaborate, send me a DM on [x/twitter](https://x.com/apaz_cli), on Discord at [@apaz](https://discord.com/channels/@me), or [send me an email](mailto:aarpazdera@gmail.com).
+If you want to talk about this post, or ask questions, or to collaborate, on this or anything else, send me a DM on [x/twitter](https://x.com/apaz_cli), on Discord at [@apaz](https://discord.com/channels/@me), or [send me an email](mailto:aarpazdera@gmail.com).
 
 Hack the planet.
 
