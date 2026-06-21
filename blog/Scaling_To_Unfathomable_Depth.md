@@ -26,9 +26,9 @@ This seems not to be such a big problem in practice. But can we really say that?
 
 On the other side of the spectrum, you have [RNNs and LSTMs](https://arxiv.org/pdf/1808.03314). Or, architectures with recurrence more generally. While a default transformer is incapable of expressing a function with more discrete decision points than the sum of its layers, a [looped transformer](https://arxiv.org/abs/2510.25741) actually can because it has "infinite layers" through recurrence. The downside is that to train it you need a gradient through infinite layers also. This is mathematically sound, but numerically unstable. Due to the catastrophic accumulation of small rounding errors, you cannot backprop through infinite layers and get the right answer at the end.
 
-But what if we didn't do backprop? What if there were way to train these architectures that would be otherwise impractical, like RNNs or even something non-differentiable? Once you start relaxing enough restrictions, maybe there's an architecture out there that's better for long context in the limit. It's certainly possible. In fact I think it's almost certain.
+But what if we didn't do backprop? What if there were way to train these architectures that would be otherwise impractical, like RNNs or even something non-differentiable? Once you start relaxing enough restrictions, maybe there's an architecture out there that's better for long context in the limit. It's certainly possible. In fact I think it's almost certain. Most long-context memory systems you'd want to design are nondifferentiable. There's no way to train them. Until now, potentially.
 
-Maybe it looks like a transformer, maybe it looks more like an RNN, maybe it's sparse, maybe an MoE, maybe it's a weird diffusion thing, maybe [Mamba](https://arxiv.org/abs/2312.00752). Maybe it's something exotic that nobody has come up with yet. Or a combination of all of the above. But it's out there.
+Really though, who knows what the optimal architecture will be. Maybe it looks like a transformer, maybe it looks more like an RNN, maybe it's sparse, maybe an MoE, maybe it's a weird diffusion thing, maybe [Mamba](https://arxiv.org/abs/2312.00752). Maybe it's RWKV's [ROSA](https://arxiv.org/abs/2602.02499). Maybe it's something exotic that nobody has come up with yet. Or a combination of all of the above. But it's out there.
 
 My concrete fear is that we are barking up the wrong tree. Considering how many people have put effort into solving the transformer context length scaling problem, I don't think such a thing as free lunch exists if we keep doing what we're doing. If it did, someone would have found it by now. I think the efficient sparse attention techniques we already have are close to as good as they're going to get.
 
@@ -659,7 +659,7 @@ This is more math. Why might we want to do this? Again, for numerical precision.
 
 Computing `W ± εz` first would forces the tiny perturbation `εz` to be rounded against the much larger `W`, losing precision before the matmul runs. Instead, we can split it out. That way `input @ εz` is computed at its own scale, keeping relative precision.
 
-This seems minor. But I think it's very important for getting it to work. Yes it's more compute, but that compute is effectively hidden. Matmuls are often compute bound, and we are bound to some extent by the cost of constructing `z` for every tile. So I think you're actually supposed to just issue four tile MMA instructions per set of tiles you load.
+This seems minor. But I think it's very important for getting it to work. Yes it's more compute, but that compute is effectively hidden. Matmuls are compute bound, and the Philox `z` generation is cheap relative to the tensor-core work, so it overlaps and isn't the bottleneck. So I think you're actually supposed to just issue four tile MMA instructions per set of tiles you load.
 
 #### LoRA Blowup
 
@@ -719,69 +719,84 @@ pos_mat = (pos_input @ W) + (pos_input @ εz)
 neg_mat = (neg_input @ W) - (neg_input @ εz)
 ```
 
+
+As like in the MeZO math section there are two axes to scale the batch size on. There's `Z` (number of `z` directions per minibatch), and `B` (samples per `z` direction). Ideally, `Z` is a large number and `B` is 1. But whether this can be accomplished depends on how good the kernel is at hiding the cost of producing `z` perturbation tiles. Since `z` already means something, let's index `Z` by `e`.
+
 On sm100a, the fold kernel would look something like:
 ```
-ACCS = { pos, neg } in TMEM; tmem = alloc(ACCS)
-buf[STAGES] = smem ring { A_pos, A_neg, Wp, Wm }   # consumed by mma
-Wraw[STAGES] = smem scratch                        # TMA landing for W
+ACCS = { pos[e][b], neg[e][b] : e<Z, b<B } in TMEM;
+         tmem = alloc(ACCS);                           # 2ZB accs
+buf[STAGES] = smem ring { A_pos[b], A_neg[b] : b<B,
+                          Wp[e], Wm[e]       : e<Z }
+Wraw[STAGES] = smem scratch
 
 producer:  setmaxnreg.dec
     for k in K:
         s = k % STAGES; wait empty[s]
-        tma.multicast  W           -> cluster Wraw[s]     # raw W shared
-        tma.load       A_pos,A_neg -> buf[s]
-        z  = create()
-        buf[s].Wp = Wraw[s] + eps * z
-        buf[s].Wm = Wraw[s] - eps * z
+        tma.multicast  W                 -> cluster Wraw[s]   # raw W, shared by all e,b
+        tma.load       A_pos[*],A_neg[*] -> buf[s]            # one tile per batch element
+        for e in Z:                                           # one z per direction
+            z = create(e)
+            buf[s].Wp[e] = Wraw[s] + eps * z
+            buf[s].Wm[e] = Wraw[s] - eps * z
         expect_tx; signal full[s]
 
 consumer:  setmaxnreg.inc
     for k in K:
         s = k % STAGES; wait full[s]; acc = (k>0)
-        tcgen05.mma(pos, buf[s].A_pos, buf[s].Wp, acc)
-        tcgen05.mma(neg, buf[s].A_neg, buf[s].Wm, acc)
+        for e in Z:
+            for b in B:                                      # reuse Wp[e]/Wm[e] across batch
+                tcgen05.mma(pos[e][b], buf[s].A_pos[b], buf[s].Wp[e], acc)
+                tcgen05.mma(neg[e][b], buf[s].A_neg[b], buf[s].Wm[e], acc)
         signal empty[s]
 
 epilogue:
     tcgen05.wait
-    out_pos = load(pos)
-    out_neg = load(neg)
+    for e in Z: for b in B:
+        out_pos[e][b] = load(pos[e][b])
+        out_neg[e][b] = load(neg[e][b])
     store; tcgen05.dealloc(tmem)
 ```
 
 And the split kernel:
 ```
-ACCS = { posW, posZ, negW, negZ } in TMEM; tmem = alloc(ACCS)
-buf[STAGES] = smem ring { A_pos, A_neg, W, z }     # all consumed by mma
+ACCS = { posW[b],    negW[b]    : b<B,                  # W part is direction-independent
+         posZ[e][b], negZ[e][b] : e<Z, b<B } in TMEM;
+         tmem = alloc(ACCS);                            # 2B + 2ZB accs
+buf[STAGES] = smem ring { A_pos[b], A_neg[b] : b<B, W, z[e] : e<Z }
 
 producer:  setmaxnreg.dec
     for k in K:
         s = k % STAGES; wait empty[s]
-        tma.multicast  W           -> cluster buf[s].W
-        tma.load       A_pos,A_neg -> buf[s]
-        z = create()
-        buf[s].z = eps * z
+        tma.multicast  W                 -> cluster buf[s].W  # shared by all e,b
+        tma.load       A_pos[*],A_neg[*] -> buf[s]
+        for e in Z:
+            z = create(e)
+            buf[s].z[e] = eps * z
         expect_tx; fence(z); signal full[s]
 
 consumer:  setmaxnreg.inc
     for k in K:
         s = k % STAGES; wait full[s]; acc = (k>0)
-        tcgen05.mma(posW, buf[s].A_pos, buf[s].W, acc)
-        tcgen05.mma(posZ, buf[s].A_pos, buf[s].z, acc)
-        tcgen05.mma(negW, buf[s].A_neg, buf[s].W, acc)
-        tcgen05.mma(negZ, buf[s].A_neg, buf[s].z, acc)
+        for b in B:                                          # W half: once per b, shared over e
+            tcgen05.mma(posW[b], buf[s].A_pos[b], buf[s].W, acc)
+            tcgen05.mma(negW[b], buf[s].A_neg[b], buf[s].W, acc)
+        for e in Z: for b in B:                              # z half: per direction
+            tcgen05.mma(posZ[e][b], buf[s].A_pos[b], buf[s].z[e], acc)
+            tcgen05.mma(negZ[e][b], buf[s].A_neg[b], buf[s].z[e], acc)
         signal empty[s]
 
 epilogue:
     tcgen05.wait
-    out_pos = load(posW) + load(posZ)
-    out_neg = load(negW) - load(negZ)
+    for e in Z: for b in B:
+        out_pos[e][b] = load(posW[b]) + load(posZ[e][b])
+        out_neg[e][b] = load(negW[b]) - load(negZ[e][b])
     store; tcgen05.dealloc(tmem)
 ```
 
-In the split kernel the `W` tile is loaded directly into tmem via TMA multicast and consumed by the MMA. The prescaled `εz` tiles are simultaneously stored to shared memory.Whereas in the fold kernel we must load W tiles in to the `Wraw` temp buffer, and then produce `(W + εz)` and `(W - εz)` in shared memory rather than in tmem.
+In the split kernel the `W` tile is loaded directly into tmem via TMA multicast and consumed by the MMA. The prescaled `εz` tiles are simultaneously stored to shared memory. Whereas in the fold kernel we must load W tiles in to the `Wraw` temp buffer, and then produce `(W + εz)` and `(W - εz)` in shared memory rather than in tmem.
 
-It will be interesting to find out which one wins. Although this is not so much a problem with Evolution Strategies as it is with MeZO.
+It will be interesting to find out which one wins. Batched GEMMs are usually compute bound. So you would expect the fold kernel which does less compute to win. But it is not as numerically stable as the split kernel, and it's a little annoying that you have to load and store rather than just doing full TMA multicast. The split kernel may not be necessary with Evolution Strategies as it is with MeZO, due to `σ` in `θ − σz` being scale-invariant. ES lets you write much weirder, more exotic kernels. For reasons such as not having to write a split kernel, these might be more interesting. These too are worth exploring.
 
 ### Conclusion
 
