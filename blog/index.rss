@@ -93,12 +93,11 @@ are optimal, and if you guess wrong, you're out a cool 100m.</description>
       <title>Scaling Agents to Unfathomable Depth and Context With Zeroth-Order Optimization</title>
       <link>https://apaz-cli.github.io/blog/Scaling_To_Unfathomable_Depth.html</link>
       <guid>https://apaz-cli.github.io/blog/Scaling_To_Unfathomable_Depth.html</guid>
-      <description>An interesting research direction I'm thinking about for scaling
-agents. This is a long one. I apologize that I did not have time to write a
-shorter article. But it's written so you can skip around a bit. Part
-blog post, part math dump, part research note idea vomit. Includes many
-original ideas that could/should be papers. At some point they might
-be.</description>
+      <description>An interesting research direction I'm thinking about. Posts like this
+are often ignored because they are not directly applicable to anyone's
+work. But this might be a new scaling paradigm. So I've sort of dropped
+everything to work on it, study it, understand it. This is a writeup of
+some things I've learned.</description>
     </item>
     <item>
       <title>How to Write a Compiler Without Going Insane</title>
