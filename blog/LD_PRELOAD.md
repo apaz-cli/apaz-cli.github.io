@@ -5,7 +5,7 @@ How to keep autoresearch agents from stepping on each others' toes.
 
 <br>
 
-![](images/cirno_hop.jpg)
+![](images/2forest.jpg)
 
 <br>
 
