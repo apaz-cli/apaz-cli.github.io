@@ -40,8 +40,8 @@ sure it wouldn't pass code review.</p>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> fd<span class="op">;</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> stat st<span class="op">;</span></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="pp">#define EH</span><span class="op">(</span><span class="pp">fn</span><span class="op">,...)</span><span class="pp"> fn</span><span class="op">(</span><span class="pp">__VA_ARGS__</span><span class="op">);</span><span class="pp"> </span><span class="cf">if</span><span class="pp"> </span><span class="op">(</span><span class="pp">errno</span><span class="op">)</span><span class="pp"> </span><span class="cf">return</span><span class="pp"> perror</span><span class="op">(#</span><span class="pp">fn</span><span class="op">),</span><span class="pp"> </span><span class="dv">1</span><span class="op">;</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="pp">#define sz st</span><span class="op">.</span><span class="pp">st_size</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="pp">#define EH(fn,...) fn(__VA_ARGS__); if (errno) return perror(#fn), 1;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="pp">#define sz st.st_size</span></span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">int</span> argc<span class="op">,</span> <span class="dt">char</span><span class="op">**</span> argv<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>argc <span class="op">!=</span> <span class="dv">3</span><span class="op">)</span> <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
@@ -90,10 +90,10 @@ right.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define STRERR_R </span><span class="dt">_Generic</span><span class="op">(</span><span class="pp">strerror_r</span><span class="op">,</span><span class="pp">                          </span><span class="op">\</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="pp">                          </span><span class="dt">int</span><span class="op">(*)(</span><span class="dt">int</span><span class="op">,</span><span class="pp"> </span><span class="dt">char</span><span class="op">*,</span><span class="pp"> </span><span class="dt">size_t</span><span class="op">):</span><span class="pp"> </span><span class="st">&quot;XSI&quot;</span><span class="op">,</span><span class="pp">   </span><span class="op">\</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="pp">                          </span><span class="dt">char</span><span class="op">*(*)(</span><span class="dt">int</span><span class="op">,</span><span class="pp"> </span><span class="dt">char</span><span class="op">*,</span><span class="pp"> </span><span class="dt">size_t</span><span class="op">):</span><span class="pp"> </span><span class="st">&quot;GNU&quot;</span><span class="op">,</span><span class="pp"> </span><span class="op">\</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="pp">                          </span><span class="cf">default</span><span class="op">:</span><span class="pp"> </span><span class="st">&quot;UNK&quot;</span><span class="op">)</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define STRERR_R _Generic(strerror_r,                          \</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="pp">                          int(*)(int, char*, size_t): &quot;XSI&quot;,   \</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="pp">                          char*(*)(int, char*, size_t): &quot;GNU&quot;, \</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="pp">                          default: &quot;UNK&quot;)</span></span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  puts<span class="op">(</span>STRERR_R<span class="op">);</span></span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
@@ -113,7 +113,7 @@ wikipedia page</a>!</p>
 <hr>
 <h2 id="hello-world-programs">Hello World Programs</h2>
 <p>Why write C when you can just write out an ELF file directly?</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define </span><span class="ot">_GNU_SOURCE</span></span>
+<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define _GNU_SOURCE</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;sys/mman.h&gt;</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;unistd.h&gt;</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">int</span> argc<span class="op">,</span> <span class="dt">char</span> <span class="op">*</span>argv<span class="op">[])</span> <span class="op">{</span></span>

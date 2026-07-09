@@ -10,6 +10,9 @@ I'm putting them here. The shebang for C is just a little bit longer than one li
   <title>Cursed Code Collection</title>
   <style>
     html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
       color: #1a1a1a;
       background-color: #fdfdfd;
     }
@@ -28,16 +31,13 @@ I'm putting them here. The shebang for C is just a little bit longer than one li
     @media (max-width: 600px) {
       body {
         font-size: 0.9em;
-        padding: 12px;
+        padding: 1em;
       }
       h1 {
         font-size: 1.8em;
       }
     }
     @media print {
-      html {
-        background-color: white;
-      }
       body {
         background-color: transparent;
         color: black;
@@ -61,10 +61,6 @@ I'm putting them here. The shebang for C is just a little bit longer than one li
       color: #1a1a1a;
     }
     img {
-      max-width: 100%;
-    }
-    svg {
-      height: auto;
       max-width: 100%;
     }
     h1, h2, h3, h4, h5, h6 {
@@ -91,10 +87,9 @@ I'm putting them here. The shebang for C is just a little bit longer than one li
       color: #606060;
     }
     code {
-      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
       font-size: 85%;
       margin: 0;
-      hyphens: manual;
     }
     pre {
       margin: 1em 0;
@@ -155,22 +150,12 @@ I'm putting them here. The shebang for C is just a little bit longer than one li
     }
     code{white-space: pre-wrap;}
     span.smallcaps{font-variant: small-caps;}
-    div.columns{display: flex; gap: min(4vw, 1.5em);}
-    div.column{flex: auto; overflow-x: auto;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
     div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-    /* The extra [class] is a hack that increases specificity enough to
-       override a similar rule in reveal.js */
-    ul.task-list[class]{list-style: none;}
-    ul.task-list li input[type="checkbox"] {
-      font-size: inherit;
-      width: 0.8em;
-      margin: 0 0.8em 0.2em -1.6em;
-      vertical-align: middle;
-    }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
-    /* CSS for syntax highlighting */
+    ul.task-list{list-style: none;}
     pre > code.sourceCode { white-space: pre; position: relative; }
-    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
     pre > code.sourceCode > span:empty { height: 1.2em; }
     .sourceCode { overflow: visible; }
     code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -181,7 +166,7 @@ I'm putting them here. The shebang for C is just a little bit longer than one li
     }
     @media print {
     pre > code.sourceCode { white-space: pre-wrap; }
-    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
     }
     pre.numberSource code
       { counter-reset: source-line 0; }
@@ -232,6 +217,7 @@ I'm putting them here. The shebang for C is just a little bit longer than one li
     code span.va { color: #19177c; } /* Variable */
     code span.vs { color: #4070a0; } /* VerbatimString */
     code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <style type="text/css">
   /* https://github.com/markdowncss/retro/blob/master/css/retro.css */
@@ -425,8 +411,8 @@ sure it wouldn't pass code review.</p>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> fd<span class="op">;</span></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> stat st<span class="op">;</span></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="pp">#define EH</span><span class="op">(</span><span class="pp">fn</span><span class="op">,...)</span><span class="pp"> fn</span><span class="op">(</span><span class="pp">__VA_ARGS__</span><span class="op">);</span><span class="pp"> </span><span class="cf">if</span><span class="pp"> </span><span class="op">(</span><span class="pp">errno</span><span class="op">)</span><span class="pp"> </span><span class="cf">return</span><span class="pp"> perror</span><span class="op">(#</span><span class="pp">fn</span><span class="op">),</span><span class="pp"> </span><span class="dv">1</span><span class="op">;</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="pp">#define sz st</span><span class="op">.</span><span class="pp">st_size</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="pp">#define EH(fn,...) fn(__VA_ARGS__); if (errno) return perror(#fn), 1;</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="pp">#define sz st.st_size</span></span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">int</span> argc<span class="op">,</span> <span class="dt">char</span><span class="op">**</span> argv<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>argc <span class="op">!=</span> <span class="dv">3</span><span class="op">)</span> <span class="cf">return</span> <span class="dv">1</span><span class="op">;</span></span>
@@ -478,10 +464,10 @@ right.</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define STRERR_R </span><span class="dt">_Generic</span><span class="op">(</span><span class="pp">strerror_r</span><span class="op">,</span><span class="pp">                          </span><span class="op">\</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="pp">                          </span><span class="dt">int</span><span class="op">(*)(</span><span class="dt">int</span><span class="op">,</span><span class="pp"> </span><span class="dt">char</span><span class="op">*,</span><span class="pp"> </span><span class="dt">size_t</span><span class="op">):</span><span class="pp"> </span><span class="st">&quot;XSI&quot;</span><span class="op">,</span><span class="pp">   </span><span class="op">\</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="pp">                          </span><span class="dt">char</span><span class="op">*(*)(</span><span class="dt">int</span><span class="op">,</span><span class="pp"> </span><span class="dt">char</span><span class="op">*,</span><span class="pp"> </span><span class="dt">size_t</span><span class="op">):</span><span class="pp"> </span><span class="st">&quot;GNU&quot;</span><span class="op">,</span><span class="pp"> </span><span class="op">\</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="pp">                          </span><span class="cf">default</span><span class="op">:</span><span class="pp"> </span><span class="st">&quot;UNK&quot;</span><span class="op">)</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="pp">#define STRERR_R _Generic(strerror_r,                          \</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="pp">                          int(*)(int, char*, size_t): &quot;XSI&quot;,   \</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="pp">                          char*(*)(int, char*, size_t): &quot;GNU&quot;, \</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="pp">                          default: &quot;UNK&quot;)</span></span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  puts<span class="op">(</span>STRERR_R<span class="op">);</span></span>
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
@@ -503,7 +489,7 @@ wikipedia page</a>!</p>
 <h2 id="hello-world-programs">Hello World Programs</h2>
 <p>Why write C when you can just write out an ELF file directly?</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
-<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define </span><span class="ot">_GNU_SOURCE</span></span>
+<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define _GNU_SOURCE</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;sys/mman.h&gt;</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;unistd.h&gt;</span></span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">(</span><span class="dt">int</span> argc<span class="op">,</span> <span class="dt">char</span> <span class="op">*</span>argv<span class="op">[])</span> <span class="op">{</span></span>
