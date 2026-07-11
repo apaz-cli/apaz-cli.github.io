@@ -64,21 +64,20 @@ Then this fake `cuInit()` calls the real `cuInit()` after waiting on an availabl
 
 Processes can also read and run code off the disk by calling `dlopen()`. When they do
 this it does not consult the `LD_PRELOAD`. `dlopen()` is a lower level thing, it just
-maps the shared object into executable memory pages so the process can jump to the
-symbols inside. It's how `ld.so` does its job.
+maps the shared object into executable memory pages so the process can obtain the symbols
+inside with `dlsym()` and jump to them. This is how `ld.so` does its job.
 
-Luckily, `dlopen()` itself is provided by `libc.so.6`. For a few reasons, libc is
-almost always dynamically linked. This is very beneficial to us. In our `LD_PRELOAD`
-library we can also intercept calls to `dlopen()`, check if they are loading
-`libcuda.so.1`, and wait for an available GPU if they are before proceeding. This
-covers the other way a pointer to `cuInit()` could be obtained by processes which
-the agent spawns with tool calls.
+Luckily, `dlopen()` and `dlsym()` are themselves provided by `libc.so.6`. For a few
+reasons, libc is almost always dynamically linked. This is very beneficial to us. In our
+`LD_PRELOAD` library we can also intercept calls to `dlsym()`, check if they are loading
+`cuInit()` from `libcuda.so.1`, and have it return our wrapped `cuInit()`, the one which
+waits for an available GPU if they are before proceeding. This covers the other way a
+pointer to `cuInit()` could be obtained by processes which the agent spawns with tool calls.
 
-TODO: Can we point it at our own library? Can we return a library which exposes
-everything that libcuda.so.1 does by indirecting to it, but with the exception of
-having our overwritten `cuInit()` which trampolines into the original? Or must we
-intercept `dlopen()` and `kt_ensure()` immediately? In that case must we still track
-how deep into `dlopen()`s we are?
+## The Code
+
+You can find the code for this at [https://github.com/apaz-cli/libgpumutex](https://github.com/apaz-cli/libgpumutex).
+
 
 ```bibtex
 @misc{pazdera2026ldpreload,

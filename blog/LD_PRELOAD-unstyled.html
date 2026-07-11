@@ -68,24 +68,21 @@ real <code>cuInit()</code> after waiting on an available GPU.</p>
 <code>dlopen()</code>. When they do this it does not consult the
 <code>LD_PRELOAD</code>. <code>dlopen()</code> is a lower level thing,
 it just maps the shared object into executable memory pages so the
-process can jump to the symbols inside. It's how <code>ld.so</code> does
-its job.</p>
-<p>Luckily, <code>dlopen()</code> itself is provided by
-<code>libc.so.6</code>. For a few reasons, libc is almost always
-dynamically linked. This is very beneficial to us. In our
-<code>LD_PRELOAD</code> library we can also intercept calls to
-<code>dlopen()</code>, check if they are loading
-<code>libcuda.so.1</code>, and wait for an available GPU if they are
-before proceeding. This covers the other way a pointer to
+process can obtain the symbols inside with <code>dlsym()</code> and jump
+to them. This is how <code>ld.so</code> does its job.</p>
+<p>Luckily, <code>dlopen()</code> and <code>dlsym()</code> are
+themselves provided by <code>libc.so.6</code>. For a few reasons, libc
+is almost always dynamically linked. This is very beneficial to us. In
+our <code>LD_PRELOAD</code> library we can also intercept calls to
+<code>dlsym()</code>, check if they are loading <code>cuInit()</code>
+from <code>libcuda.so.1</code>, and have it return our wrapped
+<code>cuInit()</code>, the one which waits for an available GPU if they
+are before proceeding. This covers the other way a pointer to
 <code>cuInit()</code> could be obtained by processes which the agent
 spawns with tool calls.</p>
-<p>TODO: Can we point it at our own library? Can we return a library
-which exposes everything that libcuda.so.1 does by indirecting to it,
-but with the exception of having our overwritten <code>cuInit()</code>
-which trampolines into the original? Or must we intercept
-<code>dlopen()</code> and <code>kt_ensure()</code> immediately? In that
-case must we still track how deep into <code>dlopen()</code>s we
-are?</p>
+<h2 id="the-code">The Code</h2>
+<p>You can find the code for this at <a
+href="https://github.com/apaz-cli/libgpumutex">https://github.com/apaz-cli/libgpumutex</a>.</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="va">@misc</span>{<span class="ot">pazdera2026ldpreload</span>,</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">author</span> = {Pazdera, Aaron/Ana},</span>
