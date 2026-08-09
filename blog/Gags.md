@@ -59,7 +59,7 @@ It can also send the message that they are not trusted to be able to
 speak freely. Sometimes I gag people so that they do not further 
 self-incriminate. It can imply a lack of trust, or of broken trust. But 
 these are messages that sometimes I do like to send, and that I 
-sometimes enjoy recieving. It can be very effective for punishments.
+sometimes enjoy receiving. It can be very effective for punishments.
 
 My girlfriend knows all of my thoughts about gags. So when she hands me 
 one I know, and she knows I know, that there is no more talking to be 
@@ -95,7 +95,7 @@ harm when people play outside of their limits, when they try to emulate
 porn, and when they don't monitor their partner and check in. In these 
 situations, harm was likely to be caused anyway. It can't really be said 
 that the gag caused it, perhaps it increased the likelihood, but 
-something was probably going to happen eventually anyway.
+something was probably going to happen eventually.
 
 I am interested in what people think about this. There are infinite 
 perspectives in any such discourse, and I am curious about the shape of 
