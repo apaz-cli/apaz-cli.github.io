@@ -2,6 +2,7 @@
 
 import re
 import os
+import sys
 import subprocess
 import json
 import base64
@@ -21,8 +22,15 @@ from cryptography.hazmat.primitives import padding as sym_padding
 
 # Configuration
 stylefile = "../resources/style/pandoc.html"
+favicon = '<link rel="icon" type="image/png" href="../resources/images/favicon.png">'
 rss_description_max_length = 500
 target_index = int(argv[1]) if len(argv) > 1 else None
+
+# Never indexed. Lives here, not in Secrets, so a checkout without Secrets still knows.
+protected_names = {
+    "A_History_of_Events_In_Case_You_Missed_Them",
+    "The_Other_Letter",
+}
 
 # Load password-protected articles
 protected_articles = {}
@@ -31,6 +39,31 @@ try:
         protected_articles = json.load(f)
 except (FileNotFoundError, json.JSONDecodeError):
     pass
+
+secrets_basenames = {splitext(os.path.basename(p))[0]
+                     for p in glob(os.path.expanduser("~/git/Secrets/secrets/blog/*.md"))}
+
+def bail(msg):
+    bar = "!" * 70
+    print(f"\n{bar}\n!!! {msg}\n{bar}\n", file=sys.stderr, flush=True)
+    raise SystemExit(1)
+
+def is_encrypted(txt):
+    return 'name="apaz-protected"' in txt or "const ciphertextB64" in txt
+
+def hidden(filepath):
+    """True if filepath must stay out of the indexes and the feed. Fails closed."""
+    name = splitext(filepath)[0]
+    try:
+        with open(filepath) as f:
+            enc = is_encrypted(f.read())
+    except OSError:
+        return True
+    if enc and name not in protected_names:
+        bail(f"{filepath} is encrypted but missing from protected_names. Add it.")
+    if name in protected_names and not enc:
+        bail(f"{filepath} is protected but PLAINTEXT on disk. Do not commit it.")
+    return enc or name in protected_names or name in secrets_basenames
 
 def run(cmd):
     subprocess.run(split(cmd), check=True)
@@ -68,6 +101,8 @@ categories = [
     "Seduction",
     "Revelations",
     "A_History_of_Events_In_Case_You_Missed_Them",
+    "The_Other_Letter",
+    "Gags",
   ]),
   ("Mirrored", [
     "rat",
@@ -152,6 +187,9 @@ def create_encrypted_html(original_html, password, title):
 <html>
 <head>
     <meta charset="UTF-8">
+    <meta name="apaz-protected" content="1">
+    <meta name="robots" content="noindex, nofollow">
+    {favicon}
     <title>{title}</title>
 {css_content}
     <style>
@@ -372,6 +410,7 @@ def generate_article(i, md_file):
             if first_image:
                 meta_tags += f"  <meta name=\"og:image\" content=\"{first_image.group(1)}\">\n"
 
+        meta_tags += f"  {favicon}\n"
         return html.replace("  <title>", meta_tags + "  <title>")
 
     # Extract just the filename without path or extension
@@ -379,7 +418,9 @@ def generate_article(i, md_file):
     display_title = title.replace("_", " ")
     html_file = title + ".html"
     unstyled_file = title + "-unstyled.html"
-    is_protected = title in protected_articles
+    is_protected = title in protected_articles or title in protected_names or title in secrets_basenames
+    if is_protected and title not in protected_articles:
+        bail(f"No password for protected article {title}. Refusing to write it in plaintext.")
 
     # Use temp directory for protected articles
     if is_protected:
@@ -421,6 +462,7 @@ def generate_article(i, md_file):
     if not is_protected:
         with open(unstyled_path) as file:
             unstyled_html = re.sub(r"\s+<style>.*</style>", "", file.read(), flags=re.DOTALL, count=1)
+            unstyled_html = unstyled_html.replace("  <title>", f"  {favicon}\n  <title>", 1)
 
         with open(unstyled_file, "w") as file:
             file.write(unstyled_html)
@@ -436,11 +478,8 @@ def gen_index_html(exclude_nsfw=False, exclude_mirrored=False, sfw_label="SFW", 
     html_files = sorted([filepath for filepath in glob("*.html")
                          if not filepath.startswith("_") and filepath != "index.html" and filepath != "fullindex.html" and not filepath.endswith("-unstyled.html")])
 
-    # Filter out articles from secrets directory
-    secrets_basenames = {splitext(os.path.basename(filepath))[0] for filepath in glob(os.path.expanduser("~/git/Secrets/secrets/blog/*.md"))}
-
     all_posts = [(filepath, get_title_from_html(filepath)) for filepath in html_files
-                 if splitext(filepath)[0] not in secrets_basenames]
+                 if not hidden(filepath)]
 
     # Build article to category mapping
     article_to_category = {article: cat_name
@@ -464,6 +503,7 @@ def gen_index_html(exclude_nsfw=False, exclude_mirrored=False, sfw_label="SFW", 
 <html>
 <head>
     <title>{title}</title>
+    {favicon}
 {css}
 </head>
 <body>
@@ -517,13 +557,9 @@ def gen_rss():
     html_files = [filepath for filepath in glob("*.html")
                   if not filepath.startswith("_") and filepath != "index.html" and not filepath.endswith("-unstyled.html")]
 
-    # Filter out articles from secrets directory
-    secrets_basenames = {splitext(os.path.basename(filepath))[0] for filepath in glob(os.path.expanduser("~/git/Secrets/secrets/blog/*.md"))}
-
     rss_items = []
     for filepath in html_files:
-        basename = splitext(filepath)[0]
-        if basename not in allowed_articles or basename in secrets_basenames:
+        if splitext(filepath)[0] not in allowed_articles or hidden(filepath):
             continue
 
         title = escape_xml(get_title_from_html(filepath))

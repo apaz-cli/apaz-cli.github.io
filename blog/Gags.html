@@ -4,16 +4,15 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="og:title" content="Hyperparameter Heuristics">
-  <meta name="og:description" content="Suppose you've invented a new neural architecture, or optimizer,
-or whatever, and you want to scale it up. You have 100 million dollars
-to do this with, and you want to train the best model you possibly can
-with that budget. But how should you choose your hyperparameters?
-There's no existing literature on your methods! Who knows what settings
-are optimal, and if you guess wrong, you're out a cool 100m.">
-  <meta name="og:image" content="images/107214767_p0.png">
+  <meta name="og:title" content="What Does A Gag Say?">
+  <meta name="og:description" content="I do not really like gags. Or maybe I do, but it's complicated. It is
+simple enough for negotiating a scene to say that I don't really like
+them, and that we should explore other options. But the details as to
+WHY I do not like gags are interesting, and worth writing about,
+especially as I interact with many gag fetishists.">
+  <meta name="og:image" content="images/gags.jpg">
   <link rel="icon" type="image/png" href="../resources/images/favicon.png">
-  <title>Hyperparameter Heuristics</title>
+  <title>Gags</title>
   <style>
     html {
       line-height: 1.5;
@@ -319,98 +318,91 @@ are optimal, and if you guess wrong, you're out a cool 100m.">
 </head>
 <body>
 <input type="checkbox" id="font-toggle">
-<div style="text-align: center;">
-<p><img src="images/107214767_p0.png" /></p>
-</div>
-<h1 id="hyperparameter-heuristics">Hyperparameter Heuristics</h1>
-<p>    Suppose you've invented a new neural architecture, or optimizer,
-or whatever, and you want to scale it up. You have 100 million dollars
-to do this with, and you want to train the best model you possibly can
-with that budget. But how should you choose your hyperparameters?
-There's no existing literature on your methods! Who knows what settings
-are optimal, and if you guess wrong, you're out a cool 100m.</p>
-<p>    It would be cool if there were a guide on heuristics for scaling
-training experiments.</p>
-<p>    At the moment, the information is sort of trapped inside the
-heads and notebooks of individual researchers. Maybe a guide exists
-somewhere and I'm an idiot for not being able to find it. But this
-knowledge is certainly not as widespread as the projects (like litgpt
-which I maintain, or HF transformers, or torchtune) that researchers
-typically use for training and finetuning experiments.</p>
-<p>    I assert that, in order to scale novel techniques, we need to be
-able to run hyperparameter sweeps on smaller models to figure out the
-optimal settings for larger models. I know that the choice of
-hyperparameters that's optimal for training a small model won't
-necessarily generalize to training a large model. But some of them do,
-and some of them change in predictable ways.</p>
-<p>    There are heuristics that people use to make good guesses at
-what's optimal for larger models. The learning rate, for example, is
-highly dependent on the batch size and other aspects of numerical
-stability that change in a predictable fashion as you add parameters.
-What formula can we use to make a good guess? If something else changes,
-how can we rediscover the formula? These things are not very well known.
-There are certain papers (like Chinchilla for example) that contain a
-lot of these useful heuristics. But what about the people who have never
-heard of Chinchilla or the twenty other papers the heuristics are
-scattered across?</p>
-<br>
-<div style="text-align: center;">
-<figure>
-<img src="images/chinchilla.png">
-<figcaption aria-hidden="true">
-The famous Chinchilla scaling laws are good examples of the heuristics
-I'm talking about.
-</figcaption>
-</figure>
-</div>
-<p><br></p>
-<p>    Most of the time, people just copy over the hparams from training
-runs they know were successful. I think we can do better. People need to
-be able to discover their own hparams for their experiments, and they
-need to be able to verify the work of others. Given how frequently we
-need to do this, this should be made easy. It hasn't been made easy. As
-far as I'm aware, no good tools exist.</p>
-<p>    I'm reminded of chemists that buy chemicals and then re-purify
-them themselves, because they don't trust the chemical companies.
-Although it's probably fine, what if it isn't? Your whole experiment is
-screwed, and you might not even know it. The same is very true with
-hparams. Always purify your chems and validate your hparams. Because
-sometimes, the hparams that get published are just wrong. I've had many
-conversations with people along the lines of "The learning rate in that
-paper was way too high, and there are better normalizations and
-initializations."</p>
-<br>
-<div style="text-align: center;">
-<figure>
-<img src="images/recrystallization.png">
-<figcaption aria-hidden="true">
-Recrystallization is a common way of purifying chemicals, and looks
-pretty cool.
-</figcaption>
-</figure>
-</div>
-<p><br></p>
-<p>    A lot of researchers just don't do hyperparameter sweeps. Either
-because they're too much effort, they're too expensive, or because even
-if they did perform HPO often the researchers don't know how to
-generalize the results to bigger models, more data, and more compute for
-when they need to scale up a training run. And they either don't know
-how to discover these relationships, or they just can't be bothered.
-Most people doing novel research do not know the scaling heuristics, and
-the only way to learn is to hear about individual papers by word of
-mouth. The result is that we just don't know what recipes are good vs
-bad.</p>
-<p>    This problem can be solved. I think that a guide to
-hyperparameter scaling heuristics could increase the rigor of the field
-substantially, while also making it more accessible. There are plenty of
-HyperParameter Optimization (HPO) libraries out there, now we just need
-to learn how to use them.</p>
-<p>    Unfortunately I'm not super familiar with the advancements in
-this part of the field. I haven't done any training experiments since
-2019. I don't think I'm capable of solving this problem alone. My best
-guess is that it's already been solved internally at Anthropic, OpenAI,
-Google, and Meta. We have a lot of work to do in catching up, but I
-think most of the work is centralizing the information in a way that's
-both user friendly and rigorous.</p>
+<h1 id="what-does-a-gag-say">What Does A Gag Say?</h1>
+<p><img src="images/gags.jpg" /></p>
+<p>I do not really like gags. Or maybe I do, but it's complicated. It is
+simple enough for negotiating a scene to say that I don't really like
+them, and that we should explore other options. But the details as to
+WHY I do not like gags are interesting, and worth writing about,
+especially as I interact with many gag fetishists.</p>
+<p>When you have a sexual encounter, what is the point of it? What are
+you optimizing for? I have learned that most people kinda shrug their
+shoulders at this question. They do not know, and may not really care.
+But they know that looking at pictures of pretty women wearing gags
+turns them on, even if they cannot put it into words.</p>
+<p>What I'm looking for is somewhat different. What I'm looking for is
+more like a sense of human connection. I want to feel owned, or loved,
+or powerful or entertained. Kink is an expression of deepest
+vulnerability, or of deepest care. What I prioritize in a kink scene is
+affecting their brain. I am paying attention to their every
+microexpression and mining it for information about their mental state.
+I am not trying to affect their body, and I do not care so much about
+aesthetics. It is an experience we create together.</p>
+<p>This is not to say that pornography has no value, and not to say that
+I'm uninterested in using the narrative powers of porn to my advantage.
+It's just not typically my approach.</p>
+<p>The main issue I have with gags is the following. Why would you gag
+someone?</p>
+<p>I do use gags from time to time, most frequently in a doomed attempt
+not to alert the neighbors. But why else? In putting on a gag on your
+partner, what are you communicating?</p>
+<p>Maybe it is a part of some kidnapping fantasy, or maybe they just
+like the feel of it in their mouth. People like this exist, especially
+in the mainstream. I'm just not one of them, and as far as I know
+neither are my partners.</p>
+<p>The main point is that gags limit communication. But the problem is
+that I genuinely DO care about what they have to say. I care a lot. I
+want to communicate, that's what this is all about.</p>
+<p>With that said, gagging someone also sends a message of its own. You
+are communicating that you no longer care about what they have to say.
+This is generally not the message I want to send. Maybe when I'm going
+for something really intense. But most scenes are not that. More often I
+want to send the message that they are loved and cared for, and that I
+am listening to them, and giving them the perfectly-calibrated
+working-over that they need. I already know that I am not obligated to
+listen to cries for mercy, so I don't necessarily feel a need to muffle
+them. Let them cry, and moan, and beg, and express themself, so that I
+can better take care of them.</p>
+<p>It can also send the message that they are not trusted to be able to
+speak freely. Sometimes I gag people so that they do not further
+self-incriminate. It can imply a lack of trust, or of broken trust. But
+these are messages that sometimes I do like to send, and that I
+sometimes enjoy recieving. It can be very effective for punishments.</p>
+<p>My girlfriend knows all of my thoughts about gags. So when she hands
+me one I know, and she knows I know, that there is no more talking to be
+done. Only penance. She is going to fucking destroy me, and nothing
+beyond a safeword is going to stop that. I am simply a sack of meat that
+needs to be taught a lesson until she decides otherwise. Somehow, that
+is fine. That is not so emotionally intense for me. But feeling like an
+untrusted sack of meat hits different. Not being allowed to beg for
+forgiveness is a torture even greater than the other, more literal
+torture. That is the thing which obliterates me.</p>
+<p>This stuff is really heavy. This is edgeplay. I've seen really cute
+and wholesome stuff with gags too, so clearly not everybody agrees with
+me, but edgeplay is what I think of when I see it. It is hard to
+separate myself from this emotional texture, and see it as a gag
+fetishist would.</p>
+<p>It then becomes confusing and worrying to me when I see people who
+are not as experienced using gags in their scenes. Or when I see it in
+porn. Kink as I know it is about trying to connect with the other
+person. An argument could no doubt be made that a gag can help with
+that, I just made such an argument myself. Gags emotionally obliterate
+me, and that's awesome. But as a general rule, less communication is
+less connection, and I feel that restricting communication is a
+dangerous thing for beginners. It feels counterintuitive and wrong and
+tragic that a ballgag is a standard sex toy that vanilla couples pick up
+at a sex shop in an attempt to spice up their sex lives, without
+considering the fundamental principles behind it all.</p>
+<p>With that said, there is an extent to which this is not a big deal. I
+think the potential harm is correlated with other things. Specifically,
+I think the decreased communication from gags is most likely to cause
+harm when people play outside of their limits, when they try to emulate
+porn, and when they don't monitor their partner and check in. In these
+situations, harm was likely to be caused anyway. It can't really be said
+that the gag caused it, perhaps it increased the likelihood, but
+something was probably going to happen eventually anyway.</p>
+<p>I am interested in what people think about this. There are infinite
+perspectives in any such discourse, and I am curious about the shape of
+potential rebuttals.</p>
 </body>
 </html>
