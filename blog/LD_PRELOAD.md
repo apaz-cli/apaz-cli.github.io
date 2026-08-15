@@ -35,6 +35,7 @@ action to make it happen, or even having to be aware.
 
 This is what I have done in kernelthing.
 
+
 ## Okay but how?
 
 Before any code runs on an nvidia GPU, the calling process must first create a cuda
@@ -56,9 +57,10 @@ it.
 
 The dynamic linker on Linux (`ld.so`) exposes an environment variable, `LD_PRELOAD`,
 which you can use to inject your own library, the symbols from which get loaded first.
-So if we inject our own library, `libktgpu.so`, when the process tries to resolve the
-function pointer to `cuInit()` it instead resolves to our `cuInit()` from `libktgpu.so`.
-Then this fake `cuInit()` calls the real `cuInit()` after waiting on an available GPU.
+So if we inject our own library, `libgpumutex.so`, when the process tries to resolve
+the function pointer to `cuInit()` it instead resolves to our `cuInit()` from
+`libgpumutex.so`. Then this fake `cuInit()` calls the real `cuInit()` after waiting on
+an available GPU.
 
 ### 3. Lazy loading
 
@@ -74,7 +76,42 @@ reasons, libc is almost always dynamically linked. This is very beneficial to us
 waits for an available GPU if they are before proceeding. This covers the other way a
 pointer to `cuInit()` could be obtained by processes which the agent spawns with tool calls.
 
+
+## Python?
+
+To modify the behavior of `cuInit()`, we need to set `CUDA_VISIBLE_DEVICES`. We can do
+that from C, simply call `setenv("CUDA_VISIBLE_DEVICES", devices, 1);`. That's easy.
+
+But suppose we're trying to sandbox a python process. Suppose that python process calls
+the CUDA drivers (`cuInit()`), then returns to python to spawn a subprocess. This could
+be a problem, because although our environment variables did get edited by `setenv()`
+on the operating system / C side, they did not get edited on the python side. Our
+`os.environ` did not get updated. We're going to have to fix that.
+
+But, we're not in python. How can we actually update `os.environ["CUDA_VISIBLE_DEVICES"]`?
+
+It's simple, we reach once again inside the address space of our own running
+executable. Specifically, we check to see if we've loaded libpython. If we haven't,
+then this is not a python process. If we have, then we can resolve symbols from
+libpython, and use them to edit `os.environ.`
+
+Remember to check if the cpython process is actualy initialized (`Py_IsInitialized()`),
+to acquire and release the GIL (`PyGILState_Ensure()` / `PyGILState_Release()`), deal
+with error handling (`PyErr_Clear()`), and count references (`Py_IncRef()` /
+`Py_DecRef()`), all the annoying stuff we've got to deal when when we link against
+libpython.
+
+Notably though, we do not actually link against libpython. If we did that, libgpumutex
+would not be able to work without python. But we can program as if we did, if we just
+write our program against the stable ABI and resolve the symbols with `dlsym()`. Not
+having headers is fine.
+
+
 ## The Code
+
+With that, we finally have the solution we were looking for. There are some things I
+didn't mention, like how I implemented a fair process queue system with `flock()`s, but
+that's kinda boring.
 
 You can find the code for this at [https://github.com/apaz-cli/libgpumutex](https://github.com/apaz-cli/libgpumutex).
 

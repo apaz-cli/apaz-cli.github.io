@@ -59,11 +59,11 @@ no answer here, we also do not have to worry about it.</p>
 <p>The dynamic linker on Linux (<code>ld.so</code>) exposes an
 environment variable, <code>LD_PRELOAD</code>, which you can use to
 inject your own library, the symbols from which get loaded first. So if
-we inject our own library, <code>libktgpu.so</code>, when the process
+we inject our own library, <code>libgpumutex.so</code>, when the process
 tries to resolve the function pointer to <code>cuInit()</code> it
 instead resolves to our <code>cuInit()</code> from
-<code>libktgpu.so</code>. Then this fake <code>cuInit()</code> calls the
-real <code>cuInit()</code> after waiting on an available GPU.</p>
+<code>libgpumutex.so</code>. Then this fake <code>cuInit()</code> calls
+the real <code>cuInit()</code> after waiting on an available GPU.</p>
 <h3 id="lazy-loading">3. Lazy loading</h3>
 <p>Processes can also read and run code off the disk by calling
 <code>dlopen()</code>. When they do this it does not consult the
@@ -81,7 +81,41 @@ from <code>libcuda.so.1</code>, and have it return our wrapped
 are before proceeding. This covers the other way a pointer to
 <code>cuInit()</code> could be obtained by processes which the agent
 spawns with tool calls.</p>
+<h2 id="python">Python?</h2>
+<p>To modify the behavior of <code>cuInit()</code>, we need to set
+<code>CUDA_VISIBLE_DEVICES</code>. We can do that from C, simply call
+<code>setenv("CUDA_VISIBLE_DEVICES", devices, 1);</code>. That's
+easy.</p>
+<p>But suppose we're trying to sandbox a python process. Suppose that
+python process calls the CUDA drivers (<code>cuInit()</code>), then
+returns to python to spawn a subprocess. This could be a problem,
+because although our environment variables did get edited by
+<code>setenv()</code> on the operating system / C side, they did not get
+edited on the python side. Our <code>os.environ</code> did not get
+updated. We're going to have to fix that.</p>
+<p>But, we're not in python. How can we actually update
+<code>os.environ["CUDA_VISIBLE_DEVICES"]</code>?</p>
+<p>It's simple, we reach once again inside the address space of our own
+running executable. Specifically, we check to see if we've loaded
+libpython. If we haven't, then this is not a python process. If we have,
+then we can resolve symbols from libpython, and use them to edit
+<code>os.environ.</code></p>
+<p>Remember to check if the cpython process is actualy initialized
+(<code>Py_IsInitialized()</code>), to acquire and release the GIL
+(<code>PyGILState_Ensure()</code> / <code>PyGILState_Release()</code>),
+deal with error handling (<code>PyErr_Clear()</code>), and count
+references (<code>Py_IncRef()</code> / <code>Py_DecRef()</code>), all
+the annoying stuff we've got to deal when when we link against
+libpython.</p>
+<p>Notably though, we do not actually link against libpython. If we did
+that, libgpumutex would not be able to work without python. But we can
+program as if we did, if we just write our program against the stable
+ABI and resolve the symbols with <code>dlsym()</code>. Not having
+headers is fine.</p>
 <h2 id="the-code">The Code</h2>
+<p>With that, we finally have the solution we were looking for. There
+are some things I didn't mention, like how I implemented a fair process
+queue system with <code>flock()</code>s, but that's kinda boring.</p>
 <p>You can find the code for this at <a
 href="https://github.com/apaz-cli/libgpumutex">https://github.com/apaz-cli/libgpumutex</a>.</p>
 <div class="sourceCode" id="cb1"><pre
