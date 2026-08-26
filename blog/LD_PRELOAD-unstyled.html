@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <link rel="icon" type="image/png" href="../resources/images/favicon.png">
+  <title>LD PRELOAD</title>
+</head>
+<body>
+<h1 id="safe-speedy-kernel-autoresearch-with-ld_preload">Safe Speedy
+Kernel Autoresearch with LD_PRELOAD</h1>
+<p>How to keep autoresearch agents from stepping on each others'
+toes.</p>
+<p><br></p>
+<p><img src="images/2forest.jpg" /></p>
+<p><br></p>
+<h2 id="the-problem">The Problem</h2>
+<p>Autoresearch loops are great. But naive loops, one agent per GPU,
+face hardware utilization issues because the agent is not always running
+a program on it. Thus, it is optimal to run multiple autoresearch agents
+per GPU. This achieves better hardware utilization, but creates some
+problems.</p>
+<p>The naive solution is to give the agent a tool or command to run,
+which implements scoring. Tell the agent which GPU it is on, and tell it
+to pass <code>CUDA_VISIBLE_DEVICES</code> or similar to the scoring
+function. Then the scoring function implements a queue which keeps the
+GPU fed. This is a step in the right direction, but again there are
+problems.</p>
+<p>Traditionally you let agents run and execute arbitary code also,
+including GPU code independent of your benchmarking. Those calls will
+interfere with your benchmarking, and there's no telling how the agent
+will invoke this code. I think it is not a good idea to prompt it
+either. It's probably off-policy and may degrade performance. Also,
+prompts are routinely ignored and <code>CUDA_VISIBLE_DEVICES</code>
+forgotten anyway.</p>
+<p>You need a way to keep processes from interfering with each other.
+Ideally one which does not require the cooperation of an agent that may
+even potentially want to reward hack. So, rather than trusting agents to
+cooperate, the solution is to modify the harness to enforce a queue with
+mutual exclusion, without the agent having to take any action to make it
+happen, or even having to be aware.</p>
+<p>This is what I have done in kernelthing.</p>
+<h2 id="okay-but-how">Okay but how?</h2>
+<p>Before any code runs on an nvidia GPU, the calling process must first
+create a cuda context with <code>cuInit()</code>. This is where we step
+in. If we can intercept <code>cuInit()</code>, we can make it reserve a
+GPU, and set <code>CUDA_VISIBLE_DEVICES</code> right before CUDA
+actually uses it.</p>
+<p>To do this, we must intercept the mechanism that the process uses to
+obtain a function pointer to <code>cuInit()</code>. There are three
+different ways this might happen.</p>
+<h3 id="static-linking">1. Static linking</h3>
+<p>You're fucked. But luckily nobody packages CUDA code this way. The
+resulting executable would be not be portable between CUDA versions, or
+between machines. I'm not sure it's even supported. So although we have
+no answer here, we also do not have to worry about it.</p>
+<h3 id="dynamic-linking">2. Dynamic linking</h3>
+<p>The dynamic linker on Linux (<code>ld.so</code>) exposes an
+environment variable, <code>LD_PRELOAD</code>, which you can use to
+inject your own library, the symbols from which get loaded first. So if
+we inject our own library, <code>libgpumutex.so</code>, when the process
+tries to resolve the function pointer to <code>cuInit()</code> it
+instead resolves to our <code>cuInit()</code> from
+<code>libgpumutex.so</code>. Then this fake <code>cuInit()</code> calls
+the real <code>cuInit()</code> after waiting on an available GPU.</p>
+<h3 id="lazy-loading">3. Lazy loading</h3>
+<p>Processes can also read and run code off the disk by calling
+<code>dlopen()</code>. When they do this it does not consult the
+<code>LD_PRELOAD</code>. <code>dlopen()</code> is a lower level thing,
+it just maps the shared object into executable memory pages so the
+process can obtain the symbols inside with <code>dlsym()</code> and jump
+to them. This is how <code>ld.so</code> does its job.</p>
+<p>Luckily, <code>dlopen()</code> and <code>dlsym()</code> are
+themselves provided by <code>libc.so.6</code>. For a few reasons, libc
+is almost always dynamically linked. This is very beneficial to us. In
+our <code>LD_PRELOAD</code> library we can also intercept calls to
+<code>dlsym()</code>, check if they are loading <code>cuInit()</code>
+from <code>libcuda.so.1</code>, and have it return our wrapped
+<code>cuInit()</code>, the one which waits for an available GPU if they
+are before proceeding. This covers the other way a pointer to
+<code>cuInit()</code> could be obtained by processes which the agent
+spawns with tool calls.</p>
+<h2 id="python">Python?</h2>
+<p>To modify the behavior of <code>cuInit()</code>, we need to set
+<code>CUDA_VISIBLE_DEVICES</code>. We can do that from C, simply call
+<code>setenv("CUDA_VISIBLE_DEVICES", devices, 1);</code>. That's
+easy.</p>
+<p>But suppose we're trying to sandbox a python process. Suppose that
+python process calls the CUDA drivers (<code>cuInit()</code>), then
+returns to python to spawn a subprocess. This could be a problem,
+because although our environment variables did get edited by
+<code>setenv()</code> on the operating system / C side, they did not get
+edited on the python side. Our <code>os.environ</code> did not get
+updated. We're going to have to fix that.</p>
+<p>But, we're not in python. How can we actually update
+<code>os.environ["CUDA_VISIBLE_DEVICES"]</code>?</p>
+<p>It's simple, we reach once again inside the address space of our own
+running executable. Specifically, we check to see if we've loaded
+libpython. If we haven't, then this is not a python process. If we have,
+then we can resolve symbols from libpython, and use them to edit
+<code>os.environ.</code></p>
+<p>Remember to check if the cpython process is actualy initialized
+(<code>Py_IsInitialized()</code>), to acquire and release the GIL
+(<code>PyGILState_Ensure()</code> / <code>PyGILState_Release()</code>),
+deal with error handling (<code>PyErr_Clear()</code>), and count
+references (<code>Py_IncRef()</code> / <code>Py_DecRef()</code>), all
+the annoying stuff we've got to deal when when we link against
+libpython.</p>
+<p>Notably though, we do not actually link against libpython. If we did
+that, libgpumutex would not be able to work without python. But we can
+program as if we did, if we just write our program against the stable
+ABI and resolve the symbols with <code>dlsym()</code>. Not having
+headers is fine.</p>
+<h2 id="the-code">The Code</h2>
+<p>With that, we finally have the solution we were looking for. There
+are some things I didn't mention, like how I implemented a fair process
+queue system with <code>flock()</code>s, but that's kinda boring.</p>
+<p>You can find the code for this at <a
+href="https://github.com/apaz-cli/libgpumutex">https://github.com/apaz-cli/libgpumutex</a>.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="va">@misc</span>{<span class="ot">pazdera2026ldpreload</span>,</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">author</span> = {Pazdera, Aaron/Ana},</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span>  = {Safe Speedy Kernel Autoresearch with LD_PRELOAD},</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">year</span>   = {2026},</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">url</span>    = {https://apaz-cli.github.io/blog/LD_PRELOAD.html}</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+</body>
+</html>

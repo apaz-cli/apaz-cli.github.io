@@ -1,0 +1,102 @@
+
+# What Does A Gag Say?
+
+![](images/gags.jpg)
+
+I do not really like gags. Or maybe I do, but it's complicated. It is 
+simple enough for negotiating a scene to say that I don't really like 
+them, and that we should explore other options. But the details as to 
+WHY I do not like gags are interesting, and worth writing about, 
+especially as I interact with many gag fetishists.
+
+When you have a sexual encounter, what is the point of it? What are you 
+optimizing for? I have learned that most people kinda shrug their 
+shoulders at this question. They do not know, and may not really care. 
+But they know that looking at pictures of pretty women wearing gags 
+turns them on, even if they cannot put it into words.
+
+What I'm looking for is somewhat different. What I'm looking for is more 
+like a sense of human connection. I want to feel owned, or loved, or 
+powerful or entertained. Kink is an expression of deepest vulnerability, 
+or of deepest care. What I prioritize in a kink scene is affecting their 
+brain. I am paying attention to their every microexpression and mining 
+it for information about their mental state. I am not trying to affect 
+their body, and I do not care so much about aesthetics. It is an 
+experience we create together.
+
+This is not to say that pornography has no value, and not to say that 
+I'm uninterested in using the narrative powers of porn to my advantage. 
+It's just not typically my approach.
+
+The main issue I have with gags is the following. Why would you gag 
+someone?
+
+I do use gags from time to time, most frequently in a doomed attempt not 
+to alert the neighbors. But why else? In putting on a gag on your 
+partner, what are you communicating?
+
+Maybe it is a part of some kidnapping fantasy, or maybe they just like 
+the feel of it in their mouth. People like this exist, especially in the 
+mainstream. I'm just not one of them, and as far as I know neither are 
+my partners.
+
+The main point is that gags limit communication. But the problem is that 
+I genuinely DO care about what they have to say. I care a lot. I want to 
+communicate, that's what this is all about.
+
+With that said, gagging someone also sends a message of its own. You are 
+communicating that you no longer care about what they have to say. This 
+is generally not the message I want to send. Maybe when I'm going for 
+something really intense. But most scenes are not that. More often I 
+want to send the message that they are loved and cared for, and that I 
+am listening to them, and giving them the perfectly-calibrated 
+working-over that they need. I already know that I am not obligated to 
+listen to cries for mercy, so I don't necessarily feel a need to muffle 
+them. Let them cry, and moan, and beg, and express themself, so that I 
+can better take care of them.
+
+It can also send the message that they are not trusted to be able to 
+speak freely. Sometimes I gag people so that they do not further 
+self-incriminate. It can imply a lack of trust, or of broken trust. But 
+these are messages that sometimes I do like to send, and that I 
+sometimes enjoy receiving. It can be very effective for punishments.
+
+My girlfriend knows all of my thoughts about gags. So when she hands me 
+one I know, and she knows I know, that there is no more talking to be 
+done. Only penance. She is going to fucking destroy me, and nothing 
+beyond a safeword is going to stop that. I am simply a sack of meat that 
+needs to be taught a lesson until she decides otherwise. Somehow, that 
+is fine. That is not so emotionally intense for me. But feeling like an 
+untrusted sack of meat hits different. Not being allowed to beg for 
+forgiveness is a torture even greater than the other, more literal 
+torture. That is the thing which obliterates me.
+
+This stuff is really heavy. This is edgeplay. I've seen really cute and 
+wholesome stuff with gags too, so clearly not everybody agrees with me, 
+but edgeplay is what I think of when I see it. It is hard to separate 
+myself from this emotional texture, and see it as a gag fetishist would.
+
+It then becomes confusing and worrying to me when I see people who are 
+not as experienced using gags in their scenes. Or when I see it in porn. 
+Kink as I know it is about trying to connect with the other person. An 
+argument could no doubt be made that a gag can help with that, I just 
+made such an argument myself. Gags emotionally obliterate me, and that's 
+awesome. But as a general rule, less communication is less connection, 
+and I feel that restricting communication is a dangerous thing for 
+beginners. It feels counterintuitive and wrong and tragic that a ballgag 
+is a standard sex toy that vanilla couples pick up at a sex shop in an 
+attempt to spice up their sex lives, without considering the fundamental 
+principles behind it all.
+
+With that said, there is an extent to which this is not a big deal. I 
+think the potential harm is correlated with other things. Specifically, 
+I think the decreased communication from gags is most likely to cause 
+harm when people play outside of their limits, when they try to emulate 
+porn, and when they don't monitor their partner and check in. In these 
+situations, harm was likely to be caused anyway. It can't really be said 
+that the gag caused it, perhaps it increased the likelihood, but 
+something was probably going to happen eventually.
+
+I am interested in what people think about this. There are infinite 
+perspectives in any such discourse, and I am curious about the shape of 
+potential rebuttals.
