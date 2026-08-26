@@ -6,100 +6,9 @@
     <description>Programming and thoughts</description>
     <atom:link href="https://apaz-cli.github.io/blog/index.rss" rel="self" type="application/rss+xml" />
     <item>
-      <title>My Current Research Direction</title>
-      <link>https://apaz-cli.github.io/blog/Research_Roadmap.html</link>
-      <guid>https://apaz-cli.github.io/blog/Research_Roadmap.html</guid>
-      <description>Here's an attempt to explain my current research direction. A
-manifesto, some thoughts and experiment ideas, and a roadmap of
-sorts.</description>
-    </item>
-    <item>
-      <title>How to Write a Compiler Without Going Insane</title>
-      <link>https://apaz-cli.github.io/blog/How_to_Write_a_Compiler_Without_Going_Insane.html</link>
-      <guid>https://apaz-cli.github.io/blog/How_to_Write_a_Compiler_Without_Going_Insane.html</guid>
-    </item>
-    <item>
-      <title>Thoughts About LLMs, Data, and Optimization</title>
-      <link>https://apaz-cli.github.io/blog/Thoughts_About_LLMs_Data_and_Optimization.html</link>
-      <guid>https://apaz-cli.github.io/blog/Thoughts_About_LLMs_Data_and_Optimization.html</guid>
-      <description>First you select a metric. You acquire suitable data. Then you apply
-optimization pressure. Easy, right?</description>
-    </item>
-    <item>
       <title>The Competition For Contributors</title>
       <link>https://apaz-cli.github.io/blog/The_Contributor_Competition.html</link>
       <guid>https://apaz-cli.github.io/blog/The_Contributor_Competition.html</guid>
-    </item>
-    <item>
-      <title>The Craziest Bug I Have Ever Witnessed</title>
-      <link>https://apaz-cli.github.io/blog/The_Craziest_Bug_I_Have_Ever_Witnessed.html</link>
-      <guid>https://apaz-cli.github.io/blog/The_Craziest_Bug_I_Have_Ever_Witnessed.html</guid>
-      <description>I thought I had seen it all. Nah. Not even close. Julia has a feature where you can report bugs and crashes from
-the command line. You just run your program with
-julia --bug-report=rr, and it sends a crash report plus an
-rr trace of the process to our servers for us to take a
-look at. Sometimes we get some crazy stuff. This is in fact not the first
-time that someone from the Julia team has found something crazy in a
-crash dump. Keno Fischer wrote a similar (and substantially more
-detailed) ar...</description>
-    </item>
-    <item>
-      <title>Scaling Agents to Unfathomable Depth and Context With Zeroth-Order Optimization</title>
-      <link>https://apaz-cli.github.io/blog/Scaling_To_Unfathomable_Depth.html</link>
-      <guid>https://apaz-cli.github.io/blog/Scaling_To_Unfathomable_Depth.html</guid>
-      <description>An interesting research direction I'm thinking about. Posts like this
-are often ignored because they are not directly applicable to anyone's
-work. But this might be a new scaling paradigm. So I've sort of dropped
-everything to work on it, study it, understand it. This is a writeup of
-some things I've learned.</description>
-    </item>
-    <item>
-      <title>Hyperparameter Heuristics</title>
-      <link>https://apaz-cli.github.io/blog/Hyperparameter_Heuristics.html</link>
-      <guid>https://apaz-cli.github.io/blog/Hyperparameter_Heuristics.html</guid>
-      <description>Suppose you've invented a new neural architecture, or optimizer,
-or whatever, and you want to scale it up. You have 100 million dollars
-to do this with, and you want to train the best model you possibly can
-with that budget. But how should you choose your hyperparameters?
-There's no existing literature on your methods! Who knows what settings
-are optimal, and if you guess wrong, you're out a cool 100m.</description>
-    </item>
-    <item>
-      <title>LLM Code Optimization</title>
-      <link>https://apaz-cli.github.io/blog/LLM_Code_Optimization.html</link>
-      <guid>https://apaz-cli.github.io/blog/LLM_Code_Optimization.html</guid>
-      <description>It's long been assumed that for most programmers writing
-hardware-optimized code is too hard. Few know, or want to know, how to
-exploit memory hierarchies, NUMA nodes, vector instructions, stop
-registers from spilling, or exploit the full memory bandwidth of the
-CPU. This is tragic. In the age of LLMs and tooling, we should expect
-more from our software and our hardware.</description>
-    </item>
-    <item>
-      <title>Descending Into the Stack and Madness</title>
-      <link>https://apaz-cli.github.io/blog/Descending_Into_The_Stack_And_Madness.html</link>
-      <guid>https://apaz-cli.github.io/blog/Descending_Into_The_Stack_And_Madness.html</guid>
-      <description>AS-Safe glibc stack traces. A descent into madness. A death by a
-thousand cuts. Call me melodramatic, but all I want is a nice, pretty, formatted
-backtrace from a signal handler. What am I to do?</description>
-    </item>
-    <item>
-      <title>Cursed Code Collection</title>
-      <link>https://apaz-cli.github.io/blog/Cursed_Code_Collection.html</link>
-      <guid>https://apaz-cli.github.io/blog/Cursed_Code_Collection.html</guid>
-      <description>I have a pile of interesting programs, and nowhere to put them. So
-I'm putting them here. The shebang for C is just a little bit longer than one line.</description>
-    </item>
-    <item>
-      <title>Thoughts About Entropy and Objectives</title>
-      <link>https://apaz-cli.github.io/blog/Thoughts_About_Entropy_and_Objectives.html</link>
-      <guid>https://apaz-cli.github.io/blog/Thoughts_About_Entropy_and_Objectives.html</guid>
-      <description>A bunch of Reinforcement Learning Pre-Training (RLPT) papers have
-come out recently. They're cool. They even work kinda mostly. They can
-improve benchmark scores. So, like, probably there's gotta be something
-there. It's doing something. Unfortunately, nobody seems to be in agreement on what they are doing
-or why. Here's my understanding of the problem, and a take on a path
-forward.</description>
     </item>
     <item>
       <title>Prompting LLMs and Humans</title>
@@ -114,6 +23,13 @@ word matters. The context you provide, the tone you use, the assumptions
 you embed, etc. It all influences the response you get.</description>
     </item>
     <item>
+      <title>Thoughts About LLMs, Data, and Optimization</title>
+      <link>https://apaz-cli.github.io/blog/Thoughts_About_LLMs_Data_and_Optimization.html</link>
+      <guid>https://apaz-cli.github.io/blog/Thoughts_About_LLMs_Data_and_Optimization.html</guid>
+      <description>First you select a metric. You acquire suitable data. Then you apply
+optimization pressure. Easy, right?</description>
+    </item>
+    <item>
       <title>Grifters</title>
       <link>https://apaz-cli.github.io/blog/Grifters.html</link>
       <guid>https://apaz-cli.github.io/blog/Grifters.html</guid>
@@ -122,6 +38,21 @@ be speaking in hyperbole. Note that for every broad generalization that
 I make there is bound to be a counterexample, and for every
 simplification an elaboration. But this is, for the most part, what I
 believe. I am open to argument in good faith.</description>
+    </item>
+    <item>
+      <title>My Current Research Direction</title>
+      <link>https://apaz-cli.github.io/blog/Research_Roadmap.html</link>
+      <guid>https://apaz-cli.github.io/blog/Research_Roadmap.html</guid>
+      <description>Here's an attempt to explain my current research direction. A
+manifesto, some thoughts and experiment ideas, and a roadmap of
+sorts.</description>
+    </item>
+    <item>
+      <title>Cursed Code Collection</title>
+      <link>https://apaz-cli.github.io/blog/Cursed_Code_Collection.html</link>
+      <guid>https://apaz-cli.github.io/blog/Cursed_Code_Collection.html</guid>
+      <description>I have a pile of interesting programs, and nowhere to put them. So
+I'm putting them here. The shebang for C is just a little bit longer than one line.</description>
     </item>
     <item>
       <title>A Treatise On ML Data Infrastructure</title>
@@ -138,6 +69,75 @@ infrastructure. Here is a way to build that infrastructure.</description>
       <description>Software safety is a lofty, but poorly defined goal. Everybody has
 their own opinion about how to achieve "safety" in software. However,
 nobody really seems to be able to define what that means.</description>
+    </item>
+    <item>
+      <title>Descending Into the Stack and Madness</title>
+      <link>https://apaz-cli.github.io/blog/Descending_Into_The_Stack_And_Madness.html</link>
+      <guid>https://apaz-cli.github.io/blog/Descending_Into_The_Stack_And_Madness.html</guid>
+      <description>AS-Safe glibc stack traces. A descent into madness. A death by a
+thousand cuts. Call me melodramatic, but all I want is a nice, pretty, formatted
+backtrace from a signal handler. What am I to do?</description>
+    </item>
+    <item>
+      <title>Hyperparameter Heuristics</title>
+      <link>https://apaz-cli.github.io/blog/Hyperparameter_Heuristics.html</link>
+      <guid>https://apaz-cli.github.io/blog/Hyperparameter_Heuristics.html</guid>
+      <description>Suppose you've invented a new neural architecture, or optimizer,
+or whatever, and you want to scale it up. You have 100 million dollars
+to do this with, and you want to train the best model you possibly can
+with that budget. But how should you choose your hyperparameters?
+There's no existing literature on your methods! Who knows what settings
+are optimal, and if you guess wrong, you're out a cool 100m.</description>
+    </item>
+    <item>
+      <title>Scaling Agents to Unfathomable Depth and Context With Zeroth-Order Optimization</title>
+      <link>https://apaz-cli.github.io/blog/Scaling_To_Unfathomable_Depth.html</link>
+      <guid>https://apaz-cli.github.io/blog/Scaling_To_Unfathomable_Depth.html</guid>
+      <description>An interesting research direction I'm thinking about. Posts like this
+are often ignored because they are not directly applicable to anyone's
+work. But this might be a new scaling paradigm. So I've sort of dropped
+everything to work on it, study it, understand it. This is a writeup of
+some things I've learned.</description>
+    </item>
+    <item>
+      <title>How to Write a Compiler Without Going Insane</title>
+      <link>https://apaz-cli.github.io/blog/How_to_Write_a_Compiler_Without_Going_Insane.html</link>
+      <guid>https://apaz-cli.github.io/blog/How_to_Write_a_Compiler_Without_Going_Insane.html</guid>
+    </item>
+    <item>
+      <title>LLM Code Optimization</title>
+      <link>https://apaz-cli.github.io/blog/LLM_Code_Optimization.html</link>
+      <guid>https://apaz-cli.github.io/blog/LLM_Code_Optimization.html</guid>
+      <description>It's long been assumed that for most programmers writing
+hardware-optimized code is too hard. Few know, or want to know, how to
+exploit memory hierarchies, NUMA nodes, vector instructions, stop
+registers from spilling, or exploit the full memory bandwidth of the
+CPU. This is tragic. In the age of LLMs and tooling, we should expect
+more from our software and our hardware.</description>
+    </item>
+    <item>
+      <title>Thoughts About Entropy and Objectives</title>
+      <link>https://apaz-cli.github.io/blog/Thoughts_About_Entropy_and_Objectives.html</link>
+      <guid>https://apaz-cli.github.io/blog/Thoughts_About_Entropy_and_Objectives.html</guid>
+      <description>A bunch of Reinforcement Learning Pre-Training (RLPT) papers have
+come out recently. They're cool. They even work kinda mostly. They can
+improve benchmark scores. So, like, probably there's gotta be something
+there. It's doing something. Unfortunately, nobody seems to be in agreement on what they are doing
+or why. Here's my understanding of the problem, and a take on a path
+forward.</description>
+    </item>
+    <item>
+      <title>The Craziest Bug I Have Ever Witnessed</title>
+      <link>https://apaz-cli.github.io/blog/The_Craziest_Bug_I_Have_Ever_Witnessed.html</link>
+      <guid>https://apaz-cli.github.io/blog/The_Craziest_Bug_I_Have_Ever_Witnessed.html</guid>
+      <description>I thought I had seen it all. Nah. Not even close. Julia has a feature where you can report bugs and crashes from
+the command line. You just run your program with
+julia --bug-report=rr, and it sends a crash report plus an
+rr trace of the process to our servers for us to take a
+look at. Sometimes we get some crazy stuff. This is in fact not the first
+time that someone from the Julia team has found something crazy in a
+crash dump. Keno Fischer wrote a similar (and substantially more
+detailed) ar...</description>
     </item>
   </channel>
 </rss>
