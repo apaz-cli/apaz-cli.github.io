@@ -109,6 +109,7 @@ categories = [
     "bml",
     "khome",
     "shirt",
+    "ero",
   ]),
 ]
 
