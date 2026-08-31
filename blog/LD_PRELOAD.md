@@ -23,15 +23,20 @@ it to pass `CUDA_VISIBLE_DEVICES` or similar to the queue command. Then the queu
 command does the bookkeeping necessary to keep the GPU busy while preventing overlap.
 This is a step in the right direction, but again there are problems.
 
+
 Who is to say the agent will actually use your queue command? Simply not using it
 allows the agent to skip the queue. And if you instead run every command through this
 queue command via the harness, what about long running commands that don't use the GPU?
 Are you going to let the GPU sit idle all that time? I don't think either is a good idea.
 A GPU queue should only queue GPU code. And it should not require your agents to cooperate.
 
+![A screenshot pre-gpumutex. Every once in a while an agent would decide to run GPU code outside the queue command, messing up the benchmarks. Adding more agents to improve utilization makes it worse.](images/pre-libgpumutex.png)
+
+![A screenshot post-gpumutex. Utilization is better, and agents never mess up each other's benchmarks.](images/post-libgpumutex.png)
+
 This is what I have accomplished in [libgpumutex](https://github.com/apaz-cli/libgpumutex).
 You can `pip install gpumutex` and use it right now. The single C file is also available
-on Github.
+on [Github](https://github.com/apaz-cli/libgpumutex).
 
 
 ## Okay but how?
@@ -114,6 +119,8 @@ There are some things I didn't mention, like how I implemented a fair process qu
 with `flock()`, but in case you're wondering about that you can read the code.
 
 You can find the code at [https://github.com/apaz-cli/libgpumutex](https://github.com/apaz-cli/libgpumutex).
+
+The package is on [PyPI](https://pypi.org/project/gpumutex/). Install with `pip install gpumutex`.
 
 
 ```bibtex

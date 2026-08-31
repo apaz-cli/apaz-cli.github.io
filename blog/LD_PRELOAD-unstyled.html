@@ -34,10 +34,26 @@ long running commands that don't use the GPU? Are you going to let the
 GPU sit idle all that time? I don't think either is a good idea. A GPU
 queue should only queue GPU code. And it should not require your agents
 to cooperate.</p>
+<figure>
+<img src="images/pre-libgpumutex.png"
+alt="A screenshot pre-gpumutex. Every once in a while an agent would decide to run GPU code outside the queue command, messing up the benchmarks. Adding more agents to improve utilization makes it worse." />
+<figcaption aria-hidden="true">A screenshot pre-gpumutex. Every once in
+a while an agent would decide to run GPU code outside the queue command,
+messing up the benchmarks. Adding more agents to improve utilization
+makes it worse.</figcaption>
+</figure>
+<figure>
+<img src="images/post-libgpumutex.png"
+alt="A screenshot post-gpumutex. Utilization is better, and agents never mess up each other&#39;s benchmarks." />
+<figcaption aria-hidden="true">A screenshot post-gpumutex. Utilization
+is better, and agents never mess up each other's
+benchmarks.</figcaption>
+</figure>
 <p>This is what I have accomplished in <a
 href="https://github.com/apaz-cli/libgpumutex">libgpumutex</a>. You can
 <code>pip install gpumutex</code> and use it right now. The single C
-file is also available on Github.</p>
+file is also available on <a
+href="https://github.com/apaz-cli/libgpumutex">Github</a>.</p>
 <h2 id="okay-but-how">Okay but how?</h2>
 <p>Before any code runs on an Nvidia GPU, the calling process must first
 initialize the driver API with <code>cuInit()</code>. This is where we
@@ -123,6 +139,9 @@ didn't mention, like how I implemented a fair process queue system with
 read the code.</p>
 <p>You can find the code at <a
 href="https://github.com/apaz-cli/libgpumutex">https://github.com/apaz-cli/libgpumutex</a>.</p>
+<p>The package is on <a
+href="https://pypi.org/project/gpumutex/">PyPI</a>. Install with
+<code>pip install gpumutex</code>.</p>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="va">@misc</span>{<span class="ot">pazdera2026ldpreload</span>,</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">author</span> = {Pazdera, Aaron/Ana},</span>
