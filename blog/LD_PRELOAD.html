@@ -5,7 +5,7 @@
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="og:title" content="Safe Speedy Kernel Autoresearch with LD_PRELOAD">
-  <meta name="og:description" content="How to keep autoresearch agents from stepping on each others'
+  <meta name="og:description" content="How to keep autoresearch agents from stepping on each other's
 toes.">
   <meta name="og:image" content="images/2forest.jpg">
   <link rel="icon" type="image/png" href="../resources/images/favicon.png">
@@ -394,67 +394,69 @@ toes.">
 <input type="checkbox" id="font-toggle">
 <h1 id="safe-speedy-kernel-autoresearch-with-ld_preload">Safe Speedy
 Kernel Autoresearch with LD_PRELOAD</h1>
-<p>How to keep autoresearch agents from stepping on each others'
+<p>How to keep autoresearch agents from stepping on each other's
 toes.</p>
 <p><br></p>
 <p><img src="images/2forest.jpg" /></p>
 <p><br></p>
 <h2 id="the-problem">The Problem</h2>
-<p>Autoresearch loops are great. But naive loops, one agent per GPU,
-face hardware utilization issues because the agent is not always running
-a program on it. Thus, it is optimal to run multiple autoresearch agents
-per GPU. This achieves better hardware utilization, but creates some
-problems.</p>
+<p>Autoresearch loops are great. But naive loops with one agent per GPU
+face hardware utilization issues. The agent spends time thinking and
+doing other things, so cannot keep the GPU busy 100% of the time.
+Ideally you want to be running multiple agents per GPU. This achieves
+better hardware utilization, but creates some very obvious problems.</p>
 <p>The naive solution is to give the agent a tool or command to run,
-which implements scoring. Tell the agent which GPU it is on, and tell it
-to pass <code>CUDA_VISIBLE_DEVICES</code> or similar to the scoring
-function. Then the scoring function implements a queue which keeps the
-GPU fed. This is a step in the right direction, but again there are
-problems.</p>
-<p>Traditionally you let agents run and execute arbitary code also,
-including GPU code independent of your benchmarking. Those calls will
-interfere with your benchmarking, and there's no telling how the agent
-will invoke this code. I think it is not a good idea to prompt it
-either. It's probably off-policy and may degrade performance. Also,
-prompts are routinely ignored and <code>CUDA_VISIBLE_DEVICES</code>
-forgotten anyway.</p>
-<p>You need a way to keep processes from interfering with each other.
-Ideally one which does not require the cooperation of an agent that may
-even potentially want to reward hack. So, rather than trusting agents to
-cooperate, the solution is to modify the harness to enforce a queue with
-mutual exclusion, without the agent having to take any action to make it
-happen, or even having to be aware.</p>
-<p>This is what I have done in kernelthing.</p>
+which gives them exclusive access to a GPU. Tell the agent which GPU it
+should queue on, and tell it to pass <code>CUDA_VISIBLE_DEVICES</code>
+or similar to the queue command. Then the queue command does the
+bookkeeping necessary to keep the GPU busy while preventing overlap.
+This is a step in the right direction, but again there are problems.</p>
+<p>Who is to say the agent will actually use your queue command? Simply
+not using it allows the agent to skip the queue. And if you instead run
+every command through this queue command via the harness, what about
+long running commands that don't use the GPU? Are you going to let the
+GPU sit idle all that time? I don't think either is a good idea. A GPU
+queue should only queue GPU code. And it should not require your agents
+to cooperate.</p>
+<p>This is what I have accomplished in <a
+href="https://github.com/apaz-cli/libgpumutex">libgpumutex</a>. You can
+<code>pip install gpumutex</code> and use it right now. The single C
+file is also available on Github.</p>
 <h2 id="okay-but-how">Okay but how?</h2>
-<p>Before any code runs on an nvidia GPU, the calling process must first
-create a cuda context with <code>cuInit()</code>. This is where we step
-in. If we can intercept <code>cuInit()</code>, we can make it reserve a
-GPU, and set <code>CUDA_VISIBLE_DEVICES</code> right before CUDA
-actually uses it.</p>
+<p>Before any code runs on an Nvidia GPU, the calling process must first
+initialize the driver API with <code>cuInit()</code>. This is where we
+step in. If we can intercept <code>cuInit()</code>, we can make it
+reserve a GPU, and set <code>CUDA_VISIBLE_DEVICES</code> right before
+CUDA actually starts using it.</p>
 <p>To do this, we must intercept the mechanism that the process uses to
 obtain a function pointer to <code>cuInit()</code>. There are three
 different ways this might happen.</p>
 <h3 id="static-linking">1. Static linking</h3>
-<p>You're fucked. But luckily nobody packages CUDA code this way. The
-resulting executable would be not be portable between CUDA versions, or
-between machines. I'm not sure it's even supported. So although we have
-no answer here, we also do not have to worry about it.</p>
+<p>You're fucked. But luckily nobody packages CUDA code this way. Nvidia
+does ship <code>libcudart_static.a</code> with CUDA, but I don't think
+anybody actually uses it. The resulting executable would not be portable
+between CUDA versions, or between machines. So although we have no
+answer here, we also do not have to worry about it.</p>
 <h3 id="dynamic-linking">2. Dynamic linking</h3>
 <p>The dynamic linker on Linux (<code>ld.so</code>) exposes an
 environment variable, <code>LD_PRELOAD</code>, which you can use to
 inject your own library, the symbols from which get loaded first. So if
 we inject our own library, <code>libgpumutex.so</code>, when the process
-tries to resolve the function pointer to <code>cuInit()</code> it
-instead resolves to our <code>cuInit()</code> from
-<code>libgpumutex.so</code>. Then this fake <code>cuInit()</code> calls
-the real <code>cuInit()</code> after waiting on an available GPU.</p>
+tries to resolve the function pointer to <code>cuInit()</code>, it
+resolves to our <code>cuInit()</code> from <code>libgpumutex.so</code>.
+Then this fake <code>cuInit()</code> calls the real
+<code>cuInit()</code> after waiting on an available GPU.</p>
 <h3 id="lazy-loading">3. Lazy loading</h3>
 <p>Processes can also read and run code off the disk by calling
-<code>dlopen()</code>. When they do this it does not consult the
+<code>dlopen()</code>. When they do this it does not consult
 <code>LD_PRELOAD</code>. <code>dlopen()</code> is a lower level thing,
-it just maps the shared object into executable memory pages so the
-process can obtain the symbols inside with <code>dlsym()</code> and jump
-to them. This is how <code>ld.so</code> does its job.</p>
+it just maps the code from disk into executable memory pages. To obtain
+a function from the loaded library, the process calls
+<code>dlsym()</code>, which looks the symbol up by name in the library's
+dynamic symbol table and returns its address, which the processor can
+then jump to. Unfortunately, this bypasses <code>LD_PRELOAD</code>
+entirely, which works through replacing addresses in the process's
+Global Offset Table (GOT).</p>
 <p>Luckily, <code>dlopen()</code> and <code>dlsym()</code> are
 themselves provided by <code>libc.so.6</code>. For a few reasons, libc
 is almost always dynamically linked. This is very beneficial to us. In
@@ -465,6 +467,14 @@ from <code>libcuda.so.1</code>, and have it return our wrapped
 are before proceeding. This covers the other way a pointer to
 <code>cuInit()</code> could be obtained by processes which the agent
 spawns with tool calls.</p>
+<p>Intriguingly though, Nvidia's runtime API
+(<code>libcudart.so.13</code>, not the driver API
+<code>libcuda.so.1</code>) does not always depend on
+<code>dlsym()</code>. It calls <em>different</em> functions
+(<code>cuGetProcAddress()</code>, <code>cuGetProcAddress_v2()</code>)
+from the driver API which similarly bypass the Global Offset Table to
+resolve symbols, like <code>dlsym()</code> does, but through libcuda's
+own table lookup. We must override those functions too.</p>
 <h2 id="python">Python?</h2>
 <p>To modify the behavior of <code>cuInit()</code>, we need to set
 <code>CUDA_VISIBLE_DEVICES</code>. We can do that from C, simply call
@@ -477,30 +487,25 @@ because although our environment variables did get edited by
 <code>setenv()</code> on the operating system / C side, they did not get
 edited on the python side. Our <code>os.environ</code> did not get
 updated. We're going to have to fix that.</p>
-<p>But, we're not in python. How can we actually update
+<p>But we're not writing a python library. We're writing a C library.
+How can we actually update
 <code>os.environ["CUDA_VISIBLE_DEVICES"]</code>?</p>
-<p>It's simple, we reach once again inside the address space of our own
-running executable. Specifically, we check to see if we've loaded
-libpython. If we haven't, then this is not a python process. If we have,
-then we can resolve symbols from libpython, and use them to edit
-<code>os.environ.</code></p>
-<p>Remember to check if the cpython process is actualy initialized
-(<code>Py_IsInitialized()</code>), to acquire and release the GIL
-(<code>PyGILState_Ensure()</code> / <code>PyGILState_Release()</code>),
-deal with error handling (<code>PyErr_Clear()</code>), and count
-references (<code>Py_IncRef()</code> / <code>Py_DecRef()</code>), all
-the annoying stuff we've got to deal when when we link against
-libpython.</p>
-<p>Notably though, we do not actually link against libpython. If we did
-that, libgpumutex would not be able to work without python. But we can
-program as if we did, if we just write our program against the stable
-ABI and resolve the symbols with <code>dlsym()</code>. Not having
-headers is fine.</p>
+<p>We must reach once again inside the address space of our own running
+executable. Specifically, we check to see if we've loaded libpython. If
+we haven't, then this is not a Python process, and there is no problem
+to solve. If we have loaded libpython though, we can resolve symbols
+from it, and use them to edit <code>os.environ</code>.</p>
+<p>Notably though, we do not actually need to link against libpython. We
+don't need the header files either, because libpython has a stable
+ABI.</p>
 <h2 id="the-code">The Code</h2>
-<p>With that, we finally have the solution we were looking for. There
-are some things I didn't mention, like how I implemented a fair process
-queue system with <code>flock()</code>s, but that's kinda boring.</p>
-<p>You can find the code for this at <a
+<p>With that, we finally have the solution we were looking for. We can
+give arbitrary processes exclusive access to GPUs, without having to
+edit their code, and make them wait in line. There are some things I
+didn't mention, like how I implemented a fair process queue system with
+<code>flock()</code>, but in case you're wondering about that you can
+read the code.</p>
+<p>You can find the code at <a
 href="https://github.com/apaz-cli/libgpumutex">https://github.com/apaz-cli/libgpumutex</a>.</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
 <div class="sourceCode" id="cb1"><pre
