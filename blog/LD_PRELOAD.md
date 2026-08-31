@@ -1,5 +1,5 @@
 
-# Safe Speedy Kernel Autoresearch with LD_PRELOAD
+# Safe Speedy Agent GPUs With LD_PRELOAD
 
 How to keep autoresearch agents from stepping on each other's toes.
 

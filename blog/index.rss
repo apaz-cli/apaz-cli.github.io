@@ -40,6 +40,13 @@ simplification an elaboration. But this is, for the most part, what I
 believe. I am open to argument in good faith.</description>
     </item>
     <item>
+      <title>Safe Speedy Agent GPUs With LD_PRELOAD</title>
+      <link>https://apaz-cli.github.io/blog/LD_PRELOAD.html</link>
+      <guid>https://apaz-cli.github.io/blog/LD_PRELOAD.html</guid>
+      <description>How to keep autoresearch agents from stepping on each other's
+toes.</description>
+    </item>
+    <item>
       <title>My Current Research Direction</title>
       <link>https://apaz-cli.github.io/blog/Research_Roadmap.html</link>
       <guid>https://apaz-cli.github.io/blog/Research_Roadmap.html</guid>

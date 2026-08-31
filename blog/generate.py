@@ -92,6 +92,7 @@ categories = [
     "Thoughts_About_Entropy_and_Objectives",
     "Research_Roadmap",
     "Scaling_To_Unfathomable_Depth",
+    "LD_PRELOAD",
   ]),
   ("SFW", [
     "Grifters",
