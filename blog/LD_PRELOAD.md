@@ -128,6 +128,6 @@ The package is on [PyPI](https://pypi.org/project/gpumutex/). Install with `pip 
   author = {Pazdera, Aaron/Ana},
   title  = {Safe Speedy Kernel Autoresearch with LD_PRELOAD},
   year   = {2026},
-  url    = {https://apaz-cli.github.io/blog/LD_PRELOAD.html}
+  url    = {https://apaz.dev/blog/LD_PRELOAD.html}
 }
 ```
