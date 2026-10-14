@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 520" font-family="Menlo, Monaco, 'Courier New', monospace">
+  <defs>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#70dd00"/></marker>
+    <marker id="o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#e4a51e"/></marker>
+    <marker id="d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#555"/></marker>
+  </defs>
+  <rect width="620" height="520" fill="#222"/>
+
+  <!-- row labels -->
+  <g fill="#bbb" font-size="13">
+    <text x="16" y="64">per-token</text>
+    <text x="16" y="80">losses</text>
+    <text x="16" y="156">later layers</text>
+    <text x="16" y="172">(causal</text>
+    <text x="16" y="188">attention)</text>
+    <text x="16" y="264">output of W,</text>
+    <text x="16" y="280">noised</text>
+  </g>
+
+  <!-- later-layers band -->
+  <rect x="150" y="135" width="450" height="60" rx="6" fill="#2a2a2a" stroke="#444" stroke-dasharray="4 4"/>
+
+  <!-- faint arrows: every other allowed s ≤ t pair -->
+  <g stroke="#555" stroke-width="1.5" marker-end="url(#d)">
+    <line x1="200" y1="245" x2="200" y2="85"/>
+    <line x1="200" y1="245" x2="295" y2="85"/>
+    <line x1="300" y1="245" x2="300" y2="85"/>
+    <line x1="200" y1="245" x2="490" y2="85"/>
+    <line x1="300" y1="245" x2="493" y2="85"/>
+    <line x1="400" y1="245" x2="496" y2="85"/>
+    <line x1="500" y1="245" x2="500" y2="85"/>
+  </g>
+
+  <!-- highlighted: everything reaching L₃ -->
+  <g stroke-width="3">
+    <line x1="200" y1="245" x2="368" y2="85" stroke="#e4a51e" stroke-dasharray="8 5" marker-end="url(#o)"/>
+    <line x1="300" y1="245" x2="384" y2="85" stroke="#e4a51e" stroke-dasharray="8 5" marker-end="url(#o)"/>
+    <line x1="400" y1="245" x2="400" y2="85" stroke="#70dd00" marker-end="url(#g)"/>
+    <line x1="500" y1="245" x2="425" y2="95" stroke="#ff5555" stroke-dasharray="2 5" stroke-linecap="round"/>
+  </g>
+  <g stroke="#ff5555" stroke-width="3" stroke-linecap="round">
+    <line x1="447" y1="153" x2="465" y2="171"/>
+    <line x1="465" y1="153" x2="447" y2="171"/>
+  </g>
+
+  <!-- loss boxes -->
+  <g font-size="16" text-anchor="middle">
+    <rect x="160" y="45" width="80" height="40" rx="5" fill="#333" stroke="#777"/>
+    <rect x="260" y="45" width="80" height="40" rx="5" fill="#333" stroke="#777"/>
+    <rect x="360" y="45" width="80" height="40" rx="5" fill="#333" stroke="#70dd00" stroke-width="2"/>
+    <rect x="460" y="45" width="80" height="40" rx="5" fill="#333" stroke="#777"/>
+    <text x="200" y="71" fill="#fafafa">L₁</text>
+    <text x="300" y="71" fill="#fafafa">L₂</text>
+    <text x="400" y="71" fill="#70dd00">L₃</text>
+    <text x="500" y="71" fill="#fafafa">L₄</text>
+  </g>
+
+  <!-- activation boxes -->
+  <g font-size="14" text-anchor="middle" fill="#fafafa">
+    <rect x="155" y="245" width="90" height="40" rx="5" fill="#333" stroke="#777"/>
+    <rect x="255" y="245" width="90" height="40" rx="5" fill="#333" stroke="#777"/>
+    <rect x="355" y="245" width="90" height="40" rx="5" fill="#333" stroke="#70dd00" stroke-width="2"/>
+    <rect x="455" y="245" width="90" height="40" rx="5" fill="#333" stroke="#777"/>
+    <text x="200" y="270">Y₁+εz₁</text>
+    <text x="300" y="270">Y₂+εz₂</text>
+    <text x="400" y="270">Y₃+εz₃</text>
+    <text x="500" y="270">Y₄+εz₄</text>
+  </g>
+  <!-- earlier layers: clean, unperturbed, also causal -->
+  <g fill="#bbb" font-size="13">
+    <text x="16" y="374">earlier layers</text>
+    <text x="16" y="470">input tokens</text>
+  </g>
+  <rect x="150" y="337" width="450" height="60" rx="6" fill="#2a2a2a" stroke="#444" stroke-dasharray="4 4"/>
+  <g stroke="#444" stroke-width="1" marker-end="url(#d)">
+    <line x1="200" y1="445" x2="292" y2="290"/>
+    <line x1="200" y1="445" x2="388" y2="290"/>
+    <line x1="200" y1="445" x2="486" y2="290"/>
+    <line x1="300" y1="445" x2="392" y2="290"/>
+    <line x1="300" y1="445" x2="490" y2="290"/>
+    <line x1="400" y1="445" x2="494" y2="290"/>
+  </g>
+  <g stroke="#666" stroke-width="1.5" marker-end="url(#d)">
+    <line x1="200" y1="445" x2="200" y2="290"/>
+    <line x1="300" y1="445" x2="300" y2="290"/>
+    <line x1="400" y1="445" x2="400" y2="290"/>
+    <line x1="500" y1="445" x2="500" y2="290"/>
+  </g>
+
+  <!-- input token boxes -->
+  <g font-size="16" text-anchor="middle" fill="#fafafa">
+    <rect x="160" y="445" width="80" height="40" rx="5" fill="#333" stroke="#777"/>
+    <rect x="260" y="445" width="80" height="40" rx="5" fill="#333" stroke="#777"/>
+    <rect x="360" y="445" width="80" height="40" rx="5" fill="#333" stroke="#777"/>
+    <rect x="460" y="445" width="80" height="40" rx="5" fill="#333" stroke="#777"/>
+    <text x="200" y="471">x₁</text>
+    <text x="300" y="471">x₂</text>
+    <text x="400" y="471">x₃</text>
+    <text x="500" y="471">x₄</text>
+  </g>
+  <g font-size="12" text-anchor="middle" fill="#888">
+    <text x="200" y="503">token 1</text>
+    <text x="300" y="503">token 2</text>
+    <text x="400" y="503">token 3</text>
+    <text x="500" y="503">token 4</text>
+  </g>
+
+</svg>

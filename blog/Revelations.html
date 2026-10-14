@@ -266,6 +266,53 @@ enjoyment is increased.">
       font-size: 12;
   }
 
+  /* Pandoc's default table borders are #1a1a1a, invisible on the dark background. */
+  table {
+      border-collapse: collapse;
+      margin: 1.5em 0;
+  }
+  th, td {
+      border: 1px solid #555;
+      padding: 0.35em 0.75em;
+      text-align: left;
+      vertical-align: top;
+  }
+  th {
+      background-color: #333;
+      color: rgb(112, 221, 0);
+  }
+  tbody tr:nth-child(even) {
+      background-color: #2a2a2a;
+  }
+  td code, th code {
+      background-color: transparent;
+  }
+
+  /* ::: {.algo} in markdown: pseudocode and its terms table side by side.
+     Breaks out of the body's max-width; stacks on narrow screens. */
+  .algo {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5em;
+      align-items: flex-start;
+      width: min(96vw, 110rem);
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
+  }
+  .algo > * {
+      flex: 1 1 28rem;
+      min-width: 0;
+      margin: 0;
+  }
+  .algo > div.sourceCode {
+      flex: 1.4 1 40rem;
+  }
+  .algo table {
+      font-size: 85%;
+      line-height: 1.35;
+  }
+
   #font-toggle { display: none; }
   /* The label is anchored to .code-wrap, which does NOT scroll, while the
      scroll container (div.sourceCode/pre) inside it does — so the "font"

@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <meta name="og:title" content="Analysis of Recent ZO Research">
+  <meta name="og:description" content="Since I wrote Scaling
+Agents to Unfathomable Depth and Context With Zeroth-Order
+Optimization, there have been multiple good Zeroth Order
+Optimization papers, particularly for pretraining. People have been
+asking for my take on them. So here I am, writing an article. But I got
+a bit carried away.">
+  <meta name="og:image" content="images/Computer_Room.jpg">
+  <link rel="icon" type="image/png" href="../resources/images/favicon.png">
+  <title>ZO Research Updates</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+      font-size: 20px;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style type="text/css">
+  /* https://github.com/markdowncss/retro/blob/master/css/retro.css */
+
+  @font-face {
+      font-family: "lemon";
+      src: url('lemon.woff');
+  }
+
+  /*
+  @media print {
+      *, *:before, *:after {
+          background: transparent !important;
+          color: #000 !important;
+          box-shadow: none !important;
+          text-shadow: none !important;
+      }
+      a, a:visited { text-decoration: underline; }
+      a[href]:after { content: " (" attr(href) ")"; }
+      abbr[title]:after { content: " (" attr(title) ")"; }
+      a[href^="#"]:after, a[href^="javascript:"]:after { content: ""; }
+      pre, blockquote { border: 1px solid #999; page-break-inside: avoid; }
+      thead { display: table-header-group; }
+      tr, img { page-break-inside: avoid; }
+      img { max-width: 100% !important; }
+      p, h2, h3 { orphans: 3; widows: 3; }
+      h2, h3 { page-break-after: avoid; }
+  }
+  */
+  a, a:visited { color: #01ff70; }
+  a:hover, a:focus, a:active { color: #2ecc40; }
+  .retro-no-decoration { text-decoration: none; }
+  p, .retro-p {
+      font-size: 1rem;
+      margin-bottom: 1.3rem;
+      /*text-indent: 50px*/
+  }
+  h1, .retro-h1, h2, .retro-h2, h3, .retro-h3, h4, .retro-h4 {
+      font-family: "lemon";
+      margin: 1.414rem 0 .5rem;
+      font-weight: inherit;
+      line-height: 1.42;
+  }
+  html h1, html .retro-h1 {
+      color: rgb(112, 221, 0);
+      margin-top: 0;
+      font-size: 400%;
+  }
+  html h2, html .retro-h2 {
+      color: rgb(112, 221, 0);
+      margin-top: 0;
+      font-size: 283%;
+  }
+  html h3, html .retro-h3 {
+      font-size: 200%;
+  }
+  html h4, html .retro-h4 {
+      font-size: 141%;
+  }
+  html h5, html .retro-h5 {
+      font-size: 112%;
+  }
+  html h6, html .retro-h6 {
+      font-size: 88%;
+  }
+  small, .retro-small {
+      font-size: .707em;
+  }
+
+  img, canvas, iframe, video, svg, select, textarea { max-width: 100%; }
+
+  html, body {
+      /* background-image: url(https://raw.githubusercontent.com/apaz-cli/apaz-cli.github.io/master/pattern.png); */
+      background-color: #222;
+      min-height: 100%;
+      font-size: 20px;
+  }
+  body {
+      color: #fafafa;
+      /* font-family:  "lemon", "Courier New"; */
+      line-height: 1.65;
+      max-width: 48rem;
+      /* margin: 6rem auto 1rem; */
+      /* padding: .25rem; */
+  }
+  pre, code {
+      background-color: #333;
+      font-family: "lemon", "Menlo", "Monaco", "Courier New";
+      font-size: 12;
+  }
+
+  /* Pandoc's default table borders are #1a1a1a, invisible on the dark background. */
+  table {
+      border-collapse: collapse;
+      margin: 1.5em 0;
+  }
+  th, td {
+      border: 1px solid #555;
+      padding: 0.35em 0.75em;
+      text-align: left;
+      vertical-align: top;
+  }
+  th {
+      background-color: #333;
+      color: rgb(112, 221, 0);
+  }
+  tbody tr:nth-child(even) {
+      background-color: #2a2a2a;
+  }
+  td code, th code {
+      background-color: transparent;
+  }
+
+  /* ::: {.algo} in markdown: pseudocode and its terms table side by side.
+     Breaks out of the body's max-width; stacks on narrow screens. */
+  .algo {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5em;
+      align-items: flex-start;
+      width: min(96vw, 110rem);
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
+  }
+  .algo > * {
+      flex: 1 1 28rem;
+      min-width: 0;
+      margin: 0;
+  }
+  .algo > div.sourceCode {
+      flex: 1.4 1 40rem;
+  }
+  .algo table {
+      font-size: 85%;
+      line-height: 1.35;
+  }
+
+  #font-toggle { display: none; }
+  /* The label is anchored to .code-wrap, which does NOT scroll, while the
+     scroll container (div.sourceCode/pre) inside it does — so the "font"
+     button stays fixed in the corner as the code scrolls behind it. */
+  .code-wrap { position: relative; }
+  .code-wrap > label {
+      position: absolute;
+      top: 0.3rem;
+      right: 0.3rem;
+      cursor: pointer;
+      color: #666;
+      padding: 0.1em 0.4em;
+      border: 1px solid #555;
+      font-family: "lemon", "Menlo", "Monaco", "Courier New";
+      font-size: 10px;
+      user-select: none;
+      z-index: 1;
+      background: #2a2a2a;
+      line-height: 1.4;
+  }
+  html:has(#font-toggle:checked) .code-wrap > label {
+      font-family: "Menlo", "Monaco", "Courier New", monospace;
+  }
+  html:has(#font-toggle:checked) pre,
+  html:has(#font-toggle:checked) code {
+      font-family: "Menlo", "Monaco", "Courier New", monospace;
+  }
+
+  code span.dt { color: #e4a51e; } /* DataType */
+
+  pre {
+      padding: 0;
+      line-height: 1.25;
+      overflow-x: visible;
+      background-color: transparent;
+  }
+
+  pre code {
+      display: block;
+      min-width: max-content;
+      padding: .5rem;
+      background-color: #333;
+  }
+  blockquote {
+      border-left: 3px solid #01ff70;
+      padding-left: 1rem;
+  }
+
+  /* More dramatic mobile scaling */
+  @media (max-width: 600px) {
+      html h1, html .retro-h1 {
+          font-size: 250%;
+      }
+      html h2, html .retro-h2 {
+          font-size: 180%;
+      }
+      html h3, html .retro-h3 {
+          font-size: 140%;
+      }
+      html h4, html .retro-h4 {
+          font-size: 110%;
+      }
+  }
+  </style>
+</head>
+<body>
+<input type="checkbox" id="font-toggle">
+<h1 id="analysis-of-recent-zo-research">Analysis of Recent ZO
+Research</h1>
+<p><br></p>
+<p><img src="images/Computer_Room.jpg" /></p>
+<p><br></p>
+<p>Since I wrote <a href="Scaling_To_Unfathomable_Depth.html">Scaling
+Agents to Unfathomable Depth and Context With Zeroth-Order
+Optimization</a>, there have been multiple good Zeroth Order
+Optimization papers, particularly for pretraining. People have been
+asking for my take on them. So here I am, writing an article. But I got
+a bit carried away.</p>
+<h3 id="how-to-read-this-article">How to Read This Article</h3>
+<p>This is article going to appear really dense. Some parts are, but
+don't be afraid because the rest of the article is written to be very
+accessible. If you want to understand the algorithms, I have summarized
+them here in pseudocode and a table of terminology. You can skip past.
+There's also going to be a lot of math. In the math section, it's
+written so that you don't have to read the stuff that's outside of code
+blocks. Then if you're curious about where these things are coming from
+you can look more closely, and use AI assistance to answer questions. Or
+just DM me, that works too.</p>
+<h2 id="soma">SOMA</h2>
+<p>The first standout paper is <a
+href="https://arxiv.org/abs/2609.37899">SOMA</a>, by a team out of
+Stanford. Here's the method:</p>
+<div class="algo">
+<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> soma_step(θ_e, b):                       <span class="co"># one update of one expert</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    grad_est <span class="op">=</span> zeros(p <span class="op">//</span> N)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(Z):</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        z <span class="op">=</span> sparse_rademacher(p <span class="op">//</span> N)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>        proj_grad <span class="op">=</span> (L(Φ(θ_e <span class="op">+</span> ε <span class="op">*</span> z, b), E) <span class="op">-</span> L(Φ(θ_e <span class="op">-</span> ε <span class="op">*</span> z, b), E)) <span class="op">/</span> (<span class="dv">2</span> <span class="op">*</span> ε)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        grad_est <span class="op">+=</span> proj_grad <span class="op">*</span> z</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    grad_est <span class="op">/=</span> Z</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> adam_step(θ_e, grad_est, α)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> soma_train(data):</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    θ_seed, E <span class="op">=</span> pretrain_briefly(data)       <span class="co"># one model (N = 1); E is then frozen</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    D, centroids <span class="op">=</span> kmeans(tfidf(data), N)    <span class="co"># split data into N clusters</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    θ <span class="op">=</span> [copy(θ_seed) <span class="cf">for</span> e <span class="kw">in</span> <span class="bu">range</span>(N)]</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> e <span class="kw">in</span> <span class="bu">range</span>(N):                       <span class="co"># In parallel, on different machines</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> b <span class="kw">in</span> batches(D[e], B):</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>            θ[e] <span class="op">=</span> soma_step(θ[e], b)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> θ, E, centroids</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> soma_predict(θ, E, centroids, context):</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    S <span class="op">=</span> nearest(centroids, tfidf(context), k)</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> mean([softmax(Φ(θ[e], context) <span class="op">@</span> E.T) <span class="cf">for</span> e <span class="kw">in</span> S])</span></code></pre></div></div>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Term</th>
+<th>Meaning</th>
+<th>Type / Shape</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>N</code></td>
+<td>number of experts = number of data clusters</td>
+<td>int</td>
+</tr>
+<tr class="even">
+<td><code>p</code></td>
+<td>total parameters across all experts</td>
+<td>int</td>
+</tr>
+<tr class="odd">
+<td><code>θ[e]</code></td>
+<td>weights of expert <code>e</code> (small LSTM), flattened</td>
+<td>float <code>[p/N]</code></td>
+</tr>
+<tr class="even">
+<td><code>θ_seed</code></td>
+<td>weights of a briefly pretrained single model</td>
+<td>float <code>[p/N]</code></td>
+</tr>
+<tr class="odd">
+<td><code>Φ</code></td>
+<td>model architecture; returns hidden states</td>
+<td>function → <code>[B, T, d_E]</code></td>
+</tr>
+<tr class="even">
+<td><code>E</code></td>
+<td>shared token embedding/decoder, frozen</td>
+<td>float <code>[V, d_E]</code></td>
+</tr>
+<tr class="odd">
+<td><code>V</code>, <code>d_E</code></td>
+<td>vocab size, embedding width</td>
+<td>int</td>
+</tr>
+<tr class="even">
+<td><code>L</code></td>
+<td>next-token cross-entropy, decoding through <code>E</code></td>
+<td>function → float scalar</td>
+</tr>
+<tr class="odd">
+<td><code>data</code></td>
+<td>training data</td>
+<td>dataset of token sequences</td>
+</tr>
+<tr class="even">
+<td><code>D[e]</code></td>
+<td>data cluster <code>e</code></td>
+<td>dataset of token sequences</td>
+</tr>
+<tr class="odd">
+<td><code>centroids</code></td>
+<td>k-means centroids of the clusters, in tf-idf feature space</td>
+<td>float <code>[N, d_tfidf]</code></td>
+</tr>
+<tr class="even">
+<td><code>B</code>, <code>T</code></td>
+<td>sequences per batch, tokens per sequence</td>
+<td>int</td>
+</tr>
+<tr class="odd">
+<td><code>b</code></td>
+<td>batch from <code>D[e]</code></td>
+<td>int tensor <code>[B, T]</code></td>
+</tr>
+<tr class="even">
+<td><code>batches(D, B)</code></td>
+<td>iterates over <code>D</code> in batches of <code>B</code>
+sequences</td>
+<td>generator of <code>[B, T]</code></td>
+</tr>
+<tr class="odd">
+<td><code>θ_e</code></td>
+<td>weights of the one expert being updated</td>
+<td>float <code>[p/N]</code></td>
+</tr>
+<tr class="even">
+<td><code>z</code></td>
+<td>random direction; each entry 0 w.p. ½, else ±1</td>
+<td>float <code>[p/N]</code></td>
+</tr>
+<tr class="odd">
+<td><code>ε</code></td>
+<td>perturbation scale</td>
+<td>float</td>
+</tr>
+<tr class="even">
+<td><code>Z</code></td>
+<td>number of directions per step</td>
+<td>int</td>
+</tr>
+<tr class="odd">
+<td><code>proj_grad</code></td>
+<td>central finite difference along <code>z</code></td>
+<td>float scalar</td>
+</tr>
+<tr class="even">
+<td><code>grad_est</code></td>
+<td>estimated gradient for <code>θ[e]</code></td>
+<td>float <code>[p/N]</code></td>
+</tr>
+<tr class="odd">
+<td><code>α</code></td>
+<td>learning rate</td>
+<td>float</td>
+</tr>
+<tr class="even">
+<td><code>context</code></td>
+<td>prompt at inference</td>
+<td>int tensor <code>[T]</code></td>
+</tr>
+<tr class="odd">
+<td><code>k</code></td>
+<td>experts used at inference</td>
+<td>int</td>
+</tr>
+<tr class="even">
+<td><code>S</code></td>
+<td>indices of the <code>k</code> experts whose cluster centroids are
+nearest to <code>context</code></td>
+<td>list of int</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><br></p>
+<p>The name of the paper is "Scaling Zero-Order Pretraining Through
+Model Sharding." That is true, we are doing that. But fundamentally,
+what we're doing is actually ensembling. We are not capable of
+pretraining good models with ZO. What if we pretrain a bunch of bad
+ones, and then ensemble? Then perhaps we can get a lot further.</p>
+<p>I am not sure how to feel about this paper. On one hand, it seems
+obvious. Obviously you can get gains by ensembling. It's not something I
+would even think to publish. But on the other hand, nobody has pointed
+out before that Branch-Train-Merge clearly has applications in ZO. It
+didn't occur to me that this was a reasonable scaling axis. And if the
+noise issue in ZO pretraining truly cannot be beaten, then this is
+clearly the best strategy, and nobody is doing it. It doesn't solve any
+of the fundamental problems in ZO, and obviously it cannot scale past a
+certain size or training budget, but I'm glad we now have a good example
+of people doing this.</p>
+<p>I think there's a good chance this ends up being really useful.</p>
+<h2 id="dust">Dust</h2>
+<p>The next is <a href="https://qlabs.sh/research/dust">Dust</a>, out of
+qlabs. The method:</p>
+<div class="algo">
+<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dust_step(θ, b):</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    ℓ, X <span class="op">=</span> forward(Φ, θ, b)                            <span class="co"># save each layer&#39;s input X[W]</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> W <span class="kw">in</span> linear_layers(θ):</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        grad_Y <span class="op">=</span> zeros(T, d_out)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(Z):</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>            z <span class="op">=</span> randn(T, d_out)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>            ℓ_j <span class="op">=</span> forward(Φ, θ, b, noise<span class="op">=</span>{W: ε <span class="op">*</span> z})   <span class="co"># adds ε*z to Y, W&#39;s output</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>            proj_grad <span class="op">=</span> (ℓ_j <span class="op">-</span> ℓ) <span class="op">/</span> ε</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>            grad_Y <span class="op">+=</span> proj_grad[:, <span class="va">None</span>] <span class="op">*</span> z</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        grad_Y <span class="op">/=</span> Z</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        grad_est <span class="op">=</span> grad_Y.T <span class="op">@</span> X[W]</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        W <span class="op">-=</span> α <span class="op">*</span> grad_est</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> θ</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dust_train(θ, data):</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> b <span class="kw">in</span> batches(data, T):</span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>        θ <span class="op">=</span> dust_step(θ, b)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> θ</span></code></pre></div></div>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Term</th>
+<th>Meaning</th>
+<th>Type / Shape</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>θ</code></td>
+<td>all model weights</td>
+<td>list of tensors</td>
+</tr>
+<tr class="even">
+<td><code>Φ</code></td>
+<td>model architecture</td>
+<td>function</td>
+</tr>
+<tr class="odd">
+<td><code>data</code></td>
+<td>training data</td>
+<td>dataset of token ids</td>
+</tr>
+<tr class="even">
+<td><code>batches(data, T)</code></td>
+<td>iterates over <code>data</code> in batches of <code>T</code>
+tokens</td>
+<td>generator of <code>[T]</code></td>
+</tr>
+<tr class="odd">
+<td><code>b</code></td>
+<td>input batch</td>
+<td>int tensor <code>[T]</code> (token ids)</td>
+</tr>
+<tr class="even">
+<td><code>T</code></td>
+<td>number of tokens in <code>b</code></td>
+<td>int</td>
+</tr>
+<tr class="odd">
+<td><code>L</code></td>
+<td>loss; returns one loss per token</td>
+<td>function → <code>[T]</code></td>
+</tr>
+<tr class="even">
+<td><code>ℓ</code></td>
+<td>clean per-token loss, <code>L(Φ(θ, b))</code></td>
+<td>float <code>[T]</code></td>
+</tr>
+<tr class="odd">
+<td><code>W</code></td>
+<td>weights of one linear layer</td>
+<td>float <code>[d_out, d_in]</code></td>
+</tr>
+<tr class="even">
+<td><code>d_in</code>, <code>d_out</code></td>
+<td>that layer's input / output width</td>
+<td>int</td>
+</tr>
+<tr class="odd">
+<td><code>X[W]</code></td>
+<td>input to layer <code>W</code> in the clean pass</td>
+<td>float <code>[T, d_in]</code></td>
+</tr>
+<tr class="even">
+<td><code>Y</code></td>
+<td>output of layer <code>W</code> in the clean pass,
+<code>X[W] @ W.T</code></td>
+<td>float <code>[T, d_out]</code></td>
+</tr>
+<tr class="odd">
+<td><code>z</code></td>
+<td>gaussian noise added to <code>Y</code>, independent per token</td>
+<td>float <code>[T, d_out]</code></td>
+</tr>
+<tr class="even">
+<td><code>ε</code></td>
+<td>perturbation scale</td>
+<td>float</td>
+</tr>
+<tr class="odd">
+<td><code>Z</code></td>
+<td>number of draws per layer</td>
+<td>int</td>
+</tr>
+<tr class="even">
+<td><code>ℓ_j</code></td>
+<td>per-token loss with noise added</td>
+<td>float <code>[T]</code></td>
+</tr>
+<tr class="odd">
+<td><code>proj_grad</code></td>
+<td>per-token finite difference</td>
+<td>float <code>[T]</code></td>
+</tr>
+<tr class="even">
+<td><code>grad_Y</code></td>
+<td>estimate of ∂L/∂Y</td>
+<td>float <code>[T, d_out]</code></td>
+</tr>
+<tr class="odd">
+<td><code>grad_est</code></td>
+<td>estimated gradient for <code>W</code></td>
+<td>float <code>[d_out, d_in]</code></td>
+</tr>
+<tr class="even">
+<td><code>α</code></td>
+<td>learning rate</td>
+<td>float</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Dust seems like a massive step forward. It shows that many of the
+supposed issues with ZO for pretraining were in fact skill issues. This
+is great.</p>
+<p>It is unfortunate, though, that this research direction kind of flies
+in the face of the reason I was excited about ZO in the first place. To
+train a <a
+href="https://arxiv.org/abs/2510.06828">recurrence-complete</a>
+architecture without backprop through time. This method only works on
+transformers and other architectures with a parallelizable forward pass,
+in settings with loss functions that can be parallelized. You need the
+per-token losses ℓ, which does not exist if you're doing something like
+trying to replace RL. And the per-token losses are not clean if you do
+something like roll out an RNN, because of the state dependence. And
+even if it might work on an RNN, it's expensive.</p>
+<h3 id="virtual-population">Virtual population</h3>
+<p>Still, the observation that each token is a place where you can
+effectively split to sample more perturbations is novel. Or, it makes a
+tremendous amount of sense in hindsight, but nobody thought of it until
+now. Let's make sense of it.</p>
+<p>First, recall that training transformers is parallelizable. There are
+efficiency benefits for running everything at once, but efficiency is
+the only reason we batch. The forward pass for one token does not depend
+on the forward pass of the previous. The standard crossentropy objective
+just averages all those individual token losses. We know how much of the
+loss is that token's fault, and so if we perturb activations we can know
+how much of a change in loss is that token's fault.</p>
+<p>Next, recall from the last article the gradient variance formula for
+SPSA:</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>Var(grad_est) = ∇L(Φ(θ))² / Z
+              + ∇L(Φ(θ,xᵢ))² / ZB</code></pre></div>
+<p>Where the first term is the noise from sampling perturbations, and
+the second is the noise from sampling batches of data. We want to make
+tthe sum of these two numbers go down. That is the most important thing
+for the scalability of ZO pretraining, or training in general.</p>
+<p>Scaling B and Z each reduce the variance. If you have the choice
+between scaling Z (number of perturbations) or B (batch size), which do
+you scale? You scale Z, because it divides both terms, especially the
+first one, which becomes the dominant source of variance as you increase
+the parameter count. This is especially good because we desperately want
+to increase the parameter count.</p>
+<p>The virtual population method effectively takes you from the</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>B = n_seqs * seq_len
+Z = n_pert
+
+of SPSA to
+
+B = n_seqs
+Z = n_pert * seq_len
+
+in Dust, because every token gets its own individual z.</code></pre></div>
+<p>This is good. Big. Huge. It makes the SNR less terrible, and implies
+that ZO may be a great way to train on really really long sequences.</p>
+<p>Of course, the math is not that simple. I said "effectively." Let's
+get into that.</p>
+<h3 id="dust-math">Dust Math</h3>
+<p>Let's redo the MeZO math from the last article, but for Dust. Same
+deal as last time, it should be skimmable if you just read the parts
+that aren't in code blocks.</p>
+<p>Consider a single linear layer <code>W</code>, with input
+<code>X</code> and output <code>Y</code>. Dust adds gaussian noise to
+<code>Y</code>, drawn fresh for every token. For token <code>t</code>,
+the update rule is:</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>proj_gradₜ = (Lₜ(Φ(θ, b; Y + εz)) - Lₜ(Φ(θ, b))) / ε
+
+grad_Yₜ    = proj_gradₜ * zₜ
+
+For some per-token loss function L, where Lₜ is the loss at token t,
+some model architecture Φ,
+the current model weights θ,
+a batch of inputs b, containing T tokens,
+the output Y of layer W, where Yₜ is token t&#39;s row, of width d_out,
+the forward pass Φ(θ, b; Y + εz), which adds εz to Y and runs the rest of the model,
+a gaussian distribution z ~ N(0,I) of the same shape as Y (sampled every draw), where zₜ is token t&#39;s row,
+and a scalar hparam ε.</code></pre></div>
+<p>For readability, let's say <code>∇ₛLₜ</code> is the gradient of token
+<code>t</code>'s loss with respect to <code>Yₛ</code>, token
+<code>s</code>'s row of the layer output. Token <code>t</code>'s loss
+can depend on <code>Yₛ</code> for any <code>s ≤ t</code>, because
+attention in the later layers reads from earlier tokens. It can't depend
+on <code>s &gt; t</code>, because of the causal mask.</p>
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/dust_causal.svg" width=620>
+<figcaption aria-hidden="true">
+Earlier tokens' noise leaks in through attention.
+</figcaption>
+</figure>
+</div>
+<p><br></p>
+<p>Same as MeZO, expand the loss around <code>Y</code>, the activations
+without any noise added (I'll call these "clean"):</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>Lₜ(Φ(θ, b; Y + εz)) ≈ Lₜ(Φ(θ, b)) + Σₛ ∇ₛLₜ · εzₛ        (summing over s ≤ t)</code></pre></div>
+<p>Plugging this into the update rule, the two tokenwise loss terms
+cancel, and we are left with two terms.</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>proj_gradₜ = (Lₜ(Φ(θ, b; Y + εz)) - Lₜ(Φ(θ, b))) / ε
+           ≈ (Lₜ(Φ(θ, b)) + Σₛ ∇ₛLₜ · εzₛ - Lₜ(Φ(θ, b))) / ε
+           = (Σₛ ∇ₛLₜ · εzₛ) / ε
+           = Σₛ ∇ₛLₜ · zₛ
+           = ∇ₜLₜ · zₜ + Σₛ&lt;ₜ ∇ₛLₜ · zₛ                      (split off the s = t term)</code></pre></div>
+<p>The first term the gradient of token <code>t</code>'s loss with
+respect to the the perturbation. That's what we want to see. The second
+term is new. It's the noise we added at earlier tokens, leaking into
+token <code>t</code>'s loss through attention. We'll call it
+"leakage."</p>
+<p>Is this "leakage" unbiased?</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>E[grad_Yₜ] = E[(∇ₜLₜ · zₜ) * zₜ]  + Σₛ&lt;ₜ E[(∇ₛLₜ · zₛ) * zₜ]
+           = E[zₜ zₜᵀ] * ∇ₜLₜ    + 0                          (zₛ and zₜ are independent)
+           = I * ∇ₜLₜ                                         (E[zₜ zₜᵀ] = I for z ~ N(0,I))
+           = ∇ₜLₜ</code></pre></div>
+<p>Thankfully, yes. The leakage averages out. This is not to say that
+what we're doing is unbiased necessarily. It's unbiased for Dust, but
+Dust is a biased estimator. See the caveats below.</p>
+<p>What about variance?</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>Var(proj_gradₜ) = E[(Σₛ ∇ₛLₜ · zₛ)²]
+                = Σₛ ||∇ₛLₜ||²                      (cross terms vanish, zₛ independent)
+                = ||∇ₜLₜ||² + Σₛ&lt;ₜ ||∇ₛLₜ||²</code></pre></div>
+<p>There are two parts. The first is the same variance MeZO has, just
+for one token. The second comes from the leakage. It measures how
+sensitive token <code>t</code>'s loss is to the activations of all the
+earlier tokens.</p>
+<p>To compare the two parts, let's define the leakage ratio
+<code>ρₜ</code> (rho), as the leakage part divided by the signal
+part.</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>ρₜ = Σₛ&lt;ₜ ||∇ₛLₜ||² / ||∇ₜLₜ||²</code></pre></div>
+<p>Pulling <code>||∇ₜLₜ||²</code> out of both parts, the variance
+becomes:</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>Var(proj_gradₜ) = ||∇ₜLₜ||² + Σₛ&lt;ₜ ||∇ₛLₜ||²
+                = ||∇ₜLₜ||² * (1 + ρₜ)</code></pre></div>
+<p>So the variance is the same as MeZO, times a <code>(1 + ρₜ)</code>
+penalty for leakage.</p>
+<p>Now let's calculate the SNR, for a single token and a single
+draw.</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>Recall that:
+grad_Yₜ = proj_gradₜ * zₜ
+so
+||grad_Yₜ||² = proj_gradₜ² * ||zₜ||²
+
+Take expectation over z
+E[||grad_Yₜ||²] ≈ E[proj_gradₜ²] * E[||zₜ||²]
+                = ||∇ₜLₜ||² * (1 + ρₜ) * d_out           (zₜ has d_out unit-variance entries)
+
+Our signal is:
+||E[grad_Yₜ]||² = ||∇ₜLₜ||²
+
+Therefore, our signal-to-noise ratio is:
+
+SNR ≈ ||E[grad_Yₜ]||² / E[||grad_Yₜ||²]
+    = 1 / (d_out * (1 + ρₜ))</code></pre></div>
+<p>Compare this to MeZO's <code>1/p</code>. The <code>p</code> became
+<code>d_out</code>, the output width of one layer. That is a massive
+difference.</p>
+<p>Here <code>d_out</code> is the width of one layer's output, at one
+token. <code>p</code> is every parameter in the whole model. For one
+draw on one token, the gap is <code>p / d_out</code>:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Model</th>
+<th><code>p</code></th>
+<th><code>d_out</code> (hidden size)</th>
+<th><code>p / d_out</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Dust's model (8 layers, width 512)</td>
+<td>~25M (excluding embeddings)</td>
+<td>512</td>
+<td>~49,000×</td>
+</tr>
+<tr class="even">
+<td>Qwen3.5-9B (32 layers)</td>
+<td>9.65B</td>
+<td>4096</td>
+<td>~2.4M×</td>
+</tr>
+<tr class="odd">
+<td>Qwen3.5-27B (64 layers)</td>
+<td>27.8B</td>
+<td>5120</td>
+<td>~5.4M×</td>
+</tr>
+</tbody>
+</table>
+<p>The gap grows with model size, because <code>p</code> grows with
+width² × layers, while <code>d_out</code> only grows with width. The
+Qwen counts are for the full checkpoint, including the embeddings and
+the vision encoder. The MLP's first layer has a wider output (12288 and
+17408 for the two Qwen models), which shrinks the gap to about 790,000×
+and 1.6M×. Either way, it's enormous.</p>
+<p>What about the weight gradient? Recall
+<code>grad_est = grad_Yᵀ X</code>. Token <code>t</code>'s share of it is
+<code>grad_Yₜ Xₜᵀ</code>. The input <code>Xₜ</code> is known exactly
+from the clean forward pass, so it scales the signal and the noise by
+the same amount and the SNR doesn't change. We get a gradient for all
+<code>d_out * d_in</code> weights while only searching over
+<code>d_out</code> directions. The <code>d_in</code> half is free.</p>
+<p>Now average over all <code>T</code> tokens and all <code>Z</code>
+draws. Every token's noise is independent of every other token's, so the
+<code>T</code> estimates are uncorrelated, even with the leakage making
+each one noisier. One forward pass gives you <code>T</code> independent
+estimates instead of one, which is the whole virtual population
+trick.</p>
+<p>So Bienaymé's identity applies over both draws and tokens. Every
+token has its own leakage ratio <code>ρₜ</code>, so from here on I'll
+write <code>ρ</code>, without the subscript, for the average leakage
+ratio over all the tokens in the batch. Same as last time, this is the
+variance per coordinate:</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>Var(grad_est) = (1 + ρ) * E[||∇ₜLₜ||²] / ZT</code></pre></div>
+<p>Then split up the data variance, same as last time:</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>E[||∇ₜLₜ||²] = ∇L(Φ(θ))² + ∇L(Φ(θ,xₜ))²</code></pre></div>
+<p>Where <code>∇L(Φ(θ))²</code> is the true gradient and
+<code>∇L(Φ(θ,xₜ))²</code> is the data variance of a single token, both
+with respect to <code>Y</code> this time instead of <code>θ</code>.
+There's no <code>/B</code> on the data term, because each token's
+estimate only sees that one token's loss. Putting it together:</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>Var(grad_est) = (1 + ρ) * ∇L(Φ(θ))² / ZT
+              + (1 + ρ) * ∇L(Φ(θ,xₜ))² / ZT</code></pre></div>
+<p>Let's compare this to SPSA, with a batch of <code>B = T</code>
+tokens:</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>Var(grad_est) = ∇L(Φ(θ))² / Z
+              + ∇L(Φ(θ,xᵢ))² / ZT</code></pre></div>
+<p>The data noise is the same. The direction sampling noise, the
+irreducible one, the one that scales with the parameter count, gets
+divided by <code>T</code>. Every token in the batch is its own
+population member with a batch size of one. In SPSA terms, Dust takes
+you from</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>B = T
+Z = n_pert
+
+to
+
+B = 1
+Z = n_pert * T</code></pre></div>
+<p>in exchange for the <code>(1 + ρ)</code> leakage penalty. And
+remember that <code>T</code> here is the total number of tokens in the
+batch, across all the sequences.</p>
+<p>Now the dimension. If we ignore the data noise, the SNRs are:</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>SNR(SPSA) ≈ Z / p
+SNR(Dust) ≈ ZT / (d_out * (1 + ρ))</code></pre></div>
+<p>That's not quite a fair fight, because Dust needs its own
+<code>Z</code> draws for each layer, while SPSA perturbs the whole model
+at once. If the model has <code>n_layers</code> linear layers of roughly
+equal size, then <code>p ≈ n_layers * d_out * d_in</code>, and Dust
+spends <code>n_layers</code> times as many forward passes. Per forward
+pass:</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>SNR(Dust) / SNR(SPSA) ≈ T * d_in / (1 + ρ)</code></pre></div>
+<p><code>T</code> from the virtual population, <code>d_in</code> from
+getting the input side of the weight gradient for free. Both are big
+numbers. This is why Dust works.</p>
+<h4 id="caveats">Caveats</h4>
+<h5 id="dust-ignores-future-tokens">Dust ignores future tokens</h5>
+<p><code>∇ₜLₜ</code> is how token <code>t</code>'s activations affect
+token <code>t</code>'s own loss. But they also affect every later
+token's loss, through attention. The true gradient is:</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>∇ₜL = ∇ₜLₜ + Σᵤ&gt;ₜ ∇ₜLᵤ</code></pre></div>
+<p>Dust only gets the first part, so it's biased. The paper knows this.
+For the layers where it matters most (keys, values, gates, and value
+embeddings), they also give token <code>t</code> a discounted share of
+the later tokens' losses, with a decay factor <code>γ</code>. That
+removes the bias, but adds the later tokens' noise. It's a bias-variance
+knob.</p>
+<h5 id="ε-is-not-small"><code>ε</code> is not small</h5>
+<p>The activations come out of an RMSNorm, so each coordinate is around
+unit size, and Dust uses <code>ε = 0.2</code> or <code>0.4</code>.
+That's 20-40% noise. The <code>≈</code> in the expansion above assumed
+small <code>ε</code>, like MeZO. But it turns out the result for the
+mean doesn't need it. By Stein's Lemma, the same one we used for ES last
+time, <code>E[grad_Yₜ]</code> is exactly the gradient of a smoothed
+loss: the loss of a network with noise injected into its activations. A
+bigger <code>ε</code> just means more smoothing, which costs an
+<code>O(ε²)</code> bias, the same as ES. A smaller <code>ε</code> costs
+precision, because the bf16 rounding error in the loss difference gets
+divided by <code>ε</code>. The repo runs into this. Its deeper layers
+use <code>ε = 0.4</code> instead of <code>0.2</code>, because, in its
+own words, the deeper half "moves the loss too little at 0.2 for a
+readable reward." So <code>ε</code> is a hyperparameter like ES's
+<code>σ</code>, and it has to be tuned.</p>
+<h5 id="the-noise-doesnt-have-to-be-gaussian">The noise doesn't have to
+be gaussian</h5>
+<p>Everything above works for any noise with zero mean, unit variance, a
+symmetric distribution, and independent coordinates. Rademacher noise
+(every coordinate is ±1) works too, and is slightly less noisy. Even the
+exact smoothing result carries over, via a <a
+href="https://en.wikipedia.org/wiki/Zero_bias_transform">generalized
+Stein's Lemma</a>. The one rule you can't break is independence across
+tokens. Without it, the <code>T</code> estimates are correlated and the
+virtual population is gone.</p>
+<h3 id="parameters-or-activations">Parameters or Activations?</h3>
+<h2 id="noise">Noise</h2>
+<p>Over at qlabs they also recently launched a speedrun, which they call
+<a href="https://qlabs.sh/noise">noise</a>. Not technically a paper, but
+I have a take on this too.</p>
+<h2 id="common-threads">Common Threads</h2>
+</body>
+</html>
