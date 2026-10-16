@@ -11,7 +11,7 @@ Since I wrote [Scaling Agents to Unfathomable Depth and Context With Zeroth-Orde
 
 ### How to Read This Article
 
-This is article going to appear really dense. Some parts are, but don't be afraid because the rest of the article is written to be very accessible. If you want to understand the algorithms, I have summarized them here in pseudocode and a table of terminology. You can skip past. There's also going to be a lot of math. In the math section, it's written so that you don't have to read the stuff that's outside of code blocks. Then if you're curious about where these things are coming from you can look more closely, and use AI assistance to answer questions. Or just DM me, that works too.
+This is article going to appear really dense. Some parts are, but be not afraid, for the rest of the article is written to be very accessible. If you want to understand the algorithms, I have summarized them here in pseudocode and a table of terminology. You can skip past. In the math section, there is going to be a lot of math. But it's written so you don't have to read the stuff that's outside of code blocks. Then if you're curious about where these things are coming from you can look more closely, and use AI assistance to answer questions. Or just DM me, that works too.
 
 ## SOMA
 
@@ -137,6 +137,8 @@ def dust_train(θ, data):
 
 Dust seems like a massive step forward. It shows that many of the supposed issues with ZO for pretraining were in fact skill issues. This is great.
 
+The upshot of the method is that we need to sample more perturbations, sharded across more axes. Specifically on the token axis each token gets a separate perturbation, and on the and the layer axis each token gets a separate perturbation.
+
 It is unfortunate, though, that this research direction kind of flies in the face of the reason I was excited about ZO in the first place. To train a [recurrence-complete](https://arxiv.org/abs/2510.06828) architecture without backprop through time. This method only works on transformers and other architectures with a parallelizable forward pass, in settings with loss functions that can be parallelized. You need the per-token losses ℓ, which does not exist if you're doing something like trying to replace RL. And the per-token losses are not clean if you do something like roll out an RNN, because of the state dependence. And even if it might work on an RNN, it's expensive.
 
 ### Virtual population
@@ -176,7 +178,7 @@ Of course, the math is not that simple. I said "effectively." Let's get into tha
 
 ### Dust Math
 
-Let's redo the MeZO math from the last article, but for Dust. Same deal as last time, it should be skimmable if you just read the parts that aren't in code blocks.
+Let's redo the MeZO math from the last article, but for Dust. Like last article, you can skim by reading only the parts outside code blocks.
 
 Consider a single linear layer `W`, with input `X` and output `Y`. Dust adds gaussian noise to `Y`, drawn fresh for every token. For token `t`, the update rule is:
 ```
@@ -205,114 +207,77 @@ For readability, let's say `∇ₛLₜ` is the gradient of token `t`'s loss with
 </div>
 <br>
 
-Same as MeZO, expand the loss around `Y`, the activations without any noise added (I'll call these "clean"):
+Now let's expand the loss around `Y`, and plug it into the update rule. The un-noised losses cancel, and we are left with the gradient and noise.
 ```
 Lₜ(Φ(θ, b; Y + εz)) ≈ Lₜ(Φ(θ, b)) + Σₛ ∇ₛLₜ · εzₛ        (summing over s ≤ t)
-```
 
-Plugging this into the update rule, the two tokenwise loss terms cancel, and we are left with two terms.
-```
-proj_gradₜ = (Lₜ(Φ(θ, b; Y + εz)) - Lₜ(Φ(θ, b))) / ε
-           ≈ (Lₜ(Φ(θ, b)) + Σₛ ∇ₛLₜ · εzₛ - Lₜ(Φ(θ, b))) / ε
-           = (Σₛ ∇ₛLₜ · εzₛ) / ε
+proj_gradₜ ≈ (Lₜ(Φ(θ, b)) + Σₛ ∇ₛLₜ · εzₛ - Lₜ(Φ(θ, b))) / ε
            = Σₛ ∇ₛLₜ · zₛ
            = ∇ₜLₜ · zₜ + Σₛ<ₜ ∇ₛLₜ · zₛ                      (split off the s = t term)
 ```
 
-The first term the gradient of token `t`'s loss with respect to the the perturbation. That's what we want to see.
-The second term is new. It's the noise we added at earlier tokens, leaking into token `t`'s loss through attention. We'll call it "leakage."
+The first term is the gradient of token `t`'s loss with respect to its own noise. That's what we want. The second is the noise we added at earlier tokens, leaking into token `t`'s loss through attention. We'll call it "leakage."
 
-Is this "leakage" unbiased?
+Is it unbiased?
 ```
 E[grad_Yₜ] = E[(∇ₜLₜ · zₜ) * zₜ]  + Σₛ<ₜ E[(∇ₛLₜ · zₛ) * zₜ]
            = E[zₜ zₜᵀ] * ∇ₜLₜ    + 0                          (zₛ and zₜ are independent)
-           = I * ∇ₜLₜ                                         (E[zₜ zₜᵀ] = I for z ~ N(0,I))
            = ∇ₜLₜ
 ```
 
-Thankfully, yes. The leakage averages out. This is not to say that what we're doing is unbiased necessarily. It's unbiased for Dust, but Dust is a biased estimator. See the caveats below.
+Yes. The leakage averages out. The expansion assumed `ε` is small, but this part doesn't need it: by Stein's Lemma from last article ([generalized](https://en.wikipedia.org/wiki/Zero_bias_transform) for non-gaussian noise), it holds at any `ε`, for a slightly smoothed loss. Dust as a whole is still biased, though. See the caveats below.
 
 What about variance?
 ```
 Var(proj_gradₜ) = E[(Σₛ ∇ₛLₜ · zₛ)²]
                 = Σₛ ||∇ₛLₜ||²                      (cross terms vanish, zₛ independent)
                 = ||∇ₜLₜ||² + Σₛ<ₜ ||∇ₛLₜ||²
+                = ||∇ₜLₜ||² * (1 + κₜ)
+
+where κₜ = Σₛ<ₜ ||∇ₛLₜ||² / ||∇ₜLₜ||²
 ```
 
-There are two parts. The first is the same variance MeZO has, just for one token. The second comes from the leakage. It measures how sensitive token `t`'s loss is to the activations of all the earlier tokens.
+The first part is the variance MeZO has, for one token. The rest is the leakage. `κₜ` (kappa) is the ratio between them. The paper calls this kind of noise "interference," so I'll call `κₜ` the interference ratio. The variance is MeZO's, times a `(1 + κₜ)` penalty.
 
-To compare the two parts, let's define the leakage ratio `ρₜ` (rho), as the leakage part divided by the signal part.
+Now the SNR, for one token and one draw:
 ```
-ρₜ = Σₛ<ₜ ||∇ₛLₜ||² / ||∇ₜLₜ||²
-```
-
-Pulling `||∇ₜLₜ||²` out of both parts, the variance becomes:
-```
-Var(proj_gradₜ) = ||∇ₜLₜ||² + Σₛ<ₜ ||∇ₛLₜ||²
-                = ||∇ₜLₜ||² * (1 + ρₜ)
-```
-
-So the variance is the same as MeZO, times a `(1 + ρₜ)` penalty for leakage.
-
-Now let's calculate the SNR, for a single token and a single draw.
-```
-Recall that:
 grad_Yₜ = proj_gradₜ * zₜ
 so
-||grad_Yₜ||² = proj_gradₜ² * ||zₜ||²
-
-Take expectation over z
 E[||grad_Yₜ||²] ≈ E[proj_gradₜ²] * E[||zₜ||²]
-                = ||∇ₜLₜ||² * (1 + ρₜ) * d_out           (zₜ has d_out unit-variance entries)
+                = ||∇ₜLₜ||² * (1 + κₜ) * d_out           (zₜ has d_out unit-variance entries)
 
-Our signal is:
-||E[grad_Yₜ]||² = ||∇ₜLₜ||²
-
-Therefore, our signal-to-noise ratio is:
+and the signal is ||E[grad_Yₜ]||² = ||∇ₜLₜ||², so
 
 SNR ≈ ||E[grad_Yₜ]||² / E[||grad_Yₜ||²]
-    = 1 / (d_out * (1 + ρₜ))
+    = 1 / (d_out * (1 + κₜ))
 ```
 
-Compare this to MeZO's `1/p`. The `p` became `d_out`, the output width of one layer. That is a massive difference.
+Compare this to MeZO's `1/p`. The `p`, every parameter in the model, became `d_out`, the width of one layer's output. For one draw on one token, the gap is `p / d_out`:
 
-Here `d_out` is the width of one layer's output, at one token. `p` is every parameter in the whole model. For one draw on one token, the gap is `p / d_out`:
-
-| Model | `p` | `d_out` (hidden size) | `p / d_out` |
+| Model | `p` (parameters) | `d_out` (hidden size) | `p / d_out` |
 |---|---|---|---|
 | Dust's model (8 layers, width 512) | ~25M (excluding embeddings) | 512 | ~49,000× |
 | Qwen3.5-9B (32 layers) | 9.65B | 4096 | ~2.4M× |
 | Qwen3.5-27B (64 layers) | 27.8B | 5120 | ~5.4M× |
 
-The gap grows with model size, because `p` grows with width² × layers, while `d_out` only grows with width. The Qwen counts are for the full checkpoint, including the embeddings and the vision encoder. The MLP's first layer has a wider output (12288 and 17408 for the two Qwen models), which shrinks the gap to about 790,000× and 1.6M×. Either way, it's enormous.
+So, it goes without saying, this is very lucrative. And the gap grows with model size, because `p` grows with width² × layers, while `d_out` only grows with width.
 
-What about the weight gradient? Recall `grad_est = grad_Yᵀ X`. Token `t`'s share of it is `grad_Yₜ Xₜᵀ`. The input `Xₜ` is known exactly from the clean forward pass, so it scales the signal and the noise by the same amount and the SNR doesn't change. We get a gradient for all `d_out * d_in` weights while only searching over `d_out` directions. The `d_in` half is free.
+The weight gradient keeps this SNR. Token `t`'s share of `grad_est = grad_Yᵀ X` is `grad_Yₜ Xₜᵀ`, and `Xₜ` is known exactly from the clean pass, so it scales the signal and the noise equally. We get a gradient for all `d_out * d_in` weights while only searching over `d_out` directions. The `d_in` half is free.
 
-Now average over all `T` tokens and all `Z` draws. Every token's noise is independent of every other token's, so the `T` estimates are uncorrelated, even with the leakage making each one noisier. One forward pass gives you `T` independent estimates instead of one, which is the whole virtual population trick.
-
-So Bienaymé's identity applies over both draws and tokens. Every token has its own leakage ratio `ρₜ`, so from here on I'll write `ρ`, without the subscript, for the average leakage ratio over all the tokens in the batch. Same as last time, this is the variance per coordinate:
+Now average over all `T` tokens and `Z` draws. Every token's noise is independent, so the `T` estimates are uncorrelated, leakage and all. One forward pass gives you `T` independent estimates instead of one, which is the whole virtual population trick. Writing `κ` for the average `κₜ` over the batch, and splitting off the data variance like last time, the variance per coordinate is:
 ```
-Var(grad_est) = (1 + ρ) * E[||∇ₜLₜ||²] / ZT
-```
-
-Then split up the data variance, same as last time:
-```
-E[||∇ₜLₜ||²] = ∇L(Φ(θ))² + ∇L(Φ(θ,xₜ))²
+Var(grad_est) = (1 + κ) * E[||∇ₜLₜ||²] / ZT
+              = (1 + κ) * ∇L(Φ(θ))² / ZT
+              + (1 + κ) * ∇L(Φ(θ,xₜ))² / ZT
 ```
 
-Where `∇L(Φ(θ))²` is the true gradient and `∇L(Φ(θ,xₜ))²` is the data variance of a single token, both with respect to `Y` this time instead of `θ`. There's no `/B` on the data term, because each token's estimate only sees that one token's loss. Putting it together:
-```
-Var(grad_est) = (1 + ρ) * ∇L(Φ(θ))² / ZT
-              + (1 + ρ) * ∇L(Φ(θ,xₜ))² / ZT
-```
-
-Let's compare this to SPSA, with a batch of `B = T` tokens:
+`∇L(Φ(θ))²` is the true gradient and `∇L(Φ(θ,xₜ))²` is the data variance of a single token, both with respect to `Y` this time instead of `θ`. Compare that to SPSA, with a batch of `B = T` tokens:
 ```
 Var(grad_est) = ∇L(Φ(θ))² / Z
               + ∇L(Φ(θ,xᵢ))² / ZT
 ```
 
-The data noise is the same. The direction sampling noise, the irreducible one, the one that scales with the parameter count, gets divided by `T`. Every token in the batch is its own population member with a batch size of one. In SPSA terms, Dust takes you from
+The data noise is the same. The direction sampling noise, the irreducible one that scales with the parameter count, gets divided by `T`. Every token in the batch is its own population member with a batch size of one. In SPSA terms, Dust takes you from
 ```
 B = T
 Z = n_pert
@@ -323,20 +288,40 @@ B = 1
 Z = n_pert * T
 ```
 
-in exchange for the `(1 + ρ)` leakage penalty. And remember that `T` here is the total number of tokens in the batch, across all the sequences.
+in exchange for the `(1 + κ)` penalty, where `T` counts every token in the batch, across all the sequences.
 
-Now the dimension. If we ignore the data noise, the SNRs are:
+Now the dimension. Ignoring the data noise:
 ```
 SNR(SPSA) ≈ Z / p
-SNR(Dust) ≈ ZT / (d_out * (1 + ρ))
+SNR(Dust) ≈ ZT / (d_out * (1 + κ))
 ```
 
-That's not quite a fair fight, because Dust needs its own `Z` draws for each layer, while SPSA perturbs the whole model at once. If the model has `n_layers` linear layers of roughly equal size, then `p ≈ n_layers * d_out * d_in`, and Dust spends `n_layers` times as many forward passes. Per forward pass:
+That's not quite a fair fight, because Dust needs its own `Z` draws for each layer, while SPSA perturbs the whole model at once. With `n_layers` linear layers of about equal size, `p ≈ n_layers * d_out * d_in`, and Dust spends `n_layers` times as many forward passes. Per forward pass:
 ```
-SNR(Dust) / SNR(SPSA) ≈ T * d_in / (1 + ρ)
+SNR(Dust) / SNR(SPSA) ≈ T * d_in / (1 + κ)
 ```
 
 `T` from the virtual population, `d_in` from getting the input side of the weight gradient for free. Both are big numbers. This is why Dust works.
+
+#### How big is `κ` in practice?
+
+As long as `κ` is small, that is. So I measured it. I trained small transformers on [TinyStories](https://huggingface.co/datasets/roneneldan/TinyStories) with the Dust repo's own training step, at three sizes: 2 layers of width 128, 4 of width 256, and 8 of width 512, which is the paper's shape. Every 25 steps, right before the update, I measured `κₜ` exactly, with backprop, on the batch it was about to train on. Backprop is only used for the measurement. The training never sees it. The code is [here](TODO).
+
+<img src="images/dust_loss.svg" width=640>
+
+<img src="images/dust_kappa_L2-D128.svg" width=900>
+
+<img src="images/dust_kappa_L4-D256.svg" width=900>
+
+<img src="images/dust_kappa_L8-D512.svg" width=900>
+
+There's one panel per block, and one line for each kind of layer Dust adds noise to. `κ` is small everywhere. It starts at 0.01 to 0.1, drops to about `10⁻⁴` within a few hundred steps, and climbs back up once the model learns to use context. It's biggest at the embedding and in the first block, which have the most attention after them, and exactly 0 in the last block, which has none. In between, it shrinks with every block. The worst single measurement was 0.35, at the embedding of the 8-layer model, and it's usually under 0.1. So the `(1 + κ)` penalty is under 1.4, and usually about 1.05. That's nothing next to the `T` and `d_in` factors.
+
+These models barely use context, though. Leakage goes up exactly when a model starts leaning on context. The 8-layer model learns slowest, so I ran it for 9000 steps instead of 3000 (that's the figure above). Even then, it only starts leaning on context near the end, and only in the first block. So expect more leakage from models that use context more.
+
+The gray line needs explaining. Dust adds noise to the two layers that write into the residual stream, `attn w_o` and `mlp down_proj`, in the same forward pass. Each gets its own noise, and they share one reward. That's exactly one layer with both outputs side by side, so the gray line treats them as one, with twice the `d_out`. That costs SNR through `d_out`, not `κ`. The paper doesn't say why it pairs them, so I checked: at the same number of forward passes, pairing beats giving each layer its own passes, but only because of bf16. The rounding error in each loss difference is fresh noise in every draw, and pairing averages it over twice as many draws. In fp32, it's a wash.
+
+The same measurements also confirm the variance formula. Dust's actual reward variance matched `||∇ₜLₜ||² * (1 + κₜ)` to within about 5%, even with its large `ε`.
 
 #### Caveats
 
@@ -347,15 +332,15 @@ SNR(Dust) / SNR(SPSA) ≈ T * d_in / (1 + ρ)
 ∇ₜL = ∇ₜLₜ + Σᵤ>ₜ ∇ₜLᵤ
 ```
 
-Dust only gets the first part, so it's biased. The paper knows this. For the layers where it matters most (keys, values, gates, and value embeddings), they also give token `t` a discounted share of the later tokens' losses, with a decay factor `γ`. That removes the bias, but adds the later tokens' noise. It's a bias-variance knob.
+Dust only gets the first part, so it's biased. The paper knows this. For attention keys and values, it also gives token `t` a discounted share of the later tokens' losses, with a decay factor `γ`. That removes the bias, but adds the later tokens' noise, so it's a bias-variance knob. In my runs the bias was small: by the end of training, the weight gradient Dust aims for had a cosine similarity of 0.99 with the true gradient.
 
 ##### `ε` is not small
 
-The activations come out of an RMSNorm, so each coordinate is around unit size, and Dust uses `ε = 0.2` or `0.4`. That's 20-40% noise. The `≈` in the expansion above assumed small `ε`, like MeZO. But it turns out the result for the mean doesn't need it. By Stein's Lemma, the same one we used for ES last time, `E[grad_Yₜ]` is exactly the gradient of a smoothed loss: the loss of a network with noise injected into its activations. A bigger `ε` just means more smoothing, which costs an `O(ε²)` bias, the same as ES. A smaller `ε` costs precision, because the bf16 rounding error in the loss difference gets divided by `ε`. The repo runs into this. Its deeper layers use `ε = 0.4` instead of `0.2`, because, in its own words, the deeper half "moves the loss too little at 0.2 for a readable reward." So `ε` is a hyperparameter like ES's `σ`, and it has to be tuned.
+The activations come out of an RMSNorm, so each coordinate is about unit size, and Dust uses `ε = 0.2` or `0.4`. That's 20-40% noise. The mean is fine at any `ε`, but the variance formula is only first order. It still matched my measurements. A bigger `ε` means more smoothing, which costs an `O(ε²)` bias, the same as ES. A smaller `ε` costs precision, because the bf16 rounding error in the loss difference gets divided by `ε`. The repo's deeper layers use `ε = 0.4`, because 0.2 "moves the loss too little ... for a readable reward." So `ε` has to be tuned, like ES's `σ`.
 
 ##### The noise doesn't have to be gaussian
 
-Everything above works for any noise with zero mean, unit variance, a symmetric distribution, and independent coordinates. Rademacher noise (every coordinate is ±1) works too, and is slightly less noisy. Even the exact smoothing result carries over, via a [generalized Stein's Lemma](https://en.wikipedia.org/wiki/Zero_bias_transform). The one rule you can't break is independence across tokens. Without it, the `T` estimates are correlated and the virtual population is gone.
+All of this works for any noise with zero mean, unit variance, a symmetric distribution, and independent coordinates. Rademacher noise (every coordinate is ±1) works too, and is slightly less noisy. The one rule you can't break is independence across tokens. Without it, the `T` estimates are correlated and the virtual population is gone.
 
 ### Parameters or Activations?
 
