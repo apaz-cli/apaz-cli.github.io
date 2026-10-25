@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="pandoc" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="og:title" content="Analysis of Recent ZO Research">
+  <meta name="og:title" content="Analysis of Dust, SOMA, and State of ZO Research">
   <meta name="og:description" content="Since I wrote Scaling
 Agents to Unfathomable Depth and Context With Zeroth-Order
 Optimization, there have been multiple good Zeroth Order
@@ -443,8 +443,8 @@ a bit carried away.">
 </head>
 <body>
 <input type="checkbox" id="font-toggle">
-<h1 id="analysis-of-recent-zo-research">Analysis of Recent ZO
-Research</h1>
+<h1 id="analysis-of-dust-soma-and-state-of-zo-research">Analysis of
+Dust, SOMA, and State of ZO Research</h1>
 <p><br></p>
 <p><img src="images/Computer_Room.jpg" /></p>
 <p><br></p>
@@ -455,15 +455,18 @@ Optimization papers, particularly for pretraining. People have been
 asking for my take on them. So here I am, writing an article. But I got
 a bit carried away.</p>
 <h3 id="how-to-read-this-article">How to Read This Article</h3>
-<p>This is article going to appear really dense. Some parts are, but be
-not afraid, for the rest of the article is written to be very
-accessible. If you want to understand the algorithms, I have summarized
-them here in pseudocode and a table of terminology. You can skip past.
-In the math section, there is going to be a lot of math. But it's
+<p>This is article going to appear really dense. That's fair, it's kinda
+a massive brain dump. Some parts are dense and complicated, but be not
+afraid, for the rest of the article is written to be very
+accessible.</p>
+<p>If you want to understand the algorithms, I have summarized them here
+in pseudocode and a table of terminology. You can skip past them though
+too. In the math section, there is going to be a lot of math. But it's
 written so you don't have to read the stuff that's outside of code
-blocks. Then if you're curious about where these things are coming from
-you can look more closely, and use AI assistance to answer questions. Or
-just DM me, that works too.</p>
+blocks.</p>
+<p>I sincerely recommend skimming. Then if you're curious you can dig
+deeper, and use AI assistance to answer questions. Or just DM me, that
+works too.</p>
 <h2 id="soma">SOMA</h2>
 <p>The first standout paper is <a
 href="https://arxiv.org/abs/2609.37899">SOMA</a>, by a team out of
@@ -643,13 +646,17 @@ ones, and then ensemble? Then perhaps we can get a lot further.</p>
 obvious. Obviously you can get gains by ensembling. It's not something I
 would even think to publish. But on the other hand, nobody has pointed
 out before that Branch-Train-Merge clearly has applications in ZO. It
-didn't occur to me that this was a reasonable scaling axis. And if the
-noise issue in ZO pretraining truly cannot be beaten, then this is
-clearly the best strategy, and nobody is doing it. It doesn't solve any
-of the fundamental problems in ZO, and obviously it cannot scale past a
-certain size or training budget, but I'm glad we now have a good example
-of people doing this.</p>
-<p>I think there's a good chance this ends up being really useful.</p>
+didn't occur to me that this was a reasonable scaling axis.</p>
+<p>If the noise issue in ZO pretraining truly cannot be beaten, then
+this is clearly the best strategy, and nobody is doing it. It doesn't
+solve any of the fundamental problems in ZO, and obviously it cannot
+scale past a certain size or training budget, but I'm glad we now have a
+good example of people doing this.</p>
+<p>I think there's a good chance this ends up being really useful. With
+that being said, because of the Dust paper I think we actually CAN beat
+the noise issue.</p>
+<p>I don't have a lot more to say about it other than that. Good paper
+on net.</p>
 <h2 id="dust">Dust</h2>
 <p>The next is <a href="https://qlabs.sh/research/dust">Dust</a>, out of
 qlabs. The method:</p>
@@ -797,26 +804,30 @@ tokens</td>
 <p>Dust seems like a massive step forward. It shows that many of the
 supposed issues with ZO for pretraining were in fact skill issues. This
 is great.</p>
-<p>The upshot of the method is that we need to sample more
-perturbations, sharded across more axes. Specifically on the token axis
-each token gets a separate perturbation, and on the and the layer axis
-each token gets a separate perturbation.</p>
+<p>The upshot of the method is that we need to find more efficient ways
+to sample more perturbations, sharded across more axes. The primary
+difference between Dust and previous methods is that each token gets a
+separate perturbation, and each layer gets a separate perturbation. This
+leads to a huge uplift in practical performance, for the same amount of
+data.</p>
 <p>It is unfortunate, though, that this research direction kind of flies
 in the face of the reason I was excited about ZO in the first place. To
 train a <a
 href="https://arxiv.org/abs/2510.06828">recurrence-complete</a>
 architecture without backprop through time. This method only works on
 transformers and other architectures with a parallelizable forward pass,
-in settings with loss functions that can be parallelized. You need the
-per-token losses ℓ, which does not exist if you're doing something like
-trying to replace RL. And the per-token losses are not clean if you do
-something like roll out an RNN, because of the state dependence. And
+in settings with loss functions that can be parallelized.</p>
+<p>Specifically, to perturb by token you need the per-token losses ℓ,
+which does not exist if you're doing something like replacing RL.
+Because "how well was this task completed" not have a loss with
+per-token credit assignment. And per-token losses are not clean if you
+do something like roll out an RNN, because of the state dependence. And
 even if it might work on an RNN, it's expensive.</p>
 <h3 id="virtual-population">Virtual population</h3>
-<p>Still, the observation that each token is a place where you can
-effectively split to sample more perturbations is novel. Or, it makes a
-tremendous amount of sense in hindsight, but nobody thought of it until
-now. Let's make sense of it.</p>
+<p>Still, the observation that each token and each layer is a place
+where you can effectively split to sample more perturbations is novel.
+Or, it makes a tremendous amount of sense in hindsight, but nobody
+thought of it until now. Let's make sense of it.</p>
 <p>First, recall that training transformers is parallelizable. There are
 efficiency benefits for running everything at once, but efficiency is
 the only reason we batch. The forward pass for one token does not depend
@@ -824,47 +835,59 @@ on the forward pass of the previous. The standard crossentropy objective
 just averages all those individual token losses. We know how much of the
 loss is that token's fault, and so if we perturb activations we can know
 how much of a change in loss is that token's fault.</p>
-<p>Next, recall from the last article the gradient variance formula for
-SPSA:</p>
+<p>Side tangent, that is not quite what Dust computes. Cross-entropy
+credits each token for its effect on every later token's loss. Dust only
+credits it for its own, so it never trains activations to be helpful for
+predicting later tokens. Except for the keys, values, gates, and value
+embeddings, which the Dust paper does not approximate for.</p>
+<p>So, Dust doesn't follow the gradient of the loss we're actually
+training on. It's a biased estimator, which is to say an approximation.
+At small scales it appears to be a very good approximation. I measure
+the effect in some experiments later in the article.</p>
+<p>Next, returning to the population size argument, recall from the last
+article the gradient variance formula for SPSA:</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
 <pre><code>Var(grad_est) = ∇L(Φ(θ))² / Z
               + ∇L(Φ(θ,xᵢ))² / ZB</code></pre></div>
 <p>Where the first term is the noise from sampling perturbations, and
 the second is the noise from sampling batches of data. We want to make
-tthe sum of these two numbers go down. That is the most important thing
-for the scalability of ZO pretraining, or training in general.</p>
-<p>Scaling B and Z each reduce the variance. If you have the choice
-between scaling Z (number of perturbations) or B (batch size), which do
-you scale? You scale Z, because it divides both terms, especially the
-first one, which becomes the dominant source of variance as you increase
-the parameter count. This is especially good because we desperately want
-to increase the parameter count.</p>
+the sum of these two numbers go down. That is the most important thing
+for the scalability of ZO pretraining, or ZO training in general.</p>
+<p>Scaling batch size B and perturbation sample count Z each reduce the
+variance. But you have the choice between scaling Z or B. Which do you
+scale? You scale Z, because it divides both terms, especially the first
+one, which becomes the dominant source of variance as you increase the
+parameter count. And we desperately want to increase the parameter
+count.</p>
 <p>The virtual population method effectively takes you from the</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
-<pre><code>B = n_seqs * seq_len
+<pre><code>B = seq_len
 Z = n_pert
 
-of SPSA to
+of SPSA on one sequence to
 
-B = n_seqs
+B = 1
 Z = n_pert * seq_len
 
 in Dust, because every token gets its own individual z.</code></pre></div>
 <p>This is good. Big. Huge. It makes the SNR less terrible, and implies
 that ZO may be a great way to train on really really long sequences.</p>
-<p>Of course, the math is not that simple. I said "effectively." Let's
-get into that.</p>
+<p>Of course, the math is not that simple. I said "effectively." The
+actual SNR also depends on other things. Let's get into that.</p>
 <h3 id="dust-math">Dust Math</h3>
-<p>Let's redo the MeZO math from the last article, but for Dust. Like
-last article, you can skim by reading only the parts outside code
-blocks.</p>
+<p>Let's redo the "MeZO Math" section from the last article, but for
+Dust. Like last article, you can skim by reading only the parts outside
+code blocks.</p>
+<p>Dust's update is a gradient estimate, so we ask the usual questions.
+Is it unbiased? How noisy is it compared to what it's estimating? What
+SNR does that give? Then we'll compare it to MeZO and SPSA.</p>
+<h4 id="bias-and-signal">Bias and Signal</h4>
 <p>Consider a single linear layer <code>W</code>, with input
 <code>X</code> and output <code>Y</code>. Dust adds gaussian noise to
-<code>Y</code>, drawn fresh for every token. For token <code>t</code>,
-the update rule is:</p>
+<code>Y</code>, drawn separately for every token. For each token
+<code>t</code>, the update rule is:</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
 <pre><code>proj_gradₜ = (Lₜ(Φ(θ, b; Y + εz)) - Lₜ(Φ(θ, b))) / ε
-
 grad_Yₜ    = proj_gradₜ * zₜ
 
 For some per-token loss function L, where Lₜ is the loss at token t,
@@ -877,10 +900,11 @@ a gaussian distribution z ~ N(0,I) of the same shape as Y (sampled every draw), 
 and a scalar hparam ε.</code></pre></div>
 <p>For readability, let's say <code>∇ₛLₜ</code> is the gradient of token
 <code>t</code>'s loss with respect to <code>Yₛ</code>, token
-<code>s</code>'s row of the layer output. Token <code>t</code>'s loss
-can depend on <code>Yₛ</code> for any <code>s ≤ t</code>, because
-attention in the later layers reads from earlier tokens. It can't depend
-on <code>s &gt; t</code>, because of the causal mask.</p>
+<code>s</code>'s row of the layer output.</p>
+<p>Recall that token <code>t</code>'s loss can depend on <code>Yₛ</code>
+for any <code>s ≤ t</code>, because attention in the later layers reads
+from earlier tokens. It can't depend on <code>s &gt; t</code>, because
+of the causal mask.</p>
 <br>
 <div style="text-align: center;">
 <figure>
@@ -891,65 +915,105 @@ Earlier tokens' noise leaks in through attention.
 </figure>
 </div>
 <p><br></p>
-<p>Now let's expand the loss around <code>Y</code>, and plug it into the
-update rule. The un-noised losses cancel, and we are left with the
-gradient and noise.</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
-<pre><code>Lₜ(Φ(θ, b; Y + εz)) ≈ Lₜ(Φ(θ, b)) + Σₛ ∇ₛLₜ · εzₛ        (summing over s ≤ t)
-
-proj_gradₜ ≈ (Lₜ(Φ(θ, b)) + Σₛ ∇ₛLₜ · εzₛ - Lₜ(Φ(θ, b))) / ε
-           = Σₛ ∇ₛLₜ · zₛ
-           = ∇ₜLₜ · zₜ + Σₛ&lt;ₜ ∇ₛLₜ · zₛ                      (split off the s = t term)</code></pre></div>
-<p>The first term is the gradient of token <code>t</code>'s loss with
-respect to its own noise. That's what we want. The second is the noise
-we added at earlier tokens, leaking into token <code>t</code>'s loss
-through attention. We'll call it "leakage."</p>
-<p>Is it unbiased?</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
-<pre><code>E[grad_Yₜ] = E[(∇ₜLₜ · zₜ) * zₜ]  + Σₛ&lt;ₜ E[(∇ₛLₜ · zₛ) * zₜ]
-           = E[zₜ zₜᵀ] * ∇ₜLₜ    + 0                          (zₛ and zₜ are independent)
-           = ∇ₜLₜ</code></pre></div>
-<p>Yes. The leakage averages out. The expansion assumed <code>ε</code>
-is small, but this part doesn't need it: by Stein's Lemma from last
-article (<a
+<p>We want to know two things about <code>grad_Yₜ</code>. We want to
+know if it follows the true gradient (the signal, so to speak), and how
+noisy our gradient estimate is. That is to say, what is its variance?
+This allows us to derive the signal to noise ratio, or SNR.</p>
+<p>First, is it unbiased? Let's apply a <a
 href="https://en.wikipedia.org/wiki/Zero_bias_transform">generalized</a>
-for non-gaussian noise), it holds at any <code>ε</code>, for a slightly
-smoothed loss. Dust as a whole is still biased, though. See the caveats
-below.</p>
-<p>What about variance?</p>
+version of <a
+href="https://en.wikipedia.org/wiki/Stein%27s_lemma">Stein's Lemma</a>.
+Apply it with <code>f(z) = Lₜ(Φ(θ, b; Y + εz))</code>:</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
-<pre><code>Var(proj_gradₜ) = E[(Σₛ ∇ₛLₜ · zₛ)²]
-                = Σₛ ||∇ₛLₜ||²                      (cross terms vanish, zₛ independent)
-                = ||∇ₜLₜ||² + Σₛ&lt;ₜ ||∇ₛLₜ||²
-                = ||∇ₜLₜ||² * (1 + κₜ)
+<pre><code>E[grad_Yₜ] = E[proj_gradₜ * zₜ]                                       (definition of grad_Yₜ)
+           = E[(Lₜ(Φ(θ, b; Y + εz)) - Lₜ(Φ(θ, b))) * zₜ] / ε          (definition of proj_gradₜ)
+           = E[Lₜ(Φ(θ, b; Y + εz)) * zₜ] / ε - Lₜ(Φ(θ, b)) * E[zₜ] / ε (distribute)
+           = E[ε * ∇ₜLₜ(Φ(θ, b; Y + εz))] / ε                         (Cancel and apply chain rule, zₜ moves Yₜ by ε)
+           = E[∇ₜLₜ(Φ(θ, b; Y + εz))]                                 (Stein&#39;s Lemma, taking ∇ with respect to zₜ)</code></pre></div>
+<p>So, yes. The math works out. For each next token, the rule obtains
+that token's gradient. You can then average them and take a step.</p>
+<p>But Dust is in fact a biased estimator. It calculates
+<code>∇ₜLₜ</code>, which is how token <code>t</code>'s activations
+affect token <code>t</code>'s loss. But these activations also affect
+every later token's loss, through attention. The true gradient is:</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>∇ₜL = ∇ₜLₜ + Σᵤ&gt;ₜ ∇ₜLᵤ</code></pre></div>
+<p>That is a different thing than a reduction of the individual
+<code>∇ₜLₜ</code> per-token gradients. But how much does this matter?
+It's unclear. It doesn't seem to matter that much when it comes to just
+reducing language modeling loss. But in the limit it might matter, it's
+sort of an open question.</p>
+<h4 id="variance">Variance</h4>
+<p>There is no Stein's Lemma for variance. But there's a trick. Split
+the reward into the best linear function of the noise, plus whatever is
+left over. By Stein's Lemma again (yay!), the best linear fit is
+<code>Σₛ ∇ₛLₜ · zₛ</code>, for every token <code>s ≤ t</code>, plus some
+uncorrelated extra leftover term <code>rₜ</code>.</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>proj_gradₜ = Σₛ&lt;ₜ ∇ₛLₜ · zₛ + rₜ                     (summing over s ≤ t)
 
-where κₜ = Σₛ&lt;ₜ ||∇ₛLₜ||² / ||∇ₜLₜ||²</code></pre></div>
-<p>The first part is the variance MeZO has, for one token. The rest is
-the leakage. <code>κₜ</code> (kappa) is the ratio between them. The
-paper calls this kind of noise "interference," so I'll call
-<code>κₜ</code> the interference ratio. The variance is MeZO's, times a
-<code>(1 + κₜ)</code> penalty.</p>
-<p>Now the SNR, for one token and one draw:</p>
+E[proj_gradₜ²] = E[(Σₛ ∇ₛLₜ · zₛ)²] + E[rₜ²]
+               = Σₛ ||∇ₛLₜ||² + E[rₜ²]
+               = ||∇ₜLₜ||² + Σₛ&lt;ₜ ||∇ₛLₜ||² + E[rₜ²]
+               = ||∇ₜLₜ||² * (1 + Σₛ&lt;ₜ ||∇ₛLₜ||² / ||∇ₜLₜ||² + E[rₜ²] / ||∇ₜLₜ||²)
+               = ||∇ₜLₜ||² * (1 + κₜ + ηₜ)
+
+where κₜ = Σₛ&lt;ₜ ||∇ₛLₜ||² / ||∇ₜLₜ||²
+      ηₜ = E[rₜ²] / ||∇ₜLₜ||²</code></pre></div>
+<p>The first part <code>||∇ₜLₜ||²</code> is the irreducible variance
+which comes from sampling in a direction, for one token.</p>
+<p>The second part <code>κₜ</code> is the noise we added at tokens
+earlier than <code>t</code>, leaking into token <code>t</code>'s loss
+through attention. We'll call it "leakage."</p>
+<p>The third, <code>ηₜ</code>, is everything in the reward that isn't
+linear in the noise. If the loss were a straight line across the noise,
+it would be zero. The bigger <code>ε</code> is, the more the loss curves
+over the step, and the bigger it gets.</p>
+<p>So, the the variance is MeZO's, times a <code>(1 + κₜ + ηₜ)</code>
+penalty. <code>κₜ</code> is up to the model, <code>ηₜ</code> grows with
+<code>ε</code>, which is a hyperparameter we can tune.</p>
+<p><code>κₜ</code> (kappa) and <code>ηₜ</code> (eta) are ratios. The
+paper calls the leakage "interference," so I'll call <code>κₜ</code> the
+interference ratio, and <code>ηₜ</code> the curvature ratio.</p>
+<h4 id="signal-to-noise-ratio">Signal-to-Noise Ratio</h4>
+<p>Now the SNR, for one perturbation of one token. Recall that the
+signal is <code>||E[grad_Yₜ]||² = ||∇ₜLₜ||²</code>. Now for the
+noise.</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
 <pre><code>grad_Yₜ = proj_gradₜ * zₜ
 so
-E[||grad_Yₜ||²] ≈ E[proj_gradₜ²] * E[||zₜ||²]
-                = ||∇ₜLₜ||² * (1 + κₜ) * d_out           (zₜ has d_out unit-variance entries)
-
-and the signal is ||E[grad_Yₜ]||² = ||∇ₜLₜ||², so
-
-SNR ≈ ||E[grad_Yₜ]||² / E[||grad_Yₜ||²]
-    = 1 / (d_out * (1 + κₜ))</code></pre></div>
-<p>Compare this to MeZO's <code>1/p</code>. The <code>p</code>, every
-parameter in the model, became <code>d_out</code>, the width of one
-layer's output. For one draw on one token, the gap is
-<code>p / d_out</code>:</p>
-<table>
+E[||grad_Yₜ||²] = E[proj_gradₜ² * ||zₜ||²]
+                ≈ E[proj_gradₜ²] * d_out                    (||zₜ||² is about d_out, and exactly d_out for Rademacher)
+                = ||∇ₜLₜ||² * (1 + κₜ + ηₜ) * d_out</code></pre></div>
+<p>Therefore, we can define the tokenwise-layerwise SNR as follows.</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>SNR ≈ ||E[grad_Yₜ]||² / E[||grad_Yₜ||²]
+    = 1 / (d_out * (1 + κₜ + ηₜ))</code></pre></div>
+<p>Since each token <code>t</code> of <code>T</code> tokens is
+independent, and each draw of <code>Z</code> total draws of every layer
+is independent, it is easy to derive the SNR of the full Dust
+update.</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>SNR ≈ ZT / (d_out (1 + κ + η))</code></pre></div>
+<p>This is for a cost of <code>Z * n_layers</code> many partial forward
+passes, with a cost on average of half a full forward pass, as some will
+be longer and some shorter. As opposed to the <code>2 * Z</code> full
+forward passes of SPSA.</p>
+<h4 id="comparison-to-mezospsaeseggroll">Comparison to
+MeZO/SPSA/ES/EGGROLL</h4>
+<p>Previous methods have all had a SNR on the order of <code>1/p</code>.
+For each batch, not each token. Where <code>p</code> stands for the
+parameter count.</p>
+<p>But in Dust, the <code>p</code> becomes <code>d_out</code>, the width
+of one layer's output. Which is a lot smaller.</p>
+<table style="width:100%;">
 <colgroup>
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
-<col style="width: 25%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -957,6 +1021,8 @@ layer's output. For one draw on one token, the gap is
 <th><code>p</code> (parameters)</th>
 <th><code>d_out</code> (hidden size)</th>
 <th><code>p / d_out</code></th>
+<th>flops / forward pass (<code>T</code> = 16k)</th>
+<th>SNR per flop (vs SPSA)</th>
 </tr>
 </thead>
 <tbody>
@@ -965,78 +1031,69 @@ layer's output. For one draw on one token, the gap is
 <td>~25M (excluding embeddings)</td>
 <td>512</td>
 <td>~49,000×</td>
+<td>~0.8 TFLOP</td>
+<td>~91M×</td>
 </tr>
 <tr class="even">
 <td>Qwen3.5-9B (32 layers)</td>
 <td>9.65B</td>
 <td>4096</td>
 <td>~2.4M×</td>
+<td>~316 TFLOP</td>
+<td>~1.1B×</td>
 </tr>
 <tr class="odd">
 <td>Qwen3.5-27B (64 layers)</td>
 <td>27.8B</td>
 <td>5120</td>
 <td>~5.4M×</td>
+<td>~910 TFLOP</td>
+<td>~1.3B×</td>
 </tr>
 </tbody>
 </table>
-<p>So, it goes without saying, this is very lucrative. And the gap grows
-with model size, because <code>p</code> grows with width² × layers,
-while <code>d_out</code> only grows with width.</p>
-<p>The weight gradient keeps this SNR. Token <code>t</code>'s share of
-<code>grad_est = grad_Yᵀ X</code> is <code>grad_Yₜ Xₜᵀ</code>, and
-<code>Xₜ</code> is known exactly from the clean pass, so it scales the
-signal and the noise equally. We get a gradient for all
-<code>d_out * d_in</code> weights while only searching over
-<code>d_out</code> directions. The <code>d_in</code> half is free.</p>
-<p>Now average over all <code>T</code> tokens and <code>Z</code> draws.
-Every token's noise is independent, so the <code>T</code> estimates are
-uncorrelated, leakage and all. One forward pass gives you <code>T</code>
-independent estimates instead of one, which is the whole virtual
-population trick. Writing <code>κ</code> for the average <code>κₜ</code>
-over the batch, and splitting off the data variance like last time, the
-variance per coordinate is:</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
-<pre><code>Var(grad_est) = (1 + κ) * E[||∇ₜLₜ||²] / ZT
-              = (1 + κ) * ∇L(Φ(θ))² / ZT
-              + (1 + κ) * ∇L(Φ(θ,xₜ))² / ZT</code></pre></div>
-<p><code>∇L(Φ(θ))²</code> is the true gradient and
-<code>∇L(Φ(θ,xₜ))²</code> is the data variance of a single token, both
-with respect to <code>Y</code> this time instead of <code>θ</code>.
-Compare that to SPSA, with a batch of <code>B = T</code> tokens:</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
-<pre><code>Var(grad_est) = ∇L(Φ(θ))² / Z
-              + ∇L(Φ(θ,xᵢ))² / ZT</code></pre></div>
-<p>The data noise is the same. The direction sampling noise, the
-irreducible one that scales with the parameter count, gets divided by
-<code>T</code>. Every token in the batch is its own population member
-with a batch size of one. In SPSA terms, Dust takes you from</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
-<pre><code>B = T
-Z = n_pert
-
-to
-
-B = 1
-Z = n_pert * T</code></pre></div>
-<p>in exchange for the <code>(1 + κ)</code> penalty, where
-<code>T</code> counts every token in the batch, across all the
-sequences.</p>
-<p>Now the dimension. Ignoring the data noise:</p>
+<p><code>T = 16,384</code> tokens, the Dust paper's batch. A forward
+pass costs about <code>2·p·T</code> flops. The last column is
+<code>SNR(Dust) / SNR(SPSA)</code> per forward pass, which works out to
+<code>T·p / (n_layers · d_out · (1 + κ + η))</code>, with
+<code>(1 + κ + η) ≈ 1.1</code>.</p>
+<p>So, it goes without saying, this is very lucrative. Yes, with Dust
+you have to apply this rule for each independent layer. But even if it
+cost 100x the computation, it would still be worth it. Then as you scale
+the model, it becomes even more worth it. The proof of this is that Dust
+drastically overperforms versus other methods on pretraining tasks where
+gradient alignment is important.</p>
+<p>To be precise, it outperforms by the following:</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
 <pre><code>SNR(SPSA) ≈ Z / p
-SNR(Dust) ≈ ZT / (d_out * (1 + κ))</code></pre></div>
-<p>That's not quite a fair fight, because Dust needs its own
-<code>Z</code> draws for each layer, while SPSA perturbs the whole model
-at once. With <code>n_layers</code> linear layers of about equal size,
-<code>p ≈ n_layers * d_out * d_in</code>, and Dust spends
-<code>n_layers</code> times as many forward passes. Per forward
-pass:</p>
+SNR(Dust) ≈ ZT / (d_out * (1 + κ + η))
+SNR(Dust) / SNR(SPSA) ≈ T * d_in / (1 + κ + η)</code></pre></div>
+<p>This should be divided by the fact that Dust requires
+<code>n_layers</code> forward passes per layer, at a cost</p>
+<p>But that SNR measures Dust against what it aims at,
+<code>∇ₜLₜ</code>, and that isn't the true gradient. Call the true
+gradient <code>g = ∇ₜL</code>, and what Dust aims at
+<code>m = ∇ₜLₜ</code>. Measured against <code>g</code>, the error has
+two parts:</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
-<pre><code>SNR(Dust) / SNR(SPSA) ≈ T * d_in / (1 + κ)</code></pre></div>
-<p><code>T</code> from the virtual population, <code>d_in</code> from
-getting the input side of the weight gradient for free. Both are big
-numbers. This is why Dust works.</p>
+<pre><code>E[||grad_est − g||²] = ||m − g||²  +  E[||grad_est − m||²]          (bias² + variance)
+                     ≈ ||m − g||²  +  d_out * (1 + κ + η) * ||m||² / ZT</code></pre></div>
+<p>The variance shrinks as you add draws and tokens. The bias doesn't.
+Taking <code>||m|| ≈ ||g||</code>, the true SNR is:</p>
+<div class="code-wrap"><label for="font-toggle">font</label>
+<pre><code>SNR_true = ||g||² / E[||grad_est − g||²]
+         ≈ 1 / (β + d_out * (1 + κ + η) / ZT)
+
+where β = ||m − g||² / ||g||²</code></pre></div>
+<p>With a small population, the second term dominates, and nothing
+changes. But as <code>ZT</code> grows, <code>SNR_true</code> stops at
+<code>1/β</code>, and more draws buy nothing. This is what Dust's
+<code>γ</code> is for (see the caveats). Raising it shrinks
+<code>β</code>, which raises the ceiling, but it grows <code>κ</code>,
+so you climb toward it more slowly. That's why the repo raises
+<code>γ</code> from 0.98 to 0.99 at its biggest population. In my runs,
+the 0.99 cosine similarity puts <code>β</code> around 0.02, so the
+ceiling is about 50.</p>
 <h4 id="how-big-is-κ-in-practice">How big is <code>κ</code> in
 practice?</h4>
 <p>As long as <code>κ</code> is small, that is. So I measured it. I
@@ -1082,17 +1139,21 @@ loss difference is fresh noise in every draw, and pairing averages it
 over twice as many draws. In fp32, it's a wash.</p>
 <p>The same measurements also confirm the variance formula. Dust's
 actual reward variance matched <code>||∇ₜLₜ||² * (1 + κₜ)</code> to
-within about 5%, even with its large <code>ε</code>.</p>
+within about 5%, even with its large <code>ε</code>, so <code>η</code>
+was small.</p>
 <h4 id="caveats">Caveats</h4>
 <h5 id="dust-ignores-future-tokens">Dust ignores future tokens</h5>
-<p><code>∇ₜLₜ</code> is how token <code>t</code>'s activations affect
-token <code>t</code>'s own loss. But they also affect every later
-token's loss, through attention. The true gradient is:</p>
+<p>Dust is a biased estimator. It calculates <code>∇ₜLₜ</code>, which is
+how token <code>t</code>'s activations affect token <code>t</code>'s
+loss. But these activations also affect every later token's loss,
+through attention. The true gradient is:</p>
 <div class="code-wrap"><label for="font-toggle">font</label>
 <pre><code>∇ₜL = ∇ₜLₜ + Σᵤ&gt;ₜ ∇ₜLᵤ</code></pre></div>
-<p>Dust only gets the first part, so it's biased. The paper knows this.
-For attention keys and values, it also gives token <code>t</code> a
-discounted share of the later tokens' losses, with a decay factor
+<p>This is the not leakage, which averages out. It's because
+<code>zₜ</code> is only scored against <code>Lₜ</code>, so even with no
+noise anywhere else, the second part never shows up. The paper knows
+this. For attention keys and values, it also gives token <code>t</code>
+a discounted share of the later tokens' losses, with a decay factor
 <code>γ</code>. That removes the bias, but adds the later tokens' noise,
 so it's a bias-variance knob. In my runs the bias was small: by the end
 of training, the weight gradient Dust aims for had a cosine similarity
@@ -1100,28 +1161,264 @@ of 0.99 with the true gradient.</p>
 <h5 id="ε-is-not-small"><code>ε</code> is not small</h5>
 <p>The activations come out of an RMSNorm, so each coordinate is about
 unit size, and Dust uses <code>ε = 0.2</code> or <code>0.4</code>.
-That's 20-40% noise. The mean is fine at any <code>ε</code>, but the
-variance formula is only first order. It still matched my measurements.
-A bigger <code>ε</code> means more smoothing, which costs an
-<code>O(ε²)</code> bias, the same as ES. A smaller <code>ε</code> costs
-precision, because the bf16 rounding error in the loss difference gets
-divided by <code>ε</code>. The repo's deeper layers use
-<code>ε = 0.4</code>, because 0.2 "moves the loss too little ... for a
-readable reward." So <code>ε</code> has to be tuned, like ES's
-<code>σ</code>.</p>
+That's 20-40% noise. A bigger <code>ε</code> costs variance through
+<code>η</code>, and an <code>O(ε²)</code> smoothing bias, the same as
+ES. A smaller <code>ε</code> costs precision, because the bf16 rounding
+error in the loss difference gets divided by <code>ε</code>. The repo's
+deeper layers use <code>ε = 0.4</code>, because 0.2 "moves the loss too
+little ... for a readable reward." So <code>ε</code> has to be tuned,
+like ES's <code>σ</code>.</p>
 <h5 id="the-noise-doesnt-have-to-be-gaussian">The noise doesn't have to
 be gaussian</h5>
 <p>All of this works for any noise with zero mean, unit variance, a
 symmetric distribution, and independent coordinates. Rademacher noise
-(every coordinate is ±1) works too, and is slightly less noisy. The one
-rule you can't break is independence across tokens. Without it, the
-<code>T</code> estimates are correlated and the virtual population is
-gone.</p>
+(every coordinate is ±1) works too, and is slightly less noisy, because
+every <code>zᵢ²</code> is exactly 1. The one rule you can't break is
+independence across tokens. Without it, the <code>T</code> estimates are
+correlated and the virtual population is gone.</p>
 <h3 id="parameters-or-activations">Parameters or Activations?</h3>
 <h2 id="noise">Noise</h2>
 <p>Over at qlabs they also recently launched a speedrun, which they call
 <a href="https://qlabs.sh/noise">noise</a>. Not technically a paper, but
 I have a take on this too.</p>
-<h2 id="common-threads">Common Threads</h2>
+<h3 id="pr-11">PR #11</h3>
+<p>The current record on its first track is <a
+href="https://github.com/qlabs-eng/noise/pull/11">PR 11, "Boost →
+Cut"</a>. It's interesting, so I think it's worth talking about. The
+method:</p>
+<div class="algo">
+<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="sourceCode" id="cb16"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> exact_grad(f, s):                                <span class="co"># forward differences along all d directions</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">sum</span>((f(s <span class="op">+</span> ε <span class="op">*</span> D[j]) <span class="op">-</span> f(s)) <span class="op">/</span> ε <span class="op">*</span> D[j] <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(d)) <span class="op">/</span> d</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> boost_step(θ, b, y):</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    X, Y, S <span class="op">=</span> forward(Φ, θ, b)                       <span class="co"># save each layer&#39;s input, output, and each stream</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> streams(θ):</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(T):</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>            f <span class="op">=</span> <span class="kw">lambda</span> s: L_head(s, y[t])            <span class="co"># forward to the head, right after stream i</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>            grad_S[i][t] <span class="op">=</span> exact_grad(f, S[i][t])</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> update(θ, X, Y, grad_S)</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cut_step(θ, b, y):</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    X, Y, S <span class="op">=</span> forward(Φ, θ, b)</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> streams(θ):</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(T):</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>            f <span class="op">=</span> <span class="kw">lambda</span> s: L(Φ_cut(θ, i, s, t), y[t]) <span class="co"># forward through the rest, attention held clean</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>            grad_S[i][t] <span class="op">=</span> exact_grad(f, S[i][t])</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> update(θ, X, Y, grad_S)</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> update(θ, X, Y, grad_S):</span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> W <span class="kw">in</span> layers(θ):</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> W <span class="kw">in</span> writers(θ):                          <span class="co"># its output is added to the stream</span></span>
+<span id="cb16-26"><a href="#cb16-26" aria-hidden="true" tabindex="-1"></a>            grad_Y <span class="op">=</span> grad_S[W]</span>
+<span id="cb16-27"><a href="#cb16-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:                                        <span class="co"># score its effect on the stream instead</span></span>
+<span id="cb16-28"><a href="#cb16-28" aria-hidden="true" tabindex="-1"></a>            grad_Y <span class="op">=</span> [exact_grad(<span class="kw">lambda</span> o: grad_S[W][t] <span class="op">@</span> effect(W, o, t), Y[W][t])</span>
+<span id="cb16-29"><a href="#cb16-29" aria-hidden="true" tabindex="-1"></a>                      <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(T)]</span>
+<span id="cb16-30"><a href="#cb16-30" aria-hidden="true" tabindex="-1"></a>        W <span class="op">-=</span> α <span class="op">*</span> grad_Y.T <span class="op">@</span> X[W]</span>
+<span id="cb16-31"><a href="#cb16-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> θ</span>
+<span id="cb16-32"><a href="#cb16-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-33"><a href="#cb16-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-34"><a href="#cb16-34" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> boost_cut_train(θ, data):</span>
+<span id="cb16-35"><a href="#cb16-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n, (b, y) <span class="kw">in</span> <span class="bu">enumerate</span>(batches(data, T)):</span>
+<span id="cb16-36"><a href="#cb16-36" aria-hidden="true" tabindex="-1"></a>        θ <span class="op">=</span> boost_step(θ, b, y) <span class="cf">if</span> n <span class="op">&lt;</span> n_boost <span class="cf">else</span> cut_step(θ, b, y)</span>
+<span id="cb16-37"><a href="#cb16-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> θ</span></code></pre></div></div>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Term</th>
+<th>Meaning</th>
+<th>Type / Shape</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>θ</code></td>
+<td>all model weights</td>
+<td>list of tensors</td>
+</tr>
+<tr class="even">
+<td><code>Φ</code></td>
+<td>model architecture</td>
+<td>function</td>
+</tr>
+<tr class="odd">
+<td><code>data</code></td>
+<td>training data</td>
+<td>dataset of token ids</td>
+</tr>
+<tr class="even">
+<td><code>batches(data, T)</code></td>
+<td>iterates over <code>data</code> in batches of <code>T</code>
+tokens</td>
+<td>generator of (<code>[T]</code>, <code>[T]</code>)</td>
+</tr>
+<tr class="odd">
+<td><code>b</code>, <code>y</code></td>
+<td>input tokens, and the next token at each position</td>
+<td>int tensor <code>[T]</code></td>
+</tr>
+<tr class="even">
+<td><code>T</code></td>
+<td>number of tokens in <code>b</code></td>
+<td>int</td>
+</tr>
+<tr class="odd">
+<td><code>X[W]</code>, <code>Y[W]</code></td>
+<td>input and output of layer <code>W</code> in the clean pass</td>
+<td>float <code>[T, d_in]</code>, <code>[T, d_out]</code></td>
+</tr>
+<tr class="even">
+<td><code>streams(θ)</code></td>
+<td>the residual stream after each attention and each MLP, and the
+embedding</td>
+<td>list</td>
+</tr>
+<tr class="odd">
+<td><code>S[i]</code></td>
+<td>stream <code>i</code> in the clean pass</td>
+<td>float <code>[T, d]</code></td>
+</tr>
+<tr class="even">
+<td><code>d</code></td>
+<td>residual stream width</td>
+<td>int</td>
+</tr>
+<tr class="odd">
+<td><code>D</code></td>
+<td>±1 Hadamard matrix; row <code>j</code> is a direction</td>
+<td>float <code>[d, d]</code></td>
+</tr>
+<tr class="even">
+<td><code>ε</code></td>
+<td>step size of each forward difference</td>
+<td>float</td>
+</tr>
+<tr class="odd">
+<td><code>exact_grad(f, s)</code></td>
+<td>gradient of <code>f</code> at <code>s</code>. Exact, not estimated,
+because <code>Dᵀ D = d * I</code></td>
+<td>float <code>[d]</code></td>
+</tr>
+<tr class="even">
+<td><code>L_head(s, y)</code></td>
+<td>loss of the shared head (final norm + LM head) reading stream
+<code>s</code></td>
+<td>function → scalar</td>
+</tr>
+<tr class="odd">
+<td><code>L(s, y)</code></td>
+<td>loss of the model's output stream <code>s</code></td>
+<td>function → scalar</td>
+</tr>
+<tr class="even">
+<td><code>Φ_cut(θ, i, s, t)</code></td>
+<td>runs token <code>t</code>'s stream <code>s</code> from stream
+<code>i</code> to the output, with every attention output held
+clean</td>
+<td>function → float <code>[d]</code></td>
+</tr>
+<tr class="odd">
+<td><code>grad_S[i]</code></td>
+<td>measured gradient at stream <code>i</code>, one row per token</td>
+<td>float <code>[T, d]</code></td>
+</tr>
+<tr class="even">
+<td><code>writers(θ)</code></td>
+<td>the layers whose output is added to a stream: each block's
+<code>attn w_o</code> and <code>mlp down_proj</code></td>
+<td>list of layers</td>
+</tr>
+<tr class="odd">
+<td><code>grad_S[W]</code></td>
+<td><code>grad_S</code> at the stream <code>W</code> writes into, or
+feeds</td>
+<td>float <code>[T, d]</code></td>
+</tr>
+<tr class="even">
+<td><code>effect(W, o, t)</code></td>
+<td>change in token <code>t</code>'s stream when <code>W</code>'s output
+is <code>o</code> instead of clean</td>
+<td>function → float <code>[d]</code></td>
+</tr>
+<tr class="odd">
+<td><code>grad_Y</code></td>
+<td>gradient at <code>W</code>'s output</td>
+<td>float <code>[T, d_out]</code></td>
+</tr>
+<tr class="even">
+<td><code>n_boost</code></td>
+<td>number of Boost steps before switching to Cut</td>
+<td>int</td>
+</tr>
+<tr class="odd">
+<td><code>α</code></td>
+<td>learning rate</td>
+<td>float</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The author on twitter cites <a
+href="https://already-clean.goodfire.com/">Neural Networks Are Already
+Clean</a> as the source of inspiration. This confuses me greatly,
+because I feel like it has nothing or close to nothing do with the
+math.</p>
+<p>To me, this is clearly <a
+href="https://arxiv.org/abs/2210.03310">Forward Gradients With Local
+Losses</a>, but with a full Hadamard basis instead of random directions,
+and using a shared logit lens head as the local loss.</p>
+<p>I feel like there is no possible way that this can scale. Using a
+logit lens means that the training signal received is incredibly myopic.
+It makes sense that you can do well on a speedrun this way, but that's
+because it's a weak baseline which can be beaten quickly, before the
+incredibly biased gradient preventing updates across layers and blocks
+becomes an issue. To me, this is not a super promising direction.</p>
+<p>Then again, it's always worth examining the world where you're wrong.
+It is also perhaps the case that most of what an LLM does is pass the
+same principal components through until it's time to predict the next
+token, and so not a lot of depth is effective depth. But this just
+absolutely murders any chance at credit across effective depth. How much
+does this matter? I suppose time will tell.</p>
+<h2 id="async-zo">Async ZO</h2>
+<p>It's worth mentioning that what was suspected is true, and that the
+optimal infrastructure for ZO looks a lot like infrastructure for
+RL.</p>
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/async_zo.png" width=700>
+<figcaption aria-hidden="true">
+Doesn't this look really familiar?
+</figcaption>
+</figure>
+</div>
+<p><br></p>
+<p>The figure is from <a
+href="https://arxiv.org/abs/2610.04196v2">"Asynchrony Is Nearly Free for
+Evolution Strategies on Long-Horizon LLM Agentic Tasks"</a>, it's a
+pretty good paper.</p>
+<p>At Prime Intellect we wrote <a
+href="https://github.com/PrimeIntellect-ai/prime-rl">prime-rl</a> as the
+first truly proper runtime for distributed async RL. The architecture is
+in three parts. The training machines, the workers, and the
+environments. You send the model to workers, the environment machines
+use those workers to produce rollouts, and the rollouts are the data
+that the trainer trains on.</p>
+<p>But in zeroth order "RL", you actually don't have to send the logits
+from the worker machines back to the trainer. Just the scores and seeds.
+This saves you some bandwidth. That's neat, and potentially useful as
+batch/group sizes (as in GRPO) grow larger.</p>
+<p>Otherwise, the architecture of such a training setup looks eerily
+similar.</p>
+<h2 id="future-directions">Future Directions</h2>
 </body>
 </html>
