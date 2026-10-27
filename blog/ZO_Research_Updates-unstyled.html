@@ -440,8 +440,8 @@ that ZO may be a great way to train on really really long sequences.</p>
 actual SNR also depends on other things. Let's get into that.</p>
 <h3 id="dust-math">Dust Math</h3>
 <p>Let's redo the "MeZO Math" section from the last article, but for
-Dust. Like last article, you can skim by reading only the parts outside
-code blocks.</p>
+Dust's estimator. Like last article, you can skim by reading only the
+parts outside code blocks.</p>
 <p>Dust's update is a gradient estimate, so we ask the usual questions.
 Is it unbiased? How noisy is it compared to what it's estimating? What
 SNR does that give? Then we'll compare it to MeZO and SPSA.</p>
@@ -639,7 +639,8 @@ the loss of token <code>t</code> very much. <code>η</code> also needs to
 be small.</p>
 <p>So I trained small transformers on <a
 href="https://huggingface.co/datasets/roneneldan/TinyStories">TinyStories</a>
-with the Dust repo, at three sizes, and compared against backprop.</p>
+with the Dust repo, at three sizes, and compared it against
+backprop.</p>
 <p>The models are 2 layers of width 128, 4 of width 256, and 8 of width
 512, which is the paper's shape. Every 25 or 50 steps I measured
 <code>κₜ</code>, and at saved checkpoints I measured <code>ηₜ</code>.
@@ -653,50 +654,27 @@ href="TODO">here</a>.</p>
 <p><img src="images/dust_kappa_L2-D128.svg" width=900></p>
 <p><img src="images/dust_kappa_L4-D256.svg" width=900></p>
 <p><img src="images/dust_kappa_L8-D512.svg" width=900></p>
-<p>At blocks that are earlier in the model it's bigger, and at blocks
-where it's deeper into the model, it's smaller. And it decreases
-throughout training.</p>
+<p>You can see a few things.</p>
+<ol type="1">
+<li>Overall, leakage is pretty low.</li>
+<li>It's largest at blocks that are earlier in the model.</li>
+<li>It gets smaller throughout training, although less for the first
+block.</li>
+</ol>
 <p>The story here looks pretty good. Way better than I expected it to
-look, actually. <code>κ</code> (leakage) is small. Jitter to previous
-tokens does not affect the loss that much through writes to kvcache.</p>
-<p>The gray line needs explaining. Dust adds noise to the two layers
-that write into the residual stream, <code>attn w_o</code> and
-<code>mlp down_proj</code>, in the same forward pass. Each gets its own
-noise, and they share one reward. That's exactly one layer with both
-outputs side by side, so the gray line treats them as one, with twice
-the <code>d_out</code>. That costs SNR through <code>d_out</code>, not
-<code>κ</code>. The paper doesn't say why it pairs them, so I checked:
-at the same number of forward passes, pairing beats giving each layer
-its own passes, but only because of bf16. The rounding error in each
-loss difference is fresh noise in every draw, and pairing averages it
-over twice as many draws. In fp32, it's a wash.</p>
-<p>The same measurements also confirm the variance formula. Where the
-first-order variance is large enough to measure, Dust's actual reward
-variance matches <code>||∇ₜLₜ||² * (1 + κₜ)</code> to within a few
-percent, even with its large <code>ε</code>. So <code>η</code> is small
-where it matters. The next three figures show <code>η</code> for the
-same runs; I measured it in fp32 with TF32 disabled at saved checkpoints
-along the same runs, on the validation split, because bf16/TF32
-loss-difference rounding is otherwise a large fresh noise source in the
-deep blocks. I checked the deepest sites in float64.</p>
+look, actually. Jitter to previous tokens does not affect the loss of
+following tokens that much through writes to kvcache.</p>
+<p>Now, let's look at <code>η</code>. Things are weird because the
+effect is so small, and we're sampling, and there are numerical
+precision issues. But let's try to measure it anyway. When rounding
+noise would dominate and make it blow up, I just omit the data.</p>
 <p><img src="images/dust_eta_L2-D128.svg" width=900></p>
 <p><img src="images/dust_eta_L4-D256.svg" width=900></p>
 <p><img src="images/dust_eta_L8-D512.svg" width=900></p>
-<p><code>η</code> is the relative curvature penalty. Where the
-first-order variance is large enough to measure, it is at most a few
-percent, usually under 1%. The apparent blowup in deep blocks is a
-precision artifact, not a property of the estimator: the
-finite-difference reward there is below the resolution of the forward
-pass, so the measured variance is rounding noise. The charts omit sites
-whose first-order variance is below <code>10⁻⁸</code>; a float64 check
-at the deepest 8-layer site gives <code>η ≈ 0.002</code>.
-Variance-weighted across the sites that remain, <code>η</code> is about
-0.1%, so it does not change the <code>1 + κ + η</code> factor in the
-table. The log plots floor negative sampling-noise estimates at
-<code>10⁻⁴</code>.</p>
-<h4 id="caveats">Caveats</h4>
-<h5 id="leakage-is-controllable-via-decay-factor">Leakage is
-controllable via decay factor</h5>
+<p>Basically, it's not bad. It's on the order of being negligible. Which
+is where we want it to be. Nice.</p>
+<h4 id="leakage-is-controllable-via-decay-factor">Leakage is
+controllable via decay factor</h4>
 <p>This is the not leakage, which averages out. It's because
 <code>zₜ</code> is only scored against <code>Lₜ</code>, so even with no
 noise anywhere else, the second part never shows up. The paper knows
