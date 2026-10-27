@@ -13,9 +13,9 @@ Since I wrote [Scaling Agents to Unfathomable Depth and Context With Zeroth-Orde
 
 This is article going to appear really dense. That's fair, it's kinda a massive brain dump. Some parts are dense and complicated, but be not afraid, for the rest of the article is written to be very accessible.
 
-If you want to understand the algorithms, I have summarized them here in pseudocode and a table of terminology. You can skip past them though too. In the math section, there is going to be a lot of math. But it's written so you don't have to read the stuff that's outside of code blocks.
+If you want to understand the algorithms, I have summarized them here in pseudocode and a table of terminology. You can skip past them though. In the math section, there is going to be a lot of math. But it's written so you don't have to read the stuff that's outside of code blocks.
 
-I sincerely recommend skimming. Then if you're curious you can dig deeper, and use AI assistance to answer questions. Or just DM me, that works too.
+I sincerely recommend skimming. Then if you're curious you can dig deeper, and use AI assistance to answer questions. Or just DM me [@apaz_cli](https://x.com/apaz_cli), that works too.
 
 ## SOMA
 
@@ -84,9 +84,9 @@ The name of the paper is "Scaling Zero-Order Pretraining Through Model Sharding.
 
 I am not sure how to feel about this paper. On one hand, it seems obvious. Obviously you can get gains by ensembling. It's not something I would even think to publish. But on the other hand, nobody has pointed out before that Branch-Train-Merge clearly has applications in ZO. It didn't occur to me that this was a reasonable scaling axis.
 
-If the noise issue in ZO pretraining truly cannot be beaten, then this is clearly the best strategy, and nobody is doing it. It doesn't solve any of the fundamental problems in ZO, and obviously it cannot scale past a certain size or training budget, but I'm glad we now have a good example of people doing this.
+If the noise issue in ZO pretraining truly cannot be beaten, then this and model merging are clearly the best strategy, and nobody is doing it. It doesn't solve any of the fundamental problems in ZO, and obviously it cannot scale past a certain size or training budget, but I'm glad we now have a good example of people doing this.
 
-I think there's a good chance this ends up being really useful. With that being said, because of the Dust paper I think we actually CAN beat the noise issue.
+I think there's a good chance this ends up being really useful. With that being said, because of the Dust paper I think we actually CAN beat the noise issue. Then maybe this is a cherry on top.
 
 I don't have a lot more to say about it other than that. Good paper on net.
 
@@ -145,7 +145,9 @@ def dust_train(θ, data):
 
 Dust seems like a massive step forward. It shows that many of the supposed issues with ZO for pretraining were in fact skill issues. This is great.
 
-The upshot of the method is that we need to find more efficient ways to sample more perturbations, sharded across more axes. The primary difference between Dust and previous methods is that each token gets a separate perturbation, and each layer gets a separate perturbation. This leads to a huge uplift in practical performance, for the same amount of data.
+The upshot of the method is that we need to find more efficient ways to sample more perturbations, sharded across more axes. SOMA sort of does this, you can do DP and ensemble or merge.
+
+But Dust attempts to tackle the main issue. What you really want is more perturbations sampled inside the model. The primary difference between Dust and previous methods is that each token gets a separate perturbation, and each layer gets a separate perturbation. This leads to a huge uplift in practical performance, for the same amount of data.
 
 It is unfortunate, though, that this research direction kind of flies in the face of the reason I was excited about ZO in the first place. To train a [recurrence-complete](https://arxiv.org/abs/2510.06828) architecture without backprop through time. This method only works on transformers and other architectures with a parallelizable forward pass, in settings with loss functions that can be parallelized.
 
@@ -192,7 +194,7 @@ Of course, the math is not that simple. I said "effectively." The actual SNR als
 
 ### Dust Math
 
-Let's redo the "MeZO Math" section from the last article, but for Dust. Like last article, you can skim by reading only the parts outside code blocks.
+Let's redo the "MeZO Math" section from the last article, but for Dust's estimator. Like last article, you can skim by reading only the parts outside code blocks.
 
 Dust's update is a gradient estimate, so we ask the usual questions. Is it unbiased? How noisy is it compared to what it's estimating? What SNR does that give? Then we'll compare it to MeZO and SPSA.
 
@@ -251,7 +253,7 @@ That is a different thing than a reduction of the individual `∇ₜLₜ` per-to
 
 #### Variance
 
-There is no Stein's Lemma for variance. But there's a trick. Split the reward into the best linear function of the noise, plus whatever is left over. By Stein's Lemma again (yay!), the best linear fit is `Σₛ ∇ₛLₜ · zₛ`, for every token `s ≤ t`, plus some uncorrelated extra leftover term `rₜ`.
+There is no Stein's Lemma for variance. But there's a trick. Split the reward into the best linear function of the noise, plus whatever is left over. By Stein's Lemma again (yay!), the best linear fit is `Σₛ ∇ₛLₜ · zₛ`, for every token `s ≤ t`. Then there is some uncorrelated extra part which is nonlinear, we'll call this remainder term `rₜ`.
 
 ```
 proj_gradₜ = Σₛ<ₜ ∇ₛLₜ · zₛ + rₜ                     (summing over s ≤ t)
@@ -270,13 +272,13 @@ The first part `||∇ₜLₜ||²` is the irreducible variance which comes from s
 
 The second part `κₜ` is the noise we added at tokens earlier than `t`, leaking into token `t`'s loss through attention. We'll call it "leakage."
 
-The third, `ηₜ`, is everything in the reward that isn't linear in the noise. If the loss were a straight line across the noise, it would be zero. The bigger `ε` is, the more the loss curves over the step, and the bigger it gets.
+The third, `ηₜ`, is everything in the reward that isn't linear in the noise. If the loss were a straight line across the noise, it would be zero. The bigger `ε` is, the more the loss curves over the step, and the bigger it gets. Using Rademacher perturbations would minimize this, because it's the distribution with the minimum possible fourth moment, but expect the effect to be small.
 
 So, the the variance is MeZO's, times a `(1 + κₜ + ηₜ)` penalty. `κₜ` is up to the model, `ηₜ` grows with `ε`, which is a hyperparameter we can tune.
 
 `κₜ` (kappa) and `ηₜ` (eta) are ratios. The paper calls the leakage "interference," so I'll call `κₜ` the interference ratio, and `ηₜ` the curvature ratio.
 
-#### Signal-to-Noise Ratio
+#### Signal-to-Noise Ratio of Dust
 
 Now the SNR, for one perturbation of one token. Recall that the signal is `||E[grad_Yₜ]||² = ||∇ₜLₜ||²`. Now for the noise.
 
@@ -303,50 +305,42 @@ SNR ≈ ZT / (d_out (1 + κ + η))
 
 This is for a cost of `Z * n_layers` many partial forward passes, with a cost on average of half a full forward pass, as some will be longer and some shorter. As opposed to the `2 * Z` full forward passes of SPSA.
 
+#### Dust's expected alignment versus the true gradient
+
 #### Comparison to MeZO/SPSA/ES/EGGROLL
 
-Previous methods have all had a SNR on the order of `1/p`. For each batch, not each token. Where `p` stands for the parameter count.
+Previous methods have all had a SNR on the order of `1/p`. For each batch, not each token. Where `p` stands for the parameter count. But in Dust, the `p` becomes `d_out`, the width of one layer's output. Which is a lot smaller.
 
-But in Dust, the `p` becomes `d_out`, the width of one layer's output. Which is a lot smaller.
+So, let's compare. We'll say `T = 16,384` tokens, which is the Dust paper's batch size.
 
-| Model | `p` (parameters) | `d_out` (hidden size) | `p / d_out` | flops / forward pass (`T` = 16k) | SNR per flop (vs SPSA) |
+| Model | `p` (params) | `d_out` (hidden size) | `p / d_out` | flops per forward | SNR per FLOP (vs SPSA) |
 |---|---|---|---|---|---|
-| Dust's model (8 layers, width 512) | ~25M (excluding embeddings) | 512 | ~49,000× | ~0.8 TFLOP | ~91M× |
-| Qwen3.5-9B (32 layers) | 9.65B | 4096 | ~2.4M× | ~316 TFLOP | ~1.1B× |
-| Qwen3.5-27B (64 layers) | 27.8B | 5120 | ~5.4M× | ~910 TFLOP | ~1.3B× |
-
-`T = 16,384` tokens, the Dust paper's batch. A forward pass costs about `2·p·T` flops. The last column is `SNR(Dust) / SNR(SPSA)` per forward pass, which works out to `T·p / (n_layers · d_out · (1 + κ + η))`, with `(1 + κ + η) ≈ 1.1`.
+| Dust's model (8 layers) | 37.75M | 512 | ~73,700× | ~1.12 TFLOPs | ~549M× |
+| Qwen3.5-9B (32 layers) | 9.20B | 4096 | ~2.25M× | ~280 TFLOPs | ~4.18B× |
+| Qwen3.5-27B (64 layers) | 27.32B | 5120 | ~5.34M× | ~899 TFLOPs | ~4.97B× |
 
 So, it goes without saying, this is very lucrative. Yes, with Dust you have to apply this rule for each independent layer. But even if it cost 100x the computation, it would still be worth it. Then as you scale the model, it becomes even more worth it. The proof of this is that Dust drastically overperforms versus other methods on pretraining tasks where gradient alignment is important.
 
-To be precise, it outperforms by the following:
+To summarize,
 ```
 SNR(SPSA) ≈ Z / p
 SNR(Dust) ≈ ZT / (d_out * (1 + κ + η))
-SNR(Dust) / SNR(SPSA) ≈ T * d_in / (1 + κ + η)
+SNR(Dust) / SNR(SPSA) per FLOP ≈ 4 * T * p / (n_layers * d_out * (1 + κ + η))
 ```
 
-This should be divided by the fact that Dust requires `n_layers` forward passes per layer, at a cost 
+The factor of four is because Dust requires `n_layers` partial forwards at about half a full forward each, while SPSA requires two full forwards per draw.
 
-But that SNR measures Dust against what it aims at, `∇ₜLₜ`, and that isn't the true gradient. Call the true gradient `g = ∇ₜL`, and what Dust aims at `m = ∇ₜLₜ`. Measured against `g`, the error has two parts:
-```
-E[||grad_est − g||²] = ||m − g||²  +  E[||grad_est − m||²]          (bias² + variance)
-                     ≈ ||m − g||²  +  d_out * (1 + κ + η) * ||m||² / ZT
-```
+Overall, a massive improvement.
 
-The variance shrinks as you add draws and tokens. The bias doesn't. Taking `||m|| ≈ ||g||`, the true SNR is:
-```
-SNR_true = ||g||² / E[||grad_est − g||²]
-         ≈ 1 / (β + d_out * (1 + κ + η) / ZT)
+#### How big are `κ` and `η` in practice?
 
-where β = ||m − g||² / ||g||²
-```
+This works great, as long as `κ` is small. That is to say, as long as noise added at tokens other than `t` don't affect the loss of token `t` very much. `η` also needs to be small.
 
-With a small population, the second term dominates, and nothing changes. But as `ZT` grows, `SNR_true` stops at `1/β`, and more draws buy nothing. This is what Dust's `γ` is for (see the caveats). Raising it shrinks `β`, which raises the ceiling, but it grows `κ`, so you climb toward it more slowly. That's why the repo raises `γ` from 0.98 to 0.99 at its biggest population. In my runs, the 0.99 cosine similarity puts `β` around 0.02, so the ceiling is about 50.
+So I trained small transformers on [TinyStories](https://huggingface.co/datasets/roneneldan/TinyStories) with the Dust repo, at three sizes, and compared it against backprop.
 
-#### How big is `κ` in practice?
+The models are 2 layers of width 128, 4 of width 256, and 8 of width 512, which is the paper's shape. Every 25 or 50 steps I measured `κₜ`, and at saved checkpoints I measured `ηₜ`. The former is obtained by backpropagating each token's loss and isolating the contribution of previous tokens, and the latter by sampling perturbations as Dust does, and comparing the reward variance measured to first order predictions, in high precision. The code is [here](TODO).
 
-As long as `κ` is small, that is. So I measured it. I trained small transformers on [TinyStories](https://huggingface.co/datasets/roneneldan/TinyStories) with the Dust repo's own training step, at three sizes: 2 layers of width 128, 4 of width 256, and 8 of width 512, which is the paper's shape. Every 25 steps, right before the update, I measured `κₜ` exactly, with backprop, on the batch it was about to train on. Backprop is only used for the measurement. The training never sees it. The code is [here](TODO).
+Let's look first at `κ`.
 
 <img src="images/dust_loss.svg" width=640>
 
@@ -356,22 +350,25 @@ As long as `κ` is small, that is. So I measured it. I trained small transformer
 
 <img src="images/dust_kappa_L8-D512.svg" width=900>
 
-There's one panel per block, and one line for each kind of layer Dust adds noise to. `κ` is small everywhere. It starts at 0.01 to 0.1, drops to about `10⁻⁴` within a few hundred steps, and climbs back up once the model learns to use context. It's biggest at the embedding and in the first block, which have the most attention after them, and exactly 0 in the last block, which has none. In between, it shrinks with every block. The worst single measurement was 0.35, at the embedding of the 8-layer model, and it's usually under 0.1. So the `(1 + κ)` penalty is under 1.4, and usually about 1.05. That's nothing next to the `T` and `d_in` factors.
+You can see a few things.
 
-These models barely use context, though. Leakage goes up exactly when a model starts leaning on context. The 8-layer model learns slowest, so I ran it for 9000 steps instead of 3000 (that's the figure above). Even then, it only starts leaning on context near the end, and only in the first block. So expect more leakage from models that use context more.
+1. Overall, leakage is pretty low.
+2. It's largest at blocks that are earlier in the model.
+3. It gets smaller throughout training, although less for the first block.
 
-The gray line needs explaining. Dust adds noise to the two layers that write into the residual stream, `attn w_o` and `mlp down_proj`, in the same forward pass. Each gets its own noise, and they share one reward. That's exactly one layer with both outputs side by side, so the gray line treats them as one, with twice the `d_out`. That costs SNR through `d_out`, not `κ`. The paper doesn't say why it pairs them, so I checked: at the same number of forward passes, pairing beats giving each layer its own passes, but only because of bf16. The rounding error in each loss difference is fresh noise in every draw, and pairing averages it over twice as many draws. In fp32, it's a wash.
+The story here looks pretty good. Way better than I expected it to look, actually. Jitter to previous tokens does not affect the loss of following tokens that much through writes to kvcache.
 
-The same measurements also confirm the variance formula. Dust's actual reward variance matched `||∇ₜLₜ||² * (1 + κₜ)` to within about 5%, even with its large `ε`, so `η` was small.
+Now, let's look at `η`. Things are weird because the effect is so small, and we're sampling, and there are numerical precision issues. But let's try to measure it anyway. When rounding noise would dominate and make it blow up, I just omit the data.
 
-#### Caveats
+<img src="images/dust_eta_L2-D128.svg" width=900>
 
-##### Dust ignores future tokens
+<img src="images/dust_eta_L4-D256.svg" width=900>
 
-Dust is a biased estimator. It calculates `∇ₜLₜ`, which is how token `t`'s activations affect token `t`'s loss. But these activations also affect every later token's loss, through attention. The true gradient is:
-```
-∇ₜL = ∇ₜLₜ + Σᵤ>ₜ ∇ₜLᵤ
-```
+<img src="images/dust_eta_L8-D512.svg" width=900>
+
+Basically, it's not bad. It's on the order of being negligible. Which is where we want it to be. Nice.
+
+#### Leakage is controllable via decay factor
 
 This is the not leakage, which averages out. It's because `zₜ` is only scored against `Lₜ`, so even with no noise anywhere else, the second part never shows up. The paper knows this. For attention keys and values, it also gives token `t` a discounted share of the later tokens' losses, with a decay factor `γ`. That removes the bias, but adds the later tokens' noise, so it's a bias-variance knob. In my runs the bias was small: by the end of training, the weight gradient Dust aims for had a cosine similarity of 0.99 with the true gradient.
 
