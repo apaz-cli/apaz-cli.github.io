@@ -382,9 +382,6 @@ All of this works for any noise with zero mean, unit variance, a symmetric distr
 
 ### Parameters or Activations?
 
-
-
-
 ## Noise
 
 Over at qlabs they also recently launched a speedrun, which they call [noise](https://qlabs.sh/noise). Not technically a paper, but I have a take on this too.
@@ -494,3 +491,38 @@ But in zeroth order "RL", you actually don't have to send the logits from the wo
 Otherwise, the architecture of such a training setup looks eerily similar.
 
 ## Future Directions
+
+It's kinda obvious to me that there's more to be done for reducing bias. I think it would be cool to do experiments training a YOCO model with Dust. I tweeted about it [here](https://x.com/apaz_cli/status/2114251136937193745). It splits it into a dust-optimal part (the cross-decoder) and a dust-hostile part (the self-decoder). There is no leakage in the cross-decoder, it is all moved into the self-decoder. The two could be trained with different hparams or estimators. This seems like an interesting direction.
+
+Also, obviously there is some work to be done with seeing how Dust scales to long sequences, different attention mechanisms, etc.
+
+I think what we know how to do is something like the following.
+
+#### For Pretraining
+* You can use Dust to pretrain a parallelizable arch without recurrence (like a transformer)
+* There is no good way to pretrain any other sort of model, since SPSA collapses
+
+Once you add recurrence, replaying the forward pass gets much more expensive. Once you make the forward pass not parallelizable, you miss a multiple of your batch size in the SNR. Traditionally, the appeal of ZO has been that you can do both without losing anything.
+
+#### For RL-style Posttraining
+* Or use SPSA or RandOpt or whatever, posttraining just works.
+
+I think Dust gets you basically nothing for posttraining, because the loss function is not separable. Assuming your arch has no recurrence, you can sample output perturbations and get some free SNR. But the gains aren't going to be, like, profound, because it already works pretty well.
+
+With that said it's probably a free paper to anyone who wants it.
+
+As for what I'm going to be doing, I'm going to add a Dust training codebase to ZOTitan. Then maybe look into the YOCO stuff and do some scaling experiments.
+
+In the meantime, if you're interested in this stuff, feel free to hit me up. DM me [@apaz_cli](https://x.com/apaz_cli), I'm trying to start a twitter group chat of Zeroth Order Optimization researchers. I really want to push ZO forward. But that starts with getting everyone in the same room to talk about it, brainstorm ideas, etc. I don't think I can do it alone.
+
+
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/ZOChat.png" width=400>
+<figcaption aria-hidden="true">ZO Chat beckons you.</figcaption>
+</figure>
+</div>
+<br>
+
+So yeah, there's my brain dump. Until next time, happy hacking.
