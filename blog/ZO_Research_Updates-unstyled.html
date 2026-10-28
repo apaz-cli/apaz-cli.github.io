@@ -562,6 +562,77 @@ be longer and some shorter. As opposed to the <code>2 * Z</code> full
 forward passes of SPSA.</p>
 <h4 id="dusts-expected-alignment-versus-the-true-gradient">Dust's
 expected alignment versus the true gradient</h4>
+<p>Dust's estimator is biased. Here's the bias, and here's what the
+paper does about it.</p>
+<p>Dust's per-token estimator targets <code>∇ₜLₜ</code>, how token
+<code>t</code>'s activations affect token <code>t</code>'s own loss. But
+those activations also change the loss of every token that comes later,
+through attention. The true gradient is the full causal sum:</p>
+<pre><code>∇ₜL = ∇ₜLₜ + Σᵤ&gt;ₜ ∇ₜLᵤ</code></pre>
+<p>Dust drops everything after the first term. For most parameters this
+is a small bias, which is why Dust works. But for the attention keys and
+values, the gates and value embeddings, the dropped terms are the
+signal.</p>
+<p>The paper fixes it by crediting token <code>t</code>'s jitter with a
+decaying share of every later token's loss. Token <code>u</code> counts
+for <code>γ^(u-t)</code> of its loss, for some discount <code>γ</code>
+between 0 and 1:</p>
+<pre><code>L̃ₜ = Lₜ + γ·Lₜ₊₁ + γ²·Lₜ₊₂ + γ³·Lₜ₊₃ + ...
+    = Σᵤ≥ₜ γ^(u-t) Lᵤ</code></pre>
+<p>The paper writes this as a reward, <code>rₜ = Σᵤ≥ₜ γ^(u-t) cᵤ</code>,
+built from centered loss reductions <code>cᵤ</code>. Same object,
+opposite sign. I'll keep losses.</p>
+<p><code>L̃ₜ</code> is token <code>t</code>'s loss plus a decaying share
+of every later token's loss. The γ-estimator is Dust's rule with
+<code>L̃ₜ</code> in place of <code>Lₜ</code>:</p>
+<pre><code>proj_gradₜ = (L̃ₜ(Φ(θ, b; Y + εz)) - L̃ₜ(Φ(θ, b))) / ε
+grad_Yₜ    = proj_gradₜ * zₜ</code></pre>
+<p>Stein's Lemma again, applied to <code>L̃ₜ</code>:</p>
+<pre><code>E[grad_Yₜ] = ∇ₜL̃ₜ
+           = ∇ₜLₜ + γ·∇ₜLₜ₊₁ + γ²·∇ₜLₜ₊₂ + ...
+           = Σᵤ≥ₜ γ^(u-t) ∇ₜLᵤ</code></pre>
+<p>So <code>γ</code> interpolates. At <code>γ = 0</code>, plain Dust:
+<code>E[grad_Yₜ] = ∇ₜLₜ</code>, and the entire future
+<code>Σᵤ&gt;ₜ ∇ₜLᵤ</code> is dropped. At <code>γ = 1</code>, the
+discount vanishes and <code>E[grad_Yₜ] = ∇ₜL</code>, the true gradient.
+In between, the estimator blends them geometrically, older losses
+decaying as <code>γ^(u-t)</code>.</p>
+<p>The bias is the gap between the two:</p>
+<pre><code>biasₜ = E[grad_Yₜ] - ∇ₜL
+      = Σᵤ&gt;ₜ (γ^(u-t) - 1) · ∇ₜLᵤ</code></pre>
+<p>zero at <code>γ = 1</code>, and <code>-Σᵤ&gt;ₜ ∇ₜLᵤ</code> at
+<code>γ = 0</code>. Alignment with the true gradient, measured as cosine
+similarity, is therefore 1 at <code>γ = 1</code> and less than 1 at
+<code>γ = 0</code>. That is the quantity I measure as 0.99 later in this
+article.</p>
+<p>Now the price. Scoring <code>zₜ</code> against later tokens' losses
+means later tokens' noise now lands in the estimate. Repeating the
+variance decomposition from before, the linear part of the reward gains
+one term per later loss:</p>
+<pre><code>proj_gradₜ = Σₛ zₛ · (Σᵤ≥max(t,s) γ^(u-t) ∇ₛLᵤ) + r̃ₜ</code></pre>
+<p>For <code>s = t</code> the coefficient is
+<code>Σᵤ≥ₜ γ^(u-t) ∇ₜLᵤ = E[grad_Yₜ]</code>, the signal itself. For
+<code>s &lt; t</code> it is the leakage from earlier tokens, now spilled
+into every discounted later loss. So</p>
+<pre><code>E[proj_gradₜ²] = ||E[grad_Yₜ]||² + Σₛ&lt;ₜ ||Σᵤ≥ₜ γ^(u-t) ∇ₛLᵤ||² + E[r̃ₜ²]</code></pre>
+<p>and the SNR keeps the same shape as before,</p>
+<pre><code>SNR ≈ 1 / (d_out · (1 + κ̃ₜ + η̃ₜ))
+
+κ̃ₜ = Σₛ&lt;ₜ ||Σᵤ≥ₜ γ^(u-t) ∇ₛLᵤ||² / ||E[grad_Yₜ]||²
+η̃ₜ = E[r̃ₜ²] / ||E[grad_Yₜ]||²</code></pre>
+<p>with the only change being that <code>κ̃</code> and <code>η̃</code> now
+also include the later-token terms, discounted by <code>γ</code>.</p>
+<p>So <code>γ</code> trades bias against noise. Too small, and the
+estimator is biased: it never learns to be useful for later tokens. Too
+large, and the later tokens' noise swamps the signal. The paper tunes
+<code>γ</code> rather than deriving it: near one for the keys, values,
+gates, and value embeddings (0.98 to 0.99 in its runs), and zero
+everywhere else.</p>
+<p>The discount is not there for aesthetics. A token's influence on
+distant future tokens tends to be weak and diffuse, so a geometric
+cutoff is a cheap prior. And it is applied only where the bias matters.
+Everywhere else it would buy back a sliver of bias for a lot of
+noise.</p>
 <h4 id="comparison-to-mezospsaeseggroll">Comparison to
 MeZO/SPSA/ES/EGGROLL</h4>
 <p>Previous methods have all had a SNR on the order of <code>1/p</code>.
@@ -673,17 +744,16 @@ noise would dominate and make it blow up, I just omit the data.</p>
 <p><img src="images/dust_eta_L8-D512.svg" width=900></p>
 <p>Basically, it's not bad. It's on the order of being negligible. Which
 is where we want it to be. Nice.</p>
-<h4 id="leakage-is-controllable-via-decay-factor">Leakage is
-controllable via decay factor</h4>
-<p>This is the not leakage, which averages out. It's because
-<code>zₜ</code> is only scored against <code>Lₜ</code>, so even with no
-noise anywhere else, the second part never shows up. The paper knows
-this. For attention keys and values, it also gives token <code>t</code>
-a discounted share of the later tokens' losses, with a decay factor
-<code>γ</code>. That removes the bias, but adds the later tokens' noise,
-so it's a bias-variance knob. In my runs the bias was small: by the end
-of training, the weight gradient Dust aims for had a cosine similarity
-of 0.99 with the true gradient.</p>
+<h4 id="the-bias-is-not-leakage">The bias is not leakage</h4>
+<p>The bias I've been describing is not the leakage we just measured.
+Leakage is noise, and it averages out over draws. The bias does not.
+It's because <code>zₜ</code> is only scored against <code>Lₜ</code>, so
+even with no noise anywhere, the future <code>Σᵤ&gt;ₜ ∇ₜLᵤ</code> never
+shows up. The paper fixes this by giving token <code>t</code> a
+discounted share of the later tokens' losses, with decay <code>γ</code>.
+That removes the bias, but adds the later tokens' noise. In my runs the
+bias was small: by the end of training, the weight gradient Dust aims
+for had a cosine similarity of 0.99 with the true gradient.</p>
 <h5 id="ε-is-not-small"><code>ε</code> is not small</h5>
 <p>The activations come out of an RMSNorm, so each coordinate is about
 unit size, and Dust uses <code>ε = 0.2</code> or <code>0.4</code>.
@@ -713,44 +783,44 @@ href="https://github.com/qlabs-eng/noise/pull/11">PR 11, "Boost →
 Cut"</a>. It's interesting, so I think it's worth talking about. The
 method:</p>
 <div class="algo">
-<div class="sourceCode" id="cb13"><pre
-class="sourceCode python"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> exact_grad(f, s):                                <span class="co"># forward differences along all d directions</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">sum</span>((f(s <span class="op">+</span> ε <span class="op">*</span> D[j]) <span class="op">-</span> f(s)) <span class="op">/</span> ε <span class="op">*</span> D[j] <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(d)) <span class="op">/</span> d</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> boost_step(θ, b, y):</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    X, Y, S <span class="op">=</span> forward(Φ, θ, b)                       <span class="co"># save each layer&#39;s input, output, and each stream</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> streams(θ):</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(T):</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>            f <span class="op">=</span> <span class="kw">lambda</span> s: L_head(s, y[t])            <span class="co"># forward to the head, right after stream i</span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>            grad_S[i][t] <span class="op">=</span> exact_grad(f, S[i][t])</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> update(θ, X, Y, grad_S)</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cut_step(θ, b, y):</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>    X, Y, S <span class="op">=</span> forward(Φ, θ, b)</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> streams(θ):</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(T):</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>            f <span class="op">=</span> <span class="kw">lambda</span> s: L(Φ_cut(θ, i, s, t), y[t]) <span class="co"># forward through the rest, attention held clean</span></span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>            grad_S[i][t] <span class="op">=</span> exact_grad(f, S[i][t])</span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> update(θ, X, Y, grad_S)</span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> update(θ, X, Y, grad_S):</span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> W <span class="kw">in</span> layers(θ):</span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> W <span class="kw">in</span> writers(θ):                          <span class="co"># its output is added to the stream</span></span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>            grad_Y <span class="op">=</span> grad_S[W]</span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:                                        <span class="co"># score its effect on the stream instead</span></span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>            grad_Y <span class="op">=</span> [exact_grad(<span class="kw">lambda</span> o: grad_S[W][t] <span class="op">@</span> effect(W, o, t), Y[W][t])</span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>                      <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(T)]</span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>        W <span class="op">-=</span> α <span class="op">*</span> grad_Y.T <span class="op">@</span> X[W]</span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> θ</span>
-<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> boost_cut_train(θ, data):</span>
-<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n, (b, y) <span class="kw">in</span> <span class="bu">enumerate</span>(batches(data, T)):</span>
-<span id="cb13-36"><a href="#cb13-36" aria-hidden="true" tabindex="-1"></a>        θ <span class="op">=</span> boost_step(θ, b, y) <span class="cf">if</span> n <span class="op">&lt;</span> n_boost <span class="cf">else</span> cut_step(θ, b, y)</span>
-<span id="cb13-37"><a href="#cb13-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> θ</span></code></pre></div>
+<div class="sourceCode" id="cb21"><pre
+class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> exact_grad(f, s):                                <span class="co"># forward differences along all d directions</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">sum</span>((f(s <span class="op">+</span> ε <span class="op">*</span> D[j]) <span class="op">-</span> f(s)) <span class="op">/</span> ε <span class="op">*</span> D[j] <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(d)) <span class="op">/</span> d</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> boost_step(θ, b, y):</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>    X, Y, S <span class="op">=</span> forward(Φ, θ, b)                       <span class="co"># save each layer&#39;s input, output, and each stream</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> streams(θ):</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(T):</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>            f <span class="op">=</span> <span class="kw">lambda</span> s: L_head(s, y[t])            <span class="co"># forward to the head, right after stream i</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>            grad_S[i][t] <span class="op">=</span> exact_grad(f, S[i][t])</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> update(θ, X, Y, grad_S)</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cut_step(θ, b, y):</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    X, Y, S <span class="op">=</span> forward(Φ, θ, b)</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> i <span class="kw">in</span> streams(θ):</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(T):</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>            f <span class="op">=</span> <span class="kw">lambda</span> s: L(Φ_cut(θ, i, s, t), y[t]) <span class="co"># forward through the rest, attention held clean</span></span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>            grad_S[i][t] <span class="op">=</span> exact_grad(f, S[i][t])</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> update(θ, X, Y, grad_S)</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> update(θ, X, Y, grad_S):</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> W <span class="kw">in</span> layers(θ):</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> W <span class="kw">in</span> writers(θ):                          <span class="co"># its output is added to the stream</span></span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>            grad_Y <span class="op">=</span> grad_S[W]</span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:                                        <span class="co"># score its effect on the stream instead</span></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>            grad_Y <span class="op">=</span> [exact_grad(<span class="kw">lambda</span> o: grad_S[W][t] <span class="op">@</span> effect(W, o, t), Y[W][t])</span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>                      <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(T)]</span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>        W <span class="op">-=</span> α <span class="op">*</span> grad_Y.T <span class="op">@</span> X[W]</span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> θ</span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> boost_cut_train(θ, data):</span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> n, (b, y) <span class="kw">in</span> <span class="bu">enumerate</span>(batches(data, T)):</span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>        θ <span class="op">=</span> boost_step(θ, b, y) <span class="cf">if</span> n <span class="op">&lt;</span> n_boost <span class="cf">else</span> cut_step(θ, b, y)</span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> θ</span></code></pre></div>
 <table>
 <colgroup>
 <col style="width: 33%" />
@@ -943,7 +1013,7 @@ from the worker machines back to the trainer. Just the scores and seeds.
 This saves you some bandwidth. That's neat, and potentially useful as
 batch/group sizes (as in GRPO) grow larger.</p>
 <p>Otherwise, the architecture of such a training setup looks eerily
-similar.</p>
+similar. It may even be reasonable to support ZO in prime-rl itself.</p>
 <h2 id="future-directions">Future Directions</h2>
 <p>It's kinda obvious to me that there's more to be done for reducing
 bias. I think it would be cool to do experiments training a YOCO model
@@ -954,8 +1024,21 @@ dust-hostile part (the self-decoder). There is no leakage in the
 cross-decoder, it is all moved into the self-decoder. The two could be
 trained with different hparams or estimators. This seems like an
 interesting direction.</p>
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/YOCO.png" width=800>
+<figcaption aria-hidden="true">
+An overview of YOCO from a single diagram from <a
+href="https://arxiv.org/abs/2405.05254">the paper</a>.
+</figcaption>
+</figure>
+</div>
+<p><br></p>
 <p>Also, obviously there is some work to be done with seeing how Dust
-scales to long sequences, different attention mechanisms, etc.</p>
+scales to long sequences, different attention mechanisms, etc. I presume
+qlabs is already doing or has already done that, and so I leave it to
+them.</p>
 <p>I think what we know how to do is something like the following.</p>
 <h4 id="for-pretraining">For Pretraining</h4>
 <ul>

@@ -307,6 +307,78 @@ This is for a cost of `Z * n_layers` many partial forward passes, with a cost on
 
 #### Dust's expected alignment versus the true gradient
 
+Dust's estimator is biased. Here's the bias, and here's what the paper does about it.
+
+Dust's per-token estimator targets `∇ₜLₜ`, how token `t`'s activations affect token `t`'s own loss. But those activations also change the loss of every token that comes later, through attention. The true gradient is the full causal sum:
+
+```
+∇ₜL = ∇ₜLₜ + Σᵤ>ₜ ∇ₜLᵤ
+```
+
+Dust drops everything after the first term. For most parameters this is a small bias, which is why Dust works. But for the attention keys and values, the gates and value embeddings, the dropped terms are the signal.
+
+The paper fixes it by crediting token `t`'s jitter with a decaying share of every later token's loss. Token `u` counts for `γ^(u-t)` of its loss, for some discount `γ` between 0 and 1:
+
+```
+L̃ₜ = Lₜ + γ·Lₜ₊₁ + γ²·Lₜ₊₂ + γ³·Lₜ₊₃ + ...
+    = Σᵤ≥ₜ γ^(u-t) Lᵤ
+```
+
+The paper writes this as a reward, `rₜ = Σᵤ≥ₜ γ^(u-t) cᵤ`, built from centered loss reductions `cᵤ`. Same object, opposite sign. I'll keep losses.
+
+`L̃ₜ` is token `t`'s loss plus a decaying share of every later token's loss. The γ-estimator is Dust's rule with `L̃ₜ` in place of `Lₜ`:
+
+```
+proj_gradₜ = (L̃ₜ(Φ(θ, b; Y + εz)) - L̃ₜ(Φ(θ, b))) / ε
+grad_Yₜ    = proj_gradₜ * zₜ
+```
+
+Stein's Lemma again, applied to `L̃ₜ`:
+
+```
+E[grad_Yₜ] = ∇ₜL̃ₜ
+           = ∇ₜLₜ + γ·∇ₜLₜ₊₁ + γ²·∇ₜLₜ₊₂ + ...
+           = Σᵤ≥ₜ γ^(u-t) ∇ₜLᵤ
+```
+
+So `γ` interpolates. At `γ = 0`, plain Dust: `E[grad_Yₜ] = ∇ₜLₜ`, and the entire future `Σᵤ>ₜ ∇ₜLᵤ` is dropped. At `γ = 1`, the discount vanishes and `E[grad_Yₜ] = ∇ₜL`, the true gradient. In between, the estimator blends them geometrically, older losses decaying as `γ^(u-t)`.
+
+The bias is the gap between the two:
+
+```
+biasₜ = E[grad_Yₜ] - ∇ₜL
+      = Σᵤ>ₜ (γ^(u-t) - 1) · ∇ₜLᵤ
+```
+
+zero at `γ = 1`, and `-Σᵤ>ₜ ∇ₜLᵤ` at `γ = 0`. Alignment with the true gradient, measured as cosine similarity, is therefore 1 at `γ = 1` and less than 1 at `γ = 0`. That is the quantity I measure as 0.99 later in this article.
+
+Now the price. Scoring `zₜ` against later tokens' losses means later tokens' noise now lands in the estimate. Repeating the variance decomposition from before, the linear part of the reward gains one term per later loss:
+
+```
+proj_gradₜ = Σₛ zₛ · (Σᵤ≥max(t,s) γ^(u-t) ∇ₛLᵤ) + r̃ₜ
+```
+
+For `s = t` the coefficient is `Σᵤ≥ₜ γ^(u-t) ∇ₜLᵤ = E[grad_Yₜ]`, the signal itself. For `s < t` it is the leakage from earlier tokens, now spilled into every discounted later loss. So
+
+```
+E[proj_gradₜ²] = ||E[grad_Yₜ]||² + Σₛ<ₜ ||Σᵤ≥ₜ γ^(u-t) ∇ₛLᵤ||² + E[r̃ₜ²]
+```
+
+and the SNR keeps the same shape as before,
+
+```
+SNR ≈ 1 / (d_out · (1 + κ̃ₜ + η̃ₜ))
+
+κ̃ₜ = Σₛ<ₜ ||Σᵤ≥ₜ γ^(u-t) ∇ₛLᵤ||² / ||E[grad_Yₜ]||²
+η̃ₜ = E[r̃ₜ²] / ||E[grad_Yₜ]||²
+```
+
+with the only change being that `κ̃` and `η̃` now also include the later-token terms, discounted by `γ`.
+
+So `γ` trades bias against noise. Too small, and the estimator is biased: it never learns to be useful for later tokens. Too large, and the later tokens' noise swamps the signal. The paper tunes `γ` rather than deriving it: near one for the keys, values, gates, and value embeddings (0.98 to 0.99 in its runs), and zero everywhere else.
+
+The discount is not there for aesthetics. A token's influence on distant future tokens tends to be weak and diffuse, so a geometric cutoff is a cheap prior. And it is applied only where the bias matters. Everywhere else it would buy back a sliver of bias for a lot of noise.
+
 #### Comparison to MeZO/SPSA/ES/EGGROLL
 
 Previous methods have all had a SNR on the order of `1/p`. For each batch, not each token. Where `p` stands for the parameter count. But in Dust, the `p` becomes `d_out`, the width of one layer's output. Which is a lot smaller.
@@ -368,9 +440,9 @@ Now, let's look at `η`. Things are weird because the effect is so small, and we
 
 Basically, it's not bad. It's on the order of being negligible. Which is where we want it to be. Nice.
 
-#### Leakage is controllable via decay factor
+#### The bias is not leakage
 
-This is the not leakage, which averages out. It's because `zₜ` is only scored against `Lₜ`, so even with no noise anywhere else, the second part never shows up. The paper knows this. For attention keys and values, it also gives token `t` a discounted share of the later tokens' losses, with a decay factor `γ`. That removes the bias, but adds the later tokens' noise, so it's a bias-variance knob. In my runs the bias was small: by the end of training, the weight gradient Dust aims for had a cosine similarity of 0.99 with the true gradient.
+The bias I've been describing is not the leakage we just measured. Leakage is noise, and it averages out over draws. The bias does not. It's because `zₜ` is only scored against `Lₜ`, so even with no noise anywhere, the future `Σᵤ>ₜ ∇ₜLᵤ` never shows up. The paper fixes this by giving token `t` a discounted share of the later tokens' losses, with decay `γ`. That removes the bias, but adds the later tokens' noise. In my runs the bias was small: by the end of training, the weight gradient Dust aims for had a cosine similarity of 0.99 with the true gradient.
 
 ##### `ε` is not small
 
@@ -488,13 +560,22 @@ At Prime Intellect we wrote [prime-rl](https://github.com/PrimeIntellect-ai/prim
 
 But in zeroth order "RL", you actually don't have to send the logits from the worker machines back to the trainer. Just the scores and seeds. This saves you some bandwidth. That's neat, and potentially useful as batch/group sizes (as in GRPO) grow larger.
 
-Otherwise, the architecture of such a training setup looks eerily similar.
+Otherwise, the architecture of such a training setup looks eerily similar. It may even be reasonable to support ZO in prime-rl itself.
 
 ## Future Directions
 
 It's kinda obvious to me that there's more to be done for reducing bias. I think it would be cool to do experiments training a YOCO model with Dust. I tweeted about it [here](https://x.com/apaz_cli/status/2114251136937193745). It splits it into a dust-optimal part (the cross-decoder) and a dust-hostile part (the self-decoder). There is no leakage in the cross-decoder, it is all moved into the self-decoder. The two could be trained with different hparams or estimators. This seems like an interesting direction.
 
-Also, obviously there is some work to be done with seeing how Dust scales to long sequences, different attention mechanisms, etc.
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/YOCO.png" width=800>
+<figcaption aria-hidden="true">An overview of YOCO from a single diagram from [the paper](https://arxiv.org/abs/2405.05254).</figcaption>
+</figure>
+</div>
+<br>
+
+Also, obviously there is some work to be done with seeing how Dust scales to long sequences, different attention mechanisms, etc. I presume qlabs is already doing or has already done that, and so I leave it to them.
 
 I think what we know how to do is something like the following.
 

@@ -9,6 +9,10 @@ import base64
 import hashlib
 import tempfile
 import shutil
+from datetime import datetime, timezone
+from email.utils import format_datetime
+from html import escape as html_escape, unescape as html_unescape
+from urllib.parse import urljoin, quote
 from shlex import split
 from os.path import splitext
 from glob import glob
@@ -24,6 +28,8 @@ from cryptography.hazmat.primitives import padding as sym_padding
 stylefile = "../resources/style/pandoc.html"
 favicon = '<link rel="icon" type="image/png" href="../resources/images/favicon.png">'
 rss_description_max_length = 500
+site_url = "https://apaz.dev/blog/"
+rss_link = f'<link rel="alternate" type="application/rss+xml" title="apaz\'s Blog" href="{site_url}index.rss">'
 target_index = int(argv[1]) if len(argv) > 1 else None
 
 # Never indexed. Lives here, not in Secrets, so a checkout without Secrets still knows.
@@ -337,7 +343,9 @@ def get_description_from_html(filepath):
     STOP_TAGS = ['<pre', '<div class="sourceCode"', '<table', '<ul', '<ol']
 
     def clean_text(html):
-        return re.sub(r'<[^>]+>', '', html).strip()
+        # Pandoc hard-wraps paragraphs, so collapse the newlines it leaves behind.
+        text = html_unescape(re.sub(r'<[^>]+>', '', html))
+        return re.sub(r'\s+', ' ', text).strip()
 
     def is_empty_para(content):
         return '<img' in content or clean_text(content) in ['', '<br>']
@@ -347,7 +355,7 @@ def get_description_from_html(filepath):
 
     def truncate_if_needed(text):
         if len(text) > rss_description_max_length:
-            return text[:rss_description_max_length - 3] + "..."
+            return text[:rss_description_max_length - 3].rsplit(' ', 1)[0] + "..."
         return text
 
     with open(filepath, "r") as html_file:
@@ -400,19 +408,29 @@ def generate_article(i, md_file):
         titlegroup = re.search(r"<h1[^>]*>(.*?)</h1>", html, re.DOTALL)
         first_image = re.search(r'<img[^>]*src="([^"]*)"[^>]*>', html)
 
+        def meta(prop, content):
+            return f"  <meta property=\"{prop}\" content=\"{html_escape(content)}\">\n"
+
         meta_tags = ""
         if titlegroup:
-            title_content = re.sub(r'\s+', ' ', titlegroup.group(1).strip())
-            meta_tags += f"  <meta name=\"og:title\" content=\"{title_content}\">\n"
+            title_content = html_unescape(re.sub(r'<[^>]+>', '', re.sub(r'\s+', ' ', titlegroup.group(1).strip())))
+            meta_tags += meta("og:title", title_content)
+            meta_tags += meta("og:type", "article")
+            meta_tags += meta("og:url", site_url + quote(os.path.basename(filepath)))
 
             description = get_description_from_html(filepath)
             if description:
-                meta_tags += f"  <meta name=\"og:description\" content=\"{description}\">\n"
+                meta_tags += meta("og:description", description)
 
             if first_image:
-                meta_tags += f"  <meta name=\"og:image\" content=\"{first_image.group(1)}\">\n"
+                image_url = urljoin(site_url, quote(html_unescape(first_image.group(1)), safe=":/?#=&%"))
+                meta_tags += meta("og:image", image_url)
+                meta_tags += "  <meta name=\"twitter:card\" content=\"summary_large_image\">\n"
+            else:
+                meta_tags += "  <meta name=\"twitter:card\" content=\"summary\">\n"
 
         meta_tags += f"  {favicon}\n"
+        meta_tags += f"  {rss_link}\n"
         return html.replace("  <title>", meta_tags + "  <title>")
 
     # Extract just the filename without path or extension
@@ -506,11 +524,13 @@ def gen_index_html(exclude_nsfw=False, exclude_mirrored=False, sfw_label="SFW", 
 <head>
     <title>{title}</title>
     {favicon}
+    {rss_link}
 {css}
 </head>
 <body>
     <h1>{title}</h1>
     <img src="images/100439997_p0.jpg" style="display: block; margin: 0 auto;" height=400>
+    <p style="text-align: center;"><a href="index.rss">RSS</a></p>
 """
 
     # Output categories
@@ -548,6 +568,23 @@ def gen_index():
     # Generate full index (includes everything)
     gen_index_html(exclude_nsfw=False, exclude_mirrored=False, sfw_label="SFW", output_filename="fullindex.html", title="Blog Posts")
 
+def get_publication_date(filepath):
+    """Date of the first commit of the article's markdown source, following renames.
+
+    Only the .md is consulted: the generated .html is mostly pandoc boilerplate,
+    so --follow happily "finds" unrelated files it was copied from.
+    Uncommitted articles fall back to the source's mtime.
+    """
+    md_file = splitext(filepath)[0] + ".md"
+    if os.path.exists(md_file):
+        log = subprocess.run(["git", "log", "--follow", "-M90%", "--format=%aI", "--", md_file],
+                             capture_output=True, text=True).stdout.split()
+        if log:
+            return datetime.fromisoformat(log[-1])
+    else:
+        md_file = filepath
+    return datetime.fromtimestamp(os.path.getmtime(md_file), timezone.utc)
+
 def gen_rss():
     # Only include Programming and SFW articles
     allowed_articles = {article
@@ -566,24 +603,31 @@ def gen_rss():
 
         title = escape_xml(get_title_from_html(filepath))
         description = escape_xml(get_description_from_html(filepath))
-        rss_items.append((filepath, title, description))
+        rss_items.append((filepath, title, description, get_publication_date(filepath)))
+
+    # Newest first
+    rss_items.sort(key=lambda item: item[3], reverse=True)
+
+    # Derived from the newest post rather than the clock, so regenerating doesn't churn the file.
+    last_build = f"\n    <lastBuildDate>{format_datetime(rss_items[0][3])}</lastBuildDate>" if rss_items else ""
 
     # Build RSS feed
-    rss = """<?xml version="1.0" encoding="UTF-8"?>
+    rss = f"""<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Blog Posts</title>
-    <link>https://apaz-cli.github.io/blog/</link>
-    <description>Programming and thoughts</description>
-    <atom:link href="https://apaz-cli.github.io/blog/index.rss" rel="self" type="application/rss+xml" />
+    <link>{site_url}</link>
+    <description>Programming and thoughts</description>{last_build}
+    <atom:link href="{site_url}index.rss" rel="self" type="application/rss+xml" />
 """
 
-    for filename, title, description in rss_items:
-        link = f"https://apaz-cli.github.io/blog/{filename}"
+    for filename, title, description, pub_date in rss_items:
+        link = site_url + quote(filename)
         rss += f"""    <item>
       <title>{title}</title>
       <link>{link}</link>
       <guid>{link}</guid>
+      <pubDate>{format_datetime(pub_date)}</pubDate>
 """
         if description:
             rss += f"      <description>{description}</description>\n"
