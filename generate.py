@@ -3,6 +3,7 @@
 import re
 import os
 import sys
+import subprocess
 import concurrent.futures
 """
 The variables that you are meant to change are those that are defined in the first block here before the function definitions.
@@ -132,14 +133,14 @@ def makeDoc(data):
         file.write(page)
 
 
+# These run in threads alongside makeDoc, so they pass cwd= rather than os.chdir(),
+# which would change the working directory out from under the other threads.
 def makeBlog():
-    os.chdir('blog/')
-    os.system(f"./generate.py {sys.argv[1] if len(sys.argv) > 1 else ''}")
+    subprocess.run(["./generate.py", *sys.argv[1:2]], cwd="blog", check=True)
 
 
 def makeReadingList():
-    os.chdir('../reading/')
-    os.system(f"./generate.py")
+    subprocess.run(["./generate.py"], cwd="reading", check=True)
 
 
 if __name__ == "__main__":
@@ -151,8 +152,9 @@ if __name__ == "__main__":
         blog_future = executor.submit(makeBlog)
         reading_future = executor.submit(makeReadingList)
 
-        # Wait for all tasks to complete
-        concurrent.futures.wait([doc_future, blog_future, reading_future])
+        # Wait for all tasks to complete; result() re-raises any failure.
+        for future in (doc_future, blog_future, reading_future):
+            future.result()
 
     print('Created main HTML page.')
     print('Done.')

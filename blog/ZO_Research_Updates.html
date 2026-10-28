@@ -111,7 +111,7 @@
       overflow-wrap: normal;
     }
     .sourceCode {
-      font-size: 20px;
+      font-size: 17px;
     }
     hr {
       background-color: #1a1a1a;
@@ -172,7 +172,6 @@
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
     /* CSS for syntax highlighting */
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { line-height: 1.25; }
@@ -325,7 +324,7 @@
   pre, code {
       background-color: #333;
       font-family: "lemon", "Menlo", "Monaco", "Courier New";
-      font-size: 12;
+      font-size: 20px; /* Inline code: lemon's native (1:1) size. Blocks are set below. */
   }
 
   /* Pandoc's default table borders are #1a1a1a, invisible on the dark background. */
@@ -376,14 +375,32 @@
   }
 
   #font-toggle { display: none; }
-  /* The label is anchored to .code-wrap, which does NOT scroll, while the
-     scroll container (div.sourceCode/pre) inside it does — so the "font"
-     button stays fixed in the corner as the code scrolls behind it. */
+  /* The buttons are anchored to .code-wrap, which does NOT scroll, while the
+     scroll container (div.sourceCode/pre) inside it does — so the "font" and
+     "fit" buttons stay fixed in the corner as the code scrolls behind them. */
   .code-wrap { position: relative; }
-  .code-wrap > label {
+  /* Slight fade on the right edge, hinting that long lines scroll. Sits in the
+     non-scrolling .code-wrap so it stays put; fades into the block's own background.
+     .overflows is set by the script below. */
+  .code-wrap.overflows::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 12px;
+      pointer-events: none;
+      background: linear-gradient(to right, rgba(51, 51, 51, 0), #333);
+  }
+  .code-buttons {
       position: absolute;
       top: 0.3rem;
       right: 0.3rem;
+      z-index: 1;
+      display: flex;
+      gap: 0.3rem;
+  }
+  .code-buttons > * {
       cursor: pointer;
       color: #666;
       padding: 0.1em 0.4em;
@@ -391,17 +408,34 @@
       font-family: "lemon", "Menlo", "Monaco", "Courier New";
       font-size: 10px;
       user-select: none;
-      z-index: 1;
       background: #2a2a2a;
       line-height: 1.4;
+      margin: 0;
   }
-  html:has(#font-toggle:checked) .code-wrap > label {
+  /* "fit" only appears while there's something to fit, or something to undo. */
+  .code-wrap:not(.overflows):not(.fitted) .fit-btn { display: none; }
+  .code-wrap.fitted .fit-btn { color: #01ff70; border-color: #01ff70; }
+  html:has(#font-toggle:checked) .code-buttons > * {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
   html:has(#font-toggle:checked) pre,
   html:has(#font-toggle:checked) code {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
+
+  /* Math: TeX in the markdown, rendered to MathML by pandoc (--mathml), drawn by the
+     browser. Termes is a Times-style math font, matching the prose. */
+  @font-face {
+      font-family: "TeX Gyre Termes Math";
+      src: url('../resources/style/texgyretermes-math.woff2') format('woff2');
+  }
+  math { font-family: "TeX Gyre Termes Math", math; }
+  /* Display equations are styled like code blocks: same panel, and they scroll
+     sideways with the fade and "fit" button when too wide. */
+  .math-wrap { display: block; margin: 1em 0; background-color: #333; }
+  .math-scroll { display: block; overflow-x: auto; overflow-y: hidden; padding: 0.5rem; }
+  /* Tall fractions would run into the button, so make room above the equation while it shows. */
+  .math-wrap.overflows .math-scroll, .math-wrap.fitted .math-scroll { padding-top: 1.4rem; }
 
   code span.dt { color: #e4a51e; } /* DataType */
 
@@ -413,6 +447,8 @@
   }
 
   pre code {
+      /* Matches .sourceCode blocks, set in blog/generate.py. */
+      font-size: 17px;
       display: block;
       min-width: max-content;
       padding: .5rem;
@@ -439,6 +475,59 @@
       }
   }
   </style>
+  <script>
+  /* Code block (and display equation) controls. Marks blocks whose lines overflow (.overflows shows the
+     fade and the "fit" button), and implements "fit": shrink that block's font
+     until its longest line fits the available width. Clicking again restores it.
+     Exposed as initCodeBlocks() so password-protected pages can rerun it after
+     swapping in the decrypted body. */
+  (function () {
+      const wraps = () => document.querySelectorAll(".code-wrap");
+      const box = (wrap) => wrap.lastElementChild;  // the scroll container: div.sourceCode, pre, or .math-scroll
+      const code = (wrap) => wrap.querySelector("pre > code, math");
+      const overflowing = (el) => el.scrollWidth > el.clientWidth + 1;
+
+      function fit(wrap) {
+          const b = box(wrap), c = code(wrap);
+          c.style.fontSize = "";
+          // Glyphs scale with font size but the padding doesn't, so a few passes converge.
+          for (let i = 0; i < 8 && overflowing(b); i++) {
+              const size = parseFloat(getComputedStyle(c).fontSize);
+              c.style.fontSize = (size * b.clientWidth / b.scrollWidth - 0.1).toFixed(2) + "px";
+          }
+      }
+
+      function update() {
+          for (const wrap of wraps()) {
+              if (wrap.classList.contains("fitted")) fit(wrap);
+              wrap.classList.toggle("overflows", overflowing(box(wrap)));
+          }
+      }
+
+      function init() {
+          for (const wrap of wraps()) {
+              const btn = wrap.querySelector(".fit-btn");
+              if (!btn || btn.dataset.ready) continue;
+              btn.dataset.ready = "1";
+              btn.addEventListener("click", () => {
+                  if (wrap.classList.toggle("fitted")) fit(wrap);
+                  else code(wrap).style.fontSize = "";
+                  update();
+              });
+          }
+          update();
+      }
+
+      window.initCodeBlocks = init;
+      document.addEventListener("DOMContentLoaded", init);
+      window.addEventListener("resize", update);
+      // Widths change once lemon loads, and when the "font" toggle swaps typefaces.
+      document.fonts.ready.then(update);
+      document.addEventListener("change", (e) => {
+          if (e.target.id === "font-toggle") requestAnimationFrame(update);
+      });
+  })();
+  </script>
 </head>
 <body>
 <input type="checkbox" id="font-toggle">
@@ -472,7 +561,7 @@ data-cites="apaz_cli">@apaz_cli</span></a>, that works too.</p>
 href="https://arxiv.org/abs/2609.37899">SOMA</a>, by a team out of
 Stanford. Here's the method:</p>
 <div class="algo">
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <div class="sourceCode" id="cb1"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> soma_step(θ_e, b):                       <span class="co"># one update of one expert</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    grad_est <span class="op">=</span> zeros(p <span class="op">//</span> N)</span>
@@ -661,7 +750,7 @@ on net.</p>
 <p>The next is <a href="https://qlabs.sh/research/dust">Dust</a>, out of
 qlabs. The method:</p>
 <div class="algo">
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <div class="sourceCode" id="cb2"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> dust_step(θ, b):</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    ℓ, X <span class="op">=</span> forward(Φ, θ, b)                            <span class="co"># save each layer&#39;s input X[W]</span></span>
@@ -848,7 +937,7 @@ At small scales it appears to be a very good approximation. I measure
 the effect in some experiments later in the article.</p>
 <p>Next, returning to the population size argument, recall from the last
 article the gradient variance formula for SPSA:</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>Var(grad_est) = ∇L(Φ(θ))² / Z
               + ∇L(Φ(θ,xᵢ))² / ZB</code></pre></div>
 <p>Where the first term is the noise from sampling perturbations, and
@@ -862,7 +951,7 @@ one, which becomes the dominant source of variance as you increase the
 parameter count. And we desperately want to increase the parameter
 count.</p>
 <p>The virtual population method effectively takes you from the</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>B = seq_len
 Z = n_pert
 
@@ -888,7 +977,7 @@ SNR does that give? Then we'll compare it to MeZO and SPSA.</p>
 <code>X</code> and output <code>Y</code>. Dust adds gaussian noise to
 <code>Y</code>, drawn separately for every token. For each token
 <code>t</code>, the update rule is:</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>proj_gradₜ = (Lₜ(Φ(θ, b; Y + εz)) - Lₜ(Φ(θ, b))) / ε
 grad_Yₜ    = proj_gradₜ * zₜ
 
@@ -926,7 +1015,7 @@ href="https://en.wikipedia.org/wiki/Zero_bias_transform">generalized</a>
 version of <a
 href="https://en.wikipedia.org/wiki/Stein%27s_lemma">Stein's Lemma</a>.
 Apply it with <code>f(z) = Lₜ(Φ(θ, b; Y + εz))</code>:</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>E[grad_Yₜ] = E[proj_gradₜ * zₜ]                                       (definition of grad_Yₜ)
            = E[(Lₜ(Φ(θ, b; Y + εz)) - Lₜ(Φ(θ, b))) * zₜ] / ε          (definition of proj_gradₜ)
            = E[Lₜ(Φ(θ, b; Y + εz)) * zₜ] / ε - Lₜ(Φ(θ, b)) * E[zₜ] / ε (distribute)
@@ -938,7 +1027,7 @@ that token's gradient. You can then average them and take a step.</p>
 <code>∇ₜLₜ</code>, which is how token <code>t</code>'s activations
 affect token <code>t</code>'s loss. But these activations also affect
 every later token's loss, through attention. The true gradient is:</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>∇ₜL = ∇ₜLₜ + Σᵤ&gt;ₜ ∇ₜLᵤ</code></pre></div>
 <p>That is a different thing than a reduction of the individual
 <code>∇ₜLₜ</code> per-token gradients. But how much does this matter?
@@ -952,7 +1041,7 @@ left over. By Stein's Lemma again (yay!), the best linear fit is
 <code>Σₛ ∇ₛLₜ · zₛ</code>, for every token <code>s ≤ t</code>. Then
 there is some uncorrelated extra part which is nonlinear, we'll call
 this remainder term <code>rₜ</code>.</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>proj_gradₜ = Σₛ&lt;ₜ ∇ₛLₜ · zₛ + rₜ                     (summing over s ≤ t)
 
 E[proj_gradₜ²] = E[(Σₛ ∇ₛLₜ · zₛ)²] + E[rₜ²]
@@ -985,21 +1074,21 @@ Dust</h4>
 <p>Now the SNR, for one perturbation of one token. Recall that the
 signal is <code>||E[grad_Yₜ]||² = ||∇ₜLₜ||²</code>. Now for the
 noise.</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>grad_Yₜ = proj_gradₜ * zₜ
 so
 E[||grad_Yₜ||²] = E[proj_gradₜ² * ||zₜ||²]
                 ≈ E[proj_gradₜ²] * d_out                    (||zₜ||² is about d_out, and exactly d_out for Rademacher)
                 = ||∇ₜLₜ||² * (1 + κₜ + ηₜ) * d_out</code></pre></div>
 <p>Therefore, we can define the tokenwise-layerwise SNR as follows.</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>SNR ≈ ||E[grad_Yₜ]||² / E[||grad_Yₜ||²]
     = 1 / (d_out * (1 + κₜ + ηₜ))</code></pre></div>
 <p>Since each token <code>t</code> of <code>T</code> tokens is
 independent, and each draw of <code>Z</code> total draws of every layer
 is independent, it is easy to derive the SNR of the full Dust
 update.</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>SNR ≈ ZT / (d_out (1 + κ + η))</code></pre></div>
 <p>This is for a cost of <code>Z * n_layers</code> many partial forward
 passes, with a cost on average of half a full forward pass, as some will
@@ -1013,7 +1102,7 @@ paper does about it.</p>
 <code>t</code>'s activations affect token <code>t</code>'s own loss. But
 those activations also change the loss of every token that comes later,
 through attention. The true gradient is the full causal sum:</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>∇ₜL = ∇ₜLₜ + Σᵤ&gt;ₜ ∇ₜLᵤ</code></pre></div>
 <p>Dust drops everything after the first term. For most parameters this
 is a small bias, which is why Dust works. But for the attention keys and
@@ -1023,7 +1112,7 @@ signal.</p>
 decaying share of every later token's loss. Token <code>u</code> counts
 for <code>γ^(u-t)</code> of its loss, for some discount <code>γ</code>
 between 0 and 1:</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>L̃ₜ = Lₜ + γ·Lₜ₊₁ + γ²·Lₜ₊₂ + γ³·Lₜ₊₃ + ...
     = Σᵤ≥ₜ γ^(u-t) Lᵤ</code></pre></div>
 <p>The paper writes this as a reward, <code>rₜ = Σᵤ≥ₜ γ^(u-t) cᵤ</code>,
@@ -1032,11 +1121,11 @@ opposite sign. I'll keep losses.</p>
 <p><code>L̃ₜ</code> is token <code>t</code>'s loss plus a decaying share
 of every later token's loss. The γ-estimator is Dust's rule with
 <code>L̃ₜ</code> in place of <code>Lₜ</code>:</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>proj_gradₜ = (L̃ₜ(Φ(θ, b; Y + εz)) - L̃ₜ(Φ(θ, b))) / ε
 grad_Yₜ    = proj_gradₜ * zₜ</code></pre></div>
 <p>Stein's Lemma again, applied to <code>L̃ₜ</code>:</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>E[grad_Yₜ] = ∇ₜL̃ₜ
            = ∇ₜLₜ + γ·∇ₜLₜ₊₁ + γ²·∇ₜLₜ₊₂ + ...
            = Σᵤ≥ₜ γ^(u-t) ∇ₜLᵤ</code></pre></div>
@@ -1047,7 +1136,7 @@ discount vanishes and <code>E[grad_Yₜ] = ∇ₜL</code>, the true gradient.
 In between, the estimator blends them geometrically, older losses
 decaying as <code>γ^(u-t)</code>.</p>
 <p>The bias is the gap between the two:</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>biasₜ = E[grad_Yₜ] - ∇ₜL
       = Σᵤ&gt;ₜ (γ^(u-t) - 1) · ∇ₜLᵤ</code></pre></div>
 <p>zero at <code>γ = 1</code>, and <code>-Σᵤ&gt;ₜ ∇ₜLᵤ</code> at
@@ -1059,16 +1148,16 @@ article.</p>
 means later tokens' noise now lands in the estimate. Repeating the
 variance decomposition from before, the linear part of the reward gains
 one term per later loss:</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>proj_gradₜ = Σₛ zₛ · (Σᵤ≥max(t,s) γ^(u-t) ∇ₛLᵤ) + r̃ₜ</code></pre></div>
 <p>For <code>s = t</code> the coefficient is
 <code>Σᵤ≥ₜ γ^(u-t) ∇ₜLᵤ = E[grad_Yₜ]</code>, the signal itself. For
 <code>s &lt; t</code> it is the leakage from earlier tokens, now spilled
 into every discounted later loss. So</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>E[proj_gradₜ²] = ||E[grad_Yₜ]||² + Σₛ&lt;ₜ ||Σᵤ≥ₜ γ^(u-t) ∇ₛLᵤ||² + E[r̃ₜ²]</code></pre></div>
 <p>and the SNR keeps the same shape as before,</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>SNR ≈ 1 / (d_out · (1 + κ̃ₜ + η̃ₜ))
 
 κ̃ₜ = Σₛ&lt;ₜ ||Σᵤ≥ₜ γ^(u-t) ∇ₛLᵤ||² / ||E[grad_Yₜ]||²
@@ -1148,7 +1237,7 @@ the model, it becomes even more worth it. The proof of this is that Dust
 drastically overperforms versus other methods on pretraining tasks where
 gradient alignment is important.</p>
 <p>To summarize,</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>SNR(SPSA) ≈ Z / p
 SNR(Dust) ≈ ZT / (d_out * (1 + κ + η))
 SNR(Dust) / SNR(SPSA) per FLOP ≈ 4 * T * p / (n_layers * d_out * (1 + κ + η))</code></pre></div>
@@ -1237,7 +1326,7 @@ href="https://github.com/qlabs-eng/noise/pull/11">PR 11, "Boost →
 Cut"</a>. It's interesting, so I think it's worth talking about. The
 method:</p>
 <div class="algo">
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <div class="sourceCode" id="cb21"><pre
 class="sourceCode python"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> exact_grad(f, s):                                <span class="co"># forward differences along all d directions</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">sum</span>((f(s <span class="op">+</span> ε <span class="op">*</span> D[j]) <span class="op">-</span> f(s)) <span class="op">/</span> ε <span class="op">*</span> D[j] <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(d)) <span class="op">/</span> d</span>

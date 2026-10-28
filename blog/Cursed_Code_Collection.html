@@ -110,7 +110,7 @@
       overflow-wrap: normal;
     }
     .sourceCode {
-      font-size: 20px;
+      font-size: 17px;
     }
     hr {
       background-color: #1a1a1a;
@@ -171,7 +171,6 @@
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
     /* CSS for syntax highlighting */
     pre > code.sourceCode { white-space: pre; position: relative; }
     pre > code.sourceCode > span { line-height: 1.25; }
@@ -324,7 +323,7 @@
   pre, code {
       background-color: #333;
       font-family: "lemon", "Menlo", "Monaco", "Courier New";
-      font-size: 12;
+      font-size: 20px; /* Inline code: lemon's native (1:1) size. Blocks are set below. */
   }
 
   /* Pandoc's default table borders are #1a1a1a, invisible on the dark background. */
@@ -375,14 +374,32 @@
   }
 
   #font-toggle { display: none; }
-  /* The label is anchored to .code-wrap, which does NOT scroll, while the
-     scroll container (div.sourceCode/pre) inside it does — so the "font"
-     button stays fixed in the corner as the code scrolls behind it. */
+  /* The buttons are anchored to .code-wrap, which does NOT scroll, while the
+     scroll container (div.sourceCode/pre) inside it does — so the "font" and
+     "fit" buttons stay fixed in the corner as the code scrolls behind them. */
   .code-wrap { position: relative; }
-  .code-wrap > label {
+  /* Slight fade on the right edge, hinting that long lines scroll. Sits in the
+     non-scrolling .code-wrap so it stays put; fades into the block's own background.
+     .overflows is set by the script below. */
+  .code-wrap.overflows::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 12px;
+      pointer-events: none;
+      background: linear-gradient(to right, rgba(51, 51, 51, 0), #333);
+  }
+  .code-buttons {
       position: absolute;
       top: 0.3rem;
       right: 0.3rem;
+      z-index: 1;
+      display: flex;
+      gap: 0.3rem;
+  }
+  .code-buttons > * {
       cursor: pointer;
       color: #666;
       padding: 0.1em 0.4em;
@@ -390,17 +407,34 @@
       font-family: "lemon", "Menlo", "Monaco", "Courier New";
       font-size: 10px;
       user-select: none;
-      z-index: 1;
       background: #2a2a2a;
       line-height: 1.4;
+      margin: 0;
   }
-  html:has(#font-toggle:checked) .code-wrap > label {
+  /* "fit" only appears while there's something to fit, or something to undo. */
+  .code-wrap:not(.overflows):not(.fitted) .fit-btn { display: none; }
+  .code-wrap.fitted .fit-btn { color: #01ff70; border-color: #01ff70; }
+  html:has(#font-toggle:checked) .code-buttons > * {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
   html:has(#font-toggle:checked) pre,
   html:has(#font-toggle:checked) code {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
+
+  /* Math: TeX in the markdown, rendered to MathML by pandoc (--mathml), drawn by the
+     browser. Termes is a Times-style math font, matching the prose. */
+  @font-face {
+      font-family: "TeX Gyre Termes Math";
+      src: url('../resources/style/texgyretermes-math.woff2') format('woff2');
+  }
+  math { font-family: "TeX Gyre Termes Math", math; }
+  /* Display equations are styled like code blocks: same panel, and they scroll
+     sideways with the fade and "fit" button when too wide. */
+  .math-wrap { display: block; margin: 1em 0; background-color: #333; }
+  .math-scroll { display: block; overflow-x: auto; overflow-y: hidden; padding: 0.5rem; }
+  /* Tall fractions would run into the button, so make room above the equation while it shows. */
+  .math-wrap.overflows .math-scroll, .math-wrap.fitted .math-scroll { padding-top: 1.4rem; }
 
   code span.dt { color: #e4a51e; } /* DataType */
 
@@ -412,6 +446,8 @@
   }
 
   pre code {
+      /* Matches .sourceCode blocks, set in blog/generate.py. */
+      font-size: 17px;
       display: block;
       min-width: max-content;
       padding: .5rem;
@@ -438,6 +474,59 @@
       }
   }
   </style>
+  <script>
+  /* Code block (and display equation) controls. Marks blocks whose lines overflow (.overflows shows the
+     fade and the "fit" button), and implements "fit": shrink that block's font
+     until its longest line fits the available width. Clicking again restores it.
+     Exposed as initCodeBlocks() so password-protected pages can rerun it after
+     swapping in the decrypted body. */
+  (function () {
+      const wraps = () => document.querySelectorAll(".code-wrap");
+      const box = (wrap) => wrap.lastElementChild;  // the scroll container: div.sourceCode, pre, or .math-scroll
+      const code = (wrap) => wrap.querySelector("pre > code, math");
+      const overflowing = (el) => el.scrollWidth > el.clientWidth + 1;
+
+      function fit(wrap) {
+          const b = box(wrap), c = code(wrap);
+          c.style.fontSize = "";
+          // Glyphs scale with font size but the padding doesn't, so a few passes converge.
+          for (let i = 0; i < 8 && overflowing(b); i++) {
+              const size = parseFloat(getComputedStyle(c).fontSize);
+              c.style.fontSize = (size * b.clientWidth / b.scrollWidth - 0.1).toFixed(2) + "px";
+          }
+      }
+
+      function update() {
+          for (const wrap of wraps()) {
+              if (wrap.classList.contains("fitted")) fit(wrap);
+              wrap.classList.toggle("overflows", overflowing(box(wrap)));
+          }
+      }
+
+      function init() {
+          for (const wrap of wraps()) {
+              const btn = wrap.querySelector(".fit-btn");
+              if (!btn || btn.dataset.ready) continue;
+              btn.dataset.ready = "1";
+              btn.addEventListener("click", () => {
+                  if (wrap.classList.toggle("fitted")) fit(wrap);
+                  else code(wrap).style.fontSize = "";
+                  update();
+              });
+          }
+          update();
+      }
+
+      window.initCodeBlocks = init;
+      document.addEventListener("DOMContentLoaded", init);
+      window.addEventListener("resize", update);
+      // Widths change once lemon loads, and when the "font" toggle swaps typefaces.
+      document.fonts.ready.then(update);
+      document.addEventListener("change", (e) => {
+          if (e.target.id === "font-toggle") requestAnimationFrame(update);
+      });
+  })();
+  </script>
 </head>
 <body>
 <input type="checkbox" id="font-toggle">
@@ -446,7 +535,7 @@
 I'm putting them here.</p>
 <hr>
 <p>The shebang for C is just a little bit longer than one line.</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#if 0</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">TMP=</span><span class="st">&quot;$(mktemp -d)&quot;</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">cc -o </span><span class="st">&quot;$TMP/a.out&quot;</span><span class="co"> -x c </span><span class="st">&quot;$0&quot;</span><span class="co"> &amp;&amp; </span><span class="st">&quot;$TMP/a.out&quot;</span><span class="co"> $@</span></span>
@@ -463,7 +552,7 @@ I'm putting them here.</p>
 <p>Open a file, swap the nibbles of every byte, and write it back. I'm
 not sure if this error handling macro is big brain or small brain. For
 sure it wouldn't pass code review.</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;unistd.h&gt;</span></span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;fcntl.h&gt;</span></span>
@@ -492,7 +581,7 @@ sure it wouldn't pass code review.</p>
 <span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></div>
 <hr>
 <p>Annihilate your python runtime.</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <div class="sourceCode" id="cb3"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>da, di <span class="op">=</span> <span class="bu">delattr</span>, <span class="bu">dir</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>shred_runtime <span class="op">=</span> <span class="kw">lambda</span>: [da(__builtins__, a) <span class="cf">for</span> a <span class="kw">in</span> di(__builtins__)]</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>shred_runtime()</span>
@@ -507,7 +596,7 @@ quite the way you think they do. For a more complete explanation, see:
 <a
 href="https://utcc.utoronto.ca/~cks/space/blog/python/UnderstandingClosureOddity">Understanding
 a Python closure oddity</a>.</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <div class="sourceCode" id="cb4"><pre class="sourceCode py"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> loop():</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> number <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">5</span>):</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="kw">def</span> closure():</span>
@@ -525,7 +614,7 @@ you have. This is less cursed code, and more just the most sane way of
 doing things. But the fact that <code>_Generic</code> is actually the
 best solution to any problem is baffling, and cursed in its own
 right.</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;string.h&gt;</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -543,7 +632,7 @@ href="https://twitter.com/Morwenn_Ed">Morwenn</a>. This was originally a
 meme, but somehow it made it onto <a
 href="https://en.wikipedia.org/wiki/Digraphs_and_trigraphs_(programming)">the
 wikipedia page</a>!</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> trigraphsavailable<span class="op">()</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// are trigraphs available??/</span></span>
@@ -553,7 +642,7 @@ wikipedia page</a>!</p>
 <hr>
 <h2 id="hello-world-programs">Hello World Programs</h2>
 <p>Why write C when you can just write out an ELF file directly?</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define </span><span class="ot">_GNU_SOURCE</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;sys/mman.h&gt;</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;unistd.h&gt;</span></span>
@@ -579,7 +668,7 @@ string and runs it. The function exists in many dynamic programming
 languages, like Javascript, Python, Perl, Ruby, and Lisp. Not in C
 though, because C is a statically compiled language. But what if I told
 you it existed in C as well?</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdlib.h&gt;</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;dlfcn.h&gt;</span></span>
@@ -606,7 +695,7 @@ with a call to <code>memset()</code>, and it calls our memset rather
 than the one from the stdlib, because that one hasn't been included. To
 disable this behavior, you can use the compiler flag
 <code>-fno-builtin</code>.</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span><span class="op">*</span> memset<span class="op">(</span><span class="dt">void</span><span class="op">*</span> s<span class="op">,</span> <span class="dt">int</span> c<span class="op">,</span> <span class="dt">size_t</span> n<span class="op">)</span> <span class="op">{</span></span>
@@ -621,7 +710,7 @@ disable this behavior, you can use the compiler flag
 <code>/dev/urandom</code> forever. For some reason Clang does not,
 doesn't even error, and compiles a functional hello world program.
 Absolutely wild.</p>
-<div class="code-wrap"><label for="font-toggle">font</label>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <div class="sourceCode" id="cb10"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;/dev/urandom&gt;</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#include </span><span class="im">&lt;stdio.h&gt;</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>

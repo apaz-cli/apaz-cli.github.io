@@ -79,7 +79,7 @@ def escape_xml(text):
     return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
 
 replace = r"\s+.sourceCode {\s+background-color: transparent;\s+overflow: visible;\s+}"
-repwith = "\n    .sourceCode {\n      font-size: 20px;\n    }"
+repwith = "\n    .sourceCode {\n      font-size: 17px;\n    }"
 
 # Categories: list of (name, articles)
 categories = [
@@ -179,12 +179,12 @@ def create_encrypted_html(original_html, password, title):
     with open(cryptojs_path) as js_file:
         cryptojs_code = js_file.read()
 
-    # Extract all CSS from the original HTML's head section
+    # Extract all CSS (and the code block script that ships with it) from the original HTML's head section
     css_content = ""
     head_match = re.search(r'<head>(.*?)</head>', original_html, re.DOTALL)
     if head_match:
         head_content = head_match.group(1)
-        css_content = '\n'.join(re.findall(r'<style[^>]*>.*?</style>', head_content, re.DOTALL))
+        css_content = '\n'.join(m.group() for m in re.finditer(r'<(style|script)[^>]*>.*?</\1>', head_content, re.DOTALL))
     else:
         with open(stylefile, "r") as css_file:
             css_content = css_file.read()
@@ -307,6 +307,7 @@ def create_encrypted_html(original_html, password, title):
 
                     // Replace body content with decrypted content
                     document.body.innerHTML = decryptedContent;
+                    if (window.initCodeBlocks) initCodeBlocks();
                 }} catch (e) {{
                     console.error('Decryption error:', e);
                     errorMsg.style.color = 'red';
@@ -340,9 +341,12 @@ def get_title_from_html(filepath):
             return splitext(filepath)[0]
 
 def get_description_from_html(filepath):
-    STOP_TAGS = ['<pre', '<div class="sourceCode"', '<table', '<ul', '<ol']
+    STOP_TAGS = ['<pre', '<div class="sourceCode"', '<table', '<ul', '<ol', '<math display="block"']
 
     def clean_text(html):
+        # Math becomes its TeX source; the MathML's text content is an unreadable jumble.
+        html = re.sub(r'<math[^>]*>.*?<annotation encoding="application/x-tex">(.*?)</annotation>.*?</math>',
+                      lambda m: '$' + m.group(1).strip() + '$', html, flags=re.DOTALL)
         # Pandoc hard-wraps paragraphs, so collapse the newlines it leaves behind.
         text = html_unescape(re.sub(r'<[^>]+>', '', html))
         return re.sub(r'\s+', ' ', text).strip()
@@ -452,9 +456,9 @@ def generate_article(i, md_file):
         unstyled_path = unstyled_file
 
     # Generate HTML with pandoc
-    run(f'pandoc -s --metadata pagetitle="{display_title}" -f markdown-smart -H {stylefile} {md_file} -o {styled_path}')
+    run(f'pandoc -s --metadata pagetitle="{display_title}" -f markdown-smart --mathml -H {stylefile} {md_file} -o {styled_path}')
     if not is_protected:
-        run(f'pandoc -s --metadata pagetitle="{display_title}" -f markdown-smart {md_file} -o {unstyled_path}')
+        run(f'pandoc -s --metadata pagetitle="{display_title}" -f markdown-smart --mathml {md_file} -o {unstyled_path}')
 
     # Process styled version
     with open(styled_path) as file:
@@ -463,13 +467,23 @@ def generate_article(i, md_file):
         html = replace_meta_with_opengraph(html, styled_path)
         html = html.replace('<body>', '<body>\n<input type="checkbox" id="font-toggle">', 1)
         # Wrap each code block in a non-scrolling .code-wrap and put the "font"
-        # label there (a sibling of the scroll container), so the button stays
-        # fixed in the corner while the code scrolls behind it.
+        # and "fit" buttons there (siblings of the scroll container), so they stay
+        # fixed in the corner while the code scrolls behind them. The scroll
+        # container must stay the wrap's last child; the script in the stylefile relies on it.
+        code_buttons = ('<div class="code-buttons"><label for="font-toggle">font</label>'
+                        '<button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>\n')
         html = re.sub(r'<div class="sourceCode"[^>]*>.*?</div>',
-                      lambda m: '<div class="code-wrap"><label for="font-toggle">font</label>\n' + m.group() + '</div>',
+                      lambda m: '<div class="code-wrap">' + code_buttons + m.group() + '</div>',
                       html, flags=re.DOTALL)
         html = re.sub(r'<pre><code>.*?</code></pre>',
-                      lambda m: '<div class="code-wrap"><label for="font-toggle">font</label>\n' + m.group() + '</div>',
+                      lambda m: '<div class="code-wrap">' + code_buttons + m.group() + '</div>',
+                      html, flags=re.DOTALL)
+        # Display equations get the same scroll container and "fit" button (no "font").
+        # Spans rather than divs: pandoc puts display math inside a <p>.
+        html = re.sub(r'<math display="block".*?</math>',
+                      lambda m: ('<span class="code-wrap math-wrap"><span class="code-buttons">'
+                                 '<button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></span>'
+                                 '<span class="math-scroll">' + m.group() + '</span></span>'),
                       html, flags=re.DOTALL)
 
     if is_protected:

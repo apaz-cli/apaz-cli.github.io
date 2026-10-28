@@ -109,7 +109,7 @@
       overflow-wrap: normal;
     }
     .sourceCode {
-      font-size: 20px;
+      font-size: 17px;
     }
     hr {
       background-color: #1a1a1a;
@@ -170,7 +170,6 @@
       margin: 0 0.8em 0.2em -1.6em;
       vertical-align: middle;
     }
-    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
   </style>
   <style type="text/css">
   /* https://github.com/markdowncss/retro/blob/master/css/retro.css */
@@ -259,7 +258,7 @@
   pre, code {
       background-color: #333;
       font-family: "lemon", "Menlo", "Monaco", "Courier New";
-      font-size: 12;
+      font-size: 20px; /* Inline code: lemon's native (1:1) size. Blocks are set below. */
   }
 
   /* Pandoc's default table borders are #1a1a1a, invisible on the dark background. */
@@ -310,14 +309,32 @@
   }
 
   #font-toggle { display: none; }
-  /* The label is anchored to .code-wrap, which does NOT scroll, while the
-     scroll container (div.sourceCode/pre) inside it does — so the "font"
-     button stays fixed in the corner as the code scrolls behind it. */
+  /* The buttons are anchored to .code-wrap, which does NOT scroll, while the
+     scroll container (div.sourceCode/pre) inside it does — so the "font" and
+     "fit" buttons stay fixed in the corner as the code scrolls behind them. */
   .code-wrap { position: relative; }
-  .code-wrap > label {
+  /* Slight fade on the right edge, hinting that long lines scroll. Sits in the
+     non-scrolling .code-wrap so it stays put; fades into the block's own background.
+     .overflows is set by the script below. */
+  .code-wrap.overflows::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 12px;
+      pointer-events: none;
+      background: linear-gradient(to right, rgba(51, 51, 51, 0), #333);
+  }
+  .code-buttons {
       position: absolute;
       top: 0.3rem;
       right: 0.3rem;
+      z-index: 1;
+      display: flex;
+      gap: 0.3rem;
+  }
+  .code-buttons > * {
       cursor: pointer;
       color: #666;
       padding: 0.1em 0.4em;
@@ -325,17 +342,34 @@
       font-family: "lemon", "Menlo", "Monaco", "Courier New";
       font-size: 10px;
       user-select: none;
-      z-index: 1;
       background: #2a2a2a;
       line-height: 1.4;
+      margin: 0;
   }
-  html:has(#font-toggle:checked) .code-wrap > label {
+  /* "fit" only appears while there's something to fit, or something to undo. */
+  .code-wrap:not(.overflows):not(.fitted) .fit-btn { display: none; }
+  .code-wrap.fitted .fit-btn { color: #01ff70; border-color: #01ff70; }
+  html:has(#font-toggle:checked) .code-buttons > * {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
   html:has(#font-toggle:checked) pre,
   html:has(#font-toggle:checked) code {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
+
+  /* Math: TeX in the markdown, rendered to MathML by pandoc (--mathml), drawn by the
+     browser. Termes is a Times-style math font, matching the prose. */
+  @font-face {
+      font-family: "TeX Gyre Termes Math";
+      src: url('../resources/style/texgyretermes-math.woff2') format('woff2');
+  }
+  math { font-family: "TeX Gyre Termes Math", math; }
+  /* Display equations are styled like code blocks: same panel, and they scroll
+     sideways with the fade and "fit" button when too wide. */
+  .math-wrap { display: block; margin: 1em 0; background-color: #333; }
+  .math-scroll { display: block; overflow-x: auto; overflow-y: hidden; padding: 0.5rem; }
+  /* Tall fractions would run into the button, so make room above the equation while it shows. */
+  .math-wrap.overflows .math-scroll, .math-wrap.fitted .math-scroll { padding-top: 1.4rem; }
 
   code span.dt { color: #e4a51e; } /* DataType */
 
@@ -347,6 +381,8 @@
   }
 
   pre code {
+      /* Matches .sourceCode blocks, set in blog/generate.py. */
+      font-size: 17px;
       display: block;
       min-width: max-content;
       padding: .5rem;
@@ -373,6 +409,59 @@
       }
   }
   </style>
+  <script>
+  /* Code block (and display equation) controls. Marks blocks whose lines overflow (.overflows shows the
+     fade and the "fit" button), and implements "fit": shrink that block's font
+     until its longest line fits the available width. Clicking again restores it.
+     Exposed as initCodeBlocks() so password-protected pages can rerun it after
+     swapping in the decrypted body. */
+  (function () {
+      const wraps = () => document.querySelectorAll(".code-wrap");
+      const box = (wrap) => wrap.lastElementChild;  // the scroll container: div.sourceCode, pre, or .math-scroll
+      const code = (wrap) => wrap.querySelector("pre > code, math");
+      const overflowing = (el) => el.scrollWidth > el.clientWidth + 1;
+
+      function fit(wrap) {
+          const b = box(wrap), c = code(wrap);
+          c.style.fontSize = "";
+          // Glyphs scale with font size but the padding doesn't, so a few passes converge.
+          for (let i = 0; i < 8 && overflowing(b); i++) {
+              const size = parseFloat(getComputedStyle(c).fontSize);
+              c.style.fontSize = (size * b.clientWidth / b.scrollWidth - 0.1).toFixed(2) + "px";
+          }
+      }
+
+      function update() {
+          for (const wrap of wraps()) {
+              if (wrap.classList.contains("fitted")) fit(wrap);
+              wrap.classList.toggle("overflows", overflowing(box(wrap)));
+          }
+      }
+
+      function init() {
+          for (const wrap of wraps()) {
+              const btn = wrap.querySelector(".fit-btn");
+              if (!btn || btn.dataset.ready) continue;
+              btn.dataset.ready = "1";
+              btn.addEventListener("click", () => {
+                  if (wrap.classList.toggle("fitted")) fit(wrap);
+                  else code(wrap).style.fontSize = "";
+                  update();
+              });
+          }
+          update();
+      }
+
+      window.initCodeBlocks = init;
+      document.addEventListener("DOMContentLoaded", init);
+      window.addEventListener("resize", update);
+      // Widths change once lemon loads, and when the "font" toggle swaps typefaces.
+      document.fonts.ready.then(update);
+      document.addEventListener("change", (e) => {
+          if (e.target.id === "font-toggle") requestAnimationFrame(update);
+      });
+  })();
+  </script>
 </head>
 <body>
 <input type="checkbox" id="font-toggle">
