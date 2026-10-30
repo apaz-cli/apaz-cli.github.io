@@ -9,6 +9,8 @@
 
 Since I wrote [Scaling Agents to Unfathomable Depth and Context With Zeroth-Order Optimization](Scaling_To_Unfathomable_Depth.html), there have been multiple good Zeroth Order Optimization papers, particularly for pretraining. People have been asking for my take on them. So here I am, writing an article. But I got a bit carried away.
 
+So, here's all the stuff I've been thinking about since the papers came out.
+
 ### How to Read This Article
 
 This is article going to appear really dense. That's fair, it's kinda a massive brain dump. Some parts are dense and complicated, but be not afraid, for the rest of the article is written to be very accessible.
@@ -343,7 +345,7 @@ E[grad_Yₜ] = ∇ₜL̃ₜ
 
 So `γ` interpolates. At `γ = 0`, plain Dust: `E[grad_Yₜ] = ∇ₜLₜ`, and the entire future `Σᵤ>ₜ ∇ₜLᵤ` is dropped. At `γ = 1`, the discount vanishes and `E[grad_Yₜ] = ∇ₜL`, the true gradient. In between, the estimator blends them geometrically, older losses decaying as `γ^(u-t)`.
 
-The bias is the gap between the two:
+The bias is the difference between the two:
 
 ```
 biasₜ = E[grad_Yₜ] - ∇ₜL
@@ -410,7 +412,7 @@ This works great, as long as `κ` is small. That is to say, as long as noise add
 
 So I trained small transformers on [TinyStories](https://huggingface.co/datasets/roneneldan/TinyStories) with the Dust repo, at three sizes, and compared it against backprop.
 
-The models are 2 layers of width 128, 4 of width 256, and 8 of width 512, which is the paper's shape. Every 25 or 50 steps I measured `κₜ`, and at saved checkpoints I measured `ηₜ`. The former is obtained by backpropagating each token's loss and isolating the contribution of previous tokens, and the latter by sampling perturbations as Dust does, and comparing the reward variance measured to first order predictions, in high precision. The code is [here](TODO).
+The models are 2 layers of width 128, 4 of width 256, and 8 of width 512, which is the paper's shape. Every 25 or 50 steps I measured `κₜ`, and at saved checkpoints I measured `ηₜ`. The former is obtained by backpropagating each token's loss and isolating the contribution of previous tokens, and the latter by sampling perturbations as Dust does, and comparing the reward variance measured to first order predictions, in high precision. The code is [here](https://github.com/apaz-cli/dust/tree/ap/dust_kappa_eta).
 
 Let's look first at `κ`.
 
@@ -448,11 +450,107 @@ The bias I've been describing is not the leakage we just measured. Leakage is no
 
 The activations come out of an RMSNorm, so each coordinate is about unit size, and Dust uses `ε = 0.2` or `0.4`. That's 20-40% noise. A bigger `ε` costs variance through `η`, and an `O(ε²)` smoothing bias, the same as ES. A smaller `ε` costs precision, because the bf16 rounding error in the loss difference gets divided by `ε`. The repo's deeper layers use `ε = 0.4`, because 0.2 "moves the loss too little ... for a readable reward." So `ε` has to be tuned, like ES's `σ`.
 
-##### The noise doesn't have to be gaussian
-
-All of this works for any noise with zero mean, unit variance, a symmetric distribution, and independent coordinates. Rademacher noise (every coordinate is ±1) works too, and is slightly less noisy, because every `zᵢ²` is exactly 1. The one rule you can't break is independence across tokens. Without it, the `T` estimates are correlated and the virtual population is gone.
-
 ### Parameters or Activations?
+
+When I first read the Dust paper, I was kind of confused. Aren't weight perturbations and activation perturbations the same thing, up to some rule to convert between the two? Yes, it turns out. Dust is equivalent to SPSA with a few changes. 
+
+Let's look at one linear layer `W`. Each token `t` comes in as a vector `X[W]ₜ`, and goes out as a vector `Yₜ`.
+
+```
+Yₜ = W @ X[W]ₜ
+
+For the layer's weights W, a matrix of shape [d_out, d_in],
+token t's input X[W]ₜ, a vector of length d_in,
+and token t's output Yₜ, a vector of length d_out.
+Stack all T tokens and you get X[W], of shape [T, d_in], and Y, of shape [T, d_out].
+```
+
+What we want is the gradient of the loss with respect to `W`. Backprop literally just gives you this. You can solve it with the chain rule. For one linear layer you have:
+
+```
+grad_W = Σₜ grad_Yₜ X[W]ₜᵀ
+```
+
+SPSA and Dust approximate this with perturbations instead of computing it directly. There are two places we could perturb: the weights `W`, or the layer's output `Y`. Dust measures `grad_Yₜ` and gets `grad_W` from this formula, like backprop does.
+
+
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/dust_vs_spsa.svg" width=700>
+<figcaption aria-hidden="true">Dust scores T nudges with T numbers. SPSA does one with one.</figcaption>
+</figure>
+</div>
+<br>
+
+So, here's the rule by which to convert between the two. Adding `ε * zₜ` to token `t`'s output is the same as nudging the weights, for token `t` alone, by a weight-shaped `z` of:
+
+```
+z⁽ᵗ⁾ = zₜ X[W]ₜᵀ / ||X[W]ₜ||²
+```
+
+Multiply `z⁽ᵗ⁾` by `X[W]ₜ` and you get `zₜ` back. So Dust is SPSA where every token gets its own weight nudge, and each nudge has a special shape. Each of those two changes buys something different.
+
+#### Change 1: Every token gets its own perturbation
+
+In SPSA, every token shares one `z`, so the whole batch is one experiment. In Dust, each token's perturbation is independent. So, `T` experiments per forward pass.
+
+Each `z⁽ᵗ⁾` is a rank-1 matrix, and it only applies to token `t`. We're sampling `T` of them. Look at one output channel across all `T` tokens. Dust draws `T` independent numbers for it, so it can point in any direction in `T` dimensions. Under SPSA, every token's nudge is `z @ X[W]ₜ`, so the same channel is always a combination of the `d_in` columns of `X[W]`. It can only reach `d_in` of the `T` dimensions. Usually `d_in` is much smaller than `T`, so trying to construct an equivalent perturbation under SPSA loses information.
+
+So, this is a pretty big gain. It is not impossible to construct the same thing in weight space, but you need a separate weight perturbation for every token, and SPSA has only one. Sort of like [Flipout](https://arxiv.org/abs/1803.04386), but on the batch/sample axis instead of token axis.
+
+#### Change 2: Perturb only what each token can see
+
+Recall SPSA's estimate from the last article:
+
+```
+proj_grad = (L(Φ(θ + εz, b)) - L(Φ(θ, b))) / ε
+grad_est  = proj_grad * z
+```
+
+The `z` has `d_out * d_in` entries. Token `t` is affected by `z @ X[W]ₜ`, which is `d_out` numbers. But the rest of `z` doesn't touch the output at all. Literally cannot affect anything.
+
+But SPSA's estimate multiplies `proj_grad` by all of `z`, so those entries come along for the ride as pure noise. Although they cannot affect anything, they are still a part of the update.
+
+Let's illustrate. Let `d_in = 2` and `X[W]ₜ = (1, 0)`. Only the first column of `z` moves the output. The true gradient in the second column is zero. SPSA writes `proj_grad` times a random column there anyway. Dust's `grad_Yₜ X[W]ₜᵀ` is exactly zero there.
+
+
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/dust_unseen.svg" width=700>
+<figcaption aria-hidden="true">The part of z a token can't see still lands in SPSA's estimate.</figcaption>
+</figure>
+</div>
+<br>
+
+So Dust skips about `d_in` dimensions of noise per token. This is called [Rao-Blackwellization](https://en.wikipedia.org/wiki/Rao%E2%80%93Blackwell_theorem). Average away the randomness that couldn't have affected what you measured. Do that to per-token SPSA and you get Dust's update exactly, except that a weight nudge of size `ε` moves the output by `ε ||X[W]ₜ||`. After an RMSNorm that's the same for every token, so it amounts to a different choice of `ε`.
+
+This also means you can't beat Dust by going back to weights. [Flipout](https://arxiv.org/abs/1803.04386) gives weight perturbations independence across examples for one extra matmul. Rao-Blackwellize it, and you're back to Dust.
+
+Summed over tokens, Dust's estimate points at the own-token gradient, which leaves out each token's effect on later tokens' losses. That's the bias from the Dust section. Leakage only adds noise on top.
+
+#### Change 3: Perturb layers individually
+
+Dust also perturbs each layer in its own forward pass. SPSA does them all at the same time. That's another fairly major difference.
+
+If you perturb two layers in the same pass, each layer's estimate picks up the other layer's noise, so its variance roughly doubles. Perturb them in separate passes, and you pay for twice the passes. So your SNR/flop roughly cancel.
+
+But if you cache the results of a forward pass and keep the activations around, you can re-run from only the perturbed activation (or weights) onward. This saves you about half the compute on average. But early layers have to rerun nearly everything.
+
+It's also true that early layers also have the most leakage and the most bias, so they're the expensive part of Dust on every axis.
+
+
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/dust_layers.svg" width=760>
+<figcaption aria-hidden="true">Splitting by layer trades variance for extra passes.</figcaption>
+</figure>
+</div>
+<br>
+
+This is not super ideal. Gotta figure out what to do about this.
 
 ## Noise
 
@@ -577,6 +675,15 @@ It's kinda obvious to me that there's more to be done for reducing bias. I think
 
 Also, obviously there is some work to be done with seeing how Dust scales to long sequences, different attention mechanisms, etc. I presume qlabs is already doing or has already done that, and so I leave it to them.
 
+<br>
+<div style="text-align: center;">
+<figure>
+<img src="images/Scaling_T.png" width=600>
+<figcaption aria-hidden="true">I agree. I think it's all about finding the right bias/variance/cost tradeoff.</figcaption>
+</figure>
+</div>
+<br>
+
 I think what we know how to do is something like the following.
 
 #### For Pretraining
@@ -586,7 +693,7 @@ I think what we know how to do is something like the following.
 Once you add recurrence, replaying the forward pass gets much more expensive. Once you make the forward pass not parallelizable, you miss a multiple of your batch size in the SNR. Traditionally, the appeal of ZO has been that you can do both without losing anything.
 
 #### For RL-style Posttraining
-* Or use SPSA or RandOpt or whatever, posttraining just works.
+* Just use SPSA or RandOpt or whatever, posttraining just works.
 
 I think Dust gets you basically nothing for posttraining, because the loss function is not separable. Assuming your arch has no recurrence, you can sample output perturbations and get some free SNR. But the gains aren't going to be, like, profound, because it already works pretty well.
 

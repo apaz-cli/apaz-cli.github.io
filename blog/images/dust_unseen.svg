@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 300" font-family="Menlo, Monaco, 'Courier New', monospace">
+  <rect width="760" height="300" fill="#222"/>
+
+  <!-- titles -->
+  <g font-size="15" text-anchor="middle" fill="#fafafa">
+    <text x="130" y="30">the nudge z</text>
+    <text x="380" y="30" fill="#e4a51e">SPSA's estimate</text>
+    <text x="630" y="30" fill="#70dd00">Dust's estimate</text>
+  </g>
+
+  <!-- panel 1: z, multiplied by X[W]ₜ = (1, 0) -->
+  <g font-size="14" text-anchor="middle">
+    <text x="105" y="62" fill="#70dd00">× 1</text>
+    <text x="165" y="62" fill="#777">× 0</text>
+    <rect x="75" y="72" width="60" height="50" fill="#333" stroke="#70dd00" stroke-width="2"/>
+    <rect x="75" y="122" width="60" height="50" fill="#333" stroke="#70dd00" stroke-width="2"/>
+    <rect x="135" y="72" width="60" height="50" fill="#2a2a2a" stroke="#555"/>
+    <rect x="135" y="122" width="60" height="50" fill="#2a2a2a" stroke="#555"/>
+    <text x="105" y="102" fill="#fafafa">z₁₁</text>
+    <text x="105" y="152" fill="#fafafa">z₂₁</text>
+    <text x="165" y="102" fill="#777">z₁₂</text>
+    <text x="165" y="152" fill="#777">z₂₂</text>
+  </g>
+  <g font-size="13" text-anchor="middle" fill="#bbb">
+    <text x="130" y="200">X[W]ₜ = (1, 0)</text>
+    <text x="130" y="230">column 1 moves Yₜ</text>
+    <text x="130" y="248">column 2 is never seen</text>
+  </g>
+
+  <!-- panel 2: SPSA estimate -->
+  <g font-size="14" text-anchor="middle">
+    <rect x="300" y="72" width="80" height="50" fill="#333" stroke="#777"/>
+    <rect x="300" y="122" width="80" height="50" fill="#333" stroke="#777"/>
+    <rect x="380" y="72" width="80" height="50" fill="#3a2626" stroke="#ff5555" stroke-width="2"/>
+    <rect x="380" y="122" width="80" height="50" fill="#3a2626" stroke="#ff5555" stroke-width="2"/>
+    <text x="340" y="102" fill="#fafafa">p·z₁₁</text>
+    <text x="340" y="152" fill="#fafafa">p·z₂₁</text>
+    <text x="420" y="102" fill="#ff5555">p·z₁₂</text>
+    <text x="420" y="152" fill="#ff5555">p·z₂₂</text>
+  </g>
+  <g font-size="13" text-anchor="middle" fill="#bbb">
+    <text x="380" y="200">p = proj_grad</text>
+    <text x="380" y="230">column 2: random numbers</text>
+    <text x="380" y="248">pure noise</text>
+  </g>
+
+  <!-- panel 3: Dust estimate -->
+  <g font-size="14" text-anchor="middle">
+    <rect x="550" y="72" width="80" height="50" fill="#333" stroke="#777"/>
+    <rect x="550" y="122" width="80" height="50" fill="#333" stroke="#777"/>
+    <rect x="630" y="72" width="80" height="50" fill="#26331a" stroke="#70dd00" stroke-width="2"/>
+    <rect x="630" y="122" width="80" height="50" fill="#26331a" stroke="#70dd00" stroke-width="2"/>
+    <text x="590" y="102" fill="#fafafa">g₁·1</text>
+    <text x="590" y="152" fill="#fafafa">g₂·1</text>
+    <text x="670" y="102" fill="#70dd00">g₁·0</text>
+    <text x="670" y="152" fill="#70dd00">g₂·0</text>
+  </g>
+  <g font-size="13" text-anchor="middle" fill="#bbb">
+    <text x="630" y="200">g = grad_Yₜ</text>
+    <text x="630" y="230">column 2: exactly 0</text>
+    <text x="630" y="248">the true gradient there</text>
+  </g>
+</svg>

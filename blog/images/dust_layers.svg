@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 330" font-family="Menlo, Monaco, 'Courier New', monospace">
+  <rect width="900" height="330" fill="#222"/>
+
+  <!-- row labels -->
+  <g font-size="14" fill="#bbb">
+    <text x="20" y="72">together,</text>
+    <text x="20" y="90">1 pass</text>
+    <text x="20" y="172">separate,</text>
+    <text x="20" y="190">pass A</text>
+    <text x="20" y="262">separate,</text>
+    <text x="20" y="280">pass B</text>
+  </g>
+  <line x1="20" y1="125" x2="880" y2="125" stroke="#444" stroke-dasharray="4 4"/>
+
+  <!-- column headers -->
+  <g font-size="13" text-anchor="middle" fill="#777">
+    <text x="205" y="30">layer 1</text>
+    <text x="295" y="30">layer 2</text>
+    <text x="385" y="30">layer 3</text>
+    <text x="475" y="30">layer 4</text>
+    <text x="560" y="30">loss</text>
+  </g>
+
+  <!-- row 1: both nudged, everything reruns -->
+  <g>
+    <rect x="170" y="62" width="70" height="36" rx="5" fill="#333" stroke="#e4a51e" stroke-width="2"/>
+    <rect x="260" y="62" width="70" height="36" rx="5" fill="#333" stroke="#fafafa"/>
+    <rect x="350" y="62" width="70" height="36" rx="5" fill="#333" stroke="#e4a51e" stroke-width="2"/>
+    <rect x="440" y="62" width="70" height="36" rx="5" fill="#333" stroke="#fafafa"/>
+    <rect x="530" y="62" width="60" height="36" rx="5" fill="#333" stroke="#fafafa"/>
+  </g>
+  <g font-size="14" text-anchor="middle" fill="#e4a51e">
+    <text x="205" y="85">+εz</text>
+    <text x="385" y="85">+εz</text>
+  </g>
+  <g font-size="13" fill="#bbb">
+    <text x="620" y="74">each estimate also carries</text>
+    <text x="620" y="92">the other nudge: ~2× variance</text>
+  </g>
+
+  <!-- row 2: layer 1 nudged, everything reruns -->
+  <g>
+    <rect x="170" y="162" width="70" height="36" rx="5" fill="#333" stroke="#70dd00" stroke-width="2"/>
+    <rect x="260" y="162" width="70" height="36" rx="5" fill="#333" stroke="#fafafa"/>
+    <rect x="350" y="162" width="70" height="36" rx="5" fill="#333" stroke="#fafafa"/>
+    <rect x="440" y="162" width="70" height="36" rx="5" fill="#333" stroke="#fafafa"/>
+    <rect x="530" y="162" width="60" height="36" rx="5" fill="#333" stroke="#fafafa"/>
+  </g>
+  <text x="205" y="185" font-size="14" text-anchor="middle" fill="#70dd00">+εz</text>
+  <g font-size="13" fill="#bbb">
+    <text x="620" y="174">reruns all 4 layers</text>
+  </g>
+
+  <!-- row 3: layer 3 nudged, layers 1-2 cached -->
+  <g>
+    <rect x="170" y="252" width="70" height="36" rx="5" fill="#2a2a2a" stroke="#555" stroke-dasharray="4 4"/>
+    <rect x="260" y="252" width="70" height="36" rx="5" fill="#2a2a2a" stroke="#555" stroke-dasharray="4 4"/>
+    <rect x="350" y="252" width="70" height="36" rx="5" fill="#333" stroke="#70dd00" stroke-width="2"/>
+    <rect x="440" y="252" width="70" height="36" rx="5" fill="#333" stroke="#fafafa"/>
+    <rect x="530" y="252" width="60" height="36" rx="5" fill="#333" stroke="#fafafa"/>
+  </g>
+  <g font-size="13" text-anchor="middle" fill="#555">
+    <text x="205" y="275">cached</text>
+    <text x="295" y="275">cached</text>
+  </g>
+  <text x="385" y="275" font-size="14" text-anchor="middle" fill="#70dd00">+εz</text>
+  <g font-size="13" fill="#bbb">
+    <text x="620" y="264">reruns layers 3-4 only:</text>
+    <text x="620" y="282">the only real saving</text>
+  </g>
+</svg>

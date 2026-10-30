@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 340" font-family="Menlo, Monaco, 'Courier New', monospace">
+  <defs>
+    <marker id="g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#70dd00"/></marker>
+    <marker id="o" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#e4a51e"/></marker>
+  </defs>
+  <rect width="760" height="340" fill="#222"/>
+  <line x1="380" y1="20" x2="380" y2="320" stroke="#444" stroke-dasharray="4 4"/>
+
+  <!-- titles -->
+  <g font-size="16" text-anchor="middle">
+    <text x="190" y="32" fill="#e4a51e">SPSA: nudge W</text>
+    <text x="570" y="32" fill="#70dd00">Dust: nudge each Yₜ</text>
+  </g>
+
+  <!-- SPSA: one shared nudge -->
+  <rect x="140" y="55" width="100" height="36" rx="5" fill="#333" stroke="#e4a51e" stroke-width="2"/>
+  <text x="190" y="79" font-size="15" text-anchor="middle" fill="#e4a51e">ε z</text>
+  <g stroke="#e4a51e" stroke-width="2" marker-end="url(#o)">
+    <line x1="175" y1="91" x2="70" y2="146"/>
+    <line x1="185" y1="91" x2="150" y2="146"/>
+    <line x1="195" y1="91" x2="230" y2="146"/>
+    <line x1="205" y1="91" x2="310" y2="146"/>
+  </g>
+  <g stroke="#777" stroke-width="2" marker-end="url(#o)">
+    <line x1="70" y1="184" x2="170" y2="242"/>
+    <line x1="150" y1="184" x2="182" y2="242"/>
+    <line x1="230" y1="184" x2="198" y2="242"/>
+    <line x1="310" y1="184" x2="210" y2="242"/>
+  </g>
+  <g font-size="14" text-anchor="middle">
+    <rect x="40" y="150" width="60" height="34" rx="5" fill="#333" stroke="#777"/>
+    <rect x="120" y="150" width="60" height="34" rx="5" fill="#333" stroke="#777"/>
+    <rect x="200" y="150" width="60" height="34" rx="5" fill="#333" stroke="#777"/>
+    <rect x="280" y="150" width="60" height="34" rx="5" fill="#333" stroke="#777"/>
+    <text x="70" y="172" fill="#fafafa">Y₁</text>
+    <text x="150" y="172" fill="#fafafa">Y₂</text>
+    <text x="230" y="172" fill="#fafafa">Y₃</text>
+    <text x="310" y="172" fill="#fafafa">Y₄</text>
+    <rect x="130" y="246" width="120" height="36" rx="5" fill="#333" stroke="#e4a51e" stroke-width="2"/>
+    <text x="190" y="269" fill="#e4a51e">ΔL (total)</text>
+  </g>
+  <text x="190" y="312" font-size="14" text-anchor="middle" fill="#bbb">1 experiment per pass</text>
+
+  <!-- Dust: one nudge per token -->
+  <g font-size="14" text-anchor="middle">
+    <rect x="410" y="55" width="50" height="36" rx="5" fill="#333" stroke="#70dd00" stroke-width="2"/>
+    <rect x="490" y="55" width="50" height="36" rx="5" fill="#333" stroke="#70dd00" stroke-width="2"/>
+    <rect x="570" y="55" width="50" height="36" rx="5" fill="#333" stroke="#70dd00" stroke-width="2"/>
+    <rect x="650" y="55" width="50" height="36" rx="5" fill="#333" stroke="#70dd00" stroke-width="2"/>
+    <text x="435" y="78" fill="#70dd00">εz₁</text>
+    <text x="515" y="78" fill="#70dd00">εz₂</text>
+    <text x="595" y="78" fill="#70dd00">εz₃</text>
+    <text x="675" y="78" fill="#70dd00">εz₄</text>
+    <rect x="405" y="150" width="60" height="34" rx="5" fill="#333" stroke="#777"/>
+    <rect x="485" y="150" width="60" height="34" rx="5" fill="#333" stroke="#777"/>
+    <rect x="565" y="150" width="60" height="34" rx="5" fill="#333" stroke="#777"/>
+    <rect x="645" y="150" width="60" height="34" rx="5" fill="#333" stroke="#777"/>
+    <text x="435" y="172" fill="#fafafa">Y₁</text>
+    <text x="515" y="172" fill="#fafafa">Y₂</text>
+    <text x="595" y="172" fill="#fafafa">Y₃</text>
+    <text x="675" y="172" fill="#fafafa">Y₄</text>
+    <rect x="405" y="246" width="60" height="36" rx="5" fill="#333" stroke="#70dd00" stroke-width="2"/>
+    <rect x="485" y="246" width="60" height="36" rx="5" fill="#333" stroke="#70dd00" stroke-width="2"/>
+    <rect x="565" y="246" width="60" height="36" rx="5" fill="#333" stroke="#70dd00" stroke-width="2"/>
+    <rect x="645" y="246" width="60" height="36" rx="5" fill="#333" stroke="#70dd00" stroke-width="2"/>
+    <text x="435" y="269" fill="#70dd00">Δℓ₁</text>
+    <text x="515" y="269" fill="#70dd00">Δℓ₂</text>
+    <text x="595" y="269" fill="#70dd00">Δℓ₃</text>
+    <text x="675" y="269" fill="#70dd00">Δℓ₄</text>
+  </g>
+  <g stroke="#70dd00" stroke-width="2" marker-end="url(#g)">
+    <line x1="435" y1="91" x2="435" y2="146"/>
+    <line x1="515" y1="91" x2="515" y2="146"/>
+    <line x1="595" y1="91" x2="595" y2="146"/>
+    <line x1="675" y1="91" x2="675" y2="146"/>
+    <line x1="435" y1="184" x2="435" y2="242"/>
+    <line x1="515" y1="184" x2="515" y2="242"/>
+    <line x1="595" y1="184" x2="595" y2="242"/>
+    <line x1="675" y1="184" x2="675" y2="242"/>
+  </g>
+  <text x="570" y="312" font-size="14" text-anchor="middle" fill="#bbb">T experiments per pass</text>
+</svg>
