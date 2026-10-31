@@ -545,7 +545,7 @@ a bit carried away.</p>
 <p>So, here's all the stuff I've been thinking about since the papers
 came out.</p>
 <h3 id="how-to-read-this-article">How to Read This Article</h3>
-<p>This is article going to appear really dense. That's fair, it's kinda
+<p>This article is going to appear really dense. That's fair, it's kinda
 a massive brain dump. Some parts are dense and complicated, but be not
 afraid, for the rest of the article is written to be very
 accessible.</p>
@@ -912,7 +912,7 @@ transformers and other architectures with a parallelizable forward pass,
 in settings with loss functions that can be parallelized.</p>
 <p>Specifically, to perturb by token you need the per-token losses ℓ,
 which does not exist if you're doing something like replacing RL.
-Because "how well was this task completed" not have a loss with
+Because "how well was this task completed" does not have a loss with
 per-token credit assignment. And per-token losses are not clean if you
 do something like roll out an RNN, because of the state dependence. And
 even if it might work on an RNN, it's expensive.</p>
@@ -932,7 +932,8 @@ how much of a change in loss is that token's fault.</p>
 credits each token for its effect on every later token's loss. Dust only
 credits it for its own, so it never trains activations to be helpful for
 predicting later tokens. Except for the keys, values, gates, and value
-embeddings, which the Dust paper does not approximate for.</p>
+embeddings, where the Dust paper adds a correction for exactly this.
+More on that below.</p>
 <p>So, Dust doesn't follow the gradient of the loss we're actually
 training on. It's a biased estimator, which is to say an approximation.
 At small scales it appears to be a very good approximation. I measure
@@ -1021,21 +1022,21 @@ Apply it with <code>f(z) = Lₜ(Φ(θ, b; Y + εz))</code>:</p>
 <pre><code>E[grad_Yₜ] = E[proj_gradₜ * zₜ]                                       (definition of grad_Yₜ)
            = E[(Lₜ(Φ(θ, b; Y + εz)) - Lₜ(Φ(θ, b))) * zₜ] / ε          (definition of proj_gradₜ)
            = E[Lₜ(Φ(θ, b; Y + εz)) * zₜ] / ε - Lₜ(Φ(θ, b)) * E[zₜ] / ε (distribute)
-           = E[ε * ∇ₜLₜ(Φ(θ, b; Y + εz))] / ε                         (Cancel and apply chain rule, zₜ moves Yₜ by ε)
-           = E[∇ₜLₜ(Φ(θ, b; Y + εz))]                                 (Stein&#39;s Lemma, taking ∇ with respect to zₜ)</code></pre></div>
+           = E[Lₜ(Φ(θ, b; Y + εz)) * zₜ] / ε                          (E[zₜ] = 0)
+           = E[ε * ∇ₜLₜ(Φ(θ, b; Y + εz))] / ε                         (Stein&#39;s Lemma, then chain rule, zₜ moves Yₜ by ε)
+           = E[∇ₜLₜ(Φ(θ, b; Y + εz))]                                 (cancel ε)</code></pre></div>
 <p>So, yes. The math works out. For each next token, the rule obtains
 that token's gradient. You can then average them and take a step.</p>
-<p>But Dust is in fact a biased estimator. It calculates
-<code>∇ₜLₜ</code>, which is how token <code>t</code>'s activations
-affect token <code>t</code>'s loss. But these activations also affect
-every later token's loss, through attention. The true gradient is:</p>
-<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
-<pre><code>∇ₜL = ∇ₜLₜ + Σᵤ&gt;ₜ ∇ₜLᵤ</code></pre></div>
-<p>That is a different thing than a reduction of the individual
-<code>∇ₜLₜ</code> per-token gradients. But how much does this matter?
-It's unclear. It doesn't seem to matter that much when it comes to just
-reducing language modeling loss. But in the limit it might matter, it's
-sort of an open question.</p>
+<p>Well, almost. The gradient is taken at <code>Y + εz</code>, not at
+<code>Y</code>, so what we actually get is the gradient of a slightly
+blurred version of the loss. Same as in ES. Stein's Lemma is also only
+exact for gaussian <code>z</code>, so Rademacher <code>z</code> is off
+by a bit more. Both errors shrink like <code>ε²</code>, so for small
+<code>ε</code> you can ignore them. Dust's <code>ε</code> turns out not
+to be that small, but more on that later.</p>
+<p>But look at what this is the gradient of. It's token <code>t</code>'s
+own loss <code>Lₜ</code>, not the total loss. That's a bias, and I'll
+come back to it after the variance.</p>
 <h4 id="variance">Variance</h4>
 <p>There is no Stein's Lemma for variance. But there's a trick. Split
 the reward into the best linear function of the noise, plus whatever is
@@ -1044,7 +1045,7 @@ left over. By Stein's Lemma again (yay!), the best linear fit is
 there is some uncorrelated extra part which is nonlinear, we'll call
 this remainder term <code>rₜ</code>.</p>
 <div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
-<pre><code>proj_gradₜ = Σₛ&lt;ₜ ∇ₛLₜ · zₛ + rₜ                     (summing over s ≤ t)
+<pre><code>proj_gradₜ = Σₛ≤ₜ ∇ₛLₜ · zₛ + rₜ
 
 E[proj_gradₜ²] = E[(Σₛ ∇ₛLₜ · zₛ)²] + E[rₜ²]
                = Σₛ ||∇ₛLₜ||² + E[rₜ²]
@@ -1062,10 +1063,9 @@ through attention. We'll call it "leakage."</p>
 <p>The third, <code>ηₜ</code>, is everything in the reward that isn't
 linear in the noise. If the loss were a straight line across the noise,
 it would be zero. The bigger <code>ε</code> is, the more the loss curves
-over the step, and the bigger it gets. Using Rademacher perturbations
-would minimize this, because it's the distribution with the minimum
-possible fourth moment, but expect the effect to be small.</p>
-<p>So, the the variance is MeZO's, times a <code>(1 + κₜ + ηₜ)</code>
+over the step, and the bigger it gets. I expect the effect to be small,
+and measure it later.</p>
+<p>So, the variance is MeZO's, times a <code>(1 + κₜ + ηₜ)</code>
 penalty. <code>κₜ</code> is up to the model, <code>ηₜ</code> grows with
 <code>ε</code>, which is a hyperparameter we can tune.</p>
 <p><code>κₜ</code> (kappa) and <code>ηₜ</code> (eta) are ratios. The
@@ -1082,6 +1082,11 @@ so
 E[||grad_Yₜ||²] = E[proj_gradₜ² * ||zₜ||²]
                 ≈ E[proj_gradₜ²] * d_out                    (||zₜ||² is about d_out, and exactly d_out for Rademacher)
                 = ||∇ₜLₜ||² * (1 + κₜ + ηₜ) * d_out</code></pre></div>
+<p>This is where Rademacher perturbations help. They have the minimum
+possible fourth moment, so <code>||zₜ||²</code> doesn't fluctuate at
+all, and the approximate step is exact. With gaussian <code>z</code>,
+<code>||zₜ||²</code> fluctuates and is correlated with
+<code>proj_gradₜ²</code>, which adds a small extra term.</p>
 <p>Therefore, we can define the tokenwise-layerwise SNR as follows.</p>
 <div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>SNR ≈ ||E[grad_Yₜ]||² / E[||grad_Yₜ||²]
@@ -1098,18 +1103,25 @@ be longer and some shorter. As opposed to the <code>2 * Z</code> full
 forward passes of SPSA.</p>
 <h4 id="dusts-expected-alignment-versus-the-true-gradient">Dust's
 expected alignment versus the true gradient</h4>
-<p>Dust's estimator is biased. Here's the bias, and here's what the
-paper does about it.</p>
-<p>Dust's per-token estimator targets <code>∇ₜLₜ</code>, how token
-<code>t</code>'s activations affect token <code>t</code>'s own loss. But
-those activations also change the loss of every token that comes later,
-through attention. The true gradient is the full causal sum:</p>
+<p>As I talked about earlier, Dust's estimator is biased. Now let's talk
+more about what Dust does about it.</p>
+<p>The Dust per-token estimator targets <code>∇ₜLₜ</code>, which is how
+token <code>t</code>'s activations affect token <code>t</code>'s loss.
+But those activations also change the loss of every token that comes
+later, through attention. The true gradient is the full causal sum:</p>
 <div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>∇ₜL = ∇ₜLₜ + Σᵤ&gt;ₜ ∇ₜLᵤ</code></pre></div>
 <p>Dust drops everything after the first term. For most parameters this
 is a small bias, which is why Dust works. But for the attention keys and
 values, the gates and value embeddings, the dropped terms are the
-signal.</p>
+signal. Token <code>t</code>'s key and value are read by token
+<code>t</code>'s own query, and also by the query of every token after
+it. Plain Dust only hears from the first reader.</p>
+<p>This isn't the leakage from the variance section. Leakage is noise.
+It shows up in the estimate, and it averages out over draws. The bias is
+what's missing from the estimate. <code>zₜ</code> is only ever scored
+against <code>Lₜ</code>, so the future terms never show up, no matter
+how many draws you average.</p>
 <p>The paper fixes it by crediting token <code>t</code>'s jitter with a
 decaying share of every later token's loss. Token <code>u</code> counts
 for <code>γ^(u-t)</code> of its loss, for some discount <code>γ</code>
@@ -1120,9 +1132,8 @@ between 0 and 1:</p>
 <p>The paper writes this as a reward, <code>rₜ = Σᵤ≥ₜ γ^(u-t) cᵤ</code>,
 built from centered loss reductions <code>cᵤ</code>. Same object,
 opposite sign. I'll keep losses.</p>
-<p><code>L̃ₜ</code> is token <code>t</code>'s loss plus a decaying share
-of every later token's loss. The γ-estimator is Dust's rule with
-<code>L̃ₜ</code> in place of <code>Lₜ</code>:</p>
+<p>The γ-estimator is Dust's rule with <code>L̃ₜ</code> in place of
+<code>Lₜ</code>:</p>
 <div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>proj_gradₜ = (L̃ₜ(Φ(θ, b; Y + εz)) - L̃ₜ(Φ(θ, b))) / ε
 grad_Yₜ    = proj_gradₜ * zₜ</code></pre></div>
@@ -1131,52 +1142,63 @@ grad_Yₜ    = proj_gradₜ * zₜ</code></pre></div>
 <pre><code>E[grad_Yₜ] = ∇ₜL̃ₜ
            = ∇ₜLₜ + γ·∇ₜLₜ₊₁ + γ²·∇ₜLₜ₊₂ + ...
            = Σᵤ≥ₜ γ^(u-t) ∇ₜLᵤ</code></pre></div>
-<p>So <code>γ</code> interpolates. At <code>γ = 0</code>, plain Dust:
-<code>E[grad_Yₜ] = ∇ₜLₜ</code>, and the entire future
-<code>Σᵤ&gt;ₜ ∇ₜLᵤ</code> is dropped. At <code>γ = 1</code>, the
-discount vanishes and <code>E[grad_Yₜ] = ∇ₜL</code>, the true gradient.
-In between, the estimator blends them geometrically, older losses
-decaying as <code>γ^(u-t)</code>.</p>
-<p>The bias is the difference between the two:</p>
+<p>So <code>γ</code> interpolates. At <code>γ = 0</code> it's plain
+Dust, <code>E[grad_Yₜ] = ∇ₜLₜ</code>, and the entire future is dropped.
+At <code>γ = 1</code> the discount vanishes, and
+<code>E[grad_Yₜ] = ∇ₜL</code>, the true gradient. In between, later
+losses fade out geometrically. The bias is the difference:</p>
 <div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <pre><code>biasₜ = E[grad_Yₜ] - ∇ₜL
       = Σᵤ&gt;ₜ (γ^(u-t) - 1) · ∇ₜLᵤ</code></pre></div>
-<p>zero at <code>γ = 1</code>, and <code>-Σᵤ&gt;ₜ ∇ₜLᵤ</code> at
-<code>γ = 0</code>. Alignment with the true gradient, measured as cosine
-similarity, is therefore 1 at <code>γ = 1</code> and less than 1 at
-<code>γ = 0</code>. That is the quantity I measure as 0.99 later in this
-article.</p>
-<p>Now the price. Scoring <code>zₜ</code> against later tokens' losses
-means later tokens' noise now lands in the estimate. Repeating the
-variance decomposition from before, the linear part of the reward gains
-one term per later loss:</p>
+<p>Scoring <code>zₜ</code> against later tokens' losses means later
+tokens' noise lands in the estimate too. Redo the variance
+decomposition. Token <code>s</code>'s noise reaches <code>L̃ₜ</code>
+through every loss <code>Lᵤ</code> with <code>u ≥ max(t, s)</code>:</p>
 <div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
-<pre><code>proj_gradₜ = Σₛ zₛ · (Σᵤ≥max(t,s) γ^(u-t) ∇ₛLᵤ) + r̃ₜ</code></pre></div>
-<p>For <code>s = t</code> the coefficient is
-<code>Σᵤ≥ₜ γ^(u-t) ∇ₜLᵤ = E[grad_Yₜ]</code>, the signal itself. For
-<code>s &lt; t</code> it is the leakage from earlier tokens, now spilled
-into every discounted later loss. So</p>
-<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
-<pre><code>E[proj_gradₜ²] = ||E[grad_Yₜ]||² + Σₛ&lt;ₜ ||Σᵤ≥ₜ γ^(u-t) ∇ₛLᵤ||² + E[r̃ₜ²]</code></pre></div>
-<p>and the SNR keeps the same shape as before,</p>
-<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
-<pre><code>SNR ≈ 1 / (d_out · (1 + κ̃ₜ + η̃ₜ))
+<pre><code>proj_gradₜ = Σₛ aₜₛ · zₛ + r̃ₜ
 
-κ̃ₜ = Σₛ&lt;ₜ ||Σᵤ≥ₜ γ^(u-t) ∇ₛLᵤ||² / ||E[grad_Yₜ]||²
+where aₜₛ = Σᵤ≥max(t,s) γ^(u-t) ∇ₛLᵤ</code></pre></div>
+<p>There are three kinds of <code>s</code>.</p>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
+<pre><code>s = t:  aₜₜ = Σᵤ≥ₜ γ^(u-t) ∇ₜLᵤ = E[grad_Yₜ]               (the signal)
+s &lt; t:  aₜₛ = Σᵤ≥ₜ γ^(u-t) ∇ₛLᵤ                           (leakage, as before, but through every later loss)
+s &gt; t:  aₜₛ = Σᵤ≥ₛ γ^(u-t) ∇ₛLᵤ
+            = γ^(s-t) · Σᵤ≥ₛ γ^(u-s) ∇ₛLᵤ
+            = γ^(s-t) · E[grad_Yₛ]                       (new: a later token&#39;s own signal, discounted)</code></pre></div>
+<p>The last one is the interesting one. Each later token's noise comes
+in carrying that token's own signal, shrunk by <code>γ^(s-t)</code>. To
+token <code>t</code>, that's pure noise. So</p>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
+<pre><code>E[proj_gradₜ²] = ||E[grad_Yₜ]||² + Σₛ≠ₜ ||aₜₛ||² + E[r̃ₜ²]
+
+SNR ≈ 1 / (d_out · (1 + κ̃ₜ + η̃ₜ))
+
+κ̃ₜ = Σₛ≠ₜ ||aₜₛ||² / ||E[grad_Yₜ]||²
 η̃ₜ = E[r̃ₜ²] / ||E[grad_Yₜ]||²</code></pre></div>
-<p>with the only change being that <code>κ̃</code> and <code>η̃</code> now
-also include the later-token terms, discounted by <code>γ</code>.</p>
+<p>Same shape as before. But now we can say roughly how big the new part
+of <code>κ̃</code> is. If every token's signal is about the same size,
+the <code>s &gt; t</code> terms alone sum to</p>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
+<pre><code>Σₛ&gt;ₜ γ^(2(s-t)) ≈ γ² / (1 - γ²)
+
+γ = 0.98   →  ~24
+γ = 0.99   →  ~49</code></pre></div>
+<p>So for the layers where <code>γ</code> is on, <code>κ̃</code> is in
+the tens. For plain Dust, we'll see it's much smaller. The SNR for those
+layers drops by something like 25-50x. That's what it costs to see
+<code>1 / (1 - γ)</code>, about 50-100 tokens, into the future.</p>
 <p>So <code>γ</code> trades bias against noise. Too small, and the
-estimator is biased: it never learns to be useful for later tokens. Too
-large, and the later tokens' noise swamps the signal. The paper tunes
-<code>γ</code> rather than deriving it: near one for the keys, values,
-gates, and value embeddings (0.98 to 0.99 in its runs), and zero
-everywhere else.</p>
-<p>The discount is not there for aesthetics. A token's influence on
-distant future tokens tends to be weak and diffuse, so a geometric
-cutoff is a cheap prior. And it is applied only where the bias matters.
-Everywhere else it would buy back a sliver of bias for a lot of
-noise.</p>
+estimator never learns to be useful for later tokens. Too large, and the
+later tokens' noise swamps the signal. The paper tunes <code>γ</code>
+rather than deriving it: 0.98 to 0.99 for the keys, values, gates, and
+value embeddings, and zero everywhere else.</p>
+<p>That split makes sense given the math. For the keys and values,
+<code>∇ₜLₜ</code> is a small part of the true gradient, so plain Dust is
+mostly bias, and paying 25-50x in noise is worth it. For everything
+else, the own-token term is most of the gradient, and <code>γ</code>
+would buy back a sliver of bias for a lot of noise. The geometric shape
+is a cheap prior: a token's influence on the distant future tends to be
+weak and diffuse anyway.</p>
 <h4 id="comparison-to-mezospsaeseggroll">Comparison to
 MeZO/SPSA/ES/EGGROLL</h4>
 <p>Previous methods have all had a SNR on the order of <code>1/p</code>.
@@ -1185,7 +1207,10 @@ parameter count. But in Dust, the <code>p</code> becomes
 <code>d_out</code>, the width of one layer's output. Which is a lot
 smaller.</p>
 <p>So, let's compare. We'll say <code>T = 16,384</code> tokens, which is
-the Dust paper's batch size.</p>
+the Dust paper's batch size, and <code>1 + κ + η ≈ 1.1</code>, a rough
+allowance for the penalty terms. I empirically measure <code>κ</code>
+and <code>η</code> later. The SNR per FLOP column uses the formula at
+the end of this section.</p>
 <table style="width:100%;">
 <colgroup>
 <col style="width: 16%" />
@@ -1201,7 +1226,7 @@ the Dust paper's batch size.</p>
 <th><code>p</code> (params)</th>
 <th><code>d_out</code> (hidden size)</th>
 <th><code>p / d_out</code></th>
-<th>flops per forward</th>
+<th>flops per forward (<code>≈ 2pT</code>)</th>
 <th>SNR per FLOP (vs SPSA)</th>
 </tr>
 </thead>
@@ -1211,7 +1236,7 @@ the Dust paper's batch size.</p>
 <td>37.75M</td>
 <td>512</td>
 <td>~73,700×</td>
-<td>~1.12 TFLOPs</td>
+<td>~1.24 TFLOPs</td>
 <td>~549M×</td>
 </tr>
 <tr class="even">
@@ -1219,7 +1244,7 @@ the Dust paper's batch size.</p>
 <td>9.20B</td>
 <td>4096</td>
 <td>~2.25M×</td>
-<td>~280 TFLOPs</td>
+<td>~301 TFLOPs</td>
 <td>~4.18B×</td>
 </tr>
 <tr class="odd">
@@ -1227,7 +1252,7 @@ the Dust paper's batch size.</p>
 <td>27.32B</td>
 <td>5120</td>
 <td>~5.34M×</td>
-<td>~899 TFLOPs</td>
+<td>~895 TFLOPs</td>
 <td>~4.97B×</td>
 </tr>
 </tbody>
@@ -1289,16 +1314,11 @@ noise would dominate and make it blow up, I just omit the data.</p>
 <p><img src="images/dust_eta_L8-D512.svg" width=900></p>
 <p>Basically, it's not bad. It's on the order of being negligible. Which
 is where we want it to be. Nice.</p>
-<h4 id="the-bias-is-not-leakage">The bias is not leakage</h4>
-<p>The bias I've been describing is not the leakage we just measured.
-Leakage is noise, and it averages out over draws. The bias does not.
-It's because <code>zₜ</code> is only scored against <code>Lₜ</code>, so
-even with no noise anywhere, the future <code>Σᵤ&gt;ₜ ∇ₜLᵤ</code> never
-shows up. The paper fixes this by giving token <code>t</code> a
-discounted share of the later tokens' losses, with decay <code>γ</code>.
-That removes the bias, but adds the later tokens' noise. In my runs the
-bias was small: by the end of training, the weight gradient Dust aims
-for had a cosine similarity of 0.99 with the true gradient.</p>
+<p>Last, the bias. Unlike <code>κ</code> and <code>η</code>, it doesn't
+average away, so I measured it directly, as the cosine similarity
+between the weight gradient Dust aims for and the true gradient from
+backprop. By the end of training it was 0.99. So at this scale, the bias
+is small. Whether that holds for bigger models is an open question.</p>
 <h5 id="ε-is-not-small"><code>ε</code> is not small</h5>
 <p>The activations come out of an RMSNorm, so each coordinate is about
 unit size, and Dust uses <code>ε = 0.2</code> or <code>0.4</code>.
@@ -1372,8 +1392,8 @@ construct an equivalent perturbation under SPSA loses information.</p>
 <p>So, this is a pretty big gain. It is not impossible to construct the
 same thing in weight space, but you need a separate weight perturbation
 for every token, and SPSA has only one. Sort of like <a
-href="https://arxiv.org/abs/1803.04386">Flipout</a>, but on the
-batch/sample axis instead of token axis.</p>
+href="https://arxiv.org/abs/1803.04386">Flipout</a>, but on the token
+axis instead of the batch/sample axis.</p>
 <h4 id="change-2-perturb-only-what-each-token-can-see">Change 2: Perturb
 only what each token can see</h4>
 <p>Recall SPSA's estimate from the last article:</p>
@@ -1417,7 +1437,7 @@ perturbations independence across examples for one extra matmul.
 Rao-Blackwellize it, and you're back to Dust.</p>
 <p>Summed over tokens, Dust's estimate points at the own-token gradient,
 which leaves out each token's effect on later tokens' losses. That's the
-bias from the Dust section. Leakage only adds noise on top.</p>
+bias from the alignment section. Leakage only adds noise on top.</p>
 <h4 id="change-3-perturb-layers-individually">Change 3: Perturb layers
 individually</h4>
 <p>Dust also perturbs each layer in its own forward pass. SPSA does them
@@ -1636,7 +1656,7 @@ is <code>o</code> instead of clean</td>
 <p>The author on twitter cites <a
 href="https://already-clean.goodfire.com/">Neural Networks Are Already
 Clean</a> as the source of inspiration. This confuses me greatly,
-because I feel like it has nothing or close to nothing do with the
+because I feel like it has nothing or close to nothing to do with the
 math.</p>
 <p>To me, this is clearly <a
 href="https://arxiv.org/abs/2210.03310">Forward Gradients With Local
@@ -1735,7 +1755,9 @@ multiple of your batch size in the SNR. Traditionally, the appeal of ZO
 has been that you can do both without losing anything.</p>
 <h4 id="for-rl-style-posttraining">For RL-style Posttraining</h4>
 <ul>
-<li>Just use SPSA or RandOpt or whatever, posttraining just works.</li>
+<li>Just use SPSA or RandOpt or whatever</li>
+<li>Posttraining just works, it doesn't seem that important what you
+use.</li>
 </ul>
 <p>I think Dust gets you basically nothing for posttraining, because the
 loss function is not separable. Assuming your arch has no recurrence,
@@ -1744,8 +1766,8 @@ aren't going to be, like, profound, because it already works pretty
 well.</p>
 <p>With that said it's probably a free paper to anyone who wants it.</p>
 <p>As for what I'm going to be doing, I'm going to add a Dust training
-codebase to ZOTitan. Then maybe look into the YOCO stuff and do some
-scaling experiments.</p>
+codebase to <a href="https://github.com/apaz-cli/ZOTitan">ZOTitan</a>.
+Then maybe look into the YOCO stuff and do some scaling experiments.</p>
 <p>In the meantime, if you're interested in this stuff, feel free to hit
 me up. DM me <a href="https://x.com/apaz_cli"><span class="citation"
 data-cites="apaz_cli">@apaz_cli</span></a>, I'm trying to start a

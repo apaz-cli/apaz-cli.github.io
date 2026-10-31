@@ -13,7 +13,7 @@ So, here's all the stuff I've been thinking about since the papers came out.
 
 ### How to Read This Article
 
-This is article going to appear really dense. That's fair, it's kinda a massive brain dump. Some parts are dense and complicated, but be not afraid, for the rest of the article is written to be very accessible.
+This article is going to appear really dense. That's fair, it's kinda a massive brain dump. Some parts are dense and complicated, but be not afraid, for the rest of the article is written to be very accessible.
 
 If you want to understand the algorithms, I have summarized them here in pseudocode and a table of terminology. You can skip past them though. In the math section, there is going to be a lot of math. But it's written so you don't have to read the stuff that's outside of code blocks.
 
@@ -154,7 +154,7 @@ But Dust attempts to tackle the main issue. What you really want is more perturb
 It is unfortunate, though, that this research direction kind of flies in the face of the reason I was excited about ZO in the first place. To train a [recurrence-complete](https://arxiv.org/abs/2510.06828) architecture without backprop through time. This method only works on transformers and other architectures with a parallelizable forward pass, in settings with loss functions that can be parallelized.
 
 
-Specifically, to perturb by token you need the per-token losses ℓ, which does not exist if you're doing something like replacing RL. Because "how well was this task completed" not have a loss with per-token credit assignment. And per-token losses are not clean if you do something like roll out an RNN, because of the state dependence. And even if it might work on an RNN, it's expensive.
+Specifically, to perturb by token you need the per-token losses ℓ, which does not exist if you're doing something like replacing RL. Because "how well was this task completed" does not have a loss with per-token credit assignment. And per-token losses are not clean if you do something like roll out an RNN, because of the state dependence. And even if it might work on an RNN, it's expensive.
 
 ### Virtual population
 
@@ -162,7 +162,7 @@ Still, the observation that each token and each layer is a place where you can e
 
 First, recall that training transformers is parallelizable. There are efficiency benefits for running everything at once, but efficiency is the only reason we batch. The forward pass for one token does not depend on the forward pass of the previous. The standard crossentropy objective just averages all those individual token losses. We know how much of the loss is that token's fault, and so if we perturb activations we can know how much of a change in loss is that token's fault.
 
-Side tangent, that is not quite what Dust computes. Cross-entropy credits each token for its effect on every later token's loss. Dust only credits it for its own, so it never trains activations to be helpful for predicting later tokens. Except for the keys, values, gates, and value embeddings, which the Dust paper does not approximate for.
+Side tangent, that is not quite what Dust computes. Cross-entropy credits each token for its effect on every later token's loss. Dust only credits it for its own, so it never trains activations to be helpful for predicting later tokens. Except for the keys, values, gates, and value embeddings, where the Dust paper adds a correction for exactly this. More on that below.
 
 So, Dust doesn't follow the gradient of the loss we're actually training on. It's a biased estimator, which is to say an approximation. At small scales it appears to be a very good approximation. I measure the effect in some experiments later in the article.
 
@@ -239,26 +239,23 @@ First, is it unbiased? Let's apply a [generalized](https://en.wikipedia.org/wiki
 E[grad_Yₜ] = E[proj_gradₜ * zₜ]                                       (definition of grad_Yₜ)
            = E[(Lₜ(Φ(θ, b; Y + εz)) - Lₜ(Φ(θ, b))) * zₜ] / ε          (definition of proj_gradₜ)
            = E[Lₜ(Φ(θ, b; Y + εz)) * zₜ] / ε - Lₜ(Φ(θ, b)) * E[zₜ] / ε (distribute)
-           = E[ε * ∇ₜLₜ(Φ(θ, b; Y + εz))] / ε                         (Cancel and apply chain rule, zₜ moves Yₜ by ε)
-           = E[∇ₜLₜ(Φ(θ, b; Y + εz))]                                 (Stein's Lemma, taking ∇ with respect to zₜ)
+           = E[Lₜ(Φ(θ, b; Y + εz)) * zₜ] / ε                          (E[zₜ] = 0)
+           = E[ε * ∇ₜLₜ(Φ(θ, b; Y + εz))] / ε                         (Stein's Lemma, then chain rule, zₜ moves Yₜ by ε)
+           = E[∇ₜLₜ(Φ(θ, b; Y + εz))]                                 (cancel ε)
 ```
 
 So, yes. The math works out. For each next token, the rule obtains that token's gradient. You can then average them and take a step.
 
-But Dust is in fact a biased estimator. It calculates `∇ₜLₜ`, which is how token `t`'s activations affect token `t`'s loss. But these activations also affect every later token's loss, through attention. The true gradient is:
+Well, almost. The gradient is taken at `Y + εz`, not at `Y`, so what we actually get is the gradient of a slightly blurred version of the loss. Same as in ES. Stein's Lemma is also only exact for gaussian `z`, so Rademacher `z` is off by a bit more. Both errors shrink like `ε²`, so for small `ε` you can ignore them. Dust's `ε` turns out not to be that small, but more on that later.
 
-```
-∇ₜL = ∇ₜLₜ + Σᵤ>ₜ ∇ₜLᵤ
-```
-
-That is a different thing than a reduction of the individual `∇ₜLₜ` per-token gradients. But how much does this matter? It's unclear. It doesn't seem to matter that much when it comes to just reducing language modeling loss. But in the limit it might matter, it's sort of an open question. 
+But look at what this is the gradient of. It's token `t`'s loss `Lₜ`, not the total loss. That's a bias, and I'll come back to it after the variance.
 
 #### Variance
 
 There is no Stein's Lemma for variance. But there's a trick. Split the reward into the best linear function of the noise, plus whatever is left over. By Stein's Lemma again (yay!), the best linear fit is `Σₛ ∇ₛLₜ · zₛ`, for every token `s ≤ t`. Then there is some uncorrelated extra part which is nonlinear, we'll call this remainder term `rₜ`.
 
 ```
-proj_gradₜ = Σₛ<ₜ ∇ₛLₜ · zₛ + rₜ                     (summing over s ≤ t)
+proj_gradₜ = Σₛ≤ₜ ∇ₛLₜ · zₛ + rₜ
 
 E[proj_gradₜ²] = E[(Σₛ ∇ₛLₜ · zₛ)²] + E[rₜ²]
                = Σₛ ||∇ₛLₜ||² + E[rₜ²]
@@ -274,9 +271,9 @@ The first part `||∇ₜLₜ||²` is the irreducible variance which comes from s
 
 The second part `κₜ` is the noise we added at tokens earlier than `t`, leaking into token `t`'s loss through attention. We'll call it "leakage."
 
-The third, `ηₜ`, is everything in the reward that isn't linear in the noise. If the loss were a straight line across the noise, it would be zero. The bigger `ε` is, the more the loss curves over the step, and the bigger it gets. Using Rademacher perturbations would minimize this, because it's the distribution with the minimum possible fourth moment, but expect the effect to be small.
+The third, `ηₜ`, is everything in the reward that isn't linear in the noise. If the loss were a straight line across the noise, it would be zero. The bigger `ε` is, the more the loss curves over the step, and the bigger it gets. I expect the effect to be small, and measure it later.
 
-So, the the variance is MeZO's, times a `(1 + κₜ + ηₜ)` penalty. `κₜ` is up to the model, `ηₜ` grows with `ε`, which is a hyperparameter we can tune.
+So, the variance is MeZO's, times a `(1 + κₜ + ηₜ)` penalty. `κₜ` is up to the model, `ηₜ` grows with `ε`, which is a hyperparameter we can tune.
 
 `κₜ` (kappa) and `ηₜ` (eta) are ratios. The paper calls the leakage "interference," so I'll call `κₜ` the interference ratio, and `ηₜ` the curvature ratio.
 
@@ -291,6 +288,8 @@ E[||grad_Yₜ||²] = E[proj_gradₜ² * ||zₜ||²]
                 ≈ E[proj_gradₜ²] * d_out                    (||zₜ||² is about d_out, and exactly d_out for Rademacher)
                 = ||∇ₜLₜ||² * (1 + κₜ + ηₜ) * d_out
 ```
+
+This is where Rademacher perturbations help. They have the minimum possible fourth moment, so `||zₜ||²` doesn't fluctuate at all, and the approximate step is exact. With gaussian `z`, `||zₜ||²` fluctuates and is correlated with `proj_gradₜ²`, which adds a small extra term.
 
 Therefore, we can define the tokenwise-layerwise SNR as follows.
 
@@ -309,15 +308,17 @@ This is for a cost of `Z * n_layers` many partial forward passes, with a cost on
 
 #### Dust's expected alignment versus the true gradient
 
-Dust's estimator is biased. Here's the bias, and here's what the paper does about it.
+As I talked about earlier, Dust's estimator is biased. Now let's talk more about what Dust does about it.
 
-Dust's per-token estimator targets `∇ₜLₜ`, how token `t`'s activations affect token `t`'s own loss. But those activations also change the loss of every token that comes later, through attention. The true gradient is the full causal sum:
+The Dust per-token estimator targets `∇ₜLₜ`, which is how token `t`'s activations affect token `t`'s loss. But those activations also change the loss of every token that comes later, through attention. The true gradient is the full causal sum:
 
 ```
 ∇ₜL = ∇ₜLₜ + Σᵤ>ₜ ∇ₜLᵤ
 ```
 
-Dust drops everything after the first term. For most parameters this is a small bias, which is why Dust works. But for the attention keys and values, the gates and value embeddings, the dropped terms are the signal.
+Dust drops everything after the first term. For most parameters this is a small bias, which is why Dust works. But for the attention keys and values, the gates and value embeddings, the dropped terms are the signal. Every later token attends to token `t`'s key and value, but plain Dust only scores them against token `t`'s loss.
+
+This isn't the leakage from the variance section. Leakage is noise. It shows up in the estimate, and it averages out over draws. The bias is what's missing from the estimate. `zₜ` is only ever scored against `Lₜ`, so the future terms never show up, no matter how many draws you average.
 
 The paper fixes it by crediting token `t`'s jitter with a decaying share of every later token's loss. Token `u` counts for `γ^(u-t)` of its loss, for some discount `γ` between 0 and 1:
 
@@ -328,7 +329,7 @@ L̃ₜ = Lₜ + γ·Lₜ₊₁ + γ²·Lₜ₊₂ + γ³·Lₜ₊₃ + ...
 
 The paper writes this as a reward, `rₜ = Σᵤ≥ₜ γ^(u-t) cᵤ`, built from centered loss reductions `cᵤ`. Same object, opposite sign. I'll keep losses.
 
-`L̃ₜ` is token `t`'s loss plus a decaying share of every later token's loss. The γ-estimator is Dust's rule with `L̃ₜ` in place of `Lₜ`:
+The γ-estimator is Dust's rule with `L̃ₜ` in place of `Lₜ`:
 
 ```
 proj_gradₜ = (L̃ₜ(Φ(θ, b; Y + εz)) - L̃ₜ(Φ(θ, b))) / ε
@@ -343,55 +344,68 @@ E[grad_Yₜ] = ∇ₜL̃ₜ
            = Σᵤ≥ₜ γ^(u-t) ∇ₜLᵤ
 ```
 
-So `γ` interpolates. At `γ = 0`, plain Dust: `E[grad_Yₜ] = ∇ₜLₜ`, and the entire future `Σᵤ>ₜ ∇ₜLᵤ` is dropped. At `γ = 1`, the discount vanishes and `E[grad_Yₜ] = ∇ₜL`, the true gradient. In between, the estimator blends them geometrically, older losses decaying as `γ^(u-t)`.
-
-The bias is the difference between the two:
+So `γ` interpolates. At `γ = 0` it's plain Dust, `E[grad_Yₜ] = ∇ₜLₜ`, and the entire future is dropped. At `γ = 1` the discount vanishes, and `E[grad_Yₜ] = ∇ₜL`, the true gradient. In between, later losses fade out geometrically. The bias is the difference:
 
 ```
 biasₜ = E[grad_Yₜ] - ∇ₜL
       = Σᵤ>ₜ (γ^(u-t) - 1) · ∇ₜLᵤ
 ```
 
-zero at `γ = 1`, and `-Σᵤ>ₜ ∇ₜLᵤ` at `γ = 0`. Alignment with the true gradient, measured as cosine similarity, is therefore 1 at `γ = 1` and less than 1 at `γ = 0`. That is the quantity I measure as 0.99 later in this article.
-
-Now the price. Scoring `zₜ` against later tokens' losses means later tokens' noise now lands in the estimate. Repeating the variance decomposition from before, the linear part of the reward gains one term per later loss:
+Scoring `zₜ` against later tokens' losses means later tokens' noise lands in the estimate too. Redo the variance decomposition. Token `s`'s noise reaches `L̃ₜ` through every loss `Lᵤ` with `u ≥ max(t, s)`:
 
 ```
-proj_gradₜ = Σₛ zₛ · (Σᵤ≥max(t,s) γ^(u-t) ∇ₛLᵤ) + r̃ₜ
+proj_gradₜ = Σₛ aₜₛ · zₛ + r̃ₜ
+
+where aₜₛ = Σᵤ≥max(t,s) γ^(u-t) ∇ₛLᵤ
 ```
 
-For `s = t` the coefficient is `Σᵤ≥ₜ γ^(u-t) ∇ₜLᵤ = E[grad_Yₜ]`, the signal itself. For `s < t` it is the leakage from earlier tokens, now spilled into every discounted later loss. So
+There are three kinds of `s`.
 
 ```
-E[proj_gradₜ²] = ||E[grad_Yₜ]||² + Σₛ<ₜ ||Σᵤ≥ₜ γ^(u-t) ∇ₛLᵤ||² + E[r̃ₜ²]
+s = t:  aₜₜ = Σᵤ≥ₜ γ^(u-t) ∇ₜLᵤ = E[grad_Yₜ]               (the signal)
+s < t:  aₜₛ = Σᵤ≥ₜ γ^(u-t) ∇ₛLᵤ                           (leakage, as before, but through every later loss)
+s > t:  aₜₛ = Σᵤ≥ₛ γ^(u-t) ∇ₛLᵤ
+            = γ^(s-t) · Σᵤ≥ₛ γ^(u-s) ∇ₛLᵤ
+            = γ^(s-t) · E[grad_Yₛ]                       (new: a later token's own signal, discounted)
 ```
 
-and the SNR keeps the same shape as before,
+The last one is the interesting one. Each later token's noise comes in carrying that token's own signal, shrunk by `γ^(s-t)`. To token `t`, that's pure noise. So
 
 ```
+E[proj_gradₜ²] = ||E[grad_Yₜ]||² + Σₛ≠ₜ ||aₜₛ||² + E[r̃ₜ²]
+
 SNR ≈ 1 / (d_out · (1 + κ̃ₜ + η̃ₜ))
 
-κ̃ₜ = Σₛ<ₜ ||Σᵤ≥ₜ γ^(u-t) ∇ₛLᵤ||² / ||E[grad_Yₜ]||²
+κ̃ₜ = Σₛ≠ₜ ||aₜₛ||² / ||E[grad_Yₜ]||²
 η̃ₜ = E[r̃ₜ²] / ||E[grad_Yₜ]||²
 ```
 
-with the only change being that `κ̃` and `η̃` now also include the later-token terms, discounted by `γ`.
+Same shape as before. But now we can say roughly how big the new part of `κ̃` is. If every token's signal is about the same size, the `s > t` terms alone sum to
 
-So `γ` trades bias against noise. Too small, and the estimator is biased: it never learns to be useful for later tokens. Too large, and the later tokens' noise swamps the signal. The paper tunes `γ` rather than deriving it: near one for the keys, values, gates, and value embeddings (0.98 to 0.99 in its runs), and zero everywhere else.
+```
+Σₛ>ₜ γ^(2(s-t)) ≈ γ² / (1 - γ²)
 
-The discount is not there for aesthetics. A token's influence on distant future tokens tends to be weak and diffuse, so a geometric cutoff is a cheap prior. And it is applied only where the bias matters. Everywhere else it would buy back a sliver of bias for a lot of noise.
+γ = 0.98   →  ~24
+γ = 0.99   →  ~49
+```
+
+So for the layers where `γ` is on, `κ̃` is in the tens. For plain Dust, we'll see it's much smaller. The SNR for those layers drops by something like 25-50x. That's what it costs to see `1 / (1 - γ)`, about 50-100 tokens, into the future.
+
+So `γ` trades bias against noise. Too small, and the estimator never learns to be useful for later tokens. Too large, and the later tokens' noise swamps the signal. The paper tunes `γ` rather than deriving it: 0.98 to 0.99 for the keys, values, gates, and value embeddings, and zero everywhere else.
+
+That split makes sense given the math. For the keys and values, `∇ₜLₜ` is a small part of the true gradient, so plain Dust is mostly bias, and paying 25-50x in noise is worth it. For everything else, the own-token term is most of the gradient, and `γ` would buy back a sliver of bias for a lot of noise. The geometric shape is a cheap prior: a token's influence on the distant future tends to be weak and diffuse anyway.
 
 #### Comparison to MeZO/SPSA/ES/EGGROLL
 
 Previous methods have all had a SNR on the order of `1/p`. For each batch, not each token. Where `p` stands for the parameter count. But in Dust, the `p` becomes `d_out`, the width of one layer's output. Which is a lot smaller.
 
-So, let's compare. We'll say `T = 16,384` tokens, which is the Dust paper's batch size.
+So, let's compare. We'll say `T = 16,384` tokens, which is the Dust paper's batch size, and `1 + κ + η ≈ 1.1`, a rough allowance for the penalty terms. I empirically measure `κ` and `η` later. The SNR per FLOP column uses the formula at the end of this section.
 
-| Model | `p` (params) | `d_out` (hidden size) | `p / d_out` | flops per forward | SNR per FLOP (vs SPSA) |
+| Model | `p` (params) | `d_out` (hidden size) | `p / d_out` | flops per forward (`≈ 2pT`) | SNR per FLOP (vs SPSA) |
 |---|---|---|---|---|---|
-| Dust's model (8 layers) | 37.75M | 512 | ~73,700× | ~1.12 TFLOPs | ~549M× |
-| Qwen3.5-9B (32 layers) | 9.20B | 4096 | ~2.25M× | ~280 TFLOPs | ~4.18B× |
-| Qwen3.5-27B (64 layers) | 27.32B | 5120 | ~5.34M× | ~899 TFLOPs | ~4.97B× |
+| Dust's model (8 layers) | 37.75M | 512 | ~73,700× | ~1.24 TFLOPs | ~549M× |
+| Qwen3.5-9B (32 layers) | 9.20B | 4096 | ~2.25M× | ~301 TFLOPs | ~4.18B× |
+| Qwen3.5-27B (64 layers) | 27.32B | 5120 | ~5.34M× | ~895 TFLOPs | ~4.97B× |
 
 So, it goes without saying, this is very lucrative. Yes, with Dust you have to apply this rule for each independent layer. But even if it cost 100x the computation, it would still be worth it. Then as you scale the model, it becomes even more worth it. The proof of this is that Dust drastically overperforms versus other methods on pretraining tasks where gradient alignment is important.
 
@@ -442,9 +456,7 @@ Now, let's look at `η`. Things are weird because the effect is so small, and we
 
 Basically, it's not bad. It's on the order of being negligible. Which is where we want it to be. Nice.
 
-#### The bias is not leakage
-
-The bias I've been describing is not the leakage we just measured. Leakage is noise, and it averages out over draws. The bias does not. It's because `zₜ` is only scored against `Lₜ`, so even with no noise anywhere, the future `Σᵤ>ₜ ∇ₜLᵤ` never shows up. The paper fixes this by giving token `t` a discounted share of the later tokens' losses, with decay `γ`. That removes the bias, but adds the later tokens' noise. In my runs the bias was small: by the end of training, the weight gradient Dust aims for had a cosine similarity of 0.99 with the true gradient.
+Last, the bias. Unlike `κ` and `η`, it doesn't average away, so I measured it directly, as the cosine similarity between the weight gradient Dust aims for and the true gradient from backprop. By the end of training it was 0.99. So at this scale, the bias is small. Whether that holds for bigger models is an open question.
 
 ##### `ε` is not small
 
@@ -497,7 +509,7 @@ In SPSA, every token shares one `z`, so the whole batch is one experiment. In Du
 
 Each `z⁽ᵗ⁾` is a rank-1 matrix, and it only applies to token `t`. We're sampling `T` of them. Look at one output channel across all `T` tokens. Dust draws `T` independent numbers for it, so it can point in any direction in `T` dimensions. Under SPSA, every token's nudge is `z @ X[W]ₜ`, so the same channel is always a combination of the `d_in` columns of `X[W]`. It can only reach `d_in` of the `T` dimensions. Usually `d_in` is much smaller than `T`, so trying to construct an equivalent perturbation under SPSA loses information.
 
-So, this is a pretty big gain. It is not impossible to construct the same thing in weight space, but you need a separate weight perturbation for every token, and SPSA has only one. Sort of like [Flipout](https://arxiv.org/abs/1803.04386), but on the batch/sample axis instead of token axis.
+So, this is a pretty big gain. It is not impossible to construct the same thing in weight space, but you need a separate weight perturbation for every token, and SPSA has only one. Sort of like [Flipout](https://arxiv.org/abs/1803.04386), but on the token axis instead of the batch/sample axis.
 
 #### Change 2: Perturb only what each token can see
 
@@ -528,7 +540,7 @@ So Dust skips about `d_in` dimensions of noise per token. This is called [Rao-Bl
 
 This also means you can't beat Dust by going back to weights. [Flipout](https://arxiv.org/abs/1803.04386) gives weight perturbations independence across examples for one extra matmul. Rao-Blackwellize it, and you're back to Dust.
 
-Summed over tokens, Dust's estimate points at the own-token gradient, which leaves out each token's effect on later tokens' losses. That's the bias from the Dust section. Leakage only adds noise on top.
+Summed over tokens, Dust's estimate points at the own-token gradient, which leaves out each token's effect on later tokens' losses. That's the bias from the alignment section. Leakage only adds noise on top.
 
 #### Change 3: Perturb layers individually
 
@@ -630,7 +642,7 @@ def boost_cut_train(θ, data):
 
 :::
 
-The author on twitter cites [Neural Networks Are Already Clean](https://already-clean.goodfire.com/) as the source of inspiration. This confuses me greatly, because I feel like it has nothing or close to nothing do with the math.
+The author on twitter cites [Neural Networks Are Already Clean](https://already-clean.goodfire.com/) as the source of inspiration. This confuses me greatly, because I feel like it has nothing or close to nothing to do with the math.
 
 To me, this is clearly [Forward Gradients With Local Losses](https://arxiv.org/abs/2210.03310), but with a full Hadamard basis instead of random directions, and using a shared logit lens head as the local loss.
 
@@ -662,7 +674,7 @@ Otherwise, the architecture of such a training setup looks eerily similar. It ma
 
 ## Future Directions
 
-It's kinda obvious to me that there's more to be done for reducing bias. I think it would be cool to do experiments training a YOCO model with Dust. I tweeted about it [here](https://x.com/apaz_cli/status/2114251136937193745). It splits it into a dust-optimal part (the cross-decoder) and a dust-hostile part (the self-decoder). There is no leakage in the cross-decoder, it is all moved into the self-decoder. The two could be trained with different hparams or estimators. This seems like an interesting direction.
+It's kinda obvious to me that there's more to be done for reducing bias. I think it would be cool to do experiments training a YOCO model with Dust. I tweeted about it [here](https://x.com/apaz_cli/status/2114251136937193745). It splits it into a dust-optimal part (the cross-decoder) and a dust-hostile part (the self-decoder). There is no leakage in the cross-decoder, it is all moved into the self-decoder. The two could be trained with different hparams or estimators. I've been doing experiments on this for a few days, and it seems like an interesting direction. 
 
 <br>
 <div style="text-align: center;">
@@ -693,13 +705,14 @@ I think what we know how to do is something like the following.
 Once you add recurrence, replaying the forward pass gets much more expensive. Once you make the forward pass not parallelizable, you miss a multiple of your batch size in the SNR. Traditionally, the appeal of ZO has been that you can do both without losing anything.
 
 #### For RL-style Posttraining
-* Just use SPSA or RandOpt or whatever, posttraining just works.
+* Just use SPSA or RandOpt or whatever
+* Posttraining just works, it doesn't seem that important what you use.
 
 I think Dust gets you basically nothing for posttraining, because the loss function is not separable. Assuming your arch has no recurrence, you can sample output perturbations and get some free SNR. But the gains aren't going to be, like, profound, because it already works pretty well.
 
 With that said it's probably a free paper to anyone who wants it.
 
-As for what I'm going to be doing, I'm going to add a Dust training codebase to ZOTitan. Then maybe look into the YOCO stuff and do some scaling experiments.
+As for what I'm going to be doing, I'm going to add a Dust training codebase to [ZOTitan](https://github.com/apaz-cli/ZOTitan). Then maybe look into the YOCO stuff and do some scaling experiments.
 
 In the meantime, if you're interested in this stuff, feel free to hit me up. DM me [@apaz_cli](https://x.com/apaz_cli), I'm trying to start a twitter group chat of Zeroth Order Optimization researchers. I really want to push ZO forward. But that starts with getting everyone in the same room to talk about it, brainstorm ideas, etc. I don't think I can do it alone.
 
