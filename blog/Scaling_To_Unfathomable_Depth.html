@@ -415,11 +415,11 @@
   /* "fit" only appears while there's something to fit, or something to undo. */
   .code-wrap:not(.overflows):not(.fitted) .fit-btn { display: none; }
   .code-wrap.fitted .fit-btn { color: #01ff70; border-color: #01ff70; }
-  html:has(#font-toggle:checked) .code-buttons > * {
+  html:has(#font-toggle:not(:checked)) .code-buttons > * {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
-  html:has(#font-toggle:checked) pre,
-  html:has(#font-toggle:checked) code {
+  html:has(#font-toggle:not(:checked)) pre,
+  html:has(#font-toggle:not(:checked)) code {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
 
@@ -1878,7 +1878,7 @@ href="mailto:aarpazdera@gmail.com">send me an email</a>.</p>
 <div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
 <div class="sourceCode" id="cb33"><pre
 class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="va">@misc</span>{<span class="ot">pazdera2026scaling</span>,</span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">author</span> = {Pazdera, Aaron},</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">author</span> = {Pazdera, Ana/Aaron},</span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span>  = {Scaling Agents to Unfathomable Depth and Context With Zeroth-Order Optimization},</span>
 <span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">year</span>   = {2026},</span>
 <span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">url</span>    = {https://apaz-cli.github.io/blog/Scaling_To_Unfathomable_Depth.html}</span>

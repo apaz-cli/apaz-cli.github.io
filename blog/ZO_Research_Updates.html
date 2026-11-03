@@ -415,11 +415,11 @@
   /* "fit" only appears while there's something to fit, or something to undo. */
   .code-wrap:not(.overflows):not(.fitted) .fit-btn { display: none; }
   .code-wrap.fitted .fit-btn { color: #01ff70; border-color: #01ff70; }
-  html:has(#font-toggle:checked) .code-buttons > * {
+  html:has(#font-toggle:not(:checked)) .code-buttons > * {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
-  html:has(#font-toggle:checked) pre,
-  html:has(#font-toggle:checked) code {
+  html:has(#font-toggle:not(:checked)) pre,
+  html:has(#font-toggle:not(:checked)) code {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
 
@@ -1035,8 +1035,8 @@ by a bit more. Both errors shrink like <code>ε²</code>, so for small
 <code>ε</code> you can ignore them. Dust's <code>ε</code> turns out not
 to be that small, but more on that later.</p>
 <p>But look at what this is the gradient of. It's token <code>t</code>'s
-own loss <code>Lₜ</code>, not the total loss. That's a bias, and I'll
-come back to it after the variance.</p>
+loss <code>Lₜ</code>, not the total loss. That's a bias, and I'll come
+back to it after the variance.</p>
 <h4 id="variance">Variance</h4>
 <p>There is no Stein's Lemma for variance. But there's a trick. Split
 the reward into the best linear function of the noise, plus whatever is
@@ -1114,9 +1114,9 @@ later, through attention. The true gradient is the full causal sum:</p>
 <p>Dust drops everything after the first term. For most parameters this
 is a small bias, which is why Dust works. But for the attention keys and
 values, the gates and value embeddings, the dropped terms are the
-signal. Token <code>t</code>'s key and value are read by token
-<code>t</code>'s own query, and also by the query of every token after
-it. Plain Dust only hears from the first reader.</p>
+signal. Every later token attends to token <code>t</code>'s key and
+value, but plain Dust only scores them against token <code>t</code>'s
+loss.</p>
 <p>This isn't the leakage from the variance section. Leakage is noise.
 It shows up in the estimate, and it averages out over draws. The bias is
 what's missing from the estimate. <code>zₜ</code> is only ever scored
@@ -1713,8 +1713,9 @@ href="https://x.com/apaz_cli/status/2114251136937193745">here</a>. It
 splits it into a dust-optimal part (the cross-decoder) and a
 dust-hostile part (the self-decoder). There is no leakage in the
 cross-decoder, it is all moved into the self-decoder. The two could be
-trained with different hparams or estimators. This seems like an
-interesting direction.</p>
+trained with different hparams or estimators. I've been doing
+experiments on this for a few days, and it seems like an interesting
+direction.</p>
 <br>
 <div style="text-align: center;">
 <figure>
@@ -1786,5 +1787,14 @@ ZO Chat beckons you.
 </div>
 <p><br></p>
 <p>So yeah, there's my brain dump. Until next time, happy hacking.</p>
+<h4 id="bibtex-citation">Bibtex Citation</h4>
+<div class="code-wrap"><div class="code-buttons"><label for="font-toggle">font</label><button type="button" class="fit-btn" title="Shrink to fit the width">fit</button></div>
+<div class="sourceCode" id="cb26"><pre
+class="sourceCode bibtex"><code class="sourceCode bibtex"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="va">@misc</span>{<span class="ot">pazdera2026zoresearch</span>,</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">author</span> = {Pazdera, Ana/Aaron},</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">title</span>  = {Analysis of Dust, SOMA, and State of ZO Research},</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">year</span>   = {2026},</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="dt">url</span>    = {https://apaz.dev/blog/ZO_Research_Updates.html}</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div></div>
 </body>
 </html>

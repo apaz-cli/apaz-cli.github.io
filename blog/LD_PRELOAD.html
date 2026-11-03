@@ -415,11 +415,11 @@
   /* "fit" only appears while there's something to fit, or something to undo. */
   .code-wrap:not(.overflows):not(.fitted) .fit-btn { display: none; }
   .code-wrap.fitted .fit-btn { color: #01ff70; border-color: #01ff70; }
-  html:has(#font-toggle:checked) .code-buttons > * {
+  html:has(#font-toggle:not(:checked)) .code-buttons > * {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
-  html:has(#font-toggle:checked) pre,
-  html:has(#font-toggle:checked) code {
+  html:has(#font-toggle:not(:checked)) pre,
+  html:has(#font-toggle:not(:checked)) code {
       font-family: "Menlo", "Monaco", "Courier New", monospace;
   }
 

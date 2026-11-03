@@ -823,7 +823,7 @@ Hack the planet.
 
 ```bibtex
 @misc{pazdera2026scaling,
-  author = {Pazdera, Aaron},
+  author = {Pazdera, Ana/Aaron},
   title  = {Scaling Agents to Unfathomable Depth and Context With Zeroth-Order Optimization},
   year   = {2026},
   url    = {https://apaz-cli.github.io/blog/Scaling_To_Unfathomable_Depth.html}

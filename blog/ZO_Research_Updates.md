@@ -727,3 +727,14 @@ In the meantime, if you're interested in this stuff, feel free to hit me up. DM 
 <br>
 
 So yeah, there's my brain dump. Until next time, happy hacking.
+
+#### Bibtex Citation
+
+```bibtex
+@misc{pazdera2026zoresearch,
+  author = {Pazdera, Ana/Aaron},
+  title  = {Analysis of Dust, SOMA, and State of ZO Research},
+  year   = {2026},
+  url    = {https://apaz.dev/blog/ZO_Research_Updates.html}
+}
+```
